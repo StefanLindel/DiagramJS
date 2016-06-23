@@ -1,0 +1,279 @@
+<html>
+<head>
+	<link rel="stylesheet" type="text/css" href="diagramstyle.css">
+</head>
+<body>
+<script>
+var util= {};
+util.getNumber = function getNumber(str) {
+            return parseInt((str || "0").replace("px", ""), 10);
+        };
+    //				######################################################### CSS #########################################################
+    var CSS = (function () {
+        function CSS(name, item) {
+            this.getSVGString = function (board) {
+                var str, pos, style, defs, value, filter, z;
+                str = "{";
+                for (style in this.css) {
+                    if (!this.css.hasOwnProperty(style)) {
+                        continue;
+                    }
+                    if (style === "border") {
+                        pos = this.css[style].indexOf(" ");
+                        str = str + "stroke-width: " + this.css[style].substring(0, pos) + ";";
+                        pos = this.css[style].indexOf(" ", pos + 1);
+                        str = str + "stroke:" + this.css[style].substring(pos) + ";";
+                    }
+                    else if (style === "background-color") {
+                        str = str + "fill: " + this.css[style] + ";";
+                    }
+                    else if (style === "background") {
+                        value = CSS.getSubstring(this.css[style], "linear-gradient", "(", ")", ",");
+                        if (value.length > 0) {
+                            defs = CSS.getDefs(board);
+                            if (value[0] === "45deg") {
+                                pos = 1;
+                                filter = Diagram.util.create({
+                                    tag: "linearGradient",
+                                    "id": this.name,
+                                    x1: "0%",
+                                    x2: "100%",
+                                    y1: "100%",
+                                    y2: "0%"
+                                });
+                            }
+                            else {
+                                filter = Diagram.util.create({
+                                    tag: "linearGradient",
+                                    "id": this.name,
+                                    x1: "0%",
+                                    x2: "0%",
+                                    y1: "100%",
+                                    y2: "0%"
+                                });
+                                pos = 0;
+                            }
+                            defs.appendChild(filter);
+                            while (pos < value.length) {
+                                value[pos] = value[pos].trim();
+                                z = value[pos].lastIndexOf(" ");
+                                filter.appendChild(Diagram.util.create({
+                                    tag: "stop",
+                                    "offset": value[pos].substring(z + 1),
+                                    style: { "stop-color": value[pos].substring(0, z) }
+                                }));
+                                pos += 1;
+                            }
+                            str = str + "fill: url(#" + this.name + ");";
+                            continue;
+                        }
+                        str = str + style + ": " + this.css[style] + ";";
+                    }
+                    else {
+                        str = str + style + ": " + this.css[style] + ";";
+                    }
+                }
+                str = str + "}";
+                return str;
+            };
+            var i, value, border, prop, el;
+            this.name = name;
+            this.css = {};
+            if (!item) {
+                return;
+            }
+            el = window.getComputedStyle(item, null);
+            border = el.getPropertyValue("border");
+            for (i in el) {
+                prop = i;
+                value = el.getPropertyValue(prop);
+				if(value == "") {
+					value = el[prop];
+				}
+                if (value && value !== "") {
+                    // optimize CSS
+                    if (border) {
+                        if (prop === "border-bottom" || prop === "border-right" || prop === "border-top" || prop === "border-left") {
+                            if (value !== border) {
+                                this.css[prop] = value;
+                            }
+                        }
+                        else if (prop === "border-color" || prop === "border-bottom-color" || prop === "border-right-color" || prop === "border-top-color" || prop === "border-left-color") {
+                            if (border.substring(border.length - value.length) !== value) {
+                                this.css[prop] = value;
+                            }
+                        }
+                        else if (prop === "border-width") {
+                            if (border.substring(0, value.length) !== value) {
+                                this.css[prop] = value;
+                            }
+                        }
+                        else {
+                            this.css[prop] = value;
+                        }
+                    }
+                    else {
+                        this.css[prop] = value;
+                    }
+                }
+            }
+        }
+        CSS.prototype.add = function (key, value) {
+            this.css[key] = value;
+        };
+        ;
+        CSS.prototype.get = function (key) {
+            var i;
+            for (i in this.css) {
+                if (i === key) {
+                    return this.css[key];
+                }
+            }
+            return null;
+        };
+        ;
+        CSS.prototype.getNumber = function (key) {
+            return parseInt((this.get(key) || "0").replace("px", ""), 10);
+        };
+        ;
+        CSS.prototype.getString = function () {
+            var str, style;
+            str = "{";
+            for (style in this.css) {
+                if (!this.css.hasOwnProperty(style)) {
+                    continue;
+                }
+                str = str + style + ":" + this.css[style] + ";";
+            }
+            str = str + "}";
+            return str;
+        };
+        ;
+        CSS.getDefs = function (board) {
+            var defs;
+            if (board.getElementsByTagName("defs").length < 1) {
+                defs = Diagram.util.create({ tag: "defs" });
+                board.insertBefore(defs, board.childNodes[0]);
+            }
+            else {
+                defs = board.getElementsByTagName("defs")[0];
+            }
+            return defs;
+        };
+        ;
+        CSS.getSubstring = function (str, search, startChar, endChar, splitter) {
+            var pos, end, count = 0, array = [];
+            pos = str.indexOf(search);
+            if (pos > 0) {
+                end = str.indexOf(startChar, pos);
+                pos = end + 1;
+                if (end > 0) {
+                    while (end < str.length) {
+                        if (str.charAt(end) === startChar) {
+                            count += 1;
+                        }
+                        if (str.charAt(end) === endChar) {
+                            count -= 1;
+                            if (count === 0) {
+                                if (splitter && pos !== end) {
+                                    array.push(str.substring(pos, end).trim());
+                                }
+                                break;
+                            }
+                        }
+                        if (str.charAt(end) === splitter && count === 1) {
+                            array.push(str.substring(pos, end).trim());
+                            pos = end + 1;
+                        }
+                        end += 1;
+                    }
+                    if (splitter) {
+                        return array;
+                    }
+                    return str.substring(pos, end);
+                }
+                return str.substring(pos);
+            }
+            return "";
+        };
+        CSS.addStyle = function (board, styleName) {
+            var defs, style, css;
+            if (styleName.baseVal || styleName.baseVal === "") {
+                styleName = styleName.baseVal;
+            }
+            if (!styleName) {
+                return;
+            }
+            defs = CSS.getDefs(board);
+            if (defs.getElementsByTagName("style").length > 0) {
+                style = defs.getElementsByTagName("style")[0];
+            }
+            else {
+                style = Diagram.util.create({ tag: "style" });
+                style.item = {};
+                defs.appendChild(style);
+            }
+            if (!style.item[styleName]) {
+                css = Diagram.util.getStyle(styleName);
+                style.item[styleName] = css;
+                style.innerHTML = style.innerHTML + "\n." + styleName + css.getSVGString(board);
+            }
+        };
+        CSS.addStyles = function (board, item) {
+            var items, i, className = item.className;
+            if (className) {
+                if (className.baseVal || className.baseVal === "") {
+                    className = className.baseVal;
+                }
+            }
+            if (className) {
+                items = className.split(" ");
+                for (i = 0; i < items.length; i += 1) {
+                    CSS.addStyle(board, items[i].trim());
+                }
+            }
+            for (i = 0; i < item.childNodes.length; i += 1) {
+                this.addStyles(board, item.childNodes[i]);
+            }
+        };
+        return CSS;
+    }());
+</script>
+
+<div style="width:80px" class="ClazzHeader">Hallo Welt</div>
+<script>
+function getStyle(styleProp) {
+	var i, style, diff, current, ref, el = document.createElement("div"), css;
+	document.body.appendChild(el);
+	css = new CSS(styleProp);
+	ref = new CSS(styleProp, el).css;
+	style = window.getComputedStyle(el, null);
+	el.className = styleProp;
+	current = new CSS(styleProp, el).css;
+	diff = util.getNumber(style.getPropertyValue("border-width"));
+	for (i in current) {
+		if (!current.hasOwnProperty(i)) {
+			continue;
+		}
+		if (i === "width" || i === "height") {
+			if (util.getNumber(current[i]) !== 0 && util.getNumber(current[i]) + diff * 2 !== util.getNumber(ref[i])) {
+				css.add(i, current[i]);
+			}
+		}
+		else if (current[i] !== ref[i]) {
+			css.add(i, current[i]);
+		}
+	}
+	document.body.removeChild(el);
+	return css;
+}
+var myCSS = getStyle("ClazzHeader");
+console.log(myCSS);
+//var myCss = new CSS();
+//myCSS("ClazzHeader");
+
+
+//            css = new Diagram.CSS(styleProp);
+//            ref = new Diagram.CSS(styleProp, el).css;
+</script>
+</body></html>
