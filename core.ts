@@ -25,35 +25,748 @@
 /*global jsPDF: false, svgConverter: false, dagre: false, SVGPathSeg: false*/
 module Diagram {
 	'use strict';
-	//				######################################################### Pos #########################################################
-	/**
-	 * Creates new Pos document object instance. Position with X,Y and ID
+	//				######################################################### Edge #########################################################
+	export class Edge extends Node {
+		protected $path:Array<Line>;
+		$sNode:Node;
+		$tNode:Node;
+		private $m:number = 0;
+		private $n:number = 0;
+		protected $lineStyle:string;
+		counter:number;
+		private $labels:Array<Object>;
+		source:Info;
+		target:Info;
+		private style:string;
+		private info:Info;
+		private board:any;
+		private $start:string;
+		protected $end:string;
+		protected $endPos:Point;
+		protected $top:Point;
+		protected $bot:Point;
+		protected $topCenter:Point;
+		protected $botCenter:Point;
+		public static Position = {UP: "UP", LEFT: "LEFT", RIGHT: "RIGHT", DOWN: "DOWN"};
+		constructor() {
+			super("EDGE");
+			this.$path = [];
+			this.$lineStyle = Line.FORMAT.SOLID;
+		}
+		public withItem(source:Info, target:Info) : Edge {
+			this.source = source;
+			this.target = target;
+			return this;
+		}
+		public set(id, value) {
+			if (value) {
+				this[id] = value;
+			}
+		}
+		public removeFromBoard(board) {
+			if (this.$gui) {
+				board.removeChild(this.$gui);
+				this.$gui = null;
+			}
+			if (this.$labels) {
+				while (this.$labels.length > 0) {
+					board.removeChild(this.$labels.pop());
+				}
+			}
+		}
+// TODO
+// many Edges SOME DOWN AND SOME RIGHT OR LEFT
+// INFOTEXT DONT SHOW IF NO PLACE
+// INFOTEXT CALCULATE POSITION
+		public calc(board)  : boolean{
+			var result, options, linetyp, source, target, sourcePos, targetPos, divisor, startNode:Node, endNode:Node, pos, size;
+			startNode = <Node>this.$sNode.getShowed();
+			endNode = <Node>this.$tNode.getShowed();
+			pos = startNode.getPos(true);
+			size = startNode.getSize();
+			startNode.$center = new Point(pos.x + (size.x / 2), pos.y + (size.y / 2));
+
+			pos = endNode.getPos(true);
+			size = endNode.getSize();
+			endNode.$center = new Point(pos.x + (size.x / 2), pos.y + (size.y / 2));
+			divisor = (endNode.$center.x - startNode.$center.x);
+			this.$path = [];
+			source = startNode.getTarget(startNode);
+			target = endNode.getTarget(endNode);
+			if (divisor === 0) {
+				if (startNode === endNode) {
+					/* OwnAssoc */
+					return false;
+				}
+				// Must be UP_DOWN or DOWN_UP
+				if (startNode.$center.y < endNode.$center.y) {
+					// UP_DOWN
+					sourcePos = this.getCenterPosition(source, Edge.Position.DOWN);
+					targetPos = this.getCenterPosition(target, Edge.Position.UP);
+				} else {
+					sourcePos = this.getCenterPosition(source, Edge.Position.UP);
+					targetPos = this.getCenterPosition(target, Edge.Position.DOWN);
+				}
+			} else {
+				// add switch from option or model
+				options = this.$parent["options"];
+				if (options) {
+					linetyp = options.linetyp;
+				}
+				result = false;
+				if (linetyp === "square") {
+					result = this.calcSquareLine();
+				}
+				if (!result) {
+					this.$m = (target.$center.y - source.$center.y) / divisor;
+					this.$n = source.$center.y - (source.$center.x * this.$m);
+					sourcePos = this.getPosition(this.$m, this.$n, source, target.$center);
+					targetPos = this.getPosition(this.$m, this.$n, target, sourcePos);
+				}
+			}
+			if (sourcePos && targetPos) {
+				this.calcInfoPos(sourcePos, source, this.source);
+				this.calcInfoPos(targetPos, target, this.target);
+				source["$" + sourcePos.$id] += 1;
+				target["$" + targetPos.$id] += 1;
+				this.$path.push(new Line(sourcePos, targetPos, this.$lineStyle, this.style));
+				if (this.info) {
+					this.info.withPos((sourcePos.x + targetPos.x) / 2, (sourcePos.y + targetPos.y) / 2)
+				}
+			}
+			return true;
+		};
+		public calcSquareLine() {
+			//	1. Case		/------\
+			//				|...T...|
+			//				\-------/
+			//			|---------|
+			//			|
+			//		/-------\
+			//		|...S...|
+			//		\-------/
+			if (this.$sNode.y - 40 > this.$tNode.y + this.$tNode.height) { // oberseite von source and unterseite von target
+				this.addLineTo(this.$sNode.x + this.$sNode.width / 2, this.$sNode.y, 0, -20);
+				this.addLine(this.$tNode.x + this.$tNode.width / 2, this.$tNode.y + this.$tNode.height + 20);
+				this.addLineTo(0, -20);
+				return true;
+			}
+			if (this.$tNode.y - 40 > this.$sNode.y + this.$sNode.height) { // oberseite von source and unterseite von target
+				// fall 1 nur andersherum
+				this.addLineTo(this.$sNode.x + this.$sNode.width / 2, this.$sNode.y + this.$sNode.height, 0, +20);
+				this.addLine(this.$tNode.x + this.$tNode.width / 2, this.$tNode.y - 20);
+				this.addLineTo(0, 20);
+				return true;
+			}
+			//3. fall ,falls s (source) komplett unter t (target) ist
+			// beide oberseiten
+			//	3. Case
+			//			 |--------
+			//			/---\	 |
+			//			| T |	/---\
+			//			\---/	| S |
+			//					-----
+			// or
+			//			-------|
+			//			|	 /---\
+			//		/----\	 | T |
+			//		| S	 |	 \---/
+			//		------
+			//
+			this.addLineTo(this.$sNode.x + this.$sNode.width / 2, this.$sNode.y, 0, -20);
+			this.addLine(this.$tNode.x + this.$tNode.width / 2, this.$tNode.y - 20);
+			this.addLineTo(0, 20);
+			return true;
+		};
+
+
+
+		public addLineTo(x1:number, y1:number, x2?:number, y2?:number) {
+			var start, end;
+			if (!x2 && !y2 && this.$path.length > 0) {
+				start = this.$path[this.$path.length - 1].target;
+				end = new Pos(start.x + x1, start.y + y1);
+			} else {
+				start = new Pos(x1, y1);
+				end = new Pos(start.x + x2, start.y + y2);
+			}
+			this.$path.push(new Line(start, end, this.$lineStyle, this.style));
+		};
+
+
+		static Range(min:Pos, max:Pos, x:number, y:number) {
+			max.x = Math.max(max.x, x);
+			max.y = Math.max(max.y, y);
+			min.x = Math.min(min.x, x);
+			min.y = Math.min(min.y, y);
+		}
+
+		public calcOffset() {
+			var i, z, min = new Pos(999999999, 999999999), max = new Pos(0, 0), item, svg, value, x, y;
+			for (i = 0; i < this.$path.length; i += 1) {
+				item = this.$path[i];
+				if (item instanceof Line) {
+					Edge.Range(min, max, item.source.x, item.source.y);
+					Edge.Range(min, max, item.target.x, item.target.y);
+				} else if (item instanceof Path) {
+					value = document.createElement('div');
+					svg = util.create({tag: "svg"});
+					svg.appendChild(item.draw());
+					value = svg.childNodes[0];
+					x = y = 0;
+					if (!value.pathSegList) {
+						continue;
+					}
+					for (z = 0; z < value.pathSegList.length; z += 1) {
+						item = value.pathSegList[z];
+						switch (item.pathSegType) {
+							case SVGPathSeg.PATHSEG_MOVETO_ABS:
+							case SVGPathSeg.PATHSEG_LINETO_ABS:
+							case SVGPathSeg.PATHSEG_ARC_ABS:
+							case SVGPathSeg.PATHSEG_CURVETO_CUBIC_ABS:
+								x = item.x;
+								y = item.y;
+								break;
+							case SVGPathSeg.PATHSEG_MOVETO_REL:
+							case SVGPathSeg.PATHSEG_LINETO_REL:
+							case SVGPathSeg.PATHSEG_CURVETO_CUBIC_REL:
+							case SVGPathSeg.PATHSEG_ARC_REL:
+								x = x + item.x;
+								y = y + item.y;
+								break;
+						}
+						Edge.Range(min, max, x, y);
+					}
+				}
+			}
+			return {x: min.x, y: min.y, width: max.x - min.x, height: max.y - min.y};
+		};
+
+		public draw(typ:string) : HTMLElement{
+			var i, style, angle, item, offset;
+			offset = this.calcOffset();
+			if (this.getRoot().getTyp() === "svg") {
+				this.board = this.$gui = util.create({tag: "g"});
+			} else {
+				this.$gui = util.create({tag: "svg", style: {position: "absolute"}});
+				this.board = util.create({tag: "g", transform: "translate(-" + offset.x + ", -" + offset.y + ")"});
+				this.$gui.appendChild(this.board);
+			}
+			util.setPos(this.$gui, offset.x, offset.y);
+			util.setSize(this.$gui, offset.x, offset.y);
+			for (i = 0; i < this.$path.length; i += 1) {
+				item = this.$path[i];
+
+				if (item instanceof Line) {
+					style = item.style || this.style;
+					this.board.appendChild(item.draw());
+				} else if (item instanceof Path) {
+					this.board.appendChild(item.draw());
+				}
+			}
+			this.drawSourceText(style);
+			if (this.info) {
+				angle = this.info.draw();
+				this.board.appendChild(new SymbolLibary().create({
+					typ: "Arrow",
+					x: this.info.x,
+					y: this.info.y,
+					rotate: angle
+				}));
+			}
+			this.drawTargetText(style);
+			return this.$gui;
+		};
+		public drawText(info, style) {
+			if (this.$path.length < 1) {
+				return;
+			}
+			var options, angle, p, item;
+			p = this.$path[0];
+			options = this.getRoot()["model"].options;
+			if (options.rotatetext) {
+				info.$angle = Math.atan((p.source.y - p.target.y) / (p.source.x - p.target.x)) * 60;
+			}
+			if (this.getRoot().getTyp() === "svg") {
+				item = info.drawSVG();
+			} else {
+				item = info.drawHTML();
+			}
+			if (!this.$labels) {
+				this.$labels = [];
+			}
+			if (item) {
+				this.$labels.push(item);
+				this.getRoot()["board"].appendChild(item);
+			}
+			return angle;
+		};
+
+		public drawSourceText(style) {
+			this.drawText(this.source, style);
+		};
+
+		public drawTargetText(style) {
+			this.drawText(this.target, style);
+		};
+
+		public endPos() :PathElement{
+			return this.$path[this.$path.length - 1];
+		};
+
+		public edgePosition() {
+			var pos = 0, i;
+			for (i = 0; i < this.$sNode.$edges.length; i += 1) {
+				if (this.$sNode.$edges[i] === this) {
+					return pos;
+				}
+				if (this.$sNode.$edges[i].$tNode === this.$tNode) {
+					pos += 1;
+				}
+			}
+			return pos;
+		};
+
+
+		public calcOwnEdge() {
+			//this.source
+			var sPos, tPos, offset = 20;
+			this.$start = this.getFree(this.$sNode);
+			if (this.$start.length > 0) {
+				this.$end = this.getFreeOwn(this.$sNode, this.$start);
+			} else {
+				this.$start = Edge.Position.RIGHT;
+				this.$end = Edge.Position.DOWN;
+			}
+
+			sPos = this.getCenterPosition(this.$sNode, this.$start);
+			if (this.$start === Edge.Position.UP) {
+				tPos = new Pos(sPos.x, sPos.y - offset);
+			} else if (this.$start === Edge.Position.DOWN) {
+				tPos = new Pos(sPos.x, sPos.y + offset);
+			} else if (this.$start === Edge.Position.RIGHT) {
+				tPos = new Pos(sPos.x + offset, sPos.y);
+			} else if (this.$start === Edge.Position.LEFT) {
+				tPos = new Pos(sPos.x - offset, sPos.y);
+			}
+			this.$path.push(new Line(sPos, tPos, this.$lineStyle));
+			if (this.$end === Edge.Position.LEFT || this.$end === Edge.Position.RIGHT) {
+				if (this.$start === Edge.Position.LEFT) {
+					sPos = tPos;
+					tPos = new Pos(sPos.x, this.$sNode.y - offset);
+					this.$path.push(new Line(sPos, tPos, this.$lineStyle));
+				} else if (this.$start === Edge.Position.RIGHT) {
+					sPos = tPos;
+					tPos = new Pos(sPos.x, this.$sNode.y + offset);
+					this.$path.push(new Line(sPos, tPos, this.$lineStyle));
+				}
+				sPos = tPos;
+				if (this.$end === Edge.Position.LEFT) {
+					tPos = new Pos(this.$sNode.x - offset, sPos.y);
+				} else {
+					tPos = new Pos(this.$sNode.x + this.$sNode.width + offset, sPos.y);
+				}
+				this.$path.push(new Line(sPos, tPos, this.$lineStyle));
+				sPos = tPos;
+				tPos = new Pos(sPos.x, this.$sNode.$center.y);
+				this.$path.push(new Line(sPos, tPos, this.$lineStyle));
+				if (this.info) {
+					this.info.x = (sPos.x + tPos.x) / 2;
+					this.info.y = sPos.y;
+				}
+			} else if (this.$end === Edge.Position.UP || this.$end === Edge.Position.DOWN) {
+				if (this.$start === Edge.Position.UP) {
+					sPos = tPos;
+					tPos = new Pos(this.$sNode.x + this.$sNode.width + offset, sPos.y);
+					this.$path.push(new Line(sPos, tPos, this.$lineStyle));
+				} else if (this.$start === Edge.Position.DOWN) {
+					sPos = tPos;
+					tPos = new Pos(this.$sNode.x - offset, sPos.y);
+					this.$path.push(new Line(sPos, tPos, this.$lineStyle));
+				}
+				sPos = tPos;
+				if (this.$end === Edge.Position.UP) {
+					tPos = new Pos(sPos.x, this.$sNode.y - offset);
+				} else {
+					tPos = new Pos(sPos.x, this.$sNode.y + this.$sNode.height + offset);
+				}
+				this.$path.push(new Line(sPos, tPos, this.$lineStyle));
+				sPos = tPos;
+				tPos = new Pos(this.$sNode.$center.x, sPos.y);
+				this.$path.push(new Line(sPos, tPos, this.$lineStyle));
+				if (this.info) {
+					this.info.x = sPos.x;
+					this.info.y = (sPos.y + tPos.y) / 2;
+				}
+			}
+			sPos = tPos;
+			this.$path.push(new Line(sPos, this.getCenterPosition(this.$sNode, this.$end), this.$lineStyle));
+		};
+
+		public getFree(node) {
+			var i;
+			for (i in Edge.Position) {
+				if (!Edge.Position.hasOwnProperty(i)) {
+					continue;
+				}
+				if (!node.hasOwnProperty("$" + i)) {
+					continue;
+				}
+				if (node["$" + i] === 0) {
+					node["$" + i] = 1;
+					return i;
+				}
+			}
+			return "";
+		};
+
+		public getFreeOwn(node, start) {
+			var id = 0, i, list = [Edge.Position.UP, Edge.Position.RIGHT, Edge.Position.DOWN, Edge.Position.LEFT, Edge.Position.UP, Edge.Position.RIGHT, Edge.Position.DOWN];
+			for (i = 0; i < list.length; i += 1) {
+				if (list[i] === start) {
+					id = i;
+					break;
+				}
+			}
+			if (node["$" + list[id + 1]] === 0 || node["$" + list[id + 1]] < node["$" + list[id + 3]]) {
+				node["$" + list[id + 1]] += 1;
+				return list[id + 1];
+			}
+			node["$" + list[id + 3]] += 1;
+			return list[id + 3];
+		};
+
+		public calcInfoPos(linePos, item, info:Info) {
+			// Manuell move the InfoTag
+			var newY, newX, spaceA = 20, spaceB = 0, step = 15;
+			if (item.$parent.options && !item.$parent.options.rotatetext) {
+				spaceA = 20;
+				spaceB = 10;
+			}
+			if (info.custom || info.getText().length < 1) {
+				return;
+			}
+			newY = linePos.y;
+			newX = linePos.x;
+			if (linePos.$id === Edge.Position.UP) {
+				newY = newY - info.getHeight()- spaceA;
+				if (this.$m !== 0) {
+					newX = (newY - this.$n) / this.$m + spaceB + (item.$UP * step);
+				}
+			} else if (linePos.$id === Edge.Position.DOWN) {
+				newY = newY + spaceA;
+				if (this.$m !== 0) {
+					newX = (newY - this.$n) / this.$m + spaceB + (item.$DOWN * step);
+				}
+			} else if (linePos.$id === Edge.Position.LEFT) {
+				newX = newX - info.getWidth() - (item.$LEFT * step) - spaceA;
+				if (this.$m !== 0) {
+					newY = (this.$m * newX) + this.$n;
+				}
+			} else if (linePos.$id === Edge.Position.RIGHT) {
+				newX += (item.$RIGHT * step) + spaceA;
+				if (this.$m !== 0) {
+					newY = (this.$m * newX) + this.$n;
+				}
+			}
+			info.x = Math.round(newX);
+			info.y = Math.round(newY);
+		};
+
+		public getUDPosition(m, n, e, pos, step?:number) {
+			var x, y = e.getY();
+			if (pos === Edge.Position.DOWN) {
+				y += e.height;
+			}
+			x = (y - n) / m;
+			if (step) {
+				x += e["$" + pos] * step;
+				if (x < e.getX()) {
+					x = e.getX();
+				} else if (x > (e.getX() + e.width)) {
+					x = e.getX() + e.width;
+				}
+			}
+			return new Pos(x, y, pos);
+		};
+
+		public getLRPosition(m, n, e, pos, step?:number) {
+			var y, x = e.getX();
+			if (pos === Edge.Position.RIGHT) {
+				x += e.width;
+			}
+			y = m * x + n;
+			if (step) {
+				y += e["$" + pos] * step;
+				if (y < e.getY()) {
+					y = e.getY();
+				} else if (y > (e.getY() + e.height)) {
+					y = e.getY() + e.height;
+				}
+			}
+			return new Pos(x, y, pos);
+		}
+		public getPosition(m, n, entity, refCenter) {
+			var t, pos = [], list, distance = [], min = 999999999, position, i, step = 15;
+			list = [Edge.Position.LEFT, Edge.Position.RIGHT];
+			for (i = 0; i < 2; i += 1) {
+				t = this.getLRPosition(m, n, entity, list[i]);
+				if (t.y >= entity.getY() && t.y <= (entity.getY() + entity.height)) {
+					t.y += (entity["$" + list[i]] * step);
+					if (t.y > (entity.getY() + entity.height)) {
+						// Alternative
+						t = this.getUDPosition(m, n, entity, Edge.Position.DOWN, step);
+					}
+					pos.push(t);
+					distance.push(Math.sqrt((refCenter.x - t.x) * (refCenter.x - t.x) + (refCenter.y - t.y) * (refCenter.y - t.y)));
+				}
+			}
+			list = [Edge.Position.UP, Edge.Position.DOWN];
+			for (i = 0; i < 2; i += 1) {
+				t = this.getUDPosition(m, n, entity, list[i]);
+				if (t.x >= entity.getX() && t.x <= (entity.getX() + entity.width)) {
+					t.x += (entity["$" + list[i]] * step);
+					if (t.x > (entity.getX() + entity.width)) {
+						// Alternative
+						t = this.getLRPosition(m, n, entity, Edge.Position.RIGHT, step);
+					}
+					pos.push(t);
+					distance.push(Math.sqrt((refCenter.x - t.x) * (refCenter.x - t.x) + (refCenter.y - t.y) * (refCenter.y - t.y)));
+				}
+			}
+			for (i = 0; i < pos.length; i += 1) {
+				if (distance[i] < min) {
+					min = distance[i];
+					position = pos[i];
+				}
+			}
+			return position;
+		};
+
+		public calcMoveLine(size, angle, move) {
+			var lineangle, angle1, angle2, hCenter, startArrow, h;
+			if (this.$path.length < 1) {
+				return;
+			}
+			startArrow = this.endPos()["source"];
+			this.$endPos = this.endPos().target;
+			// calculate the angle of the line
+			lineangle = Math.atan2(this.$endPos.y - startArrow.y, this.$endPos.x - startArrow.x);
+			// h is the line length of a side of the arrow head
+			h = Math.abs(size / Math.cos(angle));
+			angle1 = lineangle + Math.PI + angle;
+			hCenter = Math.abs((size / 2) / Math.cos(angle));
+
+			this.$top = new Pos(this.$endPos.x + Math.cos(angle1) * h, this.$endPos.y + Math.sin(angle1) * h);
+			this.$topCenter = new Pos(this.$endPos.x + Math.cos(angle1) * hCenter, this.$endPos.y + Math.sin(angle1) * hCenter);
+			angle2 = lineangle + Math.PI - angle;
+			this.$bot = new Pos(this.$endPos.x + Math.cos(angle2) * h, this.$endPos.y + Math.sin(angle2) * h);
+			this.$botCenter = new Pos(this.$endPos.x + Math.cos(angle2) * hCenter, this.$endPos.y + Math.sin(angle2) * hCenter);
+			if (move) {
+				this.endPos().target = new Pos((this.$top.x + this.$bot.x) / 2, (this.$top.y + this.$bot.y) / 2);
+			}
+		};
+
+		public addLine(x1:number, y1:number, x2?:number, y2?:number) {
+				var start, end;
+				if (!x2 && !y2 && this.$path.length > 0) {
+					start = this.$path[this.$path.length - 1].target;
+					end = new Pos(x1, y1);
+				} else {
+					start = new Pos(x1, y1);
+					end = new Pos(x2, y2);
+				}
+				this.$path.push(new Line(start, end, this.$lineStyle, this.style));
+		};
+		public getCenterPosition(node, pos:string) :Pos{
+			var offset = node["$" + pos];
+			if (pos === Edge.Position.DOWN) {
+				return new Pos(Math.min(node.$center.x + offset, node.x + node.width), (node.y + node.height), Edge.Position.DOWN);
+			}
+			if (pos === Edge.Position.UP) {
+				return new Pos(Math.min(node.$center.x + offset, node.x + node.width), node.y, Edge.Position.UP);
+			}
+			if (pos === Edge.Position.LEFT) {
+				return new Pos(node.x, Math.min(node.$center.y + offset, node.y + node.height), Edge.Position.LEFT);
+			}
+			if (pos === Edge.Position.RIGHT) {
+				return new Pos(node.x + node.width, Math.min(node.$center.y + offset, node.y + node.height), Edge.Position.RIGHT);
+			}
+		};
+	}
+		//				######################################################### GraphModel #########################################################
+	export class Model extends Node {
+		nodes:Object;
+		left:number;
+		top:number;
+		private minid:string;
+		private $nodeCount:number;
+		options:Options;
+
+		constructor(json, options, parent) {
+			super("");
+			this.typ = "classdiagram";
+			this.$isDraggable = true;
+			this.$parent = parent;
+			json = json || {};
+			this.left = json.left || 0;
+			this.top = json.top || 0;
+			this.pos = new Point(0,0);
+			this.size = new Point(0,0);
+			if (json.minid) {
+				this.minid = json.minid;
+			}
+			this.$nodeCount = 0;
+			this.nodes = {};
+			this.edges = [];
+			json = json || {};
+			this.typ = json.typ || "classdiagram";
+			this.set("id", json.id);
+			this.options = util.copy(util.copy(new Options(), json.options), options, true, true);
+			this["package"] = "";
+			this.set("info", json.info);
+			this.set("style", json.style);
+			var i;
+			if (json.nodes) {
+				for (i = 0; i < json.nodes.length; i += 1) {
+					this.addNode(json.nodes[i]);
+				}
+			}
+			if (json.edges) {
+				for (i = 0; i < json.edges.length; i += 1) {
+					this.addEdgeModel(json.edges[i]);
+				}
+			}
+		}
+	}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+	//				######################################################### Point #########################################################
+	/** Creates new Point document object instance. Position with X, Y and ID
 	 * @class
-	 * @returns {Pos}
-	 * @name Pos
+	 * @returns {Point}
+	 * @name Point
 	 */
-	export class Pos{
-		x:number;
-		y:number;
-		private $id:string;
-		constructor(x: number, y: number, id?: string) {this.x = Math.round(x || 0); this.y = Math.round(y || 0); if (id) {this.$id = id; } };
+	export class Point {
+		x:number = 0;
+		y:number = 0;
+		$id:string;
+
+		constructor(x?:number, y?:number, id?:string) {
+			this.x = Math.round(x || 0);
+			this.y = Math.round(y || 0);
+			if (id) {
+				this.$id = id;
+			}
+		};
+
+		public add(pos:Point) {
+			this.x += pos.x;
+			this.y += pos.y;
+			if (!this.$id) {
+				this.$id = pos.$id;
+			}
+		}
+
+		public center(posA:Point, posB:Point) {
+			var count = 0;
+			if (posA) {
+				this.x += posA.x;
+				this.y += posA.y;
+				count++;
+			}
+			if (posB) {
+				this.x += posB.x;
+				this.y += posB.y;
+				count++;
+			}
+			if (count > 0) {
+				this.x = (this.x / count);
+				this.y = (this.y / count);
+			}
+		};
+
+		public size(posA:Point, posB:Point) {
+			var x1 = 0, x2 = 0, y1 = 0, y2 = 0;
+			if (posA) {
+				x1 = posA.x;
+				y1 = posA.y;
+			}
+			if (posB) {
+				x2 = posB.x;
+				y2 = posB.y;
+			}
+			if (x1 > x2) {
+				this.x = x1 - x2;
+			} else {
+				this.x = x2 - x1;
+			}
+			if (y1 > y2) {
+				this.y = y1 - y2;
+			} else {
+				this.y = y2 - y1;
+			}
+		};
+	}
+
+	export interface BaseElement {
+		draw(typ?:string):HTMLElement;
+		getEvent():String[];
+		getPos(absolute:boolean):Point;
+		getSize():Point;
+		getOptions():Options;
+		fireEvent(source:Node, typ:string, value:Object);
 	}
 	//				######################################################### Options #########################################################
 	export class Options {
-		layout : Object;
-		font : Object;
+		layout:Object;
+		font:Object;
 		canvasid:string;
-		display : string;
-		raster : boolean;
-		propertyinfo: boolean;
-		CardinalityInfo: boolean;
-		private rotatetext: boolean;
-		private linetyp: string;
-		buttons: Array<string>;
+		display:string;
+		raster:boolean;
+		propertyinfo:boolean;
+		CardinalityInfo:boolean;
+		private rotatetext:boolean;
+		private linetyp:string;
+		buttons:Array<string>;
 
-		minWidth:number;
-		minHeight:string;
 		clearCanvas:boolean;
+
 		constructor() {
 			this.display = "svg";
 			this.font = {"font-size": "10px", "font-family": "Verdana"};
@@ -65,139 +778,79 @@ module Diagram {
 			this.buttons = ["HTML", "SVG"];	// ["HTML", "SVG", "PNG", "PDF"]
 		}
 	}
-	 //				######################################################### GraphNode #########################################################
-    export class Node {
-        $parent:Node = null;
-        id:string;
-        typ:string;
-        protected status:string;
-        protected $isDraggable:boolean = true;
-		x:number = 0;
-		y:number = 0;
-		width:number = 0;
-		height:number = 0;
-		counter:number;
-		constructor(typ:string, id?:string) {
-            this.id = id;
-        }
-		public getOptions() : Options {
-			return null;
-		}
-		public getX(absolute:boolean):number {
-			if (this.$parent && absolute) {
-				return this.$parent.getX(true) + this.x;
-			}
-			return this.x;
-		}
-		public getY(absolute:boolean):number {
-			if (this.$parent&& absolute) {
-				return this.$parent.getY(true) + this.y;
-			}
-			return this.y;
-		}
-		public getHeight():number {
-			return this.height;
-		}
-		public getWidth():number {
-			return this.width;
-		}
-        public getRoot():Node {
-            if (this.$parent) {
-                return this.$parent.getRoot();
-            }
-            return this;
-        }
-
-        public set(id, value):void {
-            if (value) {
-                this[id] = value;
-            }
-        }
-
-		public getTyp():string {
-			return this.typ;
-		}
-        public get(id):any {
-            return this[id]
-        }
-
-        public isClosed():boolean {
-            if (this.status === "close") {
-                return true;
-            }
-            if (this.$parent) {
-                return this.$parent.isClosed();
-            }
-            return false;
-        }
-
-        public draw(typ?:string):HTMLElement {
-            return null;
-        }
-
-        public getTarget(startNode:Node):Node {
-            if (this.isClosed()) {
-                return this;
-            } else if (this.status === "open" || this.$parent === null) {
-                return startNode;
-            }
-            return this.$parent.getTarget(startNode);
-        }
-		public getShowed() : Node {
-			return this;
-		}
-        public createdElement(element:HTMLElement, typ:string, parent?:Node) : void {
-        }
-    }
-
-	export class GraphNode extends Node{
-		$gui:any;
-		$edges:Array<any>;
-		$center:Pos;
+	//				######################################################### GraphNode #########################################################
+	export class Node implements BaseElement {
+		protected $parent:Node = null;
+		protected id:string;
+		protected typ:string;
+		protected status:string;
+		protected $isDraggable:boolean = true;
+		protected pos:Point = new Point();
+		protected size:Point = new Point();
+		protected counter:number;
+		protected $gui:any;
+		protected $edges:Array<any>;
+		public $center:Point;
 		private $RIGHT:number;
 		private $LEFT:number;
 		private $UP:number;
 		private $DOWN:number;
 
-		constructor(id?:string) {
-            super("node", id);
-		};
-		public getEdges() : Array<any>{
-			return this.$edges;
+		constructor(typ?:string, id?:string) {
+			this.typ = typ || "node";
+			this.id = id;
 		}
-		public clear() : void {
-			this.$RIGHT = this.$LEFT = this.$UP = this.$DOWN = 0;
+
+		public getEvent():String[] {
+			return new String[0];
+		}
+
+		public getOptions():Options {
+			return null;
+		}
+
+		public getPos(absolute:boolean):Point {
+			if (this.$parent && absolute) {
+				var pos = new Point();
+				pos.add(this.pos);
+				pos.add(this.$parent.getPos(true));
+				return pos;
+			}
+			return this.pos;
 		};
-		public getShowed() : Node {
-			if (this.status === "close") {
-				if (!this.$parent.isClosed()) {
-					return this;
-				}
-			}
-			if (this.isClosed()) {
-				return this.$parent.getShowed();
-			}
+
+		public getSize():Point {
+			return this.size;
+		};
+		public withPos(x:number, y:number) : Node {
+			this.pos = new Point(x,y);
 			return this;
-		}
-		public getHeight():number {
-			return this.height;
-		}
-		public getWidth():number {
-			return this.width;
-		}
-		public removeFromBoard(board) : void {
-			if (this.$gui) {
-				board.removeChild(this.$gui);
-				this.$gui = null;
+		};
+		public set(id, value):void {
+			if (value) {
+				this[id] = value;
 			}
 		};
-		public addEdge(edge) : void {
-			if (!this.$edges) {
-				this.$edges = [];
+
+		public getTyp():string {
+			return this.typ;
+		};
+
+		public get(id):any {
+			return this[id]
+		};
+
+		public isClosed():boolean {
+			if (this.status === "close") {
+				return true;
 			}
-			this.$edges.push(edge);
-		}
-		public draw(typ?:string) : HTMLElement{
+			if (this.$parent) {
+				return this.$parent.isClosed();
+			}
+			return false;
+		};
+
+		public draw(typ?:string):HTMLElement {
 			if (typ) {
 				if (typ.toLowerCase() === "html") {
 					return this.drawHTML();
@@ -208,9 +861,9 @@ module Diagram {
 				}
 			}
 			return this.drawSVG();
-		}
+		};
 
-		public drawSVG(draw?:boolean) : HTMLElement{
+		public drawSVG(draw?:boolean):HTMLElement {
 			var item, content;
 			content = this["content"];
 			if (content) {
@@ -221,7 +874,7 @@ module Diagram {
 						tag: "text",
 						$font: true,
 						"text-anchor": "left",
-						"x": (this.x + 10),
+						"x": (this.pos.x + 10),
 						value: content.plain
 					});
 				}
@@ -234,12 +887,12 @@ module Diagram {
 				}
 				item = util.create({tag: "g", model: this});
 				if (content.svg) {
-					item.setAttribute('transform', "translate(" + this.x + " " + this.y + ")");
+					item.setAttribute('transform', "translate(" + this.pos.x + " " + this.pos.y + ")");
 					item.innerHTML = content.$svg;
 					return item;
 				}
 				if (content.html) {
-					item.setAttribute('transform', "translate(" + this.x + " " + this.y + ")");
+					item.setAttribute('transform', "translate(" + this.pos.x + " " + this.pos.y + ")");
 					item.innerHTML = content.$svg;
 					return item;
 				}
@@ -247,20 +900,20 @@ module Diagram {
 			item = util.create({
 				tag: "circle",
 				"class": "Node",
-				cx: this.x + 10,
-				cy: this.y + 10,
+				cx: this.pos.x + 10,
+				cy: this.pos.y + 10,
 				r: "10",
 				model: this,
-				width: this.width,
-				height: this.height
+				width: this.size.x,
+				height: this.size.y
 			});
 			return item;
 		};
 
-		public drawHTML(draw?:boolean) : HTMLElement{
+		public drawHTML(draw?:boolean):HTMLElement {
 			var item = util.create({tag: "div", model: this}), content;
 			content = this["content"];
-			util.setPos(item, this.x, this.y);
+			util.setPos(item, this.pos.x, this.pos.y);
 			if (content) {
 				content.width = content.width || 0;
 				content.height = content.height || 0;
@@ -277,21 +930,73 @@ module Diagram {
 				return item;
 			}
 			return util.create({tag: "div", "class": "Node", model: this});
-		}
+		};
+
+		public getRoot():Node {
+			if (this.$parent) {
+				return this.$parent.getRoot();
+			}
+			return this;
+		};
+
+		public getTarget(startNode:Node):Node {
+			if (this.isClosed()) {
+				return this;
+			} else if (this.status === "open" || this.$parent === null) {
+				return startNode;
+			}
+			return this.$parent.getTarget(startNode);
+		};
+
+		public getShowed():Node {
+			if (this.status === "close") {
+				if (!this.$parent.isClosed()) {
+					return this;
+				}
+			}
+			if (this.isClosed()) {
+				return this.$parent.getShowed();
+			}
+			return this;
+		};
+
+		public getEdges():Array<any> {
+			return this.$edges;
+		};
+
+		public removeFromBoard(board):void {
+			if (this.$gui) {
+				board.removeChild(this.$gui);
+				this.$gui = null;
+			}
+		};
+
+		public addEdge(edge):void {
+			if (!this.$edges) {
+				this.$edges = [];
+			}
+			this.$edges.push(edge);
+		};
+
+		public clear():void {
+			this.$RIGHT = this.$LEFT = this.$UP = this.$DOWN = 0;
+		};
+
+		public fireEvent(source:Node, typ:string, value:Object) {
+			this.getRoot().fireEvent(source, typ, value);
+		};
 	}
+
 	//				######################################################### Info #########################################################
-	export class Info extends Node{
-        custom:boolean;
+	export class Info extends Node {
+		custom:boolean;
 		private property:string;
 		private cardinality:string;
-		private $center:Pos;
 		private $angle:number;
 		private $counter:number;
-		x:number = 0;
-		y:number = 0;
 
-		constructor(info:any, parent:GraphNode, counter:number) {
-            super("Info");
+		constructor(info:any, parent:Node, counter:number) {
+			super("Info");
 			if (typeof (info) === "string") {
 				this.id = info;
 			} else {
@@ -303,12 +1008,13 @@ module Diagram {
 				}
 				this.id = info.id;
 			}
-			this.$center = new Pos(0,0);
+			this.$center = new Point(0, 0);
 			this.$parent = parent;
 			this.$isDraggable = true;
 			this.$counter = counter;
 		}
-		public drawSVG(draw ?:boolean) : HTMLElement{
+
+		public drawSVG(draw ?:boolean):HTMLElement {
 			var text:string = this.getText(), child, group, i:number, items:Array<string> = text.split("\n");
 			if (text.length < 1) {
 				return null;
@@ -316,47 +1022,52 @@ module Diagram {
 			if (items.length > 1) {
 				group = util.create({tag: "g", "class": "draggable", rotate: this.$angle, model: this});
 				for (i = 0; i < items.length; i += 1) {
+					var pos = this.getPos(false);
 					child = util.create({
 						tag: "text",
 						$font: true,
 						"text-anchor": "left",
-						"x": this.getX(false),
-						"y": this.getY(false) + (this.getHeight() * i)
+						"x": pos.x,
+						"y": pos.y
+						+ (this.getSize().y * i)
 					});
 					child.appendChild(document.createTextNode(items[i]));
 					group.appendChild(child);
 				}
-				this.getRoot().createdElement(group, "info", this);
+				this.fireEvent(this, "created", group);
 				return group;
 			}
+			var pos = this.getPos(false);
 			group = util.create({
 				tag: "text",
 				"#$font": true,
 				"text-anchor": "left",
-				"x": this.getX(false),
-				"y": this.getY(false),
+				"x": pos.x,
+				"y": pos.y,
 				value: text,
 				"id": this.id,
 				"class": "draggable InfoText",
 				rotate: this.$angle,
 				model: this
 			});
-			this.getRoot().createdElement(group, "info", this);
+			this.fireEvent(this, "created", group);
 			return group;
 		};
 
-		public drawHTML(draw?:boolean) : HTMLElement {
+		public drawHTML(draw?:boolean):HTMLElement {
 			var text:string = this.getText(), info;
 			info = util.create({tag: "div", $font: true, model: this, "class": "EdgeInfo", value: text});
 			if (this.$angle !== 0) {
 				info.style.transform = "rotate(" + this.$angle + "deg)";
 				info.style.msTransform = info.style.MozTransform = info.style.WebkitTransform = info.style.OTransform = "rotate(" + this.$angle + "deg)";
 			}
-			util.setPos(info, this.getX(false), this.getY(false));
-			this.getRoot().createdElement(info, "info", this);
+			var pos = this.getPos(false);
+			util.setPos(info, pos.x, pos.y);
+			this.fireEvent(this, "created", info);
 			return info;
 		}
-		public getText() : string {
+
+		public getText():string {
 			var isProperty:boolean, isCardinality:boolean, infoTxt:string = "", graph:any = this.$parent;
 			isCardinality = graph.typ === "classdiagram" && graph.options.CardinalityInfo;
 			isProperty = graph.options.propertyinfo;
@@ -379,35 +1090,88 @@ module Diagram {
 			}
 			return infoTxt;
 		}
-        public initInfo() : string {
-            var root:any= this.$parent.getRoot();
-            if (!root.model.options.CardinalityInfo && !root.model.options.propertyinfo) {
-                return null;
-            }
-            var infoTxt = this.getText();
-            if (infoTxt.length > 0) {
-                util.sizeOf(infoTxt, root, this);
-            }
-            return infoTxt;
-        }
+
+		public initInfo():string {
+			var root:any = this.$parent.getRoot();
+			if (!root.model.options.CardinalityInfo && !root.model.options.propertyinfo) {
+				return null;
+			}
+			var infoTxt = this.getText();
+			if (infoTxt.length > 0) {
+				util.sizeOf(infoTxt, root, this);
+			}
+			return infoTxt;
+		}
 	}
-	export interface PathElement {target:any;}
 	//				######################################################### Line #########################################################
-	export class Line implements PathElement {
+	export class Line implements BaseElement {
 		private line:string;
 		private color:string;
-		source:Pos;
-		target:Pos;
-		constructor(source:Pos, target:Pos, line?:string, color?:string) {
+		private path:string;
+		private angle:number;
+		source:Point;
+		target:Point;
+		public static FORMAT = {SOLID: "SOLID", DOTTED: "DOTTED", PATH: "PATH"};
+
+		constructor(source?:Point, target?:Point, line?:string, color?:string) {
 			this.source = source;
 			this.target = target;
 			this.line = line;
 			this.color = color;
 		}
 
-		public static Format = {SOLID: "SOLID", DOTTED: "DOTTED"};
+		public getEvent() {
+			return new String[0];
+		}
 
-		public draw(draw?:boolean) : HTMLElement {
+		public getPos() {
+			var pos = new Point();
+			pos.center(this.source, this.target);
+			return pos;
+		};
+
+		public getSize() {
+			var pos = new Point();
+			pos.size(this.source, this.target);
+			return pos;
+		};
+
+		public getOptions() {
+			return null;
+		}
+
+		public withPath(path:Array<Point>, close, angle?:any):Line {
+			var i:number, d:string = "M" + path[0].x + " " + path[0].y;
+			this.line = Line.FORMAT.PATH; // It is a Path not a Line
+			for (i = 1; i < path.length; i += 1) {
+				d = d + "L " + path[i].x + " " + path[i].y;
+			}
+			if (close) {
+				d = d + " Z";
+				this.target = path[0];
+			} else {
+				this.target = path[path.length - 1];
+			}
+			this.path = d;
+			if (angle instanceof Number) {
+				this.angle = angle;
+			} else if (angle) {
+				//var lineangle, start = path[0], end = path[path.length - 1];
+				//lineangle = Math.atan2(end.y - start.y, end.x - start.x);
+			}
+			return this;
+		};
+
+		public draw():HTMLElement {
+			if (this.line === "PATH") {
+				return util.create({
+					tag: "path",
+					"d": this.path,
+					"fill": this.color,
+					stroke: "#000",
+					"stroke-width": "1px"
+				});
+			}
 			var line = util.create({
 				tag: "line",
 				'x1': this.source.x,
@@ -422,53 +1186,9 @@ module Diagram {
 			}
 			return line;
 		}
-	}
 
-	//				######################################################### Path #########################################################
-	export class Path implements PathElement{
-		private angle:number;
-		private fill:string;
-		private path:string;
-		target:Pos;
-
-		public withFill(fill:string) : Path{
-			this.fill = fill;
-			return this;
+		public fireEvent(source:Node, typ:string, value:Object) {
 		}
-		public withAngle(angle:number) : Path{
-			this.angle = angle;
-			return this;
-		}
-
-		public withPath(path:Array<Pos>, close, angle?:any) : Path{
-			var i:number, d:string = "M" + path[0].x + " " + path[0].y;
-			for (i = 1; i < path.length; i += 1) {
-				d = d + "L " + path[i].x + " " + path[i].y;
-			}
-			if (close) {
-				d = d + " Z";
-                this.target = path[0];
-			} else {
-                this.target = path[path.length - 1];
-            }
-			this.path = d;
-			if(angle instanceof Number) {
-				this.angle = angle;
-			}else if(angle)
-			{
-				var lineangle, start = path[0], end = path[path.length - 1];
-				lineangle = Math.atan2(end.y - start.y, end.x - start.x);
-			}
-			return this;
-		}
-		public withString(path:string) {
-			this.path = path;
-			return this;
-		}
-
-		public draw(draw?:boolean) : HTMLElement {
-			return util.create({tag: "path", "d": this.path, "fill": this.fill, stroke: "#000", "stroke-width": "1px"});
-		};
 	}
 	//				###################################################### SymbolLibary ####################################################################################
 // Example Items
@@ -486,24 +1206,28 @@ module Diagram {
 			}
 			return null;
 		}
-		public upFirstChar(txt) {
+
+		public static upFirstChar(txt) {
 			return txt.charAt(0).toUpperCase() + txt.slice(1).toLowerCase();
 		}
+
 		public isSymbol(node) {
-			var fn = this[this.getName(node)];
+			var fn = this[SymbolLibary.getName(node)];
 			return typeof fn === "function";
 		}
-		public getName(node) {
+
+		public static getName(node) {
 			if (node.typ) {
-				return "draw" + this.upFirstChar(node.typ);
+				return "draw" + SymbolLibary.upFirstChar(node.typ);
 			}
 			if (node.src) {
-				return "draw" + this.upFirstChar(node.src);
+				return "draw" + SymbolLibary.upFirstChar(node.src);
 			}
 			return "drawNode";
 		}
+
 		public draw(node, parent?:Object) {
-			var group, board, item, fn = this[this.getName(node)];
+			var group, board, fn = this[SymbolLibary.getName(node)];
 			if (typeof fn === "function") {
 				group = fn.apply(this, [node]);
 				if (!parent) {
@@ -515,6 +1239,7 @@ module Diagram {
 				return this.createGroup(node, group, null);
 			}
 		}
+
 		public createImage(node, model) {
 			var n, img;
 			node.model = node;
@@ -536,6 +1261,7 @@ module Diagram {
 			}
 			return img;
 		}
+
 		public createGroup(node, group, g?:any) {
 			var func, y, yr, z, box, item, transform, i, offsetX = 0, offsetY = 0;
 			if (!g) {
@@ -666,7 +1392,7 @@ module Diagram {
 			return g;
 		};
 
-		public addChild(parent, json) {
+		public static addChild(parent, json) {
 			var item;
 			if (json.offsetLeft) {
 				item = json;
@@ -676,7 +1402,23 @@ module Diagram {
 			item.setAttribute("class", "draggable");
 			parent.appendChild(item);
 		};
-		public drawSmily(node) {
+
+		public static all(node) {
+			SymbolLibary.drawSmiley(node);
+			SymbolLibary.drawDatabase(node);
+			SymbolLibary.drawLetter(node);
+			SymbolLibary.drawMobilephone(node);
+			SymbolLibary.drawWall(node);
+			SymbolLibary.drawActor(node);
+			SymbolLibary.drawLamp(node);
+			SymbolLibary.drawArrow(node);
+			SymbolLibary.drawButton(node);
+			SymbolLibary.drawDropdown(node);
+			SymbolLibary.drawClassicon(node);
+			SymbolLibary.drawEdgeicon(node);
+		};
+
+		public static drawSmiley(node) {
 			return {
 				x: node.x || 0,
 				y: node.y || 0,
@@ -698,7 +1440,7 @@ module Diagram {
 			};
 		};
 
-		public drawDatabase(node) {
+		public static drawDatabase(node) {
 			return {
 				x: node.x || 0,
 				y: node.y || 0,
@@ -721,7 +1463,7 @@ module Diagram {
 			};
 		};
 
-		public drawLetter(node) {
+		public static drawLetter(node) {
 			return {
 				x: node.x || 0,
 				y: node.y || 0,
@@ -734,7 +1476,7 @@ module Diagram {
 			};
 		};
 
-		public drawMobilphone(node) {
+		public static drawMobilephone(node) {
 			return {
 				x: node.x || 0,
 				y: node.y || 0,
@@ -755,7 +1497,7 @@ module Diagram {
 			};
 		};
 
-		public drawWall(node) {
+		public static drawWall(node) {
 			return {
 				x: node.x || 0,
 				y: node.y || 0,
@@ -772,7 +1514,7 @@ module Diagram {
 			};
 		};
 
-		public drawActor(node) {
+		public static drawActor(node) {
 			return {
 				x: node.x || 0,
 				y: node.y || 0,
@@ -788,7 +1530,7 @@ module Diagram {
 			};
 		};
 
-		public drawLamp(node) {
+		public static drawLamp(node) {
 			return {
 				x: node.x || 0,
 				y: node.y || 0,
@@ -851,7 +1593,7 @@ module Diagram {
 			};
 		};
 
-		public drawStop(node) {
+		public static drawStop(node) {
 			return {
 				x: node.x || 0,
 				y: node.y || 0,
@@ -869,7 +1611,7 @@ module Diagram {
 			};
 		};
 
-		public drawMin(node) {
+		public static drawMin(node) {
 			return {
 				x: node.x || 0,
 				y: node.y || 0,
@@ -896,7 +1638,7 @@ module Diagram {
 			};
 		};
 
-		public drawArrow(node) {
+		public static drawArrow(node) {
 			return {
 				x: node.x || 0,
 				y: node.y || 0,
@@ -909,7 +1651,7 @@ module Diagram {
 			};
 		};
 
-		public drawMax(node) {
+		public static drawMax(node) {
 			return {
 				x: node.x || 0,
 				y: node.y || 0,
@@ -938,7 +1680,7 @@ module Diagram {
 			};
 		};
 
-		public drawButton(node) {
+		public static drawButton(node) {
 			var btnX, btnY, btnWidth, btnHeight, btnValue;
 
 			btnX = node.x || 0;
@@ -968,7 +1710,7 @@ module Diagram {
 			};
 		};
 
-		public drawDropdown(node) {
+		public static drawDropdown(node) {
 			var btnX, btnY, btnWidth, btnHeight;
 
 			btnX = node.x || 0;
@@ -1010,7 +1752,7 @@ module Diagram {
 			};
 		};
 
-		public drawClassicon(node) {
+		public static drawClassicon(node) {
 			var btnX, btnY, btnWidth, btnHeight;
 
 			btnX = node.x || 0;
@@ -1038,7 +1780,7 @@ module Diagram {
 			};
 		};
 
-		public drawEdgeicon(node) {
+		public static drawEdgeicon(node) {
 			var btnX, btnY, btnWidth, btnHeight;
 
 			btnX = node.x || 0;
@@ -1060,6 +1802,7 @@ module Diagram {
 			};
 		}
 	}
+
 	//				######################################################### CSS #########################################################
 	export class CSS {
 		private name:string;
@@ -1107,7 +1850,7 @@ module Diagram {
 			this.css[key] = value;
 		};
 
-		public get(key:string) :any{
+		public get(key:string):any {
 			var i;
 			for (i in this.css) {
 				if (i === key) {
@@ -1119,19 +1862,6 @@ module Diagram {
 
 		public getNumber(key) {
 			return parseInt((this.get(key) || "0").replace("px", ""), 10);
-		};
-
-		public getString() : string{
-			var str, style;
-			str = "{";
-			for (style in this.css) {
-				if (!this.css.hasOwnProperty(style)) {
-					continue;
-				}
-				str = str + style + ":" + this.css[style] + ";";
-			}
-			str = str + "}";
-			return str;
 		};
 
 		public static getDefs(board) {
@@ -1294,6 +2024,7 @@ module Diagram {
 			}
 		}
 	}
+
 }
 module Diagram.util {
 	export function getValue(value) {return parseInt(("0" + value).replace("px", ""), 10); }
@@ -1445,13 +2176,14 @@ module Diagram.util {
 		}
 		return item;
 	}
-	export function setSize(item, x, y) {
-		x = util.getValue(x);
-		y = util.getValue(y);
-		item.setAttribute("width", x);
-		item.setAttribute("height", y);
-		item.style.width = Math.ceil(x);
-		item.style.height = Math.ceil(y);
+	export function setSize(item, width, height) {
+		var value;
+		value = util.getValue(width);
+		item.setAttribute("width", value);
+		item.style.width = Math.ceil(value);
+		value = util.getValue(height);
+		item.setAttribute("height", value);
+		item.style.height = Math.ceil(value);
 	}
 	export function setPos(item, x, y) {
 		if (item.x && item.x.baseVal) {
@@ -1526,7 +2258,7 @@ module Diagram.util {
 				node.width = Math.round(rect.width);
 			}
 			if (!node.$startHeight) {
-				node.height = Math.round(rect.height);
+				node.height = Math.round(rect["height"]);
 			}
 		}
 		return rect;
@@ -1643,11 +2375,10 @@ module Diagram.util {
 			ele.className = ele.className.replace(reg, ' ');
 		}
 	}
-	export function hasClass(ele:HTMLElement, cls:string) :boolean {return ele.className.indexOf(cls) > 0; };
+	export function hasClass(ele:HTMLElement, cls:string) :boolean {return ele.className.indexOf(cls) > 0; }
 	export function addClass(ele:HTMLElement, cls:string) {
 		if (!this.hasClass(ele, cls)) {
 			ele.className = ele.className + " " + cls;
 		}
 	}
-
 }
