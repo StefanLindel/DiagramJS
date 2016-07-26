@@ -26,7 +26,7 @@
 module Diagram {
 	'use strict';
 	export interface BaseElement {
-		draw(typ:string):HTMLElement;
+		draw(typ?:string):HTMLElement;
 		getEvent():string[];
 		getPos():Point;
 		getSize():Point;
@@ -66,10 +66,16 @@ module Diagram.Nodes {
 			return new Array<string>();
 		}
 		public getPos():Point {
+			if (this.$parent && absolute) {
+				var pos = new Point();
+				pos.add(this.pos);
+				pos.add(this.$parent.getPos(true));
+				return pos;
+			}
 			return this.pos;
 		}
 		public getCenter() : Point {
-			var pos = this.getPos();
+			var pos = this.getPos(false);
 			var size = this.getSize();
 			return new Point(pos.x+size.x/2, pos.y+size.y/2);
 		}
@@ -108,7 +114,7 @@ module Diagram.Nodes {
 			}
 			return false;
 		}
-		public draw(typ:string):HTMLElement {
+		public draw(typ?:string):HTMLElement {
 			if (typ) {
 				if (typ.toLowerCase() === "html") {
 					return this.drawHTML();
@@ -522,6 +528,9 @@ module Diagram {
 //				"Composition": Composition
 //			};
 	export class Model extends Nodes.Node {
+		public getPos(absolute:boolean):Diagram.Point{
+                    return super.getPos(absolute);}
+
 		public nodes:Object;
 		private $nodeCount:number;
 		public edges:Array<Edges.Edge>;
@@ -881,7 +890,7 @@ module Diagram {
 		public drawSVG(draw?:boolean) {
 			var g = util.create({tag: "g", model: this}), that = this, width, height, item, root:any;
 			root = this.getRoot();
-			var pos = this.getPos();
+			var pos = this.getPos(true);
 			var size = this.getSize();
 			if (this.status === "close") {
 				width = util.sizeOf(this.$gui, this) + 30;
@@ -951,7 +960,7 @@ module Diagram {
 			return g;
 		}
 		public drawHTML(draw?:boolean) {
-			var pos = this.getPos();
+			var pos = this.getPos(true);
 			var size = this.getSize();
 			var graph, item = util.create({tag: "div", model: this});
 			util.setPos(item, pos.x, pos.y);
@@ -966,6 +975,7 @@ module Diagram {
 			}
 			this.$gui = item;
 			if (draw) {
+				this.$parent.draw();
 				item.style.borderColor = "red";
 				if (this["style"] && this["style"].toLowerCase() === "nac") {
 					item.appendChild(SymbolLibary.draw(null, {typ: "stop", x: 0, y: 0}));
@@ -978,6 +988,43 @@ module Diagram {
 			return item;
 		}
 	}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 	//				######################################################### Point #########################################################
 	/** Creates new Point document object instance. Position with X, Y and ID
 	 * @class
@@ -1107,7 +1154,7 @@ module Diagram {
 			if (items.length > 1) {
 				group = util.create({tag: "g", "class": "draggable", rotate: this.$angle, model: this});
 				for (i = 0; i < items.length; i += 1) {
-					var pos = this.getPos();
+					var pos = this.getPos(false);
 					child = util.create({
 						tag: "text",
 						$font: true,
@@ -1122,7 +1169,7 @@ module Diagram {
 				this.fireEvent(this, EventBus.EVENT.CREATED, group);
 				return group;
 			}
-			var pos = this.getPos();
+			var pos = this.getPos(false);
 			group = util.create({
 				tag: "text",
 				"#$font": true,
@@ -1146,7 +1193,7 @@ module Diagram {
 				info.style.transform = "rotate(" + this.$angle + "deg)";
 				info.style.msTransform = info.style.MozTransform = info.style.WebkitTransform = info.style.OTransform = "rotate(" + this.$angle + "deg)";
 			}
-			var pos = this.getPos();
+			var pos = this.getPos(false);
 			util.setPos(info, pos.x, pos.y);
 			this.fireEvent(this, "created", info);
 			return info;
@@ -1204,7 +1251,7 @@ module Diagram {
 			this.line = line;
 			this.color = color;
 		}
-		public getPos() {
+		public getPos(absolut:boolean) {
 			var pos = new Point();
 			pos.center(this.source, this.target);
 			return pos;
@@ -1219,7 +1266,7 @@ module Diagram {
 			return this;
 		}
 		public getCenter() : Point {
-			var pos = this.getPos();
+			var pos = this.getPos(false);
 			var size = this.getSize();
 			return new Point(pos.x+size.x/2, pos.y+size.y/2);
 		}
@@ -1287,20 +1334,8 @@ module Diagram {
 // {tag: "image", height: 30, width: 50, content$src: hallo}
 // {tag: "text", "text-anchor": "left", x: "10"}
 	export class SymbolLibary {
-		public static draw(node, parent?:Object) {
-			// Node is Symbol or simple Object
+		public static create(node) {
 			var parent;
-
-				var group, fn = this[SymbolLibary.getName(node)];
-				if (typeof fn === "function") {
-					group = fn.apply(this, [node]);
-					if (!parent) {
-						return Diagram.SymbolLibary.createGroup(node, group);
-					}
-					return Diagram.SymbolLibary.createGroup(node, group);
-				}
-			}
-
 			if (Diagram.SymbolLibary.isSymbol(node.typ)) {
 				var symbol = new Diagram.Nodes.Symbol(node.typ);
 				symbol.withPos(node.x, node.y);
@@ -1331,6 +1366,16 @@ module Diagram {
 			}
 			return "drawNode";
 		}
+		public static draw(node:Diagram.Nodes.Symbol, parent?:Object) {
+			var group, fn = this[SymbolLibary.getName(node)];
+			if (typeof fn === "function") {
+				group = fn.apply(this, [node]);
+				if (!parent) {
+					return Diagram.SymbolLibary.createGroup(node, group);
+				}
+				return Diagram.SymbolLibary.createGroup(node, group);
+			}
+		}
 		public static createImage(node:Diagram.Nodes.Symbol, model) {
 			var n, img:HTMLElement;
 			//node.model = node;
@@ -1355,7 +1400,7 @@ module Diagram {
 		}
 		public static createGroup(node:BaseElement, group) {
 			var func, y:number, yr:number, z:number, box, item, transform, i, offsetX = 0, offsetY = 0;
-			var svg:any = util.create({tag: "svg", style: {left: group.x+node.getPos().x, top: group.y+node.getPos().y, position: "absolute"}});
+			var svg:any = util.create({tag: "svg", style: {left: group.x+node.getPos(false).x, top: group.y+node.getPos(false).y, position: "absolute"}});
 
 			if (!svg) {
 				svg = util.create({tag: "g"});
@@ -1506,8 +1551,8 @@ module Diagram {
 
 		public static drawSmiley(node:BaseElement) {
 			return {
-				x: node.getPos().x,
-				y: node.getPos().y,
+				x: node.getPos(false).x,
+				y: node.getPos(false).y,
 				width: 50,
 				height: 52,
 				items: [
@@ -2119,7 +2164,7 @@ module Diagram {
 			return [EventBus.EVENT.HEADER, EventBus.EVENT.MOUSEOVER, EventBus.EVENT.MOUSEOUT];
 		}
 
-		public getPos():Point {
+		public getPos(absolute:boolean):Point {
 			return new Point(0,0);
 		}
 		public getSize() :Point {
@@ -2274,7 +2319,7 @@ module Diagram {
 			return this.$gui;
 		}
 		public moveToRaster(node:Nodes.Node) {
-			var pos = node.getPos();
+			var pos = node.getPos(false);
 			node.withPos(parseInt("" + (pos.x / this.range), this.range) * this.range, parseInt("" + (pos.y / this.range), this.range) * this.range)
 		}
 	}
@@ -2292,11 +2337,11 @@ module Diagram {
 			return [EventBus.EVENT.LOAD];
 		}
 		public getCenter() : Point {
-			var pos = this.getPos();
+			var pos = this.getPos(false);
 			var size = this.getSize();
 			return new Point(pos.x+size.x/2, pos.y+size.y/2);
 		}
-		public getPos() : Point {
+		public getPos(absolute:boolean) : Point {
 			return null;
 		}
 		public getSize() : Point {
@@ -2365,7 +2410,7 @@ export class DagreLayout implements Layout {
 				continue;
 			}
 			n = nodes[i];
-			g.setNode(n.id, {label: n.id, width: n.getSize().x, height: n.getSize().y, x: n.getPos().x, y: n.getPos().y});
+			g.setNode(n.id, {label: n.id, width: n.getSize().x, height: n.getSize().y, x: n.getPos(false).x, y: n.getPos(false).y});
 		}
 		for (i = 0; i < node.edges.length; i += 1) {
 			e = node.edges[i];
@@ -2379,8 +2424,8 @@ export class DagreLayout implements Layout {
 			}
 			n = nodes[i];
 			layoutNode = g.node(n.id);
-			x = n.getPos().x;
-			y = n.getPos().y;
+			x = n.getPos(false).x;
+			y = n.getPos(false).y;
 			if (x < 1 && y < 1) {
 				n.withPos(Math.round(layoutNode.x - (x / 2)), Math.round(layoutNode.y - (y / 2)))
 			}
@@ -2528,9 +2573,9 @@ module Diagram.Edges {
 			//		/-------\
 			//		|...S...|
 			//		\-------/
-			var startPos = this.$sNode.getPos();
+			var startPos = this.$sNode.getPos(false);
 			var startSize = this.$sNode.getSize();
-			var endPos = this.$tNode.getPos();
+			var endPos = this.$tNode.getPos(false);
 			var endSize = this.$tNode.getSize();
 			if (startPos.y - 40 > endPos.y + endSize.y) { // oberseite von source and unterseite von target
 				this.addLineTo(startPos.x + startSize.x / 2, startPos.y, 0, -20);
@@ -2629,8 +2674,8 @@ module Diagram.Edges {
 			}
 			this.drawSourceText(style);
 			if (this.info) {
-				angle = this.info.draw(typ);
-				var pos = this.info.getPos();
+				angle = this.info.draw();
+				var pos = this.info.getPos(false);
 				this.board.appendChild(SymbolLibary.create({
 					typ: "Arrow",
 					x: pos.x,
@@ -2710,7 +2755,7 @@ module Diagram.Edges {
 			} else if (this.$start === Edge.Position.LEFT) {
 				tPos = new Point(sPos.x - offset, sPos.y);
 			}
-			var startPos =this.$sNode.getPos();
+			var startPos =this.$sNode.getPos(false);
 			var startSize =this.$sNode.getSize();
 			this.$path.push(new Line(sPos, tPos, this.$lineStyle));
 			if (this.$end === Edge.Position.LEFT || this.$end === Edge.Position.RIGHT) {
@@ -2832,7 +2877,7 @@ module Diagram.Edges {
 			info.withPos(Math.round(newX), Math.round(newY));
 		};
 		public static getUDPosition(m:number, n:number, e:BaseElement, p:string, step?:number) {
-			var pos = e.getPos();
+			var pos = e.getPos(false);
 			var size = e.getSize();
 			var x, y = pos.y;
 			if (p === Edge.Position.DOWN) {
@@ -2850,7 +2895,7 @@ module Diagram.Edges {
 			return new Point(x, y, p);
 		};
 		public static getLRPosition(m:number, n:number, e:BaseElement, p:string, step?:number) {
-			var pos:Point = e.getPos();
+			var pos:Point = e.getPos(false);
 			var size:Point = e.getSize();
 
 			var y, x = pos.x;
@@ -2870,7 +2915,7 @@ module Diagram.Edges {
 		}
 		public static getPosition(m:number, n:number, entity:BaseElement, refCenter:Point) {
 			var t, p = [], list, distance = [], min = 999999999, position, i, step = 15;
-			var pos = entity.getPos();
+			var pos = entity.getPos(false);
 			var size = entity.getSize();
 			list = [Edge.Position.LEFT, Edge.Position.RIGHT];
 			for (i = 0; i < 2; i += 1) {
@@ -2945,7 +2990,7 @@ module Diagram.Edges {
 		public getCenterPosition(node:BaseElement, p:string) :Point {
 			var offset = node["$" + p];
 			var size = node.getSize();
-			var pos = node.getPos();
+			var pos = node.getPos(false);
 			if (p === Edge.Position.DOWN) {
 				return new Point(Math.min(node.getCenter().x + offset, pos.x + size.x), (pos.y + size.y), Edge.Position.DOWN);
 			}
@@ -3211,7 +3256,7 @@ module Diagram.util {
 	}
 	export function MinMax(node:BaseElement, min:Point, max:Point) {
 		var size = node.getSize();
-		var pos = node.getPos();
+		var pos = node.getPos(false);
 		max.x = Math.max(max.x, pos.x + Number(size.x) + 10);
 		max.y = Math.max(max.y, pos.y + Number(size.y) + 10);
 		min.x = Math.min(min.x, pos.x);

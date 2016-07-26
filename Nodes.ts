@@ -1,7 +1,7 @@
 ///<reference path='core.ts'/>
 ///<reference path='Edges.ts'/>
 module Diagram {
-    var svgUtil:SymbolLibary = new SymbolLibary();
+   
 	//				######################################################### Clazz #########################################################
     export class Clazz extends GraphNode {
         private attributes:Array<string>;
@@ -377,7 +377,10 @@ module Diagram {
 //				######################################################### Pattern #########################################################
     export class Pattern extends GraphNode {
 
-        constructor(){super("");}
+        constructor() {
+            super("");
+        }
+
         public drawSVG(draw?:boolean) {
             var width, height, id, textWidth, x, y, rect, item, g = util.create({tag: "g", model: this});
             width = 0;
@@ -448,53 +451,6 @@ module Diagram {
             item.node = this;
             this.$gui = item;
             return item;
-        }
-    }
-    //				######################################################### Loader #########################################################
-    class Loader {
-        private images:Array<HTMLImageElement>;
-        private graph:Graph;
-        abort:boolean;
-        width:number;
-        height:number;
-        constructor(graph:Graph) {
-            this.graph = graph;
-        }
-
-        public length() {
-            if(this.images) {
-                return this.images.length;
-            }
-            return 0;
-        }
-        public execute() {
-            if (this.images.length === 0) {
-                this.graph.layout(this.width, this.height);
-            } else {
-                var img = this.images[0];
-                this.graph.root.appendChild(img);
-            }
-        };
-
-        public onLoad(e) {
-            var idx, img = e.target;
-            idx = this.images.indexOf(img);
-            img.model.width = img.width;
-            img.model.height = img.height;
-            this.graph.root.removeChild(img);
-            if (idx !== -1) {
-                this.images.splice(idx, 1);
-            }
-            this.execute();
-        };
-
-        public add(img:HTMLImageElement) {
-            var that = this, func = function (e) {
-                that.onLoad(e);
-            };
-            util.bind(img, "load", func);
-            this.images.push(img);
-            this.execute();
         }
     }
     //				######################################################### DRAG AND DROP #########################################################
@@ -697,45 +653,5 @@ module Diagram {
             node.$center = new Pos(node.x + (node.width / 2), node.y + (node.height / 2));
         }
     }
-    //				######################################################### GraphLayout-Dagre #########################################################
-    export class DagreLayout{
-        public layout(graph, node, width, height) {
-            var layoutNode, i, n, nodes, g, graphOptions = util.copy({directed: false}, node.options.layout);
-            g = new window["dagre"].graphlib.Graph(graphOptions);
-            g.setGraph(graphOptions);
-            g.setDefaultEdgeLabel(function () { return {}; });
-            nodes = node.nodes;
-            for (i in nodes) {
-                if (!nodes.hasOwnProperty(i) || typeof (nodes[i]) === "function") {
-                    continue;
-                }
-                n = nodes[i];
-                g.setNode(n.id, {label: n.id, width: n.width, height: n.height, x: n.x, y: n.y});
-            }
-            for (i = 0; i < node.edges.length; i += 1) {
-                n = node.edges[i];
-                g.setEdge(this.getNodeId(n.$sNode), this.getNodeId(n.$tNode));
-            }
-            window["dagre"].layout(g);
-            // Set the layouting back
-            for (i in nodes) {
-                if (!nodes.hasOwnProperty(i) || typeof (nodes[i]) === "function") {
-                    continue;
-                }
-                n = nodes[i];
-                layoutNode = g.node(n.id);
-                if (n.x < 1 && n.y < 1) {
-                    n.x = Math.round(layoutNode.x - (n.width / 2));
-                    n.y = Math.round(layoutNode.y - (n.height / 2));
-                }
-            }
-            graph.draw();
-        };
-        public getNodeId(node) {
-            if (node.$parent) {
-                return this.getNodeId(node.$parent) || node.id;
-            }
-            return node.id;
-        }
-    }
+
 }

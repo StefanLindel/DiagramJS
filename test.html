@@ -2,7 +2,7 @@
 <head>
 	<link rel="stylesheet" type="text/css" href="diagramstyle.css">
 	<script src="dagre.min.js"></script>
-	<script src="graph-min.js"></script>
+	<script src="core.js"></script>
 
 </head>
 <body>
@@ -13,7 +13,7 @@ var json = {
 	"style": null,
 	"nodes": [
 		{"typ": "node", id:"node"},
-		{"typ": "Smily", id: "Smily"},
+		{"typ": "Smiley", id: "Smiley"},
 		{"typ": "Database", id: "Database"},
 		{"typ": "Letter", id: "Letter"},
 		{"typ": "Mobilphone", id: "Mobilphone"},
@@ -33,7 +33,7 @@ var json = {
 		{"typ": "EdgeIcon", id:"EdgeIcon"}
 	],
 	"edges": [
-	{"typ": "edge", "source": "Smily", "target": "Database"},
+	{"typ": "edge", "source": "Smiley", "target": "Database"},
 	{"typ": "generalisation", "source": "Letter", "target": "Database"},
 	{"typ": "implements", "source": "Mobilphone", "target": "Actor"},
 	{"typ": "unidirectional", "source": "Lamp", "target": "Stop"},
