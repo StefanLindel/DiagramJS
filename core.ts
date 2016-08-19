@@ -30,6 +30,7 @@ module Diagram {
 		getEvent():string[];
 		getPos():Point;
 		getSize():Point;
+		getTyp():String;
 		withSize(x:number,y:number):BaseElement;
 		getCenter() : Point;
 		fireEvent(source:BaseElement, typ:string, value:Object);
@@ -60,6 +61,21 @@ module Diagram.Nodes {
 		constructor(typ?:string, id?:string) {
 			this.typ = typ || "node";
 			this.id = id;
+		}
+		public init(json:JSON) {};
+		public static create(node) : Node {
+			var result:Node = new Node();
+			if(node.x && node.y) {
+				result.withPos(node.x, node.y);
+			}
+			if(node.width && node.height) {
+				result.withSize(node.width, node.height);
+			}
+			return result;
+		}
+		public getTyp() :string {
+			var root:Graph = <Graph> this.getRoot();
+			return root.getTyp();
 		}
 
 		public getEvent():string[] {
@@ -249,6 +265,225 @@ module Diagram.Nodes {
 			return SymbolLibary.draw(this);
 		}
 	}
+	//				######################################################### Clazz #########################################################
+	export class Clazz extends Nodes.Node {
+		private attributes:Array<string> = new Array<string>();
+		private methods:Array<string> = new Array<string>();
+
+		constructor(){super("");};
+
+		public init(json) {
+			var i:number, value;
+			value = json["attributes"];
+			for(i=0;i<value.length;i++) {
+				this.attributes.push(value[i]);
+			}
+			value = json["methods"];
+			for(i=0;i<value.length;i++) {
+				this.methods.push(value[i]);
+			}
+		}
+
+		public drawSVG(draw?:boolean) {
+			var width, height, id, textWidth, x, y, z, item, rect, g, board, styleHeader, headerHeight;
+			board = this.getRoot()["board"];
+			styleHeader = util.getStyle("ClazzHeader");
+			headerHeight = styleHeader.getNumber("height");
+			width = 0;
+			height = 10 + headerHeight;
+
+			if (this.typ === "Object" || this.getRoot()["model"].typ.toLowerCase() === "objectdiagram") {
+				id = this.id.charAt(0).toLowerCase() + this.id.slice(1);
+				item = "Object";
+			} else {
+				id = this.id;
+				item = "Clazz";
+				if (this.counter) {
+					id += " (" + this.counter + ")";
+				}
+			}
+			g = util.create({tag: "g", model: this});
+			textWidth = util.sizeOf(id, this).width;
+			width = Math.max(width, textWidth);
+			if (this.attributes && this.attributes.length > 0) {
+				height = height + this.attributes.length * 25;
+				for (z = 0; z < this.attributes.length; z += 1) {
+					width = Math.max(width, util.sizeOf(this.attributes[z], this).width);
+				}
+			} else {
+				height += 20;
+			}
+			if (this.methods && this.methods.length > 0) {
+				height = height + this.methods.length * 25;
+				for (z = 0; z < this.methods.length; z += 1) {
+					width = Math.max(width, util.sizeOf(this.methods[z], this).width);
+				}
+			}
+			width += 20;
+
+			var pos = this.getPos();
+			y = pos.y;
+			x = pos.x;
+
+			rect = {
+				tag: "rect",
+				"width": width,
+				"height": height,
+				"x": x,
+				"y": y,
+				"class": item + " draggable",
+				"fill": "none"
+			};
+			g.appendChild(util.create(rect));
+			g.appendChild(util.create({
+				tag: "rect",
+				rx: 0,
+				"x": x,
+				"y": y,
+				height: headerHeight,
+				"width": width,
+				"class": "ClazzHeader"
+			}));
+
+			item = util.create({
+				tag: "text",
+				$font: true,
+				"class": "InfoText",
+				"text-anchor": "right",
+				"x": x + width / 2 - textWidth / 2,
+				"y": y + (headerHeight / 2),
+				"width": textWidth
+			});
+
+			if (this.typ === "Object" || this.getRoot()["model"].typ.toLowerCase() === "objectdiagram") {
+				item.setAttribute("text-decoration", "underline");
+			}
+			item.appendChild(document.createTextNode(id));
+
+			g.appendChild(item);
+			g.appendChild(util.create({
+				tag: "line",
+				x1: x,
+				y1: y + headerHeight,
+				x2: x + width,
+				y2: y + headerHeight,
+				stroke: "#000"
+			}));
+			y += headerHeight + 20;
+
+			if (this.attributes) {
+				for (z = 0; z < this.attributes.length; z += 1) {
+					g.appendChild(util.create({
+						tag: "text",
+						$font: true,
+						"text-anchor": "left",
+						"width": width,
+						"x": (x + 10),
+						"y": y,
+						value: this.attributes[z]
+					}));
+					y += 20;
+				}
+				if (this.attributes.length > 0) {
+					y -= 10;
+				}
+			}
+			if (this.methods && this.methods.length > 0) {
+				g.appendChild(util.create({tag: "line", x1: x, y1: y, x2: x + width, y2: y, stroke: "#000"}));
+				y += 20;
+				for (z = 0; z < this.methods.length; z += 1) {
+					g.appendChild(util.create({
+						tag: "text",
+						$font: true,
+						"text-anchor": "left",
+						"width": width,
+						"x": x + 10,
+						"y": y,
+						value: this.methods[z]
+					}));
+					y += 20;
+				}
+			}
+			return g;
+		}
+
+		public drawHTML() {
+			var first, z, cell, item, model, htmlElement = util.create({tag: "div", model: this}), pos=this.getPos();
+			model = this.getRoot()["model"];
+			htmlElement.className = "classElement";
+			util.setPos(htmlElement, pos.x, pos.y);
+			htmlElement.style.zIndex = 5000;
+
+			model.createdElement(htmlElement, "class", this);
+			item = util.create({tag: 'table', border: "0", style: {width: "100%", height: "100%"}});
+			htmlElement.appendChild(item);
+			if (this["head"] && this["head"].$src) {
+				cell = util.createCell(item, "td", this);
+				cell.style.textAlign = "center";
+				if (!this["head"].$img) {
+					this["head"].$img = {};
+					this["head"].$img.src = this["head"].$src;
+					this["head"].$img.width = this["head"].$width;
+					this["head"].$img.height = this["head"].$height;
+				}
+				z = SymbolLibary.createImage(this["head"].$img, this);
+				if (z) {
+					cell.appendChild(z);
+				}
+			}
+			if (this["headinfo"]) {
+				util.createCell(item, "td", this, this["headinfo"]).className = "head";
+			}
+
+			if (model.typ.toLowerCase() === "objectdiagram") {
+				z = this.id.charAt(0).toLowerCase() + this.id.slice(1);
+			} else {
+				z = this.id;
+			}
+			if (this["href"]) {
+				z = "<a href=\"" + this["href"] + "\">" + z + "</a>";
+			}
+			cell = util.createCell(item, "th", this, z, "id");
+			if (model.typ.toLowerCase() === "objectdiagram") {
+				cell.style.textDecorationLine = "underline";
+			}
+			cell = null;
+			if (this.attributes) {
+				first = true;
+				for (z = 0; z < this.attributes.length; z += 1) {
+					cell = util.createCell(item, "td", this, this.attributes[z], "attribute");
+					if (!first) {
+						cell.className = 'attributes';
+					} else {
+						cell.className = 'attributes first';
+						first = false;
+					}
+				}
+			}
+			if (this.methods) {
+				first = true;
+				for (z = 0; z < this.methods.length; z += 1) {
+					cell = util.createCell(item, "td", this, this.methods[z], "method");
+					if (!first) {
+						cell.className = 'methods';
+					} else {
+						cell.className = 'methods first';
+						first = false;
+					}
+				}
+			}
+			if (!cell) {
+				cell = util.createCell(item, "td", this, "&nbsp;");
+				cell.className = 'first';
+				this.fireEvent(this, "empty", cell);
+			}
+			htmlElement.appendChild(item);
+			htmlElement.node = this;
+			this.$gui = htmlElement;
+			return htmlElement;
+		}
+	}
+	//END
 }
 module Diagram {
 	'use strict';
@@ -341,12 +576,16 @@ module Diagram {
 		}
 		public getLayout() : Layout {
 			var layout = this.getOptions().layout || {};
-			var layoutName = layout["name"] || "Dagre";
-
+			var layoutName:string;
+			if (typeof layout === 'string' || layout instanceof String) {
+				layoutName = <string>layout;
+			} else {
+				layoutName = layout["name"] || "DagreLayout";
+			}
 			if(this.layoutFactory[layoutName]) {
 				return new this.layoutFactory[layoutName]();
 			}
-			return new Layouts.DagreLayout();
+			return new Layouts.DagreLayoutOld();
 		}
 		public draw(typ?:string):HTMLElement {
 			// model, width, height
@@ -696,19 +935,9 @@ module Diagram {
 			if (this.nodes[n.id] !== undefined) {
 				return this.nodes[n.id];
 			}
-//TODO				if (node.typ.indexOf("diagram", node.typ.length - 7) !== -1 || node.typ === "GraphModel") {
-//					node = new Model(node, new Options(), this);
-//				} else if (new SymbolLibary().isSymbol(node)) {
-//					node = util.copy(new Symbol(), node);
-//				} else if (node.typ === "Clazz" || node.typ === "Object") {
-//					node = util.copy(new Clazz(), node);
-//				} else if (node.typ === "Pattern") {
-//					node = util.copy(new Pattern(), node);
-//				} else {
-//					node = util.copy(new GraphNode(""), node);
-//				}
 			this.nodes[n.id] = n;
 			n.$parent = this;
+			n.init(node);
 			this.$nodeCount += 1;
 			return this.nodes[n.id];
 		}
@@ -867,7 +1096,7 @@ module Diagram {
 				if (typ === "svg") {
 					//svgUtil.addStyle(board, "ClazzHeader");
 					//FIXME
-					//SymbolLibary.addStyles(this.board, n.$gui);
+					CSS.addStyles(this.$gui, n.$gui);
 				}
 				this.$gui.appendChild(n.$gui);
 			}
@@ -919,10 +1148,10 @@ module Diagram {
 			}
 			if (this.status === "close") {
 				// Open Button
-				item = SymbolLibary.createGroup(this, SymbolLibary.drawMax({x: (pos.x + width - 20), y: pos.y}));
+				item = SymbolLibary.createGroup(this, SymbolLibary.drawMax(Node.create({x: (pos.x + width - 20), y: pos.y})));
 				this.size.y = height;
 			} else {
-				item = SymbolLibary.createGroup(this, SymbolLibary.drawMin({x: (pos.x + width - 20), y: pos.y}));
+				item = SymbolLibary.createGroup(this, SymbolLibary.drawMin(Node.create({x: (pos.x + width - 20), y: pos.y})));
 			}
 			item.setAttribute("class", "hand");
 
@@ -990,8 +1219,8 @@ module Diagram {
 		$id:string;
 
 		constructor(x?:number, y?:number, id?:string) {
-			this.x = Math.round(x || 0);
-			this.y = Math.round(y || 0);
+			this.x = Math.ceil(x || 0);
+			this.y = Math.ceil(y || 0);
 			if (id) {
 				this.$id = id;
 			}
@@ -1204,6 +1433,10 @@ module Diagram {
 			this.line = line;
 			this.color = color;
 		}
+
+		public getTyp() : string{
+			return "SVG";
+		}
 		public getPos() {
 			var pos = new Point();
 			pos.center(this.source, this.target);
@@ -1289,20 +1522,15 @@ module Diagram {
 	export class SymbolLibary {
 		public static draw(node, parent?:Object) {
 			// Node is Symbol or simple Object
-			var parent;
-
-				var group, fn = this[SymbolLibary.getName(node)];
-				if (typeof fn === "function") {
-					group = fn.apply(this, [node]);
-					if (!parent) {
-						return Diagram.SymbolLibary.createGroup(node, group);
-					}
-					return Diagram.SymbolLibary.createGroup(node, group);
+			var symbol, fn = this[SymbolLibary.getName(node)];
+			if (typeof fn === "function") {
+				symbol = fn.apply(this, [node]);
+				if (!parent) {
+					return Diagram.SymbolLibary.createGroup(node, symbol);
 				}
-			}
-
-			if (Diagram.SymbolLibary.isSymbol(node.typ)) {
-				var symbol = new Diagram.Nodes.Symbol(node.typ);
+				return Diagram.SymbolLibary.createGroup(node, symbol);
+			} else if (node.typ) {
+				symbol = new Diagram.Nodes.Symbol(node.typ);
 				symbol.withPos(node.x, node.y);
 				symbol.withSize(node.width, node.height);
 				symbol["value"] = node.value;
@@ -1355,9 +1583,13 @@ module Diagram {
 		}
 		public static createGroup(node:BaseElement, group) {
 			var func, y:number, yr:number, z:number, box, item, transform, i, offsetX = 0, offsetY = 0;
-			var svg:any = util.create({tag: "svg", style: {left: group.x+node.getPos().x, top: group.y+node.getPos().y, position: "absolute"}});
-
-			if (!svg) {
+			var svg:any;
+			if(node.getTyp().toUpperCase() == "HTML") {
+				svg = util.create({
+					tag: "svg",
+					style: {left: group.x + node.getPos().x, top: group.y + node.getPos().y, position: "absolute"}
+				});
+			} else {
 				svg = util.create({tag: "g"});
 				transform = "translate(" + group.x + " " + group.y + ")";
 				if (group.scale) {
@@ -1526,10 +1758,10 @@ module Diagram {
 			};
 		};
 
-		public static drawDatabase(node) {
+		public static drawDatabase(node:BaseElement) {
 			return {
-				x: node.x || 0,
-				y: node.y || 0,
+				x: node.getPos().x || 0,
+				y: node.getPos().y || 0,
 				width: 25,
 				height: 40,
 				items: [
@@ -1549,10 +1781,10 @@ module Diagram {
 			};
 		};
 
-		public static drawLetter(node) {
+		public static drawLetter(node:BaseElement) {
 			return {
-				x: node.x || 0,
-				y: node.y || 0,
+				x: node.getPos().x || 0,
+				y: node.getPos().y || 0,
 				width: 25,
 				height: 17,
 				items: [
@@ -1562,10 +1794,10 @@ module Diagram {
 			};
 		};
 
-		public static drawMobilephone(node) {
+		public static drawMobilephone(node:BaseElement) {
 			return {
-				x: node.x || 0,
-				y: node.y || 0,
+				x: node.getPos().x || 0,
+				y: node.getPos().y || 0,
 				width: 25,
 				height: 50,
 				items: [
@@ -1583,10 +1815,10 @@ module Diagram {
 			};
 		};
 
-		public static drawWall(node) {
+		public static drawWall(node:BaseElement) {
 			return {
-				x: node.x || 0,
-				y: node.y || 0,
+				x: node.getPos().x || 0,
+				y: node.getPos().y || 0,
 				width: 25,
 				height: 50,
 				items: [
@@ -1600,10 +1832,10 @@ module Diagram {
 			};
 		};
 
-		public static drawActor(node) {
+		public static drawActor(node:BaseElement) {
 			return {
-				x: node.x || 0,
-				y: node.y || 0,
+				x: node.getPos().x || 0,
+				y: node.getPos().y || 0,
 				width: 25,
 				height: 50,
 				items: [
@@ -1616,10 +1848,10 @@ module Diagram {
 			};
 		};
 
-		public static drawLamp(node) {
+		public static drawLamp(node:BaseElement) {
 			return {
-				x: node.x || 0,
-				y: node.y || 0,
+				x: node.getPos().x || 0,
+				y: node.getPos().y || 0,
 				width: 25,
 				height: 50,
 				items: [
@@ -1679,10 +1911,10 @@ module Diagram {
 			};
 		};
 
-		public static drawStop(node) {
+		public static drawStop(node:BaseElement) {
 			return {
-				x: node.x || 0,
-				y: node.y || 0,
+				x: node.getPos().x || 0,
+				y: node.getPos().y || 0,
 				width: 30,
 				height: 30,
 				items: [
@@ -1697,10 +1929,10 @@ module Diagram {
 			};
 		};
 
-		public static drawMin(node) {
+		public static drawMin(node:BaseElement) {
 			return {
-				x: node.x || 0,
-				y: node.y || 0,
+				x: node.getPos().x || 0,
+				y: node.getPos().y || 0,
 				width: 20,
 				height: 20,
 				items: [
@@ -1724,23 +1956,23 @@ module Diagram {
 			};
 		};
 
-		public static drawArrow(node) {
+		public static drawArrow(node:BaseElement) {
 			return {
-				x: node.x || 0,
-				y: node.y || 0,
+				x: node.getPos().x || 0,
+				y: node.getPos().y || 0,
 				width: 10,
 				height: 9,
-				rotate: node.rotate,
+				rotate: node["rotate"],
 				items: [
 					{tag: "path", fill: "#000", stroke: "#000", d: "M 0,0 10,4 0,9 z"}
 				]
 			};
 		};
 
-		public static drawMax(node) {
+		public static drawMax(node:BaseElement) {
 			return {
-				x: node.x || 0,
-				y: node.y || 0,
+				x: node.getPos().x || 0,
+				y: node.getPos().y || 0,
 				width: 20,
 				height: 20,
 				items: [
@@ -1766,14 +1998,14 @@ module Diagram {
 			};
 		};
 
-		public static drawButton(node) {
+		public static drawButton(node:BaseElement) {
 			var btnX, btnY, btnWidth, btnHeight, btnValue;
 
-			btnX = node.x || 0;
-			btnY = node.y || 0;
-			btnWidth = node.width || 60;
-			btnHeight = node.height || 28;
-			btnValue = node.value || "";
+			btnX = node.getPos().x || 0;
+			btnY = node.getPos().y || 0;
+			btnWidth = node.getSize().x || 60;
+			btnHeight = node.getSize().y || 28;
+			btnValue = node["value"] || "";
 			return {
 				x: btnX,
 				y: btnY,
@@ -1796,13 +2028,13 @@ module Diagram {
 			};
 		};
 
-		public static drawDropdown(node) {
+		public static drawDropdown(node:BaseElement) {
 			var btnX, btnY, btnWidth, btnHeight;
 
-			btnX = node.x || 0;
-			btnY = node.y || 0;
-			btnWidth = node.width || 60;
-			btnHeight = node.height || 28;
+			btnX = node.getPos().x || 0;
+			btnY = node.getPos().y || 0;
+			btnWidth = node.getSize().x || 60;
+			btnHeight = node.getSize().y || 28;
 			return {
 				x: btnX,
 				y: btnY,
@@ -1838,13 +2070,13 @@ module Diagram {
 			};
 		};
 
-		public static drawClassicon(node) {
+		public static drawClassicon(node:BaseElement) {
 			var btnX, btnY, btnWidth, btnHeight;
 
-			btnX = node.x || 0;
-			btnY = node.y || 0;
-			btnWidth = node.width || 60;
-			btnHeight = node.height || 28;
+			btnX = node.getPos().x || 0;
+			btnY = node.getPos().y || 0;
+			btnWidth = node.getSize().x || 60;
+			btnHeight = node.getSize().y || 28;
 			return {
 				x: btnX,
 				y: btnY,
@@ -1866,13 +2098,13 @@ module Diagram {
 			};
 		};
 
-		public static drawEdgeicon(node) {
+		public static drawEdgeicon(node:BaseElement) {
 			var btnX, btnY, btnWidth, btnHeight;
 
-			btnX = node.x || 0;
-			btnY = node.y || 0;
-			btnWidth = node.width || 30;
-			btnHeight = node.height || 35;
+			btnX = node.getPos().x || 0;
+			btnY = node.getPos().y || 0;
+			btnWidth = node.getSize().x || 30;
+			btnHeight = node.getSize().y || 35;
 			return {
 				x: btnX,
 				y: btnY,
@@ -2164,7 +2396,7 @@ module Diagram {
 			};
 			for (i = 0; i < item.length; i += 1) {
 				if (item[i] !== type) {
-					child = SymbolLibary.create({typ: "Button", value: item[i], y: 8, x: 2, height: 28, width: 60, $parent: this});
+					child = SymbolLibary.draw({typ: "Button", value: item[i], y: 8, x: 2, height: 28, width: 60, $parent: this});
 					child.style.verticalAlign = "top";
 					util.bind(child, "mousedown", func);
 					child.typ = item[i];
@@ -2288,6 +2520,10 @@ module Diagram {
 			this.graph = graph;
 		}
 
+		public getTyp() : string{
+			return "";
+		}
+
 		public getEvent() : string[] {
 			return [EventBus.EVENT.LOAD];
 		}
@@ -2347,9 +2583,326 @@ module Diagram {
 	}
 }
 module Diagram.Layouts {
+//				######################################################### DagreGraph #########################################################
+	export class DagreLayout implements Layout {
+		public static EDGE_KEY_DELIM = "\x01";
+		public layout(graph, node) {
+			var g, layoutNode, nodes, newEdge;
+			var i, n, e, x, y, sId, tId, split =Diagram.Layouts.DagreLayout.EDGE_KEY_DELIM;
+			nodes = node.nodes;
+			g = new DagreLayout.Graph();
 
+			for (i in nodes) {
+				if (!nodes.hasOwnProperty(i) || typeof (nodes[i]) === "function") {
+					continue;
+				}
+				n = nodes[i];
+				g.setNode(n.id, {id: n.id, width: n.getSize().x, height: n.getSize().y, x: n.getPos().x, y: n.getPos().y});
+			}
+			for (i = 0; i < node.edges.length; i += 1) {
+				e = node.edges[i];
+				sId = this.getNodeId(e.$sNode);
+				tId = this.getNodeId(e.$tNode);
+				if (sId > tId) {
+					var tmp = tId;
+					tId = sId;
+					sId = tmp;
+				}
+				var idAB = sId+split+tId+split;
+				var idBA = tId+split+sId+split;
+				if (sId != tId && g.edgesLabel.indexOf(idAB)<0 && g.edgesLabel.indexOf(idBA)<0) {
+					newEdge = {source:sId, target:tId, minlen:1, weight:1};
+					g.edges.push(newEdge);
+					g.edgesLabel.push(idAB);
+					// In Edges
+					if(!g.inEdges[tId]) {
+						g.inEdges[tId] = [];
+					}
+					g.inEdges[tId].push(newEdge);
+
+					// Out Edges
+					if(!g.outEdges[sId]) {
+						g.outEdges[sId] = [];
+					}
+					g.outEdges[sId].push(newEdge);
+				}
+			}
+			this.layouting(g);
+			// Set the layouting back
+			for (i in nodes) {
+				if (!nodes.hasOwnProperty(i) || typeof (nodes[i]) === "function") {
+					continue;
+				}
+				n = nodes[i];
+				layoutNode = g.node(n.id);
+				x = n.getPos().x;
+				y = n.getPos().y;
+				if (x < 1 && y < 1) {
+					n.withPos(Math.ceil(layoutNode.x), Math.ceil(layoutNode.y))
+				}
+			}
+			graph.draw();
+		}
+		public getNodeId (node) {
+			if (node.$parent) {
+				return this.getNodeId(node.$parent) || node.id;
+			}
+			return node.id;
+		}
+		public layouting(g) {
+			this.longestPath(g);
+			this.normalizeRanks(g);
+			this.normalizeEdge(g);
+			//this.setSimpleOrder(g);
+			this.order(g);
+			g.ranksep = 25;
+			// remove Dummy
+			this.removeDummy(g);
+			this.position(g);
+		}
+		public setSimpleOrder(g) {
+			var i,n;
+			for (i in g.nodes) {
+				n = g.nodes[i];
+				n.order = n.rank;
+			}
+		}
+		/*
+		 * Applies heuristics to minimize edge crossings in the graph and sets the best
+		 * order solution as an order attribute on each node.
+		 *
+		 * Pre-conditions:
+		 *
+		 *    1. Graph must be DAG
+		 *    2. Graph nodes must be objects with a "rank" attribute
+		 *    3. Graph edges must have the "weight" attribute
+		 *
+		 * Post-conditions:
+		 *
+		 *    1. Graph nodes will have an "order" attribute based on the results of the
+		 *       algorithm.
+		 */
+		public order(g) {
+			var layering= Array(g.maxRank+1);
+			var visited = {};
+			var node,n, order, i;
+			for(i=0;i<layering.length;i++){layering[i]=[];}
+			for(n in g.nodes) {
+				if (visited[n]) continue;
+				visited[n] = true;
+				node = g.nodes[n];
+				if (node.rank !== undefined) {
+					layering[node.rank].push(n);
+				}
+			}
+			for (order in layering) {
+				for(n in layering[order]) {
+					g.nodes[layering[order][n]].order = parseInt(n);
+				}
+			}
+			// Fix resolve conflict
+			for (order in layering) {
+				if(layering[order].length>1) {
+					for(n in layering[order]) {
+						var name = layering[order][n];
+						var sum = 0;
+						var weight = 1;
+						var edges = g.dummyEdges[name];
+						if(edges) {
+							for(i in edges) {
+								var edge = edges[i];
+								var nodeU = g.node(edge.target);
+								sum = sum + (edge.weight * nodeU.order);
+								weight = weight + edge.weight;
+							}
+						}
+
+						g.node(name).barycenter = sum / weight;
+						g.node(name).weight = weight;
+					}
+				}
+			}
+			for (order in layering) {
+				for(n in layering[order]) {
+					var node = g.nodes[layering[order][n]];
+					node.order = parseInt(n) + node.barycenter * node.weight;
+				}
+			}
+		};
+		public removeDummy(g) {
+			for(var z in g.dummyNodes) {
+				var node = g.dummyNodes[z];
+				g.setNode(node.name, null);
+			}
+			g.dummyNodes = [];
+			g.dummyEdges = {};
+		};
+		/*
+		 * Breaks any long edges in the graph into short segments that span 1 layer
+		 * each. This operation is undoable with the denormalize function.
+		 *
+		 * Pre-conditions:
+		 *
+		 *    1. The input graph is a DAG.
+		 *    2. Each node in the graph has a "rank" property.
+		 *
+		 * Post-condition:
+		 *
+		 *    1. All edges in the graph have a length of 1.
+		 *    2. Dummy nodes are added where edges have been split into segments.
+		 *    3. The graph is augmented with a "dummyChains" attribute which contains
+		 *       the first dummy in each chain of dummy nodes produced.
+		 */
+		public normalizeEdge(g) {
+			var i=1;
+			for(var id in g.edges) {
+				var e = g.edges[id];
+				var v = e.source;
+				var vRank = g.node(v).rank;
+				var w = e.target;
+				var wRank = g.node(w).rank;
+				var name;
+
+				if (wRank === vRank + 1) continue;
+
+				var dummy;
+				for (vRank = vRank+1; vRank < wRank; ++vRank) {
+					name = "_d"+e.source+e.target+(i++);
+					var newEdge = {source:v, target:name, minlen:1, weight:1};
+					dummy = {width: 0, height: 0, edgeObj: e, rank: vRank, name:name};
+					// Dummy Edges
+					if(!g.dummyEdges[v]) {
+						g.dummyEdges[v] = [];
+					}
+					g.dummyEdges[v].push(newEdge);
+
+					g.dummyNodes.push(dummy);
+					g.setNode(dummy.name, dummy);
+					v = name;
+				}
+			}
+		};
+		/*
+		 * Initializes ranks for the input graph using the longest path algorithm. This
+		 * algorithm scales well and is fast in practice, it yields rather poor
+		 * solutions. Nodes are pushed to the lowest layer possible, leaving the bottom
+		 * ranks wide and leaving edges longer than necessary. However, due to its
+		 * speed, this algorithm is good for getting an initial ranking that can be fed
+		 * into other algorithms.
+		 *
+		 * This algorithm does not normalize layers because it will be used by other
+		 * algorithms in most cases. If using this algorithm directly, be sure to
+		 * run normalize at the end.
+		 *
+		 * Pre-conditions:
+		 *
+		 *    1. Input graph is a DAG.
+		 *    2. Input graph node labels can be assigned properties.
+		 *
+		 * Post-conditions:
+		 *
+		 *    1. Each node will be assign an (unnormalized) "rank" property.
+		 */
+		public longestPath(g) {
+			var i, n, visited = [];
+			for (i in g.nodes) {
+				n = g.nodes[i];
+				visited.push(i);
+				n.rank = this.findAllPaths(g, n, 0, visited);
+				g.minRank = Math.min(g.minRank, n.rank);
+			}
+		}
+		public findAllPaths(g, n, currentCost, path) {
+			var min:number = 0;
+			var id:string;
+			var z:number;
+			var target;
+			if(g.outEdges[n.id]) {
+				for(z=0;z<g.outEdges[n.id].length;z++) {
+					id = g.outEdges[n.id][z].target;
+					target = g.nodes[id];
+					if(path[id]) {
+						min = Math.min(min, target.rank);
+					} else if(path.indexOf(id)<0) {
+						min = Math.min(min, this.findAllPaths(g, target, currentCost - 2, path));
+					}else {
+						min = currentCost;
+					}
+				}
+				return min;
+			}
+			return currentCost;
+		};
+		/*
+		 * Adjusts the ranks for all nodes in the graph such that all nodes v have
+		 * rank(v) >= 0 and at least one node w has rank(w) = 0.
+		 */
+		public normalizeRanks(g) {
+			var min = g.minRank;
+			var value;
+			g.maxRank = Number.NEGATIVE_INFINITY;
+			g.maxHeight = 0;
+			g.maxWidth = 0;
+			for(var i in g.nodes) {
+				var node = g.nodes[i];
+				if (node.rank !== undefined) {
+					node.rank -= min;
+					value = Math.abs(node.rank);
+					if(value > g.maxRank) {
+						g.maxRank = value;
+					}
+					g.maxHeight = Math.max(g.maxHeight, node.height);
+					g.maxWidth = Math.max(g.maxWidth, node.width);
+				}
+			}
+		};
+		public position(g) {
+			this.positionY(g);
+			var list = this.positionX(g);
+			for(var i in list) {
+				for(var pos in list[i]) {
+					if(g.node(list[i][pos])) {
+						g.node(list[i][pos]).x = parseInt(pos) * g.maxWidth;
+					}
+				}
+
+			}
+		};
+		public positionY(g) {
+			var layering = this.buildLayerMatrix(g);
+			var rankSep = g.ranksep;
+			var prevY = 0;
+			for(var layer in layering) {
+				var maxHeight = g.maxHeight;
+				for(var v in layering[layer]) {
+					var id = layering[layer][v]
+					g.nodes[id].y = prevY + maxHeight / 2;
+				}
+				prevY += maxHeight + rankSep;
+			}
+		}
+		/*
+		 * Given a DAG with each node assigned "rank" and "order" properties, this
+		 * function will produce a matrix with the ids of each node.
+		 */
+		public buildLayerMatrix(g) {
+			var layering= Array(g.maxRank+1);
+			for(var i=0;i<layering.length;i++){layering[i]=[];}
+			for(var n in g.nodes) {
+				var node = g.nodes[n];
+				if (node.rank !== undefined) {
+					layering[node.rank][node.order] = n;
+				}
+			}
+			return layering;
+		};
+		public positionX(g) {
+			var layering = this.buildLayerMatrix(g);
+			return layering;
+		};
+	}
 //				######################################################### GraphLayout-Dagre #########################################################
-export class DagreLayout implements Layout {
+export class DagreLayoutOld implements Layout {
 	public layout(graph, node) {
 		var g, layoutNode,nodes, graphOptions = util.copy({directed: false}, node.options.layout);
 		var i:any, n:Diagram.Nodes.Node, e:Diagram.Edges.Edge, x:number, y:number;
@@ -2382,7 +2935,7 @@ export class DagreLayout implements Layout {
 			x = n.getPos().x;
 			y = n.getPos().y;
 			if (x < 1 && y < 1) {
-				n.withPos(Math.round(layoutNode.x - (x / 2)), Math.round(layoutNode.y - (y / 2)))
+				n.withPos(Math.ceil(layoutNode.x), Math.ceil(layoutNode.y))
 			}
 		}
 		graph.draw();
@@ -2394,6 +2947,33 @@ export class DagreLayout implements Layout {
 		return node.id;
 	}
 }
+}
+module Diagram.Layouts.DagreLayout {
+	export class Graph {
+		public nodes:Object;
+		public edges:Array<Object>;
+		//public edgesLabel:Array<Object>;
+		public outEdges:Object;
+		public inEdges:Object;
+		public dummyNodes:Array<Object>;
+		public dummyEdges:Object;
+		public count:number = 0;
+		public minRank:number = Number.POSITIVE_INFINITY;
+		public nodeCount() : Number {
+			return this.count;
+		}
+		public node(id:string) {
+			return this.nodes[id];
+		}
+		public setNode(id:string, n:Object) {
+			if (n && !this.nodes[id]) {
+				this.nodes[id] = n;
+				this.count = this.count + 1;
+			} else if (!n && this.nodes[id]) {
+				delete this.nodes[id];
+			}
+		}
+	}
 }
 module Diagram.Edges {
 	//				######################################################### Edge #########################################################
@@ -2609,7 +3189,7 @@ module Diagram.Edges {
 		public draw(typ:string) : HTMLElement{
 			var i, style, angle, item, offset;
 			offset = this.calcOffset();
-			if (this.getRoot().typ === "svg") {
+			if (this.getRoot().getTyp() === "svg") {
 				this.board = this.$gui = util.create({tag: "g"});
 			} else {
 				this.$gui = util.create({tag: "svg", style: {position: "absolute"}});
@@ -2631,7 +3211,7 @@ module Diagram.Edges {
 			if (this.info) {
 				angle = this.info.draw(typ);
 				var pos = this.info.getPos();
-				this.board.appendChild(SymbolLibary.create({
+				this.board.appendChild(SymbolLibary.draw({
 					typ: "Arrow",
 					x: pos.x,
 					y: pos.y,
@@ -2829,7 +3409,7 @@ module Diagram.Edges {
 					newY = (this.$m * newX) + this.$n;
 				}
 			}
-			info.withPos(Math.round(newX), Math.round(newY));
+			info.withPos(Math.ceil(newX), Math.ceil(newY));
 		};
 		public static getUDPosition(m:number, n:number, e:BaseElement, p:string, step?:number) {
 			var pos = e.getPos();
@@ -3189,7 +3769,7 @@ module Diagram.util {
 		board.removeChild(item);
 		if (node) {
 			if(node.getSize().isEmpty()) {
-				node.withSize(Math.round(rect.width), Math.round(rect["height"]));
+				node.withSize(Math.ceil(rect.width), Math.ceil(rect.height));
 			}
 		}
 		return rect;

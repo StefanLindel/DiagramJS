@@ -4,7 +4,7 @@
 <!--	<script src="dagre.min.js"></script>-->
 	<script src="dagre.js"></script>
 	<script src="core.js"></script>
-	<script src="testLayout.js"></script>
+	<script src="dagre.js"></script>
 </head>
 <body>
 <script>
@@ -12,6 +12,7 @@
 var json = {
 	"typ": "clazzdiagram",
 	"style": null,
+	"options" : {layout: "DagreLayoutOld"},
 	"nodes": [
 		{"typ": "node", id:"node"},
 		{"typ": "Smiley", id: "Smiley"},
@@ -43,13 +44,7 @@ var json = {
 	{typ: "edge", source: {cardinality: "one", property: "university", id: "University"}, target: {cardinality: "many", property: "students", id: "Student"}}
 	]
 };
-json = {"typ": "clazzdiagram", edges: [{"typ": "edge", "source": "A", "target": "B"},{"typ": "edge", "source": "B", "target": "C"}]};
-json = {"typ": "clazzdiagram", edges: [{"typ": "edge", "source": "B", "target": "A"},{"typ": "edge", "source": "B", "target": "C"}]};
-json = {"typ": "clazzdiagram", nodes:[{"typ": "node", id:"D"}], edges: [{"typ": "edge", "source": "B", "target": "C"}]};
-json = {"typ": "clazzdiagram", edges: [{"typ": "edge", "source": "D", "target": "C"},{"typ": "edge", "source": "B", "target": "A"},{"typ": "edge", "source": "B", "target": "C"}]};
 
-
-json = {typ: "clazzdiagram", edges: [{typ: "edge", source: "A", target: "B"},{typ: "edge", source: "A", target: "C"}, {typ: "edge", source: "C", target: "B"}]};
 //json = {"typ": "objectdiagram",	"nodes": [	{"typ": "node", id:"node"} ]};
 //json = {"typ": "objectdiagram",	"nodes": [	{"typ": "Mobilphone", id: "Max"} ]};
 new Graph(json).layout();
