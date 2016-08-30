@@ -1,0 +1,29 @@
+		private header:Header;
+		private raster:Raster;
+
+		/ Alles anders da komponente
+		public drawComponents() {
+			if(!this.header) {
+				this.header = new Header(this);
+			}
+			this.header.draw();
+			if(this.options.raster) {
+				this.raster = new Raster(this);
+				this.$gui.appendChild(this.raster.draw());
+			}
+
+
+
+
+
+
+		public createdElement(element, typ) {
+			this.getRoot().createdElement(element, typ);
+		}
+		public removeFromBoard(board) {
+			if (this.$gui) {
+				board.removeChild(this.$gui);
+				this.$gui = null;
+			}
+		}
+		

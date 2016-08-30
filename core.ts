@@ -23,6 +23,16 @@
 /*jslint forin:true, newcap:true, node: true, continue: true */
 /*global document: false, window: false, navigator: false, unescape: false, java:false, Image: false, Blob: false, FileReader:false */
 /*global jsPDF: false, svgConverter: false, dagre: false, SVGPathSeg: false*/
+
+//TODO:
+// Move Element
+// Header with Export
+// Loader (Image)
+// Add All Edgetype for Clazzdiagramm
+// Add all Nodes PO
+// Add all EventTypes
+// Add Color to Attributes
+
 module Diagram {
 	'use strict';
 	export interface BaseElement {
@@ -79,7 +89,7 @@ module Diagram.Nodes {
 		}
 
 		public getEvent():string[] {
-			return new Array<string>();
+			return [];
 		}
 		public getPos():Point {
 			return this.pos;
@@ -105,9 +115,6 @@ module Diagram.Nodes {
 			if (value) {
 				this[id] = value;
 			}
-		}
-		public get(id):any {
-			return this[id]
 		}
 		public createNewEdge(typ:string) : Diagram.Nodes.Node {
 			return new Edges.Edge();
@@ -267,10 +274,10 @@ module Diagram.Nodes {
 	}
 	//				######################################################### Clazz #########################################################
 	export class Clazz extends Nodes.Node {
-		private attributes:Array<string> = new Array<string>();
-		private methods:Array<string> = new Array<string>();
+		private attributes:Array<string> = [];
+		private methods:Array<string> = [];
 
-		constructor(){super("");};
+		constructor(){super("Clazz");};
 
 		public init(json) {
 			var i:number, value;
@@ -285,7 +292,7 @@ module Diagram.Nodes {
 		}
 
 		public drawSVG(draw?:boolean) {
-			var width, height, id, textWidth, x, y, z, item, rect, g, board, styleHeader, headerHeight;
+			var width, height, id, size, x, y, z, item, rect, g, board, styleHeader, headerHeight;
 			board = this.getRoot()["board"];
 			styleHeader = util.getStyle("ClazzHeader");
 			headerHeight = styleHeader.getNumber("height");
@@ -303,8 +310,8 @@ module Diagram.Nodes {
 				}
 			}
 			g = util.create({tag: "g", model: this});
-			textWidth = util.sizeOf(id, this).width;
-			width = Math.max(width, textWidth);
+			size = util.sizeOf(id, this);
+			width = Math.max(width, size.width);
 			if (this.attributes && this.attributes.length > 0) {
 				height = height + this.attributes.length * 25;
 				for (z = 0; z < this.attributes.length; z += 1) {
@@ -350,9 +357,9 @@ module Diagram.Nodes {
 				$font: true,
 				"class": "InfoText",
 				"text-anchor": "right",
-				"x": x + width / 2 - textWidth / 2,
-				"y": y + (headerHeight / 2),
-				"width": textWidth
+				"x": x + width / 2 - size.width / 2,
+				"y": y + (headerHeight / 2) + (size.height/2),
+				"width": size.width
 			});
 
 			if (this.typ === "Object" || this.getRoot()["model"].typ.toLowerCase() === "objectdiagram") {
@@ -419,7 +426,7 @@ module Diagram.Nodes {
 			htmlElement.appendChild(item);
 			if (this["head"] && this["head"].$src) {
 				cell = util.createCell(item, "td", this);
-				cell.style.textAlign = "center";
+				cell.style["textAlign"] = "center";
 				if (!this["head"].$img) {
 					this["head"].$img = {};
 					this["head"].$img.src = this["head"].$src;
@@ -445,7 +452,7 @@ module Diagram.Nodes {
 			}
 			cell = util.createCell(item, "th", this, z, "id");
 			if (model.typ.toLowerCase() === "objectdiagram") {
-				cell.style.textDecorationLine = "underline";
+				cell.style["textDecorationLine"] = "underline";
 			}
 			cell = null;
 			if (this.attributes) {
@@ -483,14 +490,92 @@ module Diagram.Nodes {
 			return htmlElement;
 		}
 	}
+	//				######################################################### Pattern #########################################################
+	export class Pattern  extends Nodes.Node {
+
+		constructor() {super("Pattern");}
+
+		public drawSVG(draw?:boolean) {
+			var width:number = 0, height:number = 40, textWidth:number, rect, item, g = util.create({tag: "g", model: this});
+			var id:string;
+			var pos:Point;
+			id = this.id;
+			if (this.counter) {
+				id += " (" + this.counter + ")";
+			}
+			textWidth = util.sizeOf(id, this).width;
+			width = Math.max(width, textWidth);
+			height += 20;
+			width += 20;
+
+			pos = this.getPos();
+
+			rect = {
+				tag: "rect",
+				"width": width,
+				"height": height,
+				"x": pos.x,
+				"y": pos.y,
+				"fill": "#fff",
+				"class": "draggable"
+			};
+			rect.fill = "lightblue";
+
+			g.appendChild(util.create(rect));
+			item = util.create({
+				tag: "text",
+				$font: true,
+				"text-anchor": "right",
+				"x": pos.x + width / 2 - textWidth / 2,
+				"y": pos.y + 20,
+				"width": textWidth
+			});
+			item.appendChild(document.createTextNode(id));
+			g.appendChild(item);
+			g.appendChild(util.create({
+				tag: "line",
+				x1: pos.x,
+				y1: pos.y + 30,
+				x2: pos.x + width,
+				y2: pos.y + 30,
+				stroke: rect.stroke
+			}));
+			return g;
+		}
+
+		public drawHTML(draw?:boolean) {
+			var cell, item = util.create({tag: "div", model: this});
+			var pos = this.getPos();
+			item.className = "patternElement";
+			util.setPos(item, pos.x, pos.y);
+			this.fireEvent(this, EventBus.EVENT.CREATED, item);
+
+			item.appendChild(util.create({
+				tag: 'table',
+				border: "0",
+				style: {width: "100%", height: "100%"}
+			}));
+			if (this["href"]) {
+				util.createCell(item, "th", this, "<a href=\"" + this["href"] + "\">" + this.id + "</a>", "id");
+			} else {
+				util.createCell(item, "th", this, this.id, "id");
+			}
+			cell = util.createCell(item, "td", this, "&nbsp;");
+			cell.className = 'first';
+			this.fireEvent(this, EventBus.EVENT.CREATED, cell);
+
+			item.node = this;
+			this.$gui = item;
+			return item;
+		}
+	}
 	//END
 }
 module Diagram {
 	'use strict';
-	import Node = Diagram.Nodes.Node;
 	export class EventBus {
-		public static EVENT = {CREATED: "created", LOADRESOURCE: "loadResource", LOAD: "load", RASTER:"raster", HEADER:"header", MOUSEOVER:"mouseover", MOUSEOUT:"mouseout"};
-		public $listeners:Array<Nodes.Node> = new Array<Nodes.Node>();
+		public static EVENT = {CREATED: "created", LOADRESOURCE: "loadResource", LOAD: "load", RASTER:"raster", HEADER:"header", MOUSEOVER:"mouseover", MOUSEMOVE:"mousemove", MOUSEOUT:"mouseout"};
+		public $listeners:Object = {};
 
 		public addElement(item:BaseElement) {
 			var events:string[] = item.getEvent();
@@ -499,15 +584,14 @@ module Diagram {
 			}
 		}
 		public addListener(event:string, newListener:BaseElement) {
-			var listeners = this.getListeners(event),
-				existingListener,
-				idx;
+			var listeners = this.getListeners(event);
+			var existingListener;
+			var idx:number;
 			// ensure we order listeners by priority from
 			// 0 (high) to n > 0 (low)
 			for (idx = 0; (existingListener = listeners[idx]); idx++) {
 				// prepend newListener at before existingListener
 				listeners.splice(idx, 0, newListener);
-				return;
 			}
 			listeners.push(newListener);
 		}
@@ -521,7 +605,19 @@ module Diagram {
 		public fireEvent(source:BaseElement, typ:string, value:Object) {
 			var nodes = this.getListeners(typ);
 			for(var id in nodes) {
+				if (nodes.hasOwnProperty(id) === false) {
+					continue;
+				}
 				nodes[id].event(source, typ, value);
+			}
+		}
+		public register(node : HTMLElement) {
+			var that = this;
+			for(var name in this.$listeners) {
+				let localName = name;
+				util.bind(node, name,  function(e) {
+					that.fireEvent(this, localName, e);
+				});
 			}
 		}
 	}
@@ -535,6 +631,7 @@ module Diagram {
 		protected edgeFactory:Object;
 		protected nodeFactory:Object;
 		protected layoutFactory:Object;
+		protected header:Header;
 
 		//TODO private layoutFactory:Array<String, Layout>;
 		constructor(json:any, options:Diagram.Options) {
@@ -544,7 +641,10 @@ module Diagram {
 			json.left = json.left || 10;
 
 			this.eventBus = new EventBus();
+			this.eventBus.addElement(this);
 			this.loader = new Loader(this);
+			this.header = new Header(this);
+			this.eventBus.addElement(this.header);
 
 			// Fill all Factories
 			var nodes = Diagram.Nodes;
@@ -574,6 +674,23 @@ module Diagram {
 			}
 			this.model = new Model(json, options, this);
 		}
+
+		public addToNodeFactory(node:BaseElement) {
+			var name:string = typeof(node);
+			this.nodeFactory[name] = node;
+		}
+
+		public event(source:Nodes.Node, typ:string, value:Object){
+			if(this.getTyp()==="svg") {
+				if(EventBus.EVENT.CREATED === typ) {
+					CSS.addStyles(this.$gui, value["$gui"]);
+				}
+			}
+		}
+
+		public getEvent():string[] {
+			return [EventBus.EVENT.CREATED];
+		}
 		public getLayout() : Layout {
 			var layout = this.getOptions().layout || {};
 			var layoutName:string;
@@ -589,7 +706,7 @@ module Diagram {
 		}
 		public draw(typ?:string):HTMLElement {
 			// model, width, height
-			var i:string, n:Diagram.Nodes.Node, nodes:Object, model:Diagram.Model;
+			var n:Diagram.Nodes.Node, nodes:Object, model:Diagram.Model;
 			model = this.model;
 			nodes = model.nodes;
 			if (!typ) {
@@ -733,16 +850,12 @@ module Diagram {
 				document.body.appendChild(this.$root);
 			}
 			this.initBoard();
+			this.eventBus.register(this.$gui);
+
 			if (!model) {
 				model = this.model;
 			}
 			this.initGraph(model);
-			//TODO if (this.loader.length() < 1) {
-			//	this.layouter.layout(this, model, minwidth || 0, minHeight || 0);
-			//} else {
-			//	this.loader.width = minwidth;
-			//	this.loader.height = minHeight;
-			//}
 			this.minSize = new Point(minwidth, minHeight);
 			this.getLayout().layout(this, this.model);
 		}
@@ -810,7 +923,7 @@ module Diagram {
 			}
 		}
 		public drawComponents() {
-			// FIRE FOR RASTER AND HEADER
+			//TODO  FIRE FOR RASTER AND HEADER
 			//this.fireEvent(this, EventBus.EVENT.RASTER);
 			//TODO this.fireEvent(this, EventBus.EVENT.HEADER);
 			var nodes, n, max;
@@ -1066,7 +1179,7 @@ module Diagram {
 		}
 		public drawLines() : void {
 			this.clearLines();
-			var i, e, startShow, endShow, items = [], id;
+			var i:number, e, startShow, endShow, items = [], id;
 			for (i = 0; i < this.edges.length; i += 1) {
 				e = this.edges[i];
 				startShow = !e.$sNode.isClosed();
@@ -1096,19 +1209,20 @@ module Diagram {
 				if (typ === "svg") {
 					//svgUtil.addStyle(board, "ClazzHeader");
 					//FIXME
-					CSS.addStyles(this.$gui, n.$gui);
+					//CSS.addStyles(this.$gui, n.$gui);
 				}
 				this.$gui.appendChild(n.$gui);
+				this.fireEvent(this, EventBus.EVENT.CREATED, n);
 			}
 		}
 		public clearLines() : void {
-			var i;
+			var i:number;
 			for (i = 0; i < this.edges.length; i += 1) {
 				this.edges[i].removeFromBoard(this.$gui);
 			}
 		}
 		public drawSVG(draw?:boolean) {
-			var g = util.create({tag: "g", model: this}), that = this, width, height, item, root:any;
+			var g = util.create({tag: "g", model: this}), that = this, width:number, height:number, item, root:any;
 			root = this.getRoot();
 			var pos = this.getPos();
 			var size = this.getSize();
@@ -1419,24 +1533,25 @@ module Diagram {
 	}
 	//				######################################################### Line #########################################################
 	export class Line implements BaseElement {
-		private line:string;
-		private color:string;
-		private path:string;
-		private angle:number;
-		source:Point;
-		target:Point;
 		public static FORMAT = {SOLID: "SOLID", DOTTED: "DOTTED", PATH: "PATH"};
+		private line: string;
+		private path: string;
+		private angle: number;
+		source: Point;
+		public target:Point;
+		public color:string;
 
-		constructor(source?:Point, target?:Point, line?:string, color?:string) {
+		constructor(source?: Point, target?: Point, line?: string, color?: string) {
 			this.source = source;
 			this.target = target;
 			this.line = line;
 			this.color = color;
 		}
 
-		public getTyp() : string{
+		public getTyp(): string {
 			return "SVG";
 		}
+
 		public getPos() {
 			var pos = new Point();
 			pos.center(this.source, this.target);
@@ -1448,16 +1563,23 @@ module Diagram {
 			pos.size(this.source, this.target);
 			return pos;
 		}
-		public withSize(x:number, y:number):BaseElement{
+		public withColor(color:string): Line {
+			this.color = color;
 			return this;
 		}
-		public getCenter() : Point {
+
+		public withSize(x: number, y: number): BaseElement {
+			return this;
+		}
+
+		public getCenter(): Point {
 			var pos = this.getPos();
 			var size = this.getSize();
-			return new Point(pos.x+size.x/2, pos.y+size.y/2);
+			return new Point(pos.x + size.x / 2, pos.y + size.y / 2);
 		}
-		public withPath(path:Array<Point>, close, angle?:any):Line {
-			var i:number, d:string = "M" + path[0].x + " " + path[0].y;
+
+		public withPath(path: Array<Point>, close, angle?: any): Line {
+			var i: number, d: string = "M" + path[0].x + " " + path[0].y;
 			this.line = Line.FORMAT.PATH; // It is a Path not a Line
 			for (i = 1; i < path.length; i += 1) {
 				d = d + "L " + path[i].x + " " + path[i].y;
@@ -1478,7 +1600,7 @@ module Diagram {
 			return this;
 		};
 
-		public draw():HTMLElement {
+		public draw(): HTMLElement {
 			if (this.line === "PATH") {
 				return util.create({
 					tag: "path",
@@ -1502,12 +1624,15 @@ module Diagram {
 			}
 			return line;
 		}
+
 		public getEvent() {
 			return new String[0];
 		}
-		public fireEvent(source:Nodes.Node, typ:string, value:Object) {
+
+		public fireEvent(source: Nodes.Node, typ: string, value: Object) {
 		}
-		public event(source:Nodes.Node, typ:string, value:Object) {
+
+		public event(source: Nodes.Node, typ: string, value: Object) {
 		}
 	}
 	//				###################################################### SymbolLibary ####################################################################################
@@ -2324,6 +2449,9 @@ module Diagram {
 		}
 
 		public static addStyles(board, item) {
+			if(!item) {
+				return;
+			}
 			var items, i, className = item.className;
 
 			if (className) {
@@ -2342,13 +2470,15 @@ module Diagram {
 			}
 		}
 	}
+	import Node = Nodes.Node;
 	//				######################################################### Header #########################################################
-	export class Header extends Nodes.Node  {
+	export class Header extends Node  {
 		private group;
+		private visible:boolean;
 		private toolitems:Array<any>=[];
 
 		public getEvent():string[] {
-			return [EventBus.EVENT.HEADER, EventBus.EVENT.MOUSEOVER, EventBus.EVENT.MOUSEOUT];
+			return [EventBus.EVENT.HEADER, EventBus.EVENT.MOUSEMOVE, EventBus.EVENT.MOUSEOUT];
 		}
 
 		public getPos():Point {
@@ -2364,12 +2494,12 @@ module Diagram {
 		}
 
 		public draw(draw?:string) : HTMLElement {
-			var temp, list, item, child, func, i, type, removeToolItems, parent:any, that=this;
+			var temp, list, item, child, func, i, type, removeToolItems, parent:Node, that=this;
 			var x,y, root = <Graph>this.getRoot();
 
 			type = root.getTyp().toUpperCase();
 			list = ["HTML", "SVG", "PNG"];
-			parent = this.$parent;
+			parent = this.getRoot();
 
 			removeToolItems = function () {
 				for (i = 0; i < that.toolitems.length; i += 1) {
@@ -2465,6 +2595,23 @@ module Diagram {
 			this.getRoot().fireEvent(source, typ, value);
 		}
 		public event(source:BaseElement, typ:string, value:Object) {
+			if(typ===EventBus.EVENT.MOUSEOUT) {
+				if(this.visible) {
+					this.$parent["$gui"].removeChild(this.group);
+					this.visible = false;
+				}
+			} else if(value["pageX"] >= this.getSize().x || value["pageY"] >= this.getSize().y ) {
+				if(this.visible) {
+					this.$parent["$gui"].removeChild(this.group);
+					this.visible = false;
+				}
+			} else if(!this.visible) {
+				if(!this.group) {
+					this.draw();
+				}
+				this.$parent["$gui"].appendChild(this.group);
+				this.visible = true;
+			}
 			//TODO util.bind(this.$parent["$gui"], "mouseover", function () {
 			//	that.$parent["$gui"].appendChild(that.group);
 			//});
@@ -2491,7 +2638,7 @@ module Diagram {
 			}else {
 				this.$gui = util.create({tag:"g"})
 			}
-			y = parent.width;
+			y = parent["width"];
 			height = this.pos.y;
 			for (i = this.range; i < y; i += this.range) {
 				line = new Line(new Point(i,0), new Point(i,height), null, "#ccc").draw();
@@ -2697,6 +2844,9 @@ module Diagram.Layouts {
 			}
 			for (order in layering) {
 				for(n in layering[order]) {
+					if(layering[order].hasOwnProperty(n) === false) {
+						continue;
+					}
 					g.nodes[layering[order][n]].order = parseInt(n);
 				}
 			}
@@ -2704,12 +2854,18 @@ module Diagram.Layouts {
 			for (order in layering) {
 				if(layering[order].length>1) {
 					for(n in layering[order]) {
+						if(layering[order].hasOwnProperty(n) === false) {
+							continue;
+						}
 						var name = layering[order][n];
 						var sum = 0;
 						var weight = 1;
 						var edges = g.dummyEdges[name];
 						if(edges) {
 							for(i in edges) {
+								if(edges.hasOwnProperty(i) === false) {
+									continue;
+								}
 								var edge = edges[i];
 								var nodeU = g.node(edge.target);
 								sum = sum + (edge.weight * nodeU.order);
@@ -2724,6 +2880,9 @@ module Diagram.Layouts {
 			}
 			for (order in layering) {
 				for(n in layering[order]) {
+					if(layering[order].hasOwnProperty(n) === false) {
+						continue;
+					}
 					var node = g.nodes[layering[order][n]];
 					node.order = parseInt(n) + node.barycenter * node.weight;
 				}
@@ -2861,6 +3020,9 @@ module Diagram.Layouts {
 			var list = this.positionX(g);
 			for(var i in list) {
 				for(var pos in list[i]) {
+					if(list[i].hasOwnProperty(pos) === false) {
+						continue;
+					}
 					if(g.node(list[i][pos])) {
 						g.node(list[i][pos]).x = parseInt(pos) * g.maxWidth;
 					}
@@ -2875,7 +3037,10 @@ module Diagram.Layouts {
 			for(var layer in layering) {
 				var maxHeight = g.maxHeight;
 				for(var v in layering[layer]) {
-					var id = layering[layer][v]
+					if(layering[layer].hasOwnProperty(v) === false) {
+						continue;
+					}
+					var id = layering[layer][v];
 					g.nodes[id].y = prevY + maxHeight / 2;
 				}
 				prevY += maxHeight + rankSep;
@@ -3539,6 +3704,85 @@ module Diagram.Edges {
 				return new Point(pos.x + size.x, Math.min(node.getCenter().y + offset, pos.y + size.y), Edge.Position.RIGHT);
 			}
 		};
+	}
+	//				######################################################### Generalisation #########################################################
+	export class Generalisation extends Edge {
+		constructor() {
+			super();
+			this.typ = "Generalisation";
+		}
+
+		public calc(board) : boolean{
+			if (!super.calc(board)) {
+				return false;
+			}
+			this.calcMoveLine(16, 50, true);
+			this.$path.push(new Line(new Point(this.$top.x, this.$top.y), new Point(this.$endPos.x, this.$endPos.y)));
+			this.$path.push(new Line(new Point(this.$bot.x, this.$bot.y), new Point(this.$endPos.x, this.$endPos.y)));
+			this.$path.push(new Line(new Point(this.$top.x, this.$top.y), new Point(this.$bot.x, this.$bot.y)));
+			return true;
+		}
+
+		public drawSourceText(style) {
+		};
+
+		public drawTargetText(style) {
+		};
+	}
+	//				######################################################### Implements #########################################################
+	export class Implements extends Generalisation {
+		constructor() {
+			super();
+			this.typ = "Implements";
+			this.$lineStyle = Line.FORMAT.DOTTED
+		}
+	}
+	//				######################################################### Unidirectional #########################################################
+	export class Unidirectional extends Edge {
+		constructor() {
+			super();
+			this.typ = "Unidirectional";
+		}
+		public calc(board) {
+			if (!super.calc(board)) {
+				return false;
+			}
+			this.calcMoveLine(16, 50, false);
+			this.$path.push(new Line(new Point(this.$top.x, this.$top.y), new Point(this.$endPos.x, this.$endPos.y)));
+			this.$path.push(new Line(new Point(this.$bot.x, this.$bot.y), new Point(this.$endPos.x, this.$endPos.y)));
+			return true;
+		};
+	}
+	//				######################################################### Aggregation #########################################################
+	export class Aggregation extends Edge {
+		constructor() {
+			super();
+			this.typ = "Aggregation";
+		}
+
+		public calc(board) {
+			if (!super.calc(board)) {
+				return false;
+			}
+			this.calcMoveLine(16, 49.8, true);
+			this.$path.push(new Line().withPath([this.endPos().target, this.$topCenter, this.$endPos, this.$botCenter], true, true).withColor("#FFF"));
+			return true;
+		}
+	}
+	//				######################################################### Composition #########################################################
+	export class Composition extends Edge {
+		constructor() {
+			super();
+			this.typ = "Composition";
+		}
+		public calc(board) {
+			if (!super.calc(board)) {
+				return false;
+			}
+			this.calcMoveLine(16, 49.8, true);
+			this.$path.push(new Line().withPath([this.endPos().target, this.$topCenter, this.$endPos, this.$botCenter],true, true).withColor("#000"));
+			return true;
+		}
 	}
 }
 module Diagram.util {

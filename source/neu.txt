@@ -1,0 +1,67 @@
+		protected $parent:Node = null;
+		protected id:string;
+		protected typ:string;
+		protected status:string;
+        protected $isDraggable:boolean = true;
+		protected pos:Point = new Point();
+		protected size:Point = new Point();
+		protected counter:number;
+		protected $gui:any;
+		protected $edges:Array<any>;
+		protected $center:Point;
+		private $RIGHT:number;
+		private $LEFT:number;
+		private $UP:number;
+		private $DOWN:number;
+		
+
+//PATH
+
+		export class Path implements PathElement{
+		
+		private fill:string;
+		
+		target:Pos;
+
+		public withFill(fill:string) : Path{
+			this.fill = fill;
+			return this;
+		}
+		public withAngle(angle:number) : Path{
+			this.angle = angle;
+			return this;
+		}
+
+		
+		public withString(path:string) {
+			this.path = path;
+			return this;
+		}
+
+//CSS
+				protected getString() : string {
+			var str, style;
+			str = "{";
+			for (style in this.css) {
+				if (!this.css.hasOwnProperty(style)) {
+					continue;
+				}
+				str = str + style + ":" + this.css[style] + ";";
+			}
+			str = str + "}";
+			return str;
+		};
+
+//	Edge
+				public static Layout = {DIAG: 1, RECT: 0};
+				
+				
+				
+// CallStack
+Graph:Constructor
+Graph:initLayout
+Graph:layout
+Graph:initGraph
+DragreLayout:layout
+Graph:draw
+Graph:resize
