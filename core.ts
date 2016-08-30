@@ -25,12 +25,12 @@
 /*global jsPDF: false, svgConverter: false, dagre: false, SVGPathSeg: false*/
 
 //TODO:
-// Move Element
 // Header with Export
+// Move Element
 // Loader (Image)
-// Add All Edgetype for Clazzdiagramm
-// Add all Nodes PO
+// Save (Export) and load Drag and Drop
 // Add all EventTypes
+// Add ClazzEditor
 // Add Color to Attributes
 
 module Diagram {
@@ -43,11 +43,11 @@ module Diagram {
 		getTyp():String;
 		withSize(x:number,y:number):BaseElement;
 		getCenter() : Point;
-		fireEvent(source:BaseElement, typ:string, value:Object);
-		event(source:BaseElement, typ:string, value:Object);
+		fireEvent(source:BaseElement, typ:string, value:Object):void;
+		event(source:BaseElement, typ:string, value:Object):boolean;
 	}
 	export interface Layout {
-		layout(graph,node);
+		layout(graph:Graph,node:BaseElement):void;
 	}
 }
 module Diagram.Nodes {
@@ -84,7 +84,7 @@ module Diagram.Nodes {
 			return result;
 		}
 		public getTyp() :string {
-			var root:Graph = <Graph> this.getRoot();
+			var root:Node = this.getRoot();
 			return root.getTyp();
 		}
 
@@ -255,11 +255,11 @@ module Diagram.Nodes {
 			}
 			return this;
 		}
-		public fireEvent(source:BaseElement, typ:string, value:Object) {
+		public fireEvent(source:BaseElement, typ:string, value:Object) : void {
 			this.getRoot().fireEvent(source, typ, value);
 		}
-		public event(source:Nodes.Node, typ:string, value:Object){
-
+		public event(source:Nodes.Node, typ:string, value:Object) : boolean{
+			return true;
 		}
 	}
 	export class Symbol extends Nodes.Node {
@@ -270,6 +270,37 @@ module Diagram.Nodes {
 		}
 		public draw(typ?:string):HTMLElement {
 			return SymbolLibary.draw(this);
+		}
+	}
+	export class SO implements BaseElement {
+		private pos:Point;
+		private size:Point;
+		constructor(element:string) {
+		}
+		public draw(typ?:string):HTMLElement {return null;}
+		public getEvent():string[] {return [];}
+		public getTyp():String {return "SO";}
+
+		public getPos():Point {
+			return this.pos;
+		}
+		public getSize():Point {
+			return this.size;
+		}
+		public withSize(x:number,y:number): SO {
+			this.size = new Point(x,y);
+			return this;
+		}
+		public getCenter(): Point {
+			var pos = this.getPos();
+			var size = this.getSize();
+			return new Point(pos.x + size.x / 2, pos.y + size.y / 2);
+		}
+		public fireEvent(source:BaseElement, typ:string, value:Object) {
+
+		}
+		public event(source:BaseElement, typ:string, value:Object):boolean {
+			return true;
 		}
 	}
 	//				######################################################### Clazz #########################################################
@@ -680,12 +711,17 @@ module Diagram {
 			this.nodeFactory[name] = node;
 		}
 
-		public event(source:Nodes.Node, typ:string, value:Object){
+		public getModel() : Model {
+			return this.model;
+		}
+
+		public event(source:Nodes.Node, typ:string, value:Object) : boolean{
 			if(this.getTyp()==="svg") {
 				if(EventBus.EVENT.CREATED === typ) {
 					CSS.addStyles(this.$gui, value["$gui"]);
 				}
 			}
+			return true;
 		}
 
 		public getEvent():string[] {
@@ -1140,6 +1176,12 @@ module Diagram {
 		}
 		public static validateEdge(sEdge, tEdge) {
 			return (sEdge.source.id === tEdge.source.id && sEdge.target.id === tEdge.target.id) && (sEdge.source.property === tEdge.source.property && sEdge.target.property === tEdge.target.property);
+		}
+		public getOption(value:string) : any {
+			if(this.options) {
+				return this.options[value];
+			}
+			return null;
 		}
 		public getBoard(type) {
 			if (type === "svg") {
@@ -1632,8 +1674,7 @@ module Diagram {
 		public fireEvent(source: Nodes.Node, typ: string, value: Object) {
 		}
 
-		public event(source: Nodes.Node, typ: string, value: Object) {
-		}
+		public event(source: Nodes.Node, typ: string, value: Object) : boolean{return true;}
 	}
 	//				###################################################### SymbolLibary ####################################################################################
 // Example Items
@@ -1645,7 +1686,7 @@ module Diagram {
 // {tag: "image", height: 30, width: 50, content$src: hallo}
 // {tag: "text", "text-anchor": "left", x: "10"}
 	export class SymbolLibary {
-		public static draw(node, parent?:Object) {
+		public static draw(node:BaseElement, parent?:Object) {
 			// Node is Symbol or simple Object
 			var symbol, fn = this[SymbolLibary.getName(node)];
 			if (typeof fn === "function") {
@@ -2252,7 +2293,7 @@ module Diagram {
 		public css;
 
 		constructor(name, item?:any) {
-			var i, value, border, prop, el;
+			var i, value, border:string, prop, el;
 			this.name = name;
 			this.css = {};
 			if (!item) {
@@ -2494,7 +2535,7 @@ module Diagram {
 		}
 
 		public draw(draw?:string) : HTMLElement {
-			var temp, list, item, child, func, i, type, removeToolItems, parent:Node, that=this;
+			var temp, list, item, child, func, i, type, removeToolItems, parent:any, that=this;
 			var x,y, root = <Graph>this.getRoot();
 
 			type = root.getTyp().toUpperCase();
@@ -2518,7 +2559,7 @@ module Diagram {
 			}else {
 				that.group = util.create({tag:"g"})
 			}
-			item = parent.options.buttons;
+			item = parent.getModel().getOption("buttons");
 			func = function (e) {
 				var t = e.currentTarget.typ;
 				parent.initBoard(t);
@@ -2594,7 +2635,7 @@ module Diagram {
 		public fireEvent(source:BaseElement, typ:string, value:Object) {
 			this.getRoot().fireEvent(source, typ, value);
 		}
-		public event(source:BaseElement, typ:string, value:Object) {
+		public event(source:BaseElement, typ:string, value:Object) : boolean {
 			if(typ===EventBus.EVENT.MOUSEOUT) {
 				if(this.visible) {
 					this.$parent["$gui"].removeChild(this.group);
@@ -2620,6 +2661,7 @@ module Diagram {
 			//		removeToolItems(that.$parent["$gui"]);
 			//	}
 			//});
+			return true;
 		}
 	}
 	//				######################################################### Raster #########################################################
@@ -2724,8 +2766,9 @@ module Diagram {
 			this.images.push(img);
 			this.draw();
 		}
-		public event(source:BaseElement, typ:string, value:Object) {
+		public event(source:BaseElement, typ:string, value:Object) : boolean{
 			//TODO IMPLEMENT LOADED RESOURCE
+			return true;
 		}
 	}
 }

@@ -114,11 +114,6 @@
 	position: absolute;
 	background:#ffffff;
 }
-.Clazz table{
-	border-spacing:0;
-	cursor: hand;
-}
-
 .ClazzHeader {
 	background-image: linear-gradient(left, white 0%, lightgray 50%);
 	background-image: linear-gradient(top, white 0%, lightgray 50%);
