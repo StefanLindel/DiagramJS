@@ -40,7 +40,7 @@ module Diagram {
 		getEvent():string[];
 		getPos():Point;
 		getSize():Point;
-		getTyp():String;
+		getTyp():string;
 		withSize(x:number,y:number):BaseElement;
 		getCenter() : Point;
 		fireEvent(source:BaseElement, typ:string, value:Object):void;
@@ -273,13 +273,13 @@ module Diagram.Nodes {
 		}
 	}
 	export class SO implements BaseElement {
-		private pos:Point;
-		private size:Point;
-		constructor(element:string) {
-		}
+		private pos:Point = new Point();
+		private size:Point = new Point();
+		private typ:string = "SO";
+
 		public draw(typ?:string):HTMLElement {return null;}
 		public getEvent():string[] {return [];}
-		public getTyp():String {return "SO";}
+		public getTyp():string {return this.typ;}
 
 		public getPos():Point {
 			return this.pos;
@@ -296,11 +296,38 @@ module Diagram.Nodes {
 			var size = this.getSize();
 			return new Point(pos.x + size.x / 2, pos.y + size.y / 2);
 		}
+		public withKeyValue(key:string, value:any) : SO{
+			if(key === "typ") {
+				this.typ = value;
+			}else  if(key==="x") {
+				this.pos.x = value;
+			}else  if(key==="y") {
+				this.pos.y = value;
+			}else  if(key==="width") {
+				this.size.x = value;
+			}else  if(key==="height") {
+				this.size.y = value;
+			} else {
+				this[key] = value;
+			}
+			return this;
+		}
 		public fireEvent(source:BaseElement, typ:string, value:Object) {
 
 		}
 		public event(source:BaseElement, typ:string, value:Object):boolean {
 			return true;
+		}
+		public static create(element:Object) {
+			var result:SO = new SO();
+			for(var key in element) {
+				if(element.hasOwnProperty(key) === false) {
+					continue;
+				}
+				result.withKeyValue(key, element[key]);
+
+			}
+			return result;
 		}
 	}
 	//				######################################################### Clazz #########################################################
@@ -1304,10 +1331,10 @@ module Diagram {
 			}
 			if (this.status === "close") {
 				// Open Button
-				item = SymbolLibary.createGroup(this, SymbolLibary.drawMax(Node.create({x: (pos.x + width - 20), y: pos.y})));
+				item = SymbolLibary.createGroup(this, SymbolLibary.drawMax(Diagram.Nodes.Node.create({x: (pos.x + width - 20), y: pos.y})));
 				this.size.y = height;
 			} else {
-				item = SymbolLibary.createGroup(this, SymbolLibary.drawMin(Node.create({x: (pos.x + width - 20), y: pos.y})));
+				item = SymbolLibary.createGroup(this, SymbolLibary.drawMin(Diagram.Nodes.Node.create({x: (pos.x + width - 20), y: pos.y})));
 			}
 			item.setAttribute("class", "hand");
 
@@ -1695,12 +1722,14 @@ module Diagram {
 					return Diagram.SymbolLibary.createGroup(node, symbol);
 				}
 				return Diagram.SymbolLibary.createGroup(node, symbol);
-			} else if (node.typ) {
-				symbol = new Diagram.Nodes.Symbol(node.typ);
-				symbol.withPos(node.x, node.y);
-				symbol.withSize(node.width, node.height);
-				symbol["value"] = node.value;
-				parent = node.$parent;
+			} else if (node.getTyp()) {
+				symbol = new Diagram.Nodes.Symbol(node.getTyp());
+				var pos = node.getPos();
+				var size = node.getSize();
+				symbol.withPos(pos.x, pos.y);
+				symbol.withSize(size.x, size.y);
+				symbol["value"] = node["value"];
+				parent = node["$parent"];
 				return Diagram.SymbolLibary.draw(symbol, parent);
 			}
 			return null;
@@ -1716,9 +1745,9 @@ module Diagram {
 			var fn = Diagram.SymbolLibary[SymbolLibary.getName(node)];
 			return typeof fn === "function";
 		}
-		public static getName(node:Diagram.Nodes.Symbol) {
-			if (node.typ) {
-				return "draw" + SymbolLibary.upFirstChar(node.typ);
+		public static getName(node:BaseElement) {
+			if (node.getTyp()) {
+				return "draw" + SymbolLibary.upFirstChar(node.getTyp());
 			}
 			if (node["src"]) {
 				return "draw" + SymbolLibary.upFirstChar(node["src"]);
@@ -1757,7 +1786,7 @@ module Diagram {
 				});
 			} else {
 				svg = util.create({tag: "g"});
-				transform = "translate(" + group.x + " " + group.y + ")";
+				transform = "translate(" + group.pos.x + " " + group.pos.y + ")";
 				if (group.scale) {
 					transform += " scale(" + group.scale + ")";
 				}
@@ -1902,8 +1931,8 @@ module Diagram {
 			SymbolLibary.drawEdgeicon(node);
 		};
 
-		public static drawSmiley(node:BaseElement) {
-			return {
+		public static drawSmiley(node:BaseElement) : BaseElement {
+			return Diagram.Nodes.SO.create({
 				x: node.getPos().x,
 				y: node.getPos().y,
 				width: 50,
@@ -1921,11 +1950,11 @@ module Diagram {
 					{tag: "path", d: "m5.57,31.65c3.39,0.91 4.03,-2.20 4.03,-2.20"},
 					{tag: "path", d: "m43,32c-3,0.91 -4,-2.20 -4.04,-2.20"}
 				]
-			};
+			});
 		};
 
-		public static drawDatabase(node:BaseElement) {
-			return {
+		public static drawDatabase(node:BaseElement) :BaseElement{
+			return Diagram.Nodes.SO.create({
 				x: node.getPos().x || 0,
 				y: node.getPos().y || 0,
 				width: 25,
@@ -1944,11 +1973,11 @@ module Diagram {
 						d: "m0,6.26c0,4.69 25.03,4.69 25.03,0m-25.03,2.35c0,4.69 25.03,4.69 25.03,0m-25.03,2.35c0,4.69 25.03,4.69 25.03,0"
 					}
 				]
-			};
+			});
 		};
 
-		public static drawLetter(node:BaseElement) {
-			return {
+		public static drawLetter(node:BaseElement) : BaseElement{
+			return Diagram.Nodes.SO.create({
 				x: node.getPos().x || 0,
 				y: node.getPos().y || 0,
 				width: 25,
@@ -1957,11 +1986,11 @@ module Diagram {
 					{tag: "path", stroke: "black", fill: "none", d: "m1,1l22,0l0,14l-22,0l0,-14z"},
 					{tag: "path", stroke: "black", fill: "none", d: "m1.06,1.14l10.94,6.81l10.91,-6.91"}
 				]
-			};
+			});
 		};
 
-		public static drawMobilephone(node:BaseElement) {
-			return {
+		public static drawMobilephone(node:BaseElement) :BaseElement{
+			return Diagram.Nodes.SO.create({
 				x: node.getPos().x || 0,
 				y: node.getPos().y || 0,
 				width: 25,
@@ -1978,11 +2007,11 @@ module Diagram {
 					{tag: "path", d: "m 8 5 7 0"},
 					{tag: "path", d: "m 1.63 7.54 20.73 0 0 34-20.73 0z"}
 				]
-			};
+			});
 		};
 
-		public static drawWall(node:BaseElement) {
-			return {
+		public static drawWall(node:BaseElement) :BaseElement{
+			return Diagram.Nodes.SO.create({
 				x: node.getPos().x || 0,
 				y: node.getPos().y || 0,
 				width: 25,
@@ -1995,11 +2024,11 @@ module Diagram {
 						d: "m2.21,11l18.34,7.91m-14.46,-12.57l0,6.3m8.2,21.74l0,6.35m-8.6,-10l0,6.351m4.1,-10.67l0,6.3m4.8,-10.2l0,6.3m-8.87,-10.23l0,6.35m4.78,-10.22l0,6.35m-8,14.5l18.34,7.91m-18.34,-13.91l18.34,7.91m-18.34,-13.91l18.34,7.91m-18.34,-13.91l18.34,7.91m0,-13l0,34m-18.23,-41.84l18.3,8m0,0.11l5,-3.57"
 					}
 				]
-			};
+			});
 		};
 
-		public static drawActor(node:BaseElement) {
-			return {
+		public static drawActor(node:BaseElement) :BaseElement{
+			return Diagram.Nodes.SO.create({
 				x: node.getPos().x || 0,
 				y: node.getPos().y || 0,
 				width: 25,
@@ -2011,11 +2040,11 @@ module Diagram {
 					{tag: "line", stroke: "#000", y2: "39", x2: "5", y1: "30", x1: "12"},
 					{tag: "line", stroke: "#000", y2: "39", x2: "20", y1: "30", x1: "12"}
 				]
-			};
+			});
 		};
 
-		public static drawLamp(node:BaseElement) {
-			return {
+		public static drawLamp(node:BaseElement) :BaseElement{
+			return Diagram.Nodes.SO.create({
 				x: node.getPos().x || 0,
 				y: node.getPos().y || 0,
 				width: 25,
@@ -2074,11 +2103,11 @@ module Diagram {
 					},
 					{tag: "path", d: "m 22.5 28.57 0 10.7"}
 				]
-			};
+			});
 		};
 
-		public static drawStop(node:BaseElement) {
-			return {
+		public static drawStop(node:BaseElement) : BaseElement{
+			return Diagram.Nodes.SO.create({
 				x: node.getPos().x || 0,
 				y: node.getPos().y || 0,
 				width: 30,
@@ -2092,11 +2121,11 @@ module Diagram {
 						d: "m 6,6 a 14,14 0 1 0 0.06,-0.06 z m 0,0 20,21"
 					}
 				]
-			};
+			});
 		};
 
-		public static drawMin(node:BaseElement) {
-			return {
+		public static drawMin(node:BaseElement) :BaseElement{
+			return Diagram.Nodes.SO.create({
 				x: node.getPos().x || 0,
 				y: node.getPos().y || 0,
 				width: 20,
@@ -2119,11 +2148,11 @@ module Diagram {
 						d: "m 4,10 13,-0.04"
 					}
 				]
-			};
+			});
 		};
 
-		public static drawArrow(node:BaseElement) {
-			return {
+		public static drawArrow(node:BaseElement) :BaseElement{
+			return Diagram.Nodes.SO.create({
 				x: node.getPos().x || 0,
 				y: node.getPos().y || 0,
 				width: 10,
@@ -2132,11 +2161,11 @@ module Diagram {
 				items: [
 					{tag: "path", fill: "#000", stroke: "#000", d: "M 0,0 10,4 0,9 z"}
 				]
-			};
+			});
 		};
 
-		public static drawMax(node:BaseElement) {
-			return {
+		public static drawMax(node:BaseElement) : BaseElement{
+			return Diagram.Nodes.SO.create({
 				x: node.getPos().x || 0,
 				y: node.getPos().y || 0,
 				width: 20,
@@ -2161,10 +2190,10 @@ module Diagram {
 						d: "m 4,10 6,0.006 0.02,5 0.01,-11 -0.03,6.02 c 2,-0.01 4,-0.002 6,0.01"
 					}
 				]
-			};
+			});
 		};
 
-		public static drawButton(node:BaseElement) {
+		public static drawButton(node:BaseElement) :BaseElement{
 			var btnX, btnY, btnWidth, btnHeight, btnValue;
 
 			btnX = node.getPos().x || 0;
@@ -2172,7 +2201,7 @@ module Diagram {
 			btnWidth = node.getSize().x || 60;
 			btnHeight = node.getSize().y || 28;
 			btnValue = node["value"] || "";
-			return {
+			return Diagram.Nodes.SO.create({
 				x: btnX,
 				y: btnY,
 				width: 60,
@@ -2191,17 +2220,17 @@ module Diagram {
 					},
 					{tag: "text", $font: true, x: 10, y: 18, fill: "black", value: btnValue, "class": "hand"}
 				]
-			};
+			});
 		};
 
-		public static drawDropdown(node:BaseElement) {
+		public static drawDropdown(node:BaseElement) : BaseElement{
 			var btnX, btnY, btnWidth, btnHeight;
 
 			btnX = node.getPos().x || 0;
 			btnY = node.getPos().y || 0;
 			btnWidth = node.getSize().x || 60;
 			btnHeight = node.getSize().y || 28;
-			return {
+			return Diagram.Nodes.SO.create({
 				x: btnX,
 				y: btnY,
 				width: btnWidth,
@@ -2233,17 +2262,17 @@ module Diagram {
 						d: "m " + (btnWidth - 15) + ",13 10,0 L " + (btnWidth - 10) + ",20 z"
 					}
 				]
-			};
+			});
 		};
 
-		public static drawClassicon(node:BaseElement) {
+		public static drawClassicon(node:BaseElement) : BaseElement{
 			var btnX, btnY, btnWidth, btnHeight;
 
 			btnX = node.getPos().x || 0;
 			btnY = node.getPos().y || 0;
 			btnWidth = node.getSize().x || 60;
 			btnHeight = node.getSize().y || 28;
-			return {
+			return Diagram.Nodes.SO.create({
 				x: btnX,
 				y: btnY,
 				width: btnWidth,
@@ -2261,17 +2290,17 @@ module Diagram {
 					},
 					{tag: "line", x1: 11, y1: 7, x2: 25, y2: 7, stroke: "#000"}
 				]
-			};
+			});
 		};
 
-		public static drawEdgeicon(node:BaseElement) {
+		public static drawEdgeicon(node:BaseElement) : BaseElement{
 			var btnX, btnY, btnWidth, btnHeight;
 
 			btnX = node.getPos().x || 0;
 			btnY = node.getPos().y || 0;
 			btnWidth = node.getSize().x || 30;
 			btnHeight = node.getSize().y || 35;
-			return {
+			return Diagram.Nodes.SO.create({
 				x: btnX,
 				y: btnY,
 				width: btnWidth,
@@ -2283,7 +2312,7 @@ module Diagram {
 						style: "fill:none;stroke:#000000;transform:scale(0.4);"
 					}
 				]
-			};
+			});
 		}
 	}
 
@@ -2511,9 +2540,9 @@ module Diagram {
 			}
 		}
 	}
-	import Node = Nodes.Node;
+
 	//				######################################################### Header #########################################################
-	export class Header extends Node  {
+	export class Header extends Diagram.Nodes.Node  {
 		private group;
 		private visible:boolean;
 		private toolitems:Array<any>=[];
@@ -2567,7 +2596,7 @@ module Diagram {
 			};
 			for (i = 0; i < item.length; i += 1) {
 				if (item[i] !== type) {
-					child = SymbolLibary.draw({typ: "Button", value: item[i], y: 8, x: 2, height: 28, width: 60, $parent: this});
+					child = SymbolLibary.draw(Diagram.Nodes.SO.create({"typ": "Button", value: item[i], y: 8, x: 2, height: 28, width: 60, $parent: this}));
 					child.style.verticalAlign = "top";
 					util.bind(child, "mousedown", func);
 					child.typ = item[i];
@@ -2596,7 +2625,7 @@ module Diagram {
 					that.toolitems.push(SymbolLibary.draw(item, this));
 				}
 			}
-			child = {
+			child = Diagram.Nodes.SO.create({
 				typ: "Dropdown",
 				x: 66,
 				y: 8,
@@ -2609,7 +2638,7 @@ module Diagram {
 					removeToolItems();
 					parent.SaveAs(e.currentTarget.value);
 				}
-			};
+			});
 			this.toolitems.push(SymbolLibary.draw(child, this));
 
 			x = child.x + child.width;
@@ -2626,7 +2655,7 @@ module Diagram {
 			CSS.addStyle(this.group, "SVGBtn");
 			return this.group;
 		}
-		public getRoot():Node {
+		public getRoot(): Diagram.Nodes.Node {
 			if (this.$parent) {
 				return this.$parent.getRoot();
 			}
@@ -3419,12 +3448,12 @@ module Diagram.Edges {
 			if (this.info) {
 				angle = this.info.draw(typ);
 				var pos = this.info.getPos();
-				this.board.appendChild(SymbolLibary.draw({
-					typ: "Arrow",
+				this.board.appendChild(SymbolLibary.draw(Diagram.Nodes.SO.create({
+					"typ": "Arrow",
 					x: pos.x,
 					y: pos.y,
 					rotate: angle
-				}));
+				})));
 			}
 			this.drawTargetText(style);
 			return this.$gui;
