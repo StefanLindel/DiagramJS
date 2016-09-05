@@ -1,3 +1,7 @@
+import EventBus from '../core/EventBus';
+import { create, setPos, sizeOf } from '../util';
+import Node from './node/Node';
+
 export default class Info extends Node {
 
   public custom: boolean;

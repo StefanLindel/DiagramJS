@@ -1,3 +1,7 @@
+import Line from '../Line';
+import Point from '../Point';
+import Edge from './Edge';
+
 export default class Generalisation extends Edge {
 
   constructor() {

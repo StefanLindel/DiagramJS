@@ -1,3 +1,8 @@
+import EventBus from '../../core/EventBus';
+import { create, createCell, setPos, sizeOf } from '../../util';
+import Point from '../Point';
+import Node from './Node';
+
 export default class Pattern extends Node {
 
   constructor() {

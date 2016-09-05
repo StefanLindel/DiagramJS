@@ -1,3 +1,5 @@
+import { create, getStyle } from '../util';
+
 export default class CSS {
 
   public css;

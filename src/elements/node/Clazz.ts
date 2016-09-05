@@ -1,3 +1,7 @@
+import SymbolLibary from '../../core/SymbolLibary';
+import { create, createCell, getStyle, setPos, sizeOf } from '../../util';
+import Node from './Node';
+
 export default class Clazz extends Node {
 
   private attributes: Array<string> = [];

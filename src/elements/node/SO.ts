@@ -1,3 +1,6 @@
+import BaseElement from '../BaseElement';
+import Point from '../Point';
+
 export default class SO implements BaseElement {
 
   private pos: Point = new Point();

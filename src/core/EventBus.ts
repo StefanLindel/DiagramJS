@@ -1,3 +1,6 @@
+import BaseElement from '../elements/BaseElement';
+import { bind } from '../util';
+
 export default class EventBus {
 
   public static EVENT = {

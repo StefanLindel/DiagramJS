@@ -1,3 +1,6 @@
+import Line from '../Line';
+import Edge from './Edge';
+
 export default class Composition extends Edge {
 
   constructor() {

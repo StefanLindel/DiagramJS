@@ -1,3 +1,6 @@
+import SymbolLibary from '../../core/SymbolLibary';
+import Node from './Node';
+
 export default class Symbol extends Node {
   public $heightMax: number = 0;
   public $heightMin: number = 0;
