@@ -1,0 +1,32 @@
+{
+  "name": "DiagramJS",
+  "version": "0.0.1",
+  "description": "DiagramJS",
+  "license": "EUPL-1.1",
+  "repository": {
+    "type": "git",
+    "url": "https://gitlab.se.cs.uni-kassel.de/slin/DiagramJS.git"
+  },
+  "devDependencies": {
+    "npm-watch": "^0.1.6",
+    "rollup": "^0.34.13",
+    "tslint": "^3.15.1",
+    "typescript": "^1.8.10",
+    "uglify-js": "^2.7.3"
+  },
+  "watch": {
+    "build": {
+      "patterns": [
+        "src",
+        "test"
+      ],
+      "extensions": "ts",
+      "quiet": true
+    }
+  },
+  "scripts": {
+    "build": "tslint src/*.ts && tsc",
+    "rollup": "tsc && rollup build/tmp/main.js -o build/diagram.js || true",
+    "watch": "npm-watch"
+  }
+}
