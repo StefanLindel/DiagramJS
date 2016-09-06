@@ -11,15 +11,11 @@ Make sure you have [NodeJS](nodejs.org) and [npm](https://www.npmjs.org/doc/cli/
 	npm install
 
 
-### Building for Developement
-build-dev builds diagram.js with sourcemaps. build-watch additionally rebuilds automatically on file changes
+### Building
 
-	npm run build-dev
-
-	npm run build-watch
+	npm run build
 
 
-### Building for Production
-Builds diagram.js minified without sourcemaps
+### Building and rebuilding on file changes
 
-	npm run build-prod
+	npm run watch

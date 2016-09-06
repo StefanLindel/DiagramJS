@@ -1,53 +1,17 @@
-/*!
- NetworkParser
- Copyright (c) 2011 - 2014, Stefan Lindel
- All rights reserved.
-
- Licensed under the EUPL, Version 1.1 or (as soon they
- will be approved by the European Commission) subsequent
- versions of the EUPL (the 'Licence');
- You may not use this work except in compliance with the Licence.
- You may obtain a copy of the Licence at:
-
- http://ec.europa.eu/idabc/eupl5
-
- Unless required by applicable law or agreed to in
- writing, software distributed under the Licence is
- distributed on an 'AS IS' basis,
- WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either
- express or implied.
- See the Licence for the specific language governing
- permissions and limitations under the Licence.
-*/
-
-// TODO:
-// Header with Export
-// Move Element
-// Loader (Image)
-// Save (Export) and load Drag and Drop
-// Add all EventTypes
-// Add ClazzEditor
-// Add Color to Attributes
-
-import Graph from './elements/Graph';
-import Info from './elements/Info';
-import { Edge } from './elements/edges';
-
-new Info(0, null, 0);
+import Graph from './Graph';
+import Options from './Options';
 
 class Diagram {
 
   private data: Object;
   private graph: Graph;
+  private options: Options;
 
-  constructor(data: Object) {
-    new Edge();
-    this.setData(data);
-  }
-
-  public setData(data: Object) {
-    this.data = data;
-    this.graph = new Graph(data, null);
+  constructor(data?: Object, options?: Options) {
+    let baseData = { typ: 'clazzdiagram', edges: [{ typ: 'edge', source: 'A', target: 'B' }] };
+    this.data = data || baseData;
+    this.options = options || {};
+    this.graph = new Graph(this.data, this.options);
   }
 
   public layout() {
@@ -56,8 +20,10 @@ class Diagram {
 
 }
 
-let json = {'edges': [{source: 'Hallo', target: 'World'}]};
+let data = { typ: 'clazzdiagram', nodes: [{ type: 'node' }, { type: 'node', id: 'A' }, { type: 'node', id: 'D', x: 10, y: 20 }], edges: [{ type: 'edge', source: 'A', target: 'B' }, { type: 'edge', source: 'A', target: 'C' }, { type: 'edge', source: 'C', target: 'B' }] };
 
-let t = new Diagram(json);
+let dia = new Diagram(data, { canvas: 'canvas' });
 
-t.layout();
+document.getElementById('layoutbtn').onclick = function () {
+  dia.layout();
+};
