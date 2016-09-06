@@ -1,7 +1,7 @@
 import Line from '../Line';
-import Edge from './Edge';
+import { Edge } from './Edge';
 
-export default class Aggregation extends Edge {
+export class Aggregation extends Edge {
 
   constructor() {
     super();

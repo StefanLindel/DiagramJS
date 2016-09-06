@@ -1,12 +1,12 @@
 import SymbolLibary from '../../core/SymbolLibary';
 import { create, setPos } from '../../util';
 import BaseElement from '../BaseElement';
-import Edge from '../edge/Edge';
 import Graph from '../Graph';
 import Info from '../Info';
 import Point from '../Point';
+import { Edge } from '../edges';
 
-export default class Node implements BaseElement {
+export class Node implements BaseElement {
 
   public id: string;
   public typ: string;

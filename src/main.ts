@@ -20,7 +20,7 @@
  permissions and limitations under the Licence.
 */
 
-//TODO:
+// TODO:
 // Header with Export
 // Move Element
 // Loader (Image)
@@ -29,9 +29,9 @@
 // Add ClazzEditor
 // Add Color to Attributes
 
-import Edge from './elements/edge/Edge';
 import Graph from './elements/Graph';
 import Info from './elements/Info';
+import { Edge } from './elements/edges';
 
 new Info(0, null, 0);
 

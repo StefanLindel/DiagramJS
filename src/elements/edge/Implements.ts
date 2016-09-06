@@ -1,7 +1,7 @@
 import Line from '../Line';
-import Generalisation from './Generalisation';
+import { Generalisation } from './Generalisation';
 
-export default class Implements extends Generalisation {
+export class Implements extends Generalisation {
 
   constructor() {
     super();

@@ -2,10 +2,10 @@ import EventBus from '../core/EventBus';
 import Options from '../core/Options';
 import SymbolLibary from '../core/SymbolLibary';
 import { bind, copy, create, getColor, getValue, MinMax, setPos, setSize, sizeOf } from '../util';
-import Edge from './edge/Edge';
 import Info from './Info';
-import Node from './node/Node';
 import Point from './Point';
+import { Edge } from './edges';
+import { Node } from './nodes';
 
 export default class Model extends Node {
 

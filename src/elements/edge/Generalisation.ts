@@ -1,8 +1,8 @@
 import Line from '../Line';
 import Point from '../Point';
-import Edge from './Edge';
+import { Edge } from './Edge';
 
-export default class Generalisation extends Edge {
+export class Generalisation extends Edge {
 
   constructor() {
     super();

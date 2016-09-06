@@ -1,7 +1,7 @@
 import { create, getColor } from '../util';
 import BaseElement from './BaseElement';
-import Node from './node/Node';
 import Point from './Point';
+import { Node } from './node/Node';
 
 export default class Line implements BaseElement {
 

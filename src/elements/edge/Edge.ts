@@ -3,11 +3,10 @@ import { create, setPos, setSize } from '../../util';
 import BaseElement from '../BaseElement';
 import Info from '../Info';
 import Line from '../Line';
-import Node from '../node/Node';
-import SO from '../node/SO';
 import Point from '../Point';
+import { Node, SO } from '../nodes';
 
-export default class Edge extends Node {
+export class Edge extends Node {
 
   public static POSITION = { UP: 'UP', LEFT: 'LEFT', RIGHT: 'RIGHT', DOWN: 'DOWN' };
   public $sNode: Node;

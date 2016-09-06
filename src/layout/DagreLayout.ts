@@ -1,7 +1,7 @@
-import Graph from './Graph';
-import Layout from './Layout';
+import { Graph } from './Graph';
+import { Layout } from './Layout';
 
-export default class DagreLayout implements Layout {
+export class DagreLayout implements Layout {
 
   public static EDGE_KEY_DELIM = '\x01';
 

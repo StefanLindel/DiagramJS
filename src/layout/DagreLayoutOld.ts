@@ -1,9 +1,9 @@
-import Node from '../elements/node/Node';
-import Edge from '../elements/edge/Edge';
+import { Edge } from '../elements/edges';
+import { Node } from '../elements/nodes';
 import { copy } from '../util';
-import Layout from './Layout';
+import { Layout } from './Layout';
 
-export default class DagreLayoutOld implements Layout {
+export class DagreLayoutOld implements Layout {
 
   public layout(graph, node) {
     let g, layoutNode, nodes, graphOptions = copy({ directed: false }, node.options.layout);

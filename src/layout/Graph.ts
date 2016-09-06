@@ -1,5 +1,5 @@
 
-export default class Graph {
+export class Graph {
 
   public nodes: Object;
   public edges: Array<Object>;

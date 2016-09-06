@@ -2,8 +2,8 @@ import CSS from './core/CSS';
 import Options from './core/Options';
 import BaseElement from './elements/BaseElement';
 import Graph from './elements/Graph';
-import Node from './elements/node/Node';
 import Point from './elements/Point';
+import { Node } from './elements/nodes';
 
 export function getValue(value) { return parseInt(('0' + value).replace('px', ''), 10); }
 

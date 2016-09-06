@@ -3,19 +3,17 @@ import EventBus from '../core/EventBus';
 import Loader from '../core/Loader';
 import Options from '../core/Options';
 import SymbolLibary from '../core/SymbolLibary';
-import DagreLayoutOld from '../layout/DagreLayoutOld';
-import Layout from '../layout/Layout';
 import { sizeOf } from '../util';
 import BaseElement from './BaseElement';
-import Edge from './edge/Edge';
-import Edges from './edges';
 import Header from './Header';
-import Layouts from './layouts';
 import Model from './Model';
-import Node from './node/Node';
-import Symbol from './node/Symbol';
-import Nodes from './nodes';
 import Point from './Point';
+import { Edge } from './edge/Edge';
+import * as Edges from './edges';
+import { DagreLayoutOld, Layout } from './layouts';
+import * as Layouts from './layouts';
+import { Node, Symbol } from './nodes';
+import * as Nodes from './nodes';
 
 export default class Graph extends Node {
 

@@ -1,8 +1,8 @@
 import { create } from '../util';
 import Graph from './Graph';
 import Line from './Line';
-import Node from './node/Node';
 import Point from './Point';
+import { Node } from './nodes';
 
 export default class Raster extends Node {
   private range: number = 10;

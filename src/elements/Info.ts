@@ -1,6 +1,6 @@
 import EventBus from '../core/EventBus';
 import { create, setPos, sizeOf } from '../util';
-import Node from './node/Node';
+import { Node } from './nodes';
 
 export default class Info extends Node {
 
