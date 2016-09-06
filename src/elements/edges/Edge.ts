@@ -1,7 +1,7 @@
 import { DiagramElement, Point } from '../BaseElements';
-import Node from '../nodes/Node';
+import { Node } from '../nodes/Node';
 
-export default class Edge extends DiagramElement {
+export class Edge extends DiagramElement {
 
   public source: Node;
   public target: Node;
@@ -19,5 +19,29 @@ export default class Edge extends DiagramElement {
     this.target = target;
     return this;
   };
+
+  public getSVG(offset: Point): Element {
+
+    let path = 'M';
+    for (let i = 0; i < this.points.length; i++) {
+      let point = new Point(this.points[i].x, this.points[i].y).add(offset);
+      if (i > 0) {
+        path += 'L';
+      }
+      path += Math.floor(point.x) + ' ' + Math.floor(point.y) + ' ';
+    }
+
+    let attr = {
+      tag: 'path',
+      id: this.id,
+      d: path,
+      stroke: 'black',
+      'stroke-width': '2',
+      fill: 'none'
+    };
+    let shape = this.createShape(attr);
+
+    return shape;
+  }
 
 }

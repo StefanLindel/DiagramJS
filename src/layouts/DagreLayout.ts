@@ -1,27 +1,22 @@
 /// <reference path='../core/dagre.d.ts'/>
-import { Size } from '../elements/BaseElements';
-import Edge from '../elements/edges/Edge';
-import Node from '../elements/nodes/Node';
+import { Edge } from '../elements/edges/Edge';
+import { Node } from '../elements/nodes/Node';
 import Graph from '../Graph';
 import Layout from './Layout';
 import * as dagre from 'dagre';
-
-const nodeSize: Size = { width: 100, height: 70 };
 
 export class DagreLayout implements Layout {
 
   public layout(graph: Graph) {
 
-    let model = graph.getModel();
+    let model = graph.model;
 
     const g = new dagre.graphlib.Graph();
-    g.setGraph({ marginx: 180, marginy: 80 }).setDefaultEdgeLabel(function() { return {}; });
+    g.setGraph({}).setDefaultEdgeLabel(function() { return {}; });
 
     if (model.nodes) {
       for (let id in model.nodes) {
         let node: Node = model.nodes[id];
-        node.width = nodeSize.width;
-        node.height = nodeSize.height;
         g.setNode(id, { width: node.width, height: node.height });
       }
     }

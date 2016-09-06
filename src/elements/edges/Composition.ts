@@ -1,6 +1,6 @@
-import Edge from './Edge';
+import { Edge } from './Edge';
 
-export default class Composition extends Edge {
+export class Composition extends Edge {
 
   constructor() {
     super();

@@ -1,6 +1,7 @@
-import { DiagramElement } from './elements/BaseElements';
-import Edge from './elements/edges/Edge';
-import Node from './elements/nodes/Node';
+import Graph from './Graph';
+import { DiagramElement, Point } from './elements/BaseElements';
+import { Edge } from './elements/edges/Edge';
+import { Node } from './elements/nodes/Node';
 import { toPascalCase } from './util';
 
 interface JsonNode {
@@ -10,6 +11,8 @@ interface JsonNode {
   y?: number;
   width?: number;
   height?: number;
+  attributes?: Array<string>;
+  methods?: Array<string>;
 }
 
 interface JsonEdge {
@@ -21,20 +24,17 @@ interface JsonEdge {
 
 export default class Model extends DiagramElement {
 
-  public nodes;
-  public edges;
+  nodes: Array<Node> = [];
+  edges: Array<Edge> = [];
+  elements: Array<DiagramElement> = [];
+  private graph: Graph;
 
-  private elementCount: number;
-
-  constructor(json) {
+  constructor(graph: Graph, json) {
     super();
     json = json || {};
     this.type = json.type || 'classdiagram';
     this.parent = null;
-
-    this.nodes = [];
-    this.edges = [];
-    this.elementCount = 0;
+    this.graph = graph;
 
     if (json.nodes) {
       for (let node of json.nodes) {
@@ -48,13 +48,55 @@ export default class Model extends DiagramElement {
     }
   }
 
-  private addNode(node: JsonNode) {
+  public getSVG(origin: Point): Element {
+    const size = 10;
+
+    let path = 'M' + origin.x + ' ' + origin.y + 'L' + (origin.x + size) + ' ' + origin.y;
+    path += ' M' + origin.x + ' ' + origin.y + 'L' + (origin.x - size) + ' ' + origin.y;
+    path += ' M' + origin.x + ' ' + origin.y + 'L' + origin.x + ' ' + (origin.y + size);
+    path += ' M' + origin.x + ' ' + origin.y + 'L' + origin.x + ' ' + (origin.y - size);
+
+    let attr = {
+      tag: 'path',
+      id: 'origin',
+      d: path,
+      stroke: '#CCC',
+      'stroke-width': '1',
+      fill: 'none'
+    };
+    let shape = this.createShape(attr);
+
+    let attrText = {
+      tag: 'text',
+      x: origin.x - size,
+      y: origin.y - size / 1.5,
+      'text-anchor': 'end',
+      'font-family': 'Verdana',
+      'font-size': '9',
+      fill: '#CCC'
+    };
+    let text = this.createShape(attrText);
+    text.textContent = '(0, 0)';
+
+    let group = this.createShape({ tag: 'g' });
+    group.appendChild(shape);
+    group.appendChild(text);
+
+    return group;
+  }
+
+  private addNode(node: JsonNode): Node {
     let type = node.type || 'Node';
     type = toPascalCase(type);
 
-    let id = node.id ? node.id : type + '$' + (this.elementCount + 1);
+    let id = node.id ? node.id : type + '$' + (this.elements.length + 1);
 
-    let newNode = new Node(type, id);
+    let newNode: Node;
+    if (this.graph.nodeFactory[type]) {
+      newNode = new this.graph.nodeFactory[type](id);
+    }
+    newNode = new this.graph.nodeFactory[type](id);
+    newNode.init(node);
 
     if (node['x'] || node['y']) {
       newNode.withPos(node['x'], node['y']);
@@ -67,7 +109,7 @@ export default class Model extends DiagramElement {
       return this.nodes[newNode.id];
     }
     this.nodes[newNode.id] = newNode;
-    this.elementCount++;
+    this.elements.push(newNode);
     return this.nodes[newNode.id];
   }
 
@@ -81,7 +123,7 @@ export default class Model extends DiagramElement {
   private addEdge(edge: JsonEdge) {
     let type = edge.type || 'Edge';
     type = toPascalCase(type);
-    let id = edge.id ? edge.id : type + '$' + (this.elementCount + 1);
+    let id = edge.id ? edge.id : type + '$' + (this.elements.length + 1);
 
     let source = this.findNode(edge.source) || this.addNode({ id: edge.source });
     let target = this.findNode(edge.target) || this.addNode({ id: edge.target });
@@ -92,7 +134,7 @@ export default class Model extends DiagramElement {
       return this.edges[newEdge.id];
     }
     this.edges[newEdge.id] = newEdge;
-    this.elementCount++;
+    this.elements.push(newEdge);
     return this.edges[newEdge.id];
   };
 

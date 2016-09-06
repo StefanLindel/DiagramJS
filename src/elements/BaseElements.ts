@@ -23,11 +23,26 @@ export class DiagramElement {
     this.id = id;
   }
 
+  public getSVG(offset: Point): Element {
+    return this.createShape({});
+  }
+
   protected getRoot(): DiagramElement {
     if (this.parent) {
       return this.parent.getRoot();
     }
     return this;
+  }
+
+  protected createShape(attrs): Element {
+    let xmlns = attrs.xmlns || 'http://www.w3.org/2000/svg';
+    let shape = document.createElementNS(xmlns, attrs.tag);
+    for (let attr in attrs) {
+      if (attr !== 'tag') {
+        shape.setAttribute(attr, attrs[attr]);
+      }
+    }
+    return shape;
   }
 
 }
@@ -45,6 +60,13 @@ export class Point {
   public add(pos: Point) {
     this.x += pos.x;
     this.y += pos.y;
+    return this;
+  }
+
+  public sum(pos: Point) {
+    let sum = new Point(this.x, this.y);
+    sum.add(pos);
+    return sum;
   }
 
   public center(posA: Point, posB: Point) {

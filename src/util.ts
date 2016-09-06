@@ -18,17 +18,6 @@ function isSVG(tag) {
   return false;
 }
 
-export function createShape(attrs): Element {
-  let xmlns = attrs.xmlns || 'http://www.w3.org/2000/svg';
-  let shape = document.createElementNS(xmlns, attrs.tag);
-  for (let attr in attrs) {
-    if (attr !== 'tag') {
-      shape.setAttribute(attr, attrs[attr]);
-    }
-  }
-  return shape;
-}
-
 export function create(node: any) {
   let style, item, xmlns, key, tag, k;
   if (document.createElementNS && (isSVG(node.tag) || node.xmlns)) {

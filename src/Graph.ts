@@ -2,39 +2,34 @@ import Model from './Model';
 import Options from './Options';
 import * as Renderer from './core/renderer';
 import { Size } from './elements/BaseElements';
+import * as edges from './elements/edges/index';
+import * as nodes from './elements/nodes/index';
 import Layout from './layouts/Layout';
-import * as Layouts from './layouts/index';
-import { createShape } from './util';
+import * as layouts from './layouts/index';
 
 export default class Graph {
 
-  public root: HTMLElement;
-  private canvas: Element;
-  private model: Model;
-  private options: Options;
-  private canvasSize: Size;
-  private layoutFactory: Object;
+  root: HTMLElement;
+  canvas: Element;
+  model: Model;
+  options: Options;
+  canvasSize: Size;
+  nodeFactory: Object;
+  edgeFactory: Object;
+  layoutFactory: Object;
 
   constructor(json: Object, options: Options) {
     json = json || {};
     this.options = options;
-    this.model = new Model(json);
     this.initFactories();
+    this.model = new Model(this, json);
     this.initCanvas();
   }
 
   public layout() {
     this.getLayout().layout(this);
-    Renderer.clearCanvas(this.canvas);
-    Renderer.draw(this.canvas, this.model);
-  }
-
-  public getModel(): Model {
-    return this.model;
-  }
-
-  public getCanvasSize(): Size {
-    return this.canvasSize;
+    Renderer.clearCanvas(this);
+    Renderer.draw(this);
   }
 
   private getLayout(): Layout {
@@ -42,11 +37,28 @@ export default class Graph {
     if (this.layoutFactory[layout]) {
       return new this.layoutFactory[layout]();
     }
-    return new Layouts.DagreLayout();
+    return new layouts.DagreLayout();
   }
 
   private initFactories() {
-    let layouter = Layouts;
+
+    let noder = nodes;
+    this.nodeFactory = {};
+    for (let id in noder) {
+      if (noder.hasOwnProperty(id) === true) {
+        this.nodeFactory[id] = noder[id];
+      }
+    }
+
+    let edger = edges;
+    this.edgeFactory = {};
+    for (let id in edger) {
+      if (edger.hasOwnProperty(id) === true) {
+        this.edgeFactory[id] = edger[id];
+      }
+    }
+
+    let layouter = layouts;
     this.layoutFactory = {};
     for (let id in layouter) {
       if (layouter.hasOwnProperty(id) === true) {
@@ -64,13 +76,20 @@ export default class Graph {
       document.body.appendChild(this.root);
     }
     this.canvasSize = { width: this.root.clientWidth, height: this.root.clientHeight };
-    this.canvas = createShape({ tag: 'svg', id: 'root', height: this.canvasSize.height, width: this.canvasSize.width });
+    this.canvas = this.createShape({ tag: 'svg', id: 'root', height: this.canvasSize.height, width: this.canvasSize.width });
     this.root.appendChild(this.canvas);
-    /*
-    new Layouts.Random().layout(this);
-    Renderer.clearCanvas(this.canvas);
-    Renderer.draw(this.canvas, this.model);
-    */
+    Renderer.clearCanvas(this);
+  }
+
+  private createShape(attrs): Element {
+    let xmlns = attrs.xmlns || 'http://www.w3.org/2000/svg';
+    let shape = document.createElementNS(xmlns, attrs.tag);
+    for (let attr in attrs) {
+      if (attr !== 'tag') {
+        shape.setAttribute(attr, attrs[attr]);
+      }
+    }
+    return shape;
   }
 
 }
