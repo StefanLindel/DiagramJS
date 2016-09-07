@@ -26,16 +26,41 @@ let data = {
   nodes: [
     {
       type: 'clazz',
-      attributes: [ '+ data : string', '+ options : string', '- id : int'],
-      methods: [ '+ init()', '+ calculat()' ]
+      id: 'User',
+      attributes: [ '+ name : string', '+ address : string', '- id : int'],
+      methods: [ '+ register()', '+ login()' ]
     },
-    { type: 'node', id: 'A' },
-    { type: 'node', id: 'D', x: 10, y: 20 }
+    {
+      type: 'clazz',
+      id: 'Order',
+      attributes: [ '+ status : string', '+ date : string', '- orderId : int'],
+      methods: [ '+ place()', '+ cancel()', '+ refund()' ]
+    },
+    {
+      type: 'clazz',
+      id: 'Account',
+      attributes: [ '- id : int'],
+      methods: [ '+ delete()' ]
+    },
+    {
+      type: 'clazz',
+      id: 'Product',
+      attributes: [ '+ name : string', '+ description : string', '+ photo : string', '- id : int'],
+      methods: [ '+ addToOrder()' ]
+    },
+    {
+      type: 'clazz',
+      id: 'Payment',
+      attributes: [ '+ provider : string', '+ amount : string' ],
+      methods: [ '+ getStatus()' ]
+    }
   ],
   edges: [
-    { type: 'edge', source: 'A', target: 'B' },
-    { type: 'edge', source: 'A', target: 'C' },
-    { type: 'edge', source: 'C', target: 'B' }
+    { type: 'aggregation', source: 'Order', target: 'Product' },
+    { type: 'edge', source: 'User', target: 'Order' },
+    { type: 'edge', source: 'User', target: 'Account' },
+    { type: 'edge', source: 'Order', target: 'Payment' },
+    { type: 'edge', source: 'Payment', target: 'Account' }
   ]
 };
 

@@ -1,6 +1,6 @@
 /// <reference path='../core/dagre.d.ts'/>
-import { Edge } from '../elements/edges/Edge';
-import { Node } from '../elements/nodes/Node';
+import { Edge } from '../elements/edges';
+import { Node } from '../elements/nodes';
 import Graph from '../Graph';
 import Layout from './Layout';
 import * as dagre from 'dagre';

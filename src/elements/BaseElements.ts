@@ -8,7 +8,14 @@ export interface Size {
   height: number;
 }
 
-export class DiagramElement {
+class Defaults {
+  protected readonly labelHeight   = 25;
+  protected readonly labelFontSize = 14;
+  protected readonly attrHeight    = 20;
+  protected readonly attrFontSize  = 12;
+}
+
+export class DiagramElement extends Defaults {
 
   public id: string;
   public type: string;
@@ -19,6 +26,7 @@ export class DiagramElement {
   protected isDraggable: boolean = true;
 
   constructor(type?: string, id?: string) {
+    super();
     this.type = type;
     this.id = id;
   }

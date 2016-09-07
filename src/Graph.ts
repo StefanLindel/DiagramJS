@@ -1,11 +1,11 @@
-import Model from './Model';
 import Options from './Options';
 import * as Renderer from './core/renderer';
 import { Size } from './elements/BaseElements';
-import * as edges from './elements/edges/index';
-import * as nodes from './elements/nodes/index';
+import Model from './elements/Model';
+import * as edges from './elements/edges';
+import * as nodes from './elements/nodes';
+import * as layouts from './layouts';
 import Layout from './layouts/Layout';
-import * as layouts from './layouts/index';
 
 export default class Graph {
 

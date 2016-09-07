@@ -1,12 +1,12 @@
 import { DiagramElement, Point } from '../BaseElements';
-import { Edge } from '../edges/Edge';
+import { Edge } from '../edges';
 
 export class Node extends DiagramElement {
 
   pos: Point = new Point();
   size: Point = new Point();
-  edges: Array<Edge>;
-  width: number = 130;
+  edges: Edge[];
+  width: number = 150;
   height: number = 70;
 
   constructor(id?: string, type?: string) {

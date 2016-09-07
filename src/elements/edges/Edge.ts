@@ -1,12 +1,19 @@
 import { DiagramElement, Point } from '../BaseElements';
-import { Node } from '../nodes/Node';
+import { Node } from '../nodes';
+
+export const enum Direction {
+  Up,
+  Down,
+  Left,
+  Right
+}
 
 export class Edge extends DiagramElement {
 
   public source: Node;
   public target: Node;
   public lineStyle: string;
-  public points: Array<Point>;
+  public points: Point[];
 
   constructor(type?: string, id?: string) {
     super();
@@ -42,6 +49,21 @@ export class Edge extends DiagramElement {
     let shape = this.createShape(attr);
 
     return shape;
+  }
+
+  protected getDirection(a: Point, b: Point): Direction {
+    if (b.x < a.x) {
+      return Direction.Left;
+    }
+    if (b.x > a.x) {
+      return Direction.Right;
+    }
+    if (b.y < a.y) {
+      return Direction.Up;
+    }
+    if (b.y > a.y) {
+      return Direction.Down;
+    }
   }
 
 }

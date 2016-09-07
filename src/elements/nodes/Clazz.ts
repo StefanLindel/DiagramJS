@@ -1,11 +1,6 @@
 import { Point } from '../BaseElements';
 import { Node } from './Node';
 
-const LABEL_HEIGHT = 25;
-const ATTRIBUTE_HEIGHT = 20;
-const LABEL_FONTSIZE = 14;
-const ATTRIBUTE_FONTSIZE = 12;
-
 export class Clazz extends Node {
 
   private attributes: Array<string> = [];
@@ -13,20 +8,20 @@ export class Clazz extends Node {
 
   constructor(id?: string) {
     super(id, 'Clazz');
-    this.height = LABEL_HEIGHT;
+    this.height = this.labelHeight;
   };
 
   public init(json) {
     if (json['attributes']) {
       for (let attr of json['attributes']) {
         this.attributes.push(attr);
-        this.height += ATTRIBUTE_HEIGHT;
+        this.height += this.attrHeight;
       }
     }
     if (json['methods']) {
       for (let method of json['methods']) {
         this.methods.push(method);
-        this.height += ATTRIBUTE_HEIGHT;
+        this.height += this.attrHeight;
       }
     }
   }
@@ -49,11 +44,11 @@ export class Clazz extends Node {
     let attrLabelText = {
       tag: 'text',
       x: pos.x,
-      y: pos.y - this.height / 2 + LABEL_HEIGHT / 2,
+      y: pos.y - this.height / 2 + this.labelHeight / 2,
       'text-anchor': 'middle',
       'alignment-baseline': 'central',
       'font-family': 'Verdana',
-      'font-size': LABEL_FONTSIZE,
+      'font-size': this.labelFontSize,
       fill: 'black'
     };
     let text = this.createShape(attrLabelText);
@@ -64,12 +59,12 @@ export class Clazz extends Node {
     group.appendChild(text);
 
     // = = = ATTRIBUTES = = =
-    let height = this.attributes.length * ATTRIBUTE_HEIGHT;
+    let height = this.attributes.length * this.attrHeight;
     if (this.attributes.length > 0) {
       let attr = {
         tag: 'rect',
         x: pos.x - this.width / 2,
-        y: pos.y - this.height / 2 + LABEL_HEIGHT,
+        y: pos.y - this.height / 2 + this.labelHeight ,
         height: height,
         width: this.width,
         style: 'fill:none;stroke:black;stroke-width:2'
@@ -77,7 +72,7 @@ export class Clazz extends Node {
       let shape = this.createShape(attr);
       group.appendChild(shape);
 
-      let y = pos.y - this.height / 2 + LABEL_HEIGHT + ATTRIBUTE_FONTSIZE;
+      let y = pos.y - this.height / 2 + this.labelHeight + this.attrFontSize;
       for (let element of this.attributes) {
         let attrText = {
           tag: 'text',
@@ -86,20 +81,20 @@ export class Clazz extends Node {
           'text-anchor': 'start',
           'alignment-baseline': 'middle',
           'font-family': 'Verdana',
-          'font-size': ATTRIBUTE_FONTSIZE,
+          'font-size': this.attrFontSize,
           fill: 'black'
         };
         let text = this.createShape(attrText);
         text.textContent = element;
         group.appendChild(text);
-        y += ATTRIBUTE_HEIGHT;
+        y += this.attrHeight;
       }
     }
 
     // = = = METHODS = = =
-    let y = pos.y - this.height / 2 + LABEL_HEIGHT + height;
+    let y = pos.y - this.height / 2 + this.labelHeight + height;
     if (this.methods.length > 0) {
-      let height = this.methods.length * ATTRIBUTE_HEIGHT;
+      let height = this.methods.length * this.attrHeight;
       let attr = {
         tag: 'rect',
         x: pos.x - this.width / 2,
@@ -111,7 +106,7 @@ export class Clazz extends Node {
       let shape = this.createShape(attr);
       group.appendChild(shape);
 
-      y += ATTRIBUTE_HEIGHT / 2;
+      y += this.attrHeight / 2;
       for (let element of this.methods) {
         let attrText = {
           tag: 'text',
@@ -120,13 +115,13 @@ export class Clazz extends Node {
           'text-anchor': 'start',
           'alignment-baseline': 'middle',
           'font-family': 'Verdana',
-          'font-size': ATTRIBUTE_FONTSIZE,
+          'font-size': this.attrFontSize,
           fill: 'black'
         };
         let text = this.createShape(attrText);
         text.textContent = element;
         group.appendChild(text);
-        y += ATTRIBUTE_HEIGHT;
+        y += this.attrHeight;
       }
     }
 
