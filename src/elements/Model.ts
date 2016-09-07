@@ -4,7 +4,7 @@ import { DiagramElement, Point } from './BaseElements';
 import { Edge } from './edges';
 import { Node } from './nodes';
 
-interface JsonNode {
+interface DataNode {
   type?: string;
   id?: string;
   x?: number;
@@ -15,7 +15,7 @@ interface JsonNode {
   methods?: string[];
 }
 
-interface JsonEdge {
+interface DataEdge {
   type: string;
   id?: string;
   source: string;
@@ -29,20 +29,22 @@ export default class Model extends DiagramElement {
   elements: DiagramElement[] = [];
   private graph: Graph;
 
-  constructor(graph: Graph, json) {
+  constructor(graph: Graph) {
     super();
-    json = json || {};
-    this.type = json.type || 'classdiagram';
     this.parent = null;
     this.graph = graph;
+  }
 
-    if (json.nodes) {
-      for (let node of json.nodes) {
+  public init(data) {
+    data = data || {};
+    this.type = data.type || 'classdiagram';
+    if (data.nodes) {
+      for (let node of data.nodes) {
         this.addNode(node);
       }
     }
-    if (json.edges) {
-      for (let edge of json.edges) {
+    if (data.edges) {
+      for (let edge of data.edges) {
         this.addEdge(edge);
       }
     }
@@ -85,32 +87,19 @@ export default class Model extends DiagramElement {
     return group;
   }
 
-  private addNode(node: JsonNode): Node {
+  private addNode(node: DataNode): Node {
     let type = node.type || 'Node';
     type = toPascalCase(type);
-
     let id = node.id ? node.id : type + '$' + (this.elements.length + 1);
 
-    let newNode: Node;
-    if (this.graph.nodeFactory[type]) {
-      newNode = new this.graph.nodeFactory[type](id);
-    }
-    newNode = new this.graph.nodeFactory[type](id);
-    newNode.init(node);
+    let newNode = <Node>this.getElement(type, id, node);
 
-    if (node['x'] || node['y']) {
-      newNode.withPos(node['x'], node['y']);
+    if (this.nodes[id]) {
+      return this.nodes[id];
     }
-    if (node['width'] || node['height']) {
-      newNode.withPos(node['width'], node['height']);
-    }
-
-    if (this.findNode(this.nodes[newNode.id])) {
-      return this.nodes[newNode.id];
-    }
-    this.nodes[newNode.id] = newNode;
+    this.nodes[id] = newNode;
     this.elements.push(newNode);
-    return this.nodes[newNode.id];
+    return newNode;
   }
 
   private findNode(id: string) {
@@ -120,22 +109,31 @@ export default class Model extends DiagramElement {
     return false;
   }
 
-  private addEdge(edge: JsonEdge) {
+  private addEdge(edge: DataEdge) {
     let type = edge.type || 'Edge';
     type = toPascalCase(type);
     let id = edge.id ? edge.id : type + '$' + (this.elements.length + 1);
 
+    let newEdge = <Edge>this.getElement(type, id, edge);
+
     let source = this.findNode(edge.source) || this.addNode({ id: edge.source });
     let target = this.findNode(edge.target) || this.addNode({ id: edge.target });
+    newEdge.withItem(source, target);
 
-    let newEdge = new Edge(type, id).withItem(source, target);
-
-    if (this.edges[newEdge.id]) {
-      return this.edges[newEdge.id];
+    if (this.edges[id]) {
+      return this.edges[id];
     }
-    this.edges[newEdge.id] = newEdge;
+    this.edges[id] = newEdge;
     this.elements.push(newEdge);
-    return this.edges[newEdge.id];
+    return newEdge;
   };
+
+  private getElement(type: string, id: string, data: Object): DiagramElement {
+    if (this.graph.elementFactory[type]) {
+      let element: DiagramElement = new this.graph.elementFactory[type](id, type);
+      element.init(data);
+      return element;
+    }
+  }
 
 }

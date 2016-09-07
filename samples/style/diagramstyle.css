@@ -26,6 +26,10 @@ button:hover {
   background: rgb(240, 240, 240);
 }
 
+g, rect {
+  cursor: pointer;
+}
+
 .diagram {
   position: absolute;
   top: 50px;
@@ -33,6 +37,13 @@ button:hover {
   left: 0;
   right: 0;
   z-index: 1;
+  cursor: default;
+  -webkit-touch-callout: none;
+  -webkit-user-select: none;
+  -khtml-user-select: none;
+  -moz-user-select: none;
+  -ms-user-select: none;
+  user-select: none;
 }
 
 .logo {

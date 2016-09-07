@@ -5,7 +5,7 @@ export class Node extends DiagramElement {
 
   pos: Point = new Point();
   size: Point = new Point();
-  edges: Edge[];
+  edges: Edge[] = [];
   width: number = 150;
   height: number = 70;
 
@@ -16,12 +16,19 @@ export class Node extends DiagramElement {
     this.edges = [];
   }
 
-  public init(json) {
-    //
+  public init(data) {
+    if (data['x'] && data['y']) {
+      this.pos = new Point(data['x'], data['y']);
+    }
+    if (data['width'] || data['height']) {
+      this.size = new Point(data['width'], data['height']);
+    }
   }
 
   public withPos(x: number, y: number): Node {
-    this.pos = new Point(x, y);
+    if (x && y) {
+      this.pos = new Point(x, y);
+    }
     return this;
   }
 
@@ -30,14 +37,13 @@ export class Node extends DiagramElement {
 
     let attr = {
       tag: 'rect',
-      id: this.id,
       x: pos.x - this.width / 2,
       y: pos.y - this.height / 2,
       rx: 5,
       ry: 5,
       height: this.height,
       width: this.width,
-      style: 'fill:none;stroke:black;stroke-width:2'
+      style: 'fill:white;stroke:black;stroke-width:2'
     };
     let shape = this.createShape(attr);
 
@@ -54,11 +60,17 @@ export class Node extends DiagramElement {
     let text = this.createShape(attrText);
     text.textContent = this.id;
 
-    let group = this.createShape({tag: 'g'});
+    let group = this.createShape({tag: 'g', id: this.id});
     group.appendChild(shape);
     group.appendChild(text);
 
     return group;
+  }
+
+  public redrawEdges() {
+    for (let edge of this.edges) {
+      edge.redraw();
+    }
   }
 
 }

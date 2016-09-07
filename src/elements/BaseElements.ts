@@ -9,13 +9,13 @@ export interface Size {
 }
 
 class Defaults {
-  protected readonly labelHeight   = 25;
-  protected readonly labelFontSize = 14;
-  protected readonly attrHeight    = 20;
-  protected readonly attrFontSize  = 12;
+  protected labelHeight = 25;
+  protected labelFontSize = 14;
+  protected attrHeight = 20;
+  protected attrFontSize = 12;
 }
 
-export class DiagramElement extends Defaults {
+export abstract class DiagramElement extends Defaults {
 
   public id: string;
   public type: string;
@@ -31,9 +31,9 @@ export class DiagramElement extends Defaults {
     this.id = id;
   }
 
-  public getSVG(offset: Point): Element {
-    return this.createShape({});
-  }
+  abstract init(data: Object);
+
+  abstract getSVG(offset: Point);
 
   protected getRoot(): DiagramElement {
     if (this.parent) {

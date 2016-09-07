@@ -1,13 +1,14 @@
 import { Point } from '../BaseElements';
 import { Node } from './Node';
+import DragListener from '../../feature/DragListener';
 
 export class Clazz extends Node {
 
   private attributes: Array<string> = [];
   private methods: Array<string> = [];
 
-  constructor(id?: string) {
-    super(id, 'Clazz');
+  constructor(id?: string, type?: string) {
+    super(id, type);
     this.height = this.labelHeight;
   };
 
@@ -32,12 +33,11 @@ export class Clazz extends Node {
     // = = = LABEL = = =
     let attrLabel = {
       tag: 'rect',
-      id: this.id,
       x: pos.x - this.width / 2,
       y: pos.y - this.height / 2,
       height: this.height,
       width: this.width,
-      style: 'fill:none;stroke:black;stroke-width:2'
+      style: 'fill:white;stroke:black;stroke-width:2'
     };
     let shape = this.createShape(attrLabel);
 
@@ -54,7 +54,7 @@ export class Clazz extends Node {
     let text = this.createShape(attrLabelText);
     text.textContent = this.id;
 
-    let group = this.createShape({ tag: 'g' });
+    let group = this.createShape({ tag: 'g', id: this.id, transform: 'translate(0 0)' });
     group.appendChild(shape);
     group.appendChild(text);
 
@@ -67,7 +67,7 @@ export class Clazz extends Node {
         y: pos.y - this.height / 2 + this.labelHeight ,
         height: height,
         width: this.width,
-        style: 'fill:none;stroke:black;stroke-width:2'
+        style: 'fill:white;stroke:black;stroke-width:2'
       };
       let shape = this.createShape(attr);
       group.appendChild(shape);
@@ -101,7 +101,7 @@ export class Clazz extends Node {
         y: y,
         height: height,
         width: this.width,
-        style: 'fill:none;stroke:black;stroke-width:2'
+        style: 'fill:white;stroke:black;stroke-width:2'
       };
       let shape = this.createShape(attr);
       group.appendChild(shape);
@@ -125,6 +125,7 @@ export class Clazz extends Node {
       }
     }
 
+    new DragListener(group, this);
     return group;
   }
 

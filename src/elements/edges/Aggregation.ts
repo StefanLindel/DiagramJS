@@ -3,11 +3,6 @@ import { Direction, Edge } from './Edge';
 
 export class Aggregation extends Edge {
 
-  constructor() {
-    super();
-    this.type = 'Aggregation';
-  }
-
   public getSVG(offset: Point): Element {
     let line = super.getSVG(offset);
 

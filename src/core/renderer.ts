@@ -1,5 +1,5 @@
-import Graph from '../Graph';
 import { Point } from '../elements/BaseElements';
+import Graph from '../Graph';
 
 export function draw(graph: Graph) {
 

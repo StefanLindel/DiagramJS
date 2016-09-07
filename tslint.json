@@ -26,10 +26,9 @@
       true,
       "check-open-brace",
       "check-catch",
-      "check-else",
       "check-whitespace"
     ],
-    "ordered-imports": true,
+    "ordered-imports": false,
     "quotemark": [true, "single"],
     "semicolon": true,
     "triple-equals": true,
