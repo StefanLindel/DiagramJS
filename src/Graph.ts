@@ -1,12 +1,13 @@
-import Options from './Options';
 import * as Renderer from './core/renderer';
-import { Size } from './elements/BaseElements';
-import Model from './elements/Model';
 import * as edges from './elements/edges';
 import * as nodes from './elements/nodes';
 import * as layouts from './layouts';
+import CanvasDrag from './feature/CanvasDrag';
 import Layout from './layouts/Layout';
-import DragListener from './feature/DragListener';
+import Model from './elements/Model';
+import Options from './Options';
+import { createShape } from './util';
+import { Size } from './elements/BaseElements';
 
 export default class Graph {
 
@@ -18,7 +19,6 @@ export default class Graph {
   nodeFactory: Object;
   edgeFactory: Object;
   layoutFactory: Object;
-  elementFactory: Object;
 
   constructor(json: Object, options: Options) {
     json = json || {};
@@ -29,9 +29,20 @@ export default class Graph {
     this.initCanvas();
   }
 
+  public addElement(type: string): boolean {
+    let success = this.model.addElement(type);
+    if (success === true) {
+      this.layout();
+    }
+    return success;
+  }
+
   public layout() {
     this.getLayout().layout(this);
-    Renderer.clearCanvas(this);
+    this.draw();
+  }
+
+  public draw() {
     Renderer.draw(this);
   }
 
@@ -44,17 +55,20 @@ export default class Graph {
   }
 
   private initFactories() {
+
     let noder = nodes;
-    let edger = edges;
-    this.elementFactory = {};
+    this.nodeFactory = {};
     for (let id in noder) {
       if (noder.hasOwnProperty(id) === true) {
-        this.elementFactory[id] = noder[id];
+        this.nodeFactory[id] = noder[id];
       }
     }
+
+    let edger = edges;
+    this.edgeFactory = {};
     for (let id in edger) {
       if (edger.hasOwnProperty(id) === true) {
-        this.elementFactory[id] = edger[id];
+        this.edgeFactory[id] = edger[id];
       }
     }
 
@@ -76,30 +90,10 @@ export default class Graph {
       document.body.appendChild(this.root);
     }
     this.canvasSize = { width: this.root.clientWidth, height: this.root.clientHeight };
-    this.canvas = this.createShape({ tag: 'svg', id: 'root', height: this.canvasSize.height, width: this.canvasSize.width });
+    this.canvas = createShape({ tag: 'svg', id: 'root', height: this.canvasSize.height, width: this.canvasSize.width });
     this.root.appendChild(this.canvas);
     Renderer.clearCanvas(this);
-
-/*
-     let attr = { tag: 'rect', id: 'r1', x: 300, y: 300, height: 100, width: 100, style: 'fill:black' };
-     let rect = this.createShape(attr);
-     let group = this.createShape({ tag: 'g', id: 'ball', transform: 'translate(0 0)' });
-     group.appendChild(rect);
-
-     this.canvas.appendChild(group);
-     new DragListener(group, null);
-*/
-  }
-
-  private createShape(attrs): Element {
-    let xmlns = attrs.xmlns || 'http://www.w3.org/2000/svg';
-    let shape = document.createElementNS(xmlns, attrs.tag);
-    for (let attr in attrs) {
-      if (attr !== 'tag') {
-        shape.setAttribute(attr, attrs[attr]);
-      }
-    }
-    return shape;
+    new CanvasDrag(this.canvas, this);
   }
 
 }

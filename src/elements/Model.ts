@@ -50,6 +50,16 @@ export default class Model extends DiagramElement {
     }
   }
 
+  public addElement(type: string): boolean {
+    type = toPascalCase(type);
+    let id = 'New' + type + '$' + (this.elements.length + 1);
+    let element = <DiagramElement>this.getElement(type, id, {});
+    if (element) {
+      return true;
+    }
+    return false;
+  }
+
   public getSVG(origin: Point): Element {
     const size = 10;
 
@@ -91,15 +101,7 @@ export default class Model extends DiagramElement {
     let type = node.type || 'Node';
     type = toPascalCase(type);
     let id = node.id ? node.id : type + '$' + (this.elements.length + 1);
-
-    let newNode = <Node>this.getElement(type, id, node);
-
-    if (this.nodes[id]) {
-      return this.nodes[id];
-    }
-    this.nodes[id] = newNode;
-    this.elements.push(newNode);
-    return newNode;
+    return <Node>this.getElement(type, id, node);
   }
 
   private findNode(id: string) {
@@ -115,23 +117,26 @@ export default class Model extends DiagramElement {
     let id = edge.id ? edge.id : type + '$' + (this.elements.length + 1);
 
     let newEdge = <Edge>this.getElement(type, id, edge);
-
     let source = this.findNode(edge.source) || this.addNode({ id: edge.source });
     let target = this.findNode(edge.target) || this.addNode({ id: edge.target });
     newEdge.withItem(source, target);
 
-    if (this.edges[id]) {
-      return this.edges[id];
-    }
-    this.edges[id] = newEdge;
-    this.elements.push(newEdge);
     return newEdge;
   };
 
   private getElement(type: string, id: string, data: Object): DiagramElement {
-    if (this.graph.elementFactory[type]) {
-      let element: DiagramElement = new this.graph.elementFactory[type](id, type);
+    if (this.graph.nodeFactory[type]) {
+      let element: DiagramElement = new this.graph.nodeFactory[type](id, type);
       element.init(data);
+      this.nodes[id] = element;
+      this.elements.push(element);
+      return element;
+    }
+    if (this.graph.edgeFactory[type]) {
+      let element: DiagramElement = new this.graph.edgeFactory[type](id, type);
+      element.init(data);
+      this.edges[id] = element;
+      this.elements.push(element);
       return element;
     }
   }

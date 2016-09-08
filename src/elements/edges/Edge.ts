@@ -21,7 +21,7 @@ export class Edge extends DiagramElement {
   }
 
   public init(data: Object) {
-    //
+    // nothing to init..yet
   }
 
   public withItem(source: Node, target: Node): Edge {
@@ -60,7 +60,6 @@ export class Edge extends DiagramElement {
   public redraw() {
     let a = this.getShortestPathIntersection(this.source, this.target.pos).sum(this.offset);
     let b = this.getShortestPathIntersection(this.target, this.source.pos).sum(this.offset);
-    console.log(a, b);
     this.shape.setAttribute('d', `M${a.x} ${a.y} L${b.x} ${b.y}`);
     this.points = [ a, b ];
   }

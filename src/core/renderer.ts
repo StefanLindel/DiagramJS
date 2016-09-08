@@ -2,7 +2,7 @@ import { Point } from '../elements/BaseElements';
 import Graph from '../Graph';
 
 export function draw(graph: Graph) {
-
+  clearCanvas(graph);
   const model = graph.model;
   const canvas = graph.canvas;
   const origin = graph.options.origin || new Point(0, 0);

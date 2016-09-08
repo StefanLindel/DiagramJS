@@ -1,3 +1,6 @@
+import { addListener } from '../feature/listeners';
+import { Node } from './nodes';
+import { createShape } from '../util';
 
 export interface Label {
   text: string;
@@ -43,14 +46,11 @@ export abstract class DiagramElement extends Defaults {
   }
 
   protected createShape(attrs): Element {
-    let xmlns = attrs.xmlns || 'http://www.w3.org/2000/svg';
-    let shape = document.createElementNS(xmlns, attrs.tag);
-    for (let attr in attrs) {
-      if (attr !== 'tag') {
-        shape.setAttribute(attr, attrs[attr]);
-      }
-    }
-    return shape;
+    return createShape(attrs);
+  }
+
+  protected addListener(element: Element, node: Node) {
+    addListener(element, node);
   }
 
 }

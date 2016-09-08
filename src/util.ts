@@ -8,6 +8,17 @@ export function getRandomInt(min, max): number {
     return Math.floor(Math.random() * (max - min + 1)) + min;
 }
 
+export function createShape(attrs): Element {
+  let xmlns = attrs.xmlns || 'http://www.w3.org/2000/svg';
+  let shape = document.createElementNS(xmlns, attrs.tag);
+  for (let attr in attrs) {
+    if (attr !== 'tag') {
+      shape.setAttribute(attr, attrs[attr]);
+    }
+  }
+  return shape;
+}
+
 function isSVG(tag) {
   let i, list = ['svg', 'path', 'polygon', 'polyline', 'line', 'rect', 'filter', 'feGaussianBlur', 'feOffset', 'feBlend', 'linearGradient', 'stop', 'text', 'symbol', 'textPath', 'defs', 'fegaussianblur', 'feoffset', 'feblend', 'circle', 'ellipse', 'g'];
   for (i = 0; i < list.length; i += 1) {

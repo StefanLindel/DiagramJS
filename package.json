@@ -31,8 +31,9 @@
     }
   },
   "scripts": {
+    "build": "tsc && rollup -c && rimraf build/tmp || true",
     "build-dev": "tsc && rollup -c || true",
-    "build-prod": "tsc && rollup -c && rimraf build/tmp || true",
+    "build-prod": "echo 'sorry. doesnt work yet'",
     "build-watch": "npm-watch"
   }
 }

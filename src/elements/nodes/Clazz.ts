@@ -1,6 +1,5 @@
 import { Point } from '../BaseElements';
 import { Node } from './Node';
-import DragListener from '../../feature/DragListener';
 
 export class Clazz extends Node {
 
@@ -124,8 +123,7 @@ export class Clazz extends Node {
         y += this.attrHeight;
       }
     }
-
-    new DragListener(group, this);
+    this.addListener(group, this);
     return group;
   }
 

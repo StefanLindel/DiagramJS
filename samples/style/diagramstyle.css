@@ -3,7 +3,7 @@ body {
 }
 
 button {
-  width: 70px;
+  min-width: 70px;
   height: 34px;
   font-weight: light;
   color: #333;
@@ -64,6 +64,7 @@ h1 {
   left: 0;
   right: 0;
   padding-left: 220px;
+  z-index: 3;
   background: rgb(245, 245, 245);
   -webkit-box-shadow: 0px -3px 20px 5px rgba(0, 0, 0, 0.5);
   -moz-box-shadow: 0px -3px 20px 5px rgba(0, 0, 0, 0.5);
