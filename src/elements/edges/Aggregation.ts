@@ -1,18 +1,16 @@
-import { Point } from '../BaseElements';
 import { Direction, Edge } from './Edge';
 
 export class Aggregation extends Edge {
 
-  public getSVG(offset: Point): Element {
-    let line = super.getSVG(offset);
+  public getSVG(): Element {
+    let line = super.getSVG();
 
     const endPointA = this.points[this.points.length - 1];
     const endPointB = this.points[this.points.length - 2];
     let direction = this.getDirection(endPointA, endPointB);
 
-    const offsetEndPointA = new Point(endPointA.x, endPointA.y).add(offset);
-    const x = offsetEndPointA.x;
-    const y = offsetEndPointA.y;
+    const x = endPointA.x;
+    const y = endPointA.y;
 
     let path: string;
     switch (direction) {

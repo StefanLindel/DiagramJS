@@ -34,7 +34,6 @@ export default class DragListener {
     if (isDragging()) {
       return;
     }
-    console.log('dragging node');
     this.dragging = true;
     this.svgRoot.appendChild(this.svgElement);
     if (this.svgElement.tagName.toUpperCase() === 'RECT') {
@@ -54,7 +53,6 @@ export default class DragListener {
 
   private reset(evt) {
     this.dragging = false;
-    console.log('dragging node stopped');
   }
 
   private mouseMove(evt) {

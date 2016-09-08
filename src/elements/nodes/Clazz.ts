@@ -26,11 +26,11 @@ export class Clazz extends Node {
     }
   }
 
-  public getSVG(offset: Point): Element {
-    let pos = offset.sum(this.pos);
+  public getSVG(): Element {
+    const pos = this.pos;
 
     // = = = LABEL = = =
-    let attrLabel = {
+    const attrLabel = {
       tag: 'rect',
       x: pos.x - this.width / 2,
       y: pos.y - this.height / 2,
@@ -38,9 +38,9 @@ export class Clazz extends Node {
       width: this.width,
       style: 'fill:white;stroke:black;stroke-width:2'
     };
-    let shape = this.createShape(attrLabel);
+    const shape = this.createShape(attrLabel);
 
-    let attrLabelText = {
+    const attrLabelText = {
       tag: 'text',
       x: pos.x,
       y: pos.y - this.height / 2 + this.labelHeight / 2,
@@ -60,7 +60,7 @@ export class Clazz extends Node {
     // = = = ATTRIBUTES = = =
     let height = this.attributes.length * this.attrHeight;
     if (this.attributes.length > 0) {
-      let attr = {
+      const attr = {
         tag: 'rect',
         x: pos.x - this.width / 2,
         y: pos.y - this.height / 2 + this.labelHeight ,
@@ -73,7 +73,7 @@ export class Clazz extends Node {
 
       let y = pos.y - this.height / 2 + this.labelHeight + this.attrFontSize;
       for (let element of this.attributes) {
-        let attrText = {
+        const attrText = {
           tag: 'text',
           x: pos.x - this.width / 2 + 5,
           y: y,
@@ -94,7 +94,7 @@ export class Clazz extends Node {
     let y = pos.y - this.height / 2 + this.labelHeight + height;
     if (this.methods.length > 0) {
       let height = this.methods.length * this.attrHeight;
-      let attr = {
+      const attr = {
         tag: 'rect',
         x: pos.x - this.width / 2,
         y: y,
@@ -107,7 +107,7 @@ export class Clazz extends Node {
 
       y += this.attrHeight / 2;
       for (let element of this.methods) {
-        let attrText = {
+        const attrText = {
           tag: 'text',
           x: pos.x - this.width / 2 + 5,
           y: y,

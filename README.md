@@ -13,11 +13,11 @@ Make sure you have [NodeJS](nodejs.org) and [npm](https://www.npmjs.org/doc/cli/
 
 ## Building
 
-	# bundleing to build/diagram.js with sourcemaps. not minified.
+	# bundleing to build/diagram.js with sourcemaps. not minified. ES6
 	npm run build-dev
 
 	# building and rebuilding on file changes
 	npm run build-watch
 
-	# bundles a minified diagram.js and css in a standalone html file
+	# bundles a minified diagram.js and css in a standalone html file. transpiled to ES5
 	npm run build-prod

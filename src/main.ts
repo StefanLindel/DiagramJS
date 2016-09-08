@@ -70,12 +70,6 @@ let data = {
 
 let dia = new Diagram(data, { canvas: 'canvas', origin: new Point(135, 50) });
 
-dia.layout();
-/*
-document.onreadystatechange(ev) {
-
-}
-*/
 document.getElementById('layoutbtn').onclick = function () {
   dia.layout();
 };
@@ -83,3 +77,7 @@ document.getElementById('layoutbtn').onclick = function () {
 document.getElementById('classbtn').onclick = function () {
   dia.addElement('clazz');
 };
+
+(function() {
+  dia.layout();
+})();

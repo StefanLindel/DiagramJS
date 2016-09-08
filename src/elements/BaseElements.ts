@@ -36,7 +36,7 @@ export abstract class DiagramElement extends Defaults {
 
   abstract init(data: Object);
 
-  abstract getSVG(offset: Point);
+  abstract getSVG();
 
   protected getRoot(): DiagramElement {
     if (this.parent) {

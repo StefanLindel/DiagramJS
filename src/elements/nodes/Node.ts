@@ -32,10 +32,10 @@ export class Node extends DiagramElement {
     return this;
   }
 
-  public getSVG(offset: Point): Element {
-    let pos = offset.sum(this.pos);
+  public getSVG(): Element {
+    const pos = this.pos;
 
-    let attr = {
+    const attr = {
       tag: 'rect',
       x: pos.x - this.width / 2,
       y: pos.y - this.height / 2,
@@ -45,9 +45,9 @@ export class Node extends DiagramElement {
       width: this.width,
       style: 'fill:white;stroke:black;stroke-width:2'
     };
-    let shape = this.createShape(attr);
+    const shape = this.createShape(attr);
 
-    let attrText = {
+    const attrText = {
       tag: 'text',
       x: pos.x,
       y: pos.y,

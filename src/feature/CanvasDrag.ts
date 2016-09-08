@@ -7,11 +7,12 @@ export default class CanvasDrag {
   private graph: Graph;
   private svgRoot: SVGSVGElement;
   private dragging = false;
-  private mouseOffsetX = 0;
-  private mouseOffsetY = 0;
+  private mouseOffset = new Point(0, 0);
+  private origOffset: Point;
 
   constructor(canvas: Element, graph: Graph) {
     this.graph = graph;
+    this.origOffset = graph.options.origin;
     this.svgRoot = <SVGSVGElement>canvas;
     if (this.svgRoot) {
       this.svgRoot.addEventListener('mousedown', this.mouseDown.bind(this), false);
@@ -26,26 +27,26 @@ export default class CanvasDrag {
       return;
     }
     this.dragging = true;
-    console.log('dragging canvas');
-    this.mouseOffsetX = evt.clientX;
-    this.mouseOffsetY = evt.clientY;
+    this.mouseOffset.x = evt.clientX;
+    this.mouseOffset.y = evt.clientY;
   }
 
   private reset(evt) {
     this.dragging = false;
-    console.log('dragging canvas stopped');
   }
 
   private mouseMove(evt) {
     if (this.dragging) {
-      let x = evt.clientX - this.mouseOffsetX;
-      let y = evt.clientY - this.mouseOffsetY;
-      const offset = new Point(x, y);
-      const origin = this.graph.options.origin;
-      this.graph.options.origin = offset.sum(origin);
-      this.graph.draw();
-      this.mouseOffsetX = evt.clientX;
-      this.mouseOffsetY = evt.clientY;
+      const x = evt.clientX - this.mouseOffset.x;
+      const y = evt.clientY - this.mouseOffset.y;
+      const newOrigin = this.graph.options.origin.add(new Point(x, y));
+
+      let values = this.svgRoot.getAttribute('viewBox').split(' ');
+      const newViewBox = `${newOrigin.x * -1} ${newOrigin.y * -1} ${values[2]} ${values[3]}`;
+      this.svgRoot.setAttribute('viewBox', newViewBox);
+
+      this.mouseOffset.x = evt.clientX;
+      this.mouseOffset.y = evt.clientY;
     }
   }
 

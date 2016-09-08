@@ -12,7 +12,6 @@ export class Edge extends DiagramElement {
   public lineStyle: string;
   public points: Point[];
   private shape: Element;
-  private offset: Point;
 
   constructor(id?: string, type?: string) {
     super();
@@ -32,12 +31,11 @@ export class Edge extends DiagramElement {
     return this;
   };
 
-  public getSVG(offset: Point): Element {
-    this.offset = offset;
+  public getSVG(): Element {
 
     let path = 'M';
     for (let i = 0; i < this.points.length; i++) {
-      let point = new Point(this.points[i].x, this.points[i].y).add(offset);
+      let point = new Point(this.points[i].x, this.points[i].y);
       if (i > 0) {
         path += 'L';
       }
@@ -58,8 +56,8 @@ export class Edge extends DiagramElement {
   }
 
   public redraw() {
-    let a = this.getShortestPathIntersection(this.source, this.target.pos).sum(this.offset);
-    let b = this.getShortestPathIntersection(this.target, this.source.pos).sum(this.offset);
+    let a = this.getShortestPathIntersection(this.source, this.target.pos);
+    let b = this.getShortestPathIntersection(this.target, this.source.pos);
     this.shape.setAttribute('d', `M${a.x} ${a.y} L${b.x} ${b.y}`);
     this.points = [ a, b ];
   }

@@ -1,6 +1,6 @@
 import Graph from '../Graph';
 import { toPascalCase } from '../util';
-import { DiagramElement, Point } from './BaseElements';
+import { DiagramElement } from './BaseElements';
 import { Edge } from './edges';
 import { Node } from './nodes';
 
@@ -60,32 +60,29 @@ export default class Model extends DiagramElement {
     return false;
   }
 
-  public getSVG(origin: Point): Element {
+  public getSVG(): Element {
+
     const size = 10;
+    const path = `M${-size} 0 L${+size} 0 M0 ${-size} L0 ${+size}`;
 
-    let path = 'M' + origin.x + ' ' + origin.y + 'L' + (origin.x + size) + ' ' + origin.y;
-    path += ' M' + origin.x + ' ' + origin.y + 'L' + (origin.x - size) + ' ' + origin.y;
-    path += ' M' + origin.x + ' ' + origin.y + 'L' + origin.x + ' ' + (origin.y + size);
-    path += ' M' + origin.x + ' ' + origin.y + 'L' + origin.x + ' ' + (origin.y - size);
-
-    let attr = {
+    const attr = {
       tag: 'path',
       id: 'origin',
       d: path,
-      stroke: '#CCC',
+      stroke: '#999',
       'stroke-width': '1',
       fill: 'none'
     };
     let shape = this.createShape(attr);
 
-    let attrText = {
+    const attrText = {
       tag: 'text',
-      x: origin.x - size,
-      y: origin.y - size / 1.5,
+      x: 0 - size,
+      y: 0 - size / 1.5,
       'text-anchor': 'end',
       'font-family': 'Verdana',
       'font-size': '9',
-      fill: '#CCC'
+      fill: '#999'
     };
     let text = this.createShape(attrText);
     text.textContent = '(0, 0)';
