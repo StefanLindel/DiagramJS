@@ -1,63 +1,88 @@
-/*!
- NetworkParser
- Copyright (c) 2011 - 2014, Stefan Lindel
- All rights reserved.
-
- Licensed under the EUPL, Version 1.1 or (as soon they
- will be approved by the European Commission) subsequent
- versions of the EUPL (the 'Licence');
- You may not use this work except in compliance with the Licence.
- You may obtain a copy of the Licence at:
-
- http://ec.europa.eu/idabc/eupl5
-
- Unless required by applicable law or agreed to in
- writing, software distributed under the Licence is
- distributed on an 'AS IS' basis,
- WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either
- express or implied.
- See the Licence for the specific language governing
- permissions and limitations under the Licence.
-*/
-
-// TODO:
-// Header with Export
-// Move Element
-// Loader (Image)
-// Save (Export) and load Drag and Drop
-// Add all EventTypes
-// Add ClazzEditor
-// Add Color to Attributes
-
-import Graph from './elements/Graph';
-import Info from './elements/Info';
-import { Edge } from './elements/edges';
-
-new Info(0, null, 0);
+import Graph from './core/Graph';
+import Options from './core/Options';
+import { Point } from './elements/BaseElements';
 
 class Diagram {
 
   private data: Object;
   private graph: Graph;
+  private options: Options;
 
-  constructor(data: Object) {
-    new Edge();
-    this.setData(data);
-  }
-
-  public setData(data: Object) {
-    this.data = data;
-    this.graph = new Graph(data, null);
+  constructor(data?: Object, options?: Options) {
+    const baseData = { typ: 'clazzdiagram', edges: [{ typ: 'edge', source: 'A', target: 'B' }] };
+    this.data = data || baseData;
+    this.options = options || {};
+    this.graph = new Graph(this.data, this.options);
   }
 
   public layout() {
     this.graph.layout();
   }
 
+  public addElement(type: string) {
+    this.graph.addElement(type);
+  }
+
 }
 
-let json = {'edges': [{source: 'Hallo', target: 'World'}]};
+let data = {
+  typ: 'clazzdiagram',
+  nodes: [
+    {
+      type: 'clazz',
+      id: 'User',
+      attributes: [ '+ name : string', '+ address : string', '- id : int'],
+      methods: [ '+ register()', '+ login()' ]
+    },
+    {
+      type: 'clazz',
+      id: 'Order',
+      attributes: [ '+ status : string', '+ date : string', '- orderId : int'],
+      methods: [ '+ place()', '+ cancel()', '+ refund()' ]
+    },
+    {
+      type: 'clazz',
+      id: 'Account',
+      attributes: [ '- id : int']
+    },
+    {
+      type: 'clazz',
+      id: 'Product',
+      attributes: [ '+ name : string', '+ description : string', '+ photo : string', '- id : int'],
+      methods: [ '+ addToOrder()' ]
+    },
+    {
+      type: 'clazz',
+      id: 'Payment',
+      attributes: [ '+ provider : string', '+ amount : string' ],
+      methods: [ '+ getStatus()' ]
+    }
+  ],
+  edges: [
+    { type: 'aggregation', source: 'Order', target: 'Product' },
+    { type: 'edge', source: 'User', target: 'Order' },
+    { type: 'edge', source: 'User', target: 'Account' },
+    { type: 'edge', source: 'Order', target: 'Payment' },
+    { type: 'edge', source: 'Payment', target: 'Account' }
+  ]
+};
 
-let t = new Diagram(json);
+const options: Options = {
+  canvas: 'canvas',
+  origin: new Point(150, 45),
+  features: {
+    drag: true,
+    palette: true,
+    zoom: true
+  }
+};
 
-t.layout();
+let dia = new Diagram(data, options);
+
+document.getElementById('layoutBtn').onclick = function () {
+  dia.layout();
+};
+
+(function() {
+  dia.layout();
+})();

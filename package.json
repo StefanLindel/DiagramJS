@@ -7,15 +7,21 @@
     "type": "git",
     "url": "https://gitlab.se.cs.uni-kassel.de/slin/DiagramJS.git"
   },
+  "dependencies": {
+    "dagre": "^0.7.4"
+  },
   "devDependencies": {
     "npm-watch": "^0.1.6",
+    "rimraf": "^2.5.4",
     "rollup": "^0.34.13",
+    "rollup-plugin-commonjs": "^4.1.0",
+    "rollup-plugin-node-resolve": "^2.0.0",
     "tslint": "^3.15.1",
     "typescript": "^1.8.10",
     "uglify-js": "^2.7.3"
   },
   "watch": {
-    "build": {
+    "build-dev": {
       "patterns": [
         "src",
         "test"
@@ -25,8 +31,9 @@
     }
   },
   "scripts": {
-    "build": "tslint src/*.ts && tsc",
-    "rollup": "tsc && rollup build/tmp/main.js -o build/diagram.js || true",
-    "watch": "npm-watch"
+    "build": "tsc && rollup -c && rimraf build/tmp || true",
+    "build-dev": "tsc && rollup -c || true",
+    "build-prod": "echo 'sorry. doesnt work yet'",
+    "build-watch": "npm-watch"
   }
 }
