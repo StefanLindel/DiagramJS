@@ -1,5 +1,5 @@
-import Graph from './Graph';
-import Options from './Options';
+import Graph from './core/Graph';
+import Options from './core/Options';
 import { Point } from './elements/BaseElements';
 
 class Diagram {
@@ -9,7 +9,7 @@ class Diagram {
   private options: Options;
 
   constructor(data?: Object, options?: Options) {
-    let baseData = { typ: 'clazzdiagram', edges: [{ typ: 'edge', source: 'A', target: 'B' }] };
+    const baseData = { typ: 'clazzdiagram', edges: [{ typ: 'edge', source: 'A', target: 'B' }] };
     this.data = data || baseData;
     this.options = options || {};
     this.graph = new Graph(this.data, this.options);
@@ -43,8 +43,7 @@ let data = {
     {
       type: 'clazz',
       id: 'Account',
-      attributes: [ '- id : int'],
-      methods: [ '+ delete()' ]
+      attributes: [ '- id : int']
     },
     {
       type: 'clazz',
@@ -68,14 +67,20 @@ let data = {
   ]
 };
 
-let dia = new Diagram(data, { canvas: 'canvas', origin: new Point(135, 50) });
-
-document.getElementById('layoutbtn').onclick = function () {
-  dia.layout();
+const options: Options = {
+  canvas: 'canvas',
+  origin: new Point(150, 45),
+  features: {
+    drag: true,
+    palette: true,
+    zoom: true
+  }
 };
 
-document.getElementById('classbtn').onclick = function () {
-  dia.addElement('clazz');
+let dia = new Diagram(data, options);
+
+document.getElementById('layoutBtn').onclick = function () {
+  dia.layout();
 };
 
 (function() {

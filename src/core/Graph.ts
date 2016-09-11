@@ -1,14 +1,14 @@
-import * as Renderer from './core/renderer';
-import * as edges from './elements/edges';
-import * as nodes from './elements/nodes';
-import * as layouts from './layouts';
-import CanvasDrag from './feature/CanvasDrag';
-import CanvasZoom from './feature/CanvasZoom';
-import Layout from './layouts/Layout';
-import Model from './elements/Model';
+import * as edges from '../elements/edges';
+import * as nodes from '../elements/nodes';
+import * as layouts from '../layouts';
+import * as Renderer from './renderer';
+import Layout from '../layouts/Layout';
+import Model from '../elements/Model';
 import Options from './Options';
-import { createShape } from './util';
-import { Size } from './elements/BaseElements';
+import Palette from './Palette';
+import { Size } from '../elements/BaseElements';
+import { EventBus } from './EventBus';
+import { Drag, Zoom } from '../handlers';
 
 export default class Graph {
 
@@ -25,9 +25,10 @@ export default class Graph {
     json = json || {};
     this.options = options;
     this.initFactories();
+    this.initCanvas();
     this.model = new Model(this);
     this.model.init(json);
-    this.initCanvas();
+    this.initFeatures(options.features);
   }
 
   public addElement(type: string): boolean {
@@ -90,18 +91,22 @@ export default class Graph {
       this.root.setAttribute('class', 'diagram');
       document.body.appendChild(this.root);
     }
-    this.canvasSize = { width: this.root.clientWidth, height: this.root.clientHeight };
-    this.canvas = createShape( {
-      tag: 'svg',
-      id: 'root',
-      width: this.canvasSize.width,
-      height: this.canvasSize.height,
-      viewBox: `${this.options.origin.x * -1} ${this.options.origin.y * -1} ${this.canvasSize.width} ${this.canvasSize.height}`
-    });
+  }
 
-    this.root.appendChild(this.canvas);
-    new CanvasDrag(this.canvas, this);
-    new CanvasZoom(this.canvas, this);
+  private initFeatures(features) {
+    if (features) {
+      if (features.zoom) {
+        let mousewheel = 'onwheel' in document.createElement('div') ? 'wheel' : document.onmousewheel !== undefined ? 'mousewheel' : 'DOMMouseScroll';
+        EventBus.subscribe(new Zoom(), mousewheel);
+      }
+      if (features.drag) {
+        EventBus.subscribe(new Drag(), 'mousedown', 'mouseup', 'mousemove', 'mouseleave');
+      }
+      if (features.palette) {
+        new Palette(this);
+      }
+    }
+
   }
 
 }

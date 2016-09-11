@@ -1,4 +1,4 @@
-import Graph from '../Graph';
+import Graph from './Graph';
 import { createShape } from '../util';
 
 export function draw(graph: Graph) {
@@ -44,10 +44,10 @@ function createPattern(): Element {
     tag: 'pattern',
     id: 'raster',
     patternUnits: 'userSpaceOnUse',
-    width: 50,
-    height: 50
+    width: 40,
+    height: 40
   });
-  const path = 'M0 5 L0 0 L5 0 M45 0 L50 0 L50 5 M50 45 L50 50 L45 50 M5 50 L0 50 L0 45';
+  const path = 'M0 4 L0 0 L4 0 M36 0 L40 0 L40 4 M40 36 L40 40 L36 40 M4 40 L0 40 L0 36';
   const cross = createShape( {
         tag: 'path',
         d: path,

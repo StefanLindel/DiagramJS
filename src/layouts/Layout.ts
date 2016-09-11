@@ -1,4 +1,4 @@
-import Graph from '../Graph';
+import Graph from '../core/Graph';
 
 interface Layout {
   layout(graph: Graph): void;

@@ -1,5 +1,5 @@
 import { Point } from '../elements/BaseElements';
-import Graph from '../Graph';
+import Graph from '../core/Graph';
 import { getRandomInt } from '../util';
 import Layout from './Layout';
 

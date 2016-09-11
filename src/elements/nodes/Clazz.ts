@@ -1,14 +1,15 @@
-import { Point } from '../BaseElements';
 import { Node } from './Node';
+import { EventBus } from '../../core/EventBus';
 
 export class Clazz extends Node {
 
-  private attributes: Array<string> = [];
-  private methods: Array<string> = [];
+  private attributes: string[] = [];
+  private methods: string[] = [];
+  private padding = 10;
 
   constructor(id?: string, type?: string) {
     super(id, type);
-    this.height = this.labelHeight;
+    this.height = this.labelHeight + this.padding * 2;
   };
 
   public init(json) {
@@ -29,18 +30,31 @@ export class Clazz extends Node {
   public getSVG(): Element {
     const pos = this.pos;
 
-    // = = = LABEL = = =
-    const attrLabel = {
+    const attrNode = {
       tag: 'rect',
       x: pos.x - this.width / 2,
       y: pos.y - this.height / 2,
       height: this.height,
       width: this.width,
+      rx: 1,
+      ry: 1,
       style: 'fill:white;stroke:black;stroke-width:2'
     };
-    const shape = this.createShape(attrLabel);
+    const nodeShape = this.createShape(attrNode);
 
-    const attrLabelText = {
+    const contentHeight = this.padding + this.attrHeight * this.attributes.length;
+    const attrContent = {
+      tag: 'rect',
+      x: pos.x - this.width / 2,
+      y: pos.y - this.height / 2  + this.labelHeight,
+      height: contentHeight,
+      width: this.width,
+      style: 'fill:white;stroke:black;stroke-width:2'
+    };
+    const contentShape = this.createShape(attrContent);
+
+    // = = = LABEL = = =
+    const attrLabel = {
       tag: 'text',
       x: pos.x,
       y: pos.y - this.height / 2 + this.labelHeight / 2,
@@ -48,34 +62,24 @@ export class Clazz extends Node {
       'alignment-baseline': 'central',
       'font-family': 'Verdana',
       'font-size': this.labelFontSize,
+      'font-weight': 'bold',
       fill: 'black'
     };
-    let text = this.createShape(attrLabelText);
-    text.textContent = this.id;
+    let label = this.createShape(attrLabel);
+    label.textContent = this.id;
 
     let group = this.createShape({ tag: 'g', id: this.id, transform: 'translate(0 0)' });
-    group.appendChild(shape);
-    group.appendChild(text);
+    group.appendChild(nodeShape);
+    group.appendChild(contentShape);
+    group.appendChild(label);
 
     // = = = ATTRIBUTES = = =
-    let height = this.attributes.length * this.attrHeight;
     if (this.attributes.length > 0) {
-      const attr = {
-        tag: 'rect',
-        x: pos.x - this.width / 2,
-        y: pos.y - this.height / 2 + this.labelHeight ,
-        height: height,
-        width: this.width,
-        style: 'fill:white;stroke:black;stroke-width:2'
-      };
-      let shape = this.createShape(attr);
-      group.appendChild(shape);
-
-      let y = pos.y - this.height / 2 + this.labelHeight + this.attrFontSize;
+      let y = pos.y - this.height / 2 + this.labelHeight + this.attrHeight / 2 + this.padding / 2;
       for (let element of this.attributes) {
         const attrText = {
           tag: 'text',
-          x: pos.x - this.width / 2 + 5,
+          x: pos.x - this.width / 2 + this.padding / 2,
           y: y,
           'text-anchor': 'start',
           'alignment-baseline': 'middle',
@@ -91,25 +95,14 @@ export class Clazz extends Node {
     }
 
     // = = = METHODS = = =
-    let y = pos.y - this.height / 2 + this.labelHeight + height;
+    let height = this.attributes.length * this.attrHeight;
+    let y = pos.y - this.height / 2 + this.labelHeight + height + this.attrHeight / 2 + this.padding / 2;
     if (this.methods.length > 0) {
-      let height = this.methods.length * this.attrHeight;
-      const attr = {
-        tag: 'rect',
-        x: pos.x - this.width / 2,
-        y: y,
-        height: height,
-        width: this.width,
-        style: 'fill:white;stroke:black;stroke-width:2'
-      };
-      let shape = this.createShape(attr);
-      group.appendChild(shape);
-
       y += this.attrHeight / 2;
       for (let element of this.methods) {
         const attrText = {
           tag: 'text',
-          x: pos.x - this.width / 2 + 5,
+          x: pos.x - this.width / 2 + this.padding / 2,
           y: y,
           'text-anchor': 'start',
           'alignment-baseline': 'middle',
@@ -123,7 +116,9 @@ export class Clazz extends Node {
         y += this.attrHeight;
       }
     }
-    this.addListener(group, this);
+
+    EventBus.register(group, this, 'mousedown', 'mousemove');
+    this.view = group;
     return group;
   }
 

@@ -1,8 +1,10 @@
-import Graph from '../Graph';
+import Graph from '../core/Graph';
 import { toPascalCase } from '../util';
 import { DiagramElement } from './BaseElements';
 import { Edge } from './edges';
 import { Node } from './nodes';
+import { EventBus } from '../core/EventBus';
+import { createShape } from '../util';
 
 interface DataNode {
   type?: string;
@@ -27,7 +29,7 @@ export default class Model extends DiagramElement {
   nodes: Node[] = [];
   edges: Edge[] = [];
   elements: DiagramElement[] = [];
-  private graph: Graph;
+  graph: Graph;
 
   constructor(graph: Graph) {
     super();
@@ -38,6 +40,7 @@ export default class Model extends DiagramElement {
   public init(data) {
     data = data || {};
     this.type = data.type || 'classdiagram';
+    this.id = 'RootElement';
     if (data.nodes) {
       for (let node of data.nodes) {
         this.addNode(node);
@@ -48,6 +51,7 @@ export default class Model extends DiagramElement {
         this.addEdge(edge);
       }
     }
+    this.initCanvas();
   }
 
   public addElement(type: string): boolean {
@@ -92,6 +96,22 @@ export default class Model extends DiagramElement {
     group.appendChild(text);
 
     return group;
+  }
+
+  private initCanvas() {
+    this.graph.canvasSize = { width: this.graph.root.clientWidth, height: this.graph.root.clientHeight };
+    this.graph.canvas = createShape( {
+      tag: 'svg',
+      id: 'root',
+      width: this.graph.canvasSize.width,
+      height: this.graph.canvasSize.height,
+      viewBox: `${this.graph.options.origin.x * -1} ${this.graph.options.origin.y * -1} ${this.graph.canvasSize.width} ${this.graph.canvasSize.height}`
+    });
+    this.view = this.graph.canvas;
+    this.graph.root.appendChild(this.graph.canvas);
+
+    let mousewheel = 'onwheel' in document.createElement('div') ? 'wheel' : document.onmousewheel !== undefined ? 'mousewheel' : 'DOMMouseScroll';
+    EventBus.register(this.graph.canvas, this, 'mousedown', 'mouseup', 'mouseleave', 'mousemove', mousewheel);
   }
 
   private addNode(node: DataNode): Node {

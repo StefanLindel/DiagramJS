@@ -22,11 +22,7 @@ button {
   box-shadow: 1px 1px 5px 0px rgba(0, 0, 0, 0.3);
 }
 
-button:hover {
-  background: rgb(240, 240, 240);
-}
-
-g, rect {
+g {
   cursor: pointer;
 }
 
@@ -53,7 +49,7 @@ g, rect {
 
 h1 {
   margin-top: 5px;
-  color: #333;
+  color: #363336;
 }
 
 .toolbar {
@@ -71,6 +67,10 @@ h1 {
   box-shadow: 0px -3px 20px 5px rgba(0, 0, 0, 0.5);
 }
 
+.toolbar button.layoutBtn {
+  background: url('data:image/svg+xml;utf8,<svg width="100%" height="100%" viewBox="0 0 70 60" enable-background="new 0 0 70 60" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink"><path id="diapath" d="M53,41V29H31V19h7V3H22v16h7v10H7v12H0v16h16V41H9V31h20v10h-7v16h16V41h-7V31h20v10h-7v16h16V41H53z M24,5h12v12H24V5z M14,55H2V43h12V55z M36,55H24V43h12V55z M58,55H46V43h12V55z"/></svg>') right no-repeat;
+}
+
 .palette {
   width: 70px;
   height: 300px;
@@ -83,6 +83,41 @@ h1 {
   -webkit-box-shadow: 5px 5px 20px 0px rgba(0, 0, 0, 0.25);
   -moz-box-shadow: 5px 5px 20px 0px rgba(0, 0, 0, 0.25);
   box-shadow: 5px 5px 20px 0px rgba(0, 0, 0, 0.25);
+}
+
+.palette button {
+  min-width: 0;
+  margin: 6px;
+  padding: 1px;
+  width: 58px;
+  height: 45px;
+}
+
+.palette button svg, .palette button svg line, .palette button svg polygon, .palette button svg rect, .palette button svg text {
+  transition: 250ms;
+  transition-timing-function: ease-in-out;
+  -webkit-transition: 250ms;
+  -webkit-transition-timing-function: ease-in-out;
+}
+
+.palette button svg line, .palette button svg rect {
+  fill: none;
+  stroke: #AAA;
+}
+
+.palette button svg polygon, .palette button svg text {
+  alignment-baseline: central;
+  font-family: 'Helvetica Neue';
+  font-weight: bold;
+  fill: #AAA;
+}
+
+.palette button:hover svg rect, .palette button:hover svg line {
+  stroke: black;
+}
+
+.palette button:hover svg polygon, .palette button:hover svg text {
+  fill: black;
 }
 
 .ClassEditor {

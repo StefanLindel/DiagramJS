@@ -4,10 +4,12 @@ import { Edge } from '../edges';
 export class Node extends DiagramElement {
 
   pos: Point = new Point();
+  origPos: Point = new Point();
   size: Point = new Point();
   edges: Edge[] = [];
   width: number = 150;
   height: number = 70;
+  maxWidth: number = 250;
 
   constructor(id?: string, type?: string) {
     super();
@@ -39,8 +41,8 @@ export class Node extends DiagramElement {
       tag: 'rect',
       x: pos.x - this.width / 2,
       y: pos.y - this.height / 2,
-      rx: 5,
-      ry: 5,
+      rx: 4,
+      ry: 4,
       height: this.height,
       width: this.width,
       style: 'fill:white;stroke:black;stroke-width:2'

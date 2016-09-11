@@ -1,5 +1,3 @@
-import { addListener } from '../feature/listeners';
-import { Node } from './nodes';
 import { createShape } from '../util';
 
 export interface Label {
@@ -49,10 +47,6 @@ export abstract class DiagramElement extends Defaults {
     return createShape(attrs);
   }
 
-  protected addListener(element: Element, node: Node) {
-    addListener(element, node);
-  }
-
 }
 
 export class Point {
@@ -68,6 +62,12 @@ export class Point {
   public add(pos: Point) {
     this.x += pos.x;
     this.y += pos.y;
+    return this;
+  }
+
+  public addNum(x: number, y: number) {
+    this.x += x;
+    this.y += y;
     return this;
   }
 

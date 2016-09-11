@@ -1,7 +1,7 @@
 /// <reference path='../core/dagre.d.ts'/>
 import { Edge } from '../elements/edges';
 import { Node } from '../elements/nodes';
-import Graph from '../Graph';
+import Graph from '../core/Graph';
 import Layout from './Layout';
 import * as dagre from 'dagre';
 
@@ -12,7 +12,7 @@ export class DagreLayout implements Layout {
     let model = graph.model;
 
     const g = new dagre.graphlib.Graph();
-    g.setGraph({}).setDefaultEdgeLabel(function() { return {}; });
+    g.setGraph({marginx: 35, marginy: 35}).setDefaultEdgeLabel(function() { return {}; });
 
     if (model.nodes) {
       for (let id in model.nodes) {
