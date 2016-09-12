@@ -8,9 +8,9 @@ export class EventBus {
 
   private static handlers = new Map<string, EventHandler[]>();
 
-  static register(element: Element, diagramElement: DiagramElement, ...eventTypes: string[]) {
+  static register(diagramElement: DiagramElement, ...eventTypes: string[]) {
     for (let event of eventTypes) {
-      element.addEventListener(event, EventBus.publish.bind(null, diagramElement));
+      diagramElement.view.addEventListener(event, EventBus.publish.bind(null, diagramElement));
     }
   }
 

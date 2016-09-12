@@ -72,7 +72,9 @@ const options: Options = {
   origin: new Point(150, 45),
   features: {
     drag: true,
+    editor: true,
     palette: true,
+    select: true,
     zoom: true
   }
 };

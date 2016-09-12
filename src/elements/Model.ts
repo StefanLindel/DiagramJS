@@ -6,6 +6,11 @@ import { Node } from './nodes';
 import { EventBus } from '../core/EventBus';
 import { createShape } from '../util';
 
+// TODO: replace ids with prefix + random number and use labels for names
+// counter = 0;
+// prefix = (prefix ? prefix + '-' : '') + Math.floor(Math.random() * 1000000000);
+// prefix = ++counter;
+
 interface DataNode {
   type?: string;
   id?: string;
@@ -28,8 +33,8 @@ export default class Model extends DiagramElement {
 
   nodes: Node[] = [];
   edges: Edge[] = [];
-  elements: DiagramElement[] = [];
   graph: Graph;
+  private count = 0;
 
   constructor(graph: Graph) {
     super();
@@ -56,12 +61,30 @@ export default class Model extends DiagramElement {
 
   public addElement(type: string): boolean {
     type = toPascalCase(type);
-    let id = 'New' + type + '$' + (this.elements.length + 1);
+    let id = 'New' + type + '$' + (this.count + 1);
     let element = <DiagramElement>this.getElement(type, id, {});
     if (element) {
       return true;
     }
     return false;
+  }
+
+  public removeElement(id: string): boolean {
+    if (this.nodes[id]) {
+      let node = this.nodes[id];
+      delete this.nodes[id];
+      for (let edge of node.edges) {
+        delete this.edges[edge.id];
+      }
+    }
+    else if (this.edges[id]) {
+      delete this.edges[id];
+    }
+    else {
+      return false;
+    }
+    this.graph.layout();
+    return true;
   }
 
   public getSVG(): Element {
@@ -111,13 +134,13 @@ export default class Model extends DiagramElement {
     this.graph.root.appendChild(this.graph.canvas);
 
     let mousewheel = 'onwheel' in document.createElement('div') ? 'wheel' : document.onmousewheel !== undefined ? 'mousewheel' : 'DOMMouseScroll';
-    EventBus.register(this.graph.canvas, this, 'mousedown', 'mouseup', 'mouseleave', 'mousemove', mousewheel);
+    EventBus.register(this, 'mousedown', 'mouseup', 'mouseleave', 'mousemove', mousewheel);
   }
 
   private addNode(node: DataNode): Node {
     let type = node.type || 'Node';
     type = toPascalCase(type);
-    let id = node.id ? node.id : type + '$' + (this.elements.length + 1);
+    let id = node.id ? node.id : type + '$' + (this.count + 1);
     return <Node>this.getElement(type, id, node);
   }
 
@@ -131,7 +154,7 @@ export default class Model extends DiagramElement {
   private addEdge(edge: DataEdge) {
     let type = edge.type || 'Edge';
     type = toPascalCase(type);
-    let id = edge.id ? edge.id : type + '$' + (this.elements.length + 1);
+    let id = edge.id ? edge.id : type + '$' + (this.count + 1);
 
     let newEdge = <Edge>this.getElement(type, id, edge);
     let source = this.findNode(edge.source) || this.addNode({ id: edge.source });
@@ -142,18 +165,17 @@ export default class Model extends DiagramElement {
   };
 
   private getElement(type: string, id: string, data: Object): DiagramElement {
+    this.count++;
     if (this.graph.nodeFactory[type]) {
       let element: DiagramElement = new this.graph.nodeFactory[type](id, type);
       element.init(data);
       this.nodes[id] = element;
-      this.elements.push(element);
       return element;
     }
     if (this.graph.edgeFactory[type]) {
       let element: DiagramElement = new this.graph.edgeFactory[type](id, type);
       element.init(data);
       this.edges[id] = element;
-      this.elements.push(element);
       return element;
     }
   }

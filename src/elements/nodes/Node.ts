@@ -4,7 +4,6 @@ import { Edge } from '../edges';
 export class Node extends DiagramElement {
 
   pos: Point = new Point();
-  origPos: Point = new Point();
   size: Point = new Point();
   edges: Edge[] = [];
   width: number = 150;

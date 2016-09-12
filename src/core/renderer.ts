@@ -6,10 +6,16 @@ export function draw(graph: Graph) {
   const model = graph.model;
   const canvas = graph.canvas;
 
-  if (model.elements) {
-    for (let id in model.elements) {
-      let elements = model.elements[id];
-      canvas.appendChild(elements.getSVG());
+  if (model.nodes) {
+    for (let id in model.nodes) {
+      let node = model.nodes[id];
+      canvas.appendChild(node.getSVG());
+    }
+  }
+  if (model.edges) {
+    for (let id in model.edges) {
+      let edge = model.edges[id];
+      canvas.appendChild(edge.getSVG());
     }
   }
 

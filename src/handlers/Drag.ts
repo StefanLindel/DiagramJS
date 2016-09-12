@@ -9,6 +9,7 @@ export class Drag implements EventHandler {
   private svgRoot: SVGSVGElement;
   private svgElement: SVGSVGElement;
   private dragging = false;
+  private reinsert = false;
   private mouseOffset = new Point();
 
   constructor() {
@@ -16,6 +17,7 @@ export class Drag implements EventHandler {
   }
 
   public handle(event: Event, element: DiagramElement) {
+    // event.stopPropagation();
     switch (event.type) {
       case 'mousedown':
         if ( (!this.dragging) || (element.id !== 'RootElement')) {
@@ -61,11 +63,15 @@ export class Drag implements EventHandler {
       this.svgRoot.style.cursor = '-webkit-grabbing';
     }
     else {
-      this.svgRoot.appendChild(this.svgElement);
+      this.reinsert = true;
     }
   }
 
   private drag(evt, element: DiagramElement) {
+    if (this.reinsert) {
+      this.svgRoot.appendChild(this.svgElement);
+      this.reinsert = false;
+    }
     if (element.id === 'RootElement') {
       if (element.id !== this.element.id) {
         return;

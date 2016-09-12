@@ -20,4 +20,5 @@ Make sure you have [NodeJS](nodejs.org) and [npm](https://www.npmjs.org/doc/cli/
 	npm run build-watch
 
 	# bundles a minified diagram.js and css in a standalone html file. transpiled to ES5
+	# ! - not yet fully implemented - !
 	npm run build-prod

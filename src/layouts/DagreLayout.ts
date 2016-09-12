@@ -33,14 +33,12 @@ export class DagreLayout implements Layout {
     g.nodes().forEach(function(v) {
       model.nodes[v].pos.x = g.node(v).x;
       model.nodes[v].pos.y = g.node(v).y;
-      // console.log('Node ' + v + ': ' + JSON.stringify(g.node(v)));
     });
     g.edges().forEach(function(e) {
       for (let id in model.edges) {
         let edge: Edge = model.edges[id];
         if (edge.source.id === e.v && edge.target.id === e.w) {
           edge.points = g.edge(e).points;
-          // console.log('Edge ' + e.v + ' -> ' + e.w + ': ' + JSON.stringify(g.edge(e)));
         }
       }
     });

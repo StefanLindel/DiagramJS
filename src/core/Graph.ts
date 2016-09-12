@@ -1,14 +1,14 @@
 import * as edges from '../elements/edges';
 import * as nodes from '../elements/nodes';
 import * as layouts from '../layouts';
-import * as Renderer from './renderer';
+import * as renderer from './renderer';
 import Layout from '../layouts/Layout';
 import Model from '../elements/Model';
 import Options from './Options';
 import Palette from './Palette';
 import { Size } from '../elements/BaseElements';
 import { EventBus } from './EventBus';
-import { Drag, Zoom } from '../handlers';
+import { Editor, Drag, Select, Zoom } from '../handlers';
 
 export default class Graph {
 
@@ -45,7 +45,7 @@ export default class Graph {
   }
 
   public draw() {
-    Renderer.draw(this);
+    renderer.draw(this);
   }
 
   private getLayout(): Layout {
@@ -99,8 +99,14 @@ export default class Graph {
         let mousewheel = 'onwheel' in document.createElement('div') ? 'wheel' : document.onmousewheel !== undefined ? 'mousewheel' : 'DOMMouseScroll';
         EventBus.subscribe(new Zoom(), mousewheel);
       }
+      if (features.editor) {
+        EventBus.subscribe(new Editor(), 'dblclick');
+      }
       if (features.drag) {
         EventBus.subscribe(new Drag(), 'mousedown', 'mouseup', 'mousemove', 'mouseleave');
+      }
+      if (features.select) {
+        EventBus.subscribe(new Select(this.model), 'click');
       }
       if (features.palette) {
         new Palette(this);

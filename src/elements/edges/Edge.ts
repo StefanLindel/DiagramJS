@@ -47,7 +47,7 @@ export class Edge extends DiagramElement {
       id: this.id,
       d: path,
       stroke: 'black',
-      'stroke-width': '2',
+      'stroke-width': '3',
       fill: 'none'
     };
     let shape = this.createShape(attr);

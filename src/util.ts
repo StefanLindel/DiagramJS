@@ -8,7 +8,7 @@ export function getRandomInt(min, max): number {
     return Math.floor(Math.random() * (max - min + 1)) + min;
 }
 
-export function createShape(attrs): Element {
+export function createShape(attrs): SVGSVGElement {
   let xmlns = attrs.xmlns || 'http://www.w3.org/2000/svg';
   let shape = document.createElementNS(xmlns, attrs.tag);
   for (let attr in attrs) {
@@ -16,7 +16,7 @@ export function createShape(attrs): Element {
       shape.setAttribute(attr, attrs[attr]);
     }
   }
-  return shape;
+  return <SVGSVGElement><any>shape;
 }
 
 function isSVG(tag) {

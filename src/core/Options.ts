@@ -7,9 +7,10 @@ interface Options {
   layout?: string;
   origin?: Point;       // x and y offset of rendered diagram
   features?: {
+    editor?: boolean,
     drag?: boolean,
     palette?: boolean,
-    selection?: boolean,
+    select?: boolean,
     zoom?: boolean
   };
 }

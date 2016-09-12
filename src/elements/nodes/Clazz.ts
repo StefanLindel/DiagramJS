@@ -117,9 +117,26 @@ export class Clazz extends Node {
       }
     }
 
-    EventBus.register(group, this, 'mousedown', 'mousemove');
     this.view = group;
+    EventBus.register(this, 'mousedown', 'mousemove', 'click', 'dblclick');
+
     return group;
+  }
+
+  public getMethodsAsString() {
+    let value = '';
+    for (let method of this.methods) {
+      value += method + '\n';
+    }
+    return value;
+  }
+
+  public getAttributesAsString() {
+    let value = '';
+    for (let attribute of this.attributes) {
+      value += attribute + '\n';
+    }
+    return value;
   }
 
 }
