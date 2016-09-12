@@ -22,10 +22,14 @@ export default class Palette {
 
   private addButtons() {
     for (let btn in buttons) {
-      let button = document.createElement('button');
+      let button = <HTMLButtonElement>document.createElement('button');
       button.className = 'add' + btn + 'Btn';
       button.innerHTML = buttons[btn];
       button.onclick = e => this.graph.addElement(btn);
+      if (btn === 'object' || btn === 'edge') {
+        // TODO: implement Objects
+        button.disabled = true;
+      }
       this.palette.appendChild(button);
     }
   }

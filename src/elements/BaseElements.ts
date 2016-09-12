@@ -1,9 +1,5 @@
 import { createShape } from '../util';
 
-export interface Label {
-  text: string;
-}
-
 export interface Size {
   width: number;
   height: number;
@@ -20,7 +16,7 @@ export abstract class DiagramElement extends Defaults {
 
   public id: string;
   public type: string;
-  public label: Label;
+  public label: string;
   public view: Element;
 
   protected parent: DiagramElement = null;

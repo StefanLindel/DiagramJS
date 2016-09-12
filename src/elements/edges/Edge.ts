@@ -1,4 +1,5 @@
 import { DiagramElement, Point } from '../BaseElements';
+import { EventBus } from '../../core/EventBus';
 import { Node } from '../nodes';
 
 export const enum Direction {
@@ -11,7 +12,6 @@ export class Edge extends DiagramElement {
   public target: Node;
   public lineStyle: string;
   public points: Point[];
-  private shape: Element;
 
   constructor(id?: string, type?: string) {
     super();
@@ -51,14 +51,17 @@ export class Edge extends DiagramElement {
       fill: 'none'
     };
     let shape = this.createShape(attr);
-    this.shape = shape;
+
+    this.view = shape;
+    EventBus.register(this, 'click', 'editor');
+
     return shape;
   }
 
   public redraw() {
     let a = this.getShortestPathIntersection(this.source, this.target.pos);
     let b = this.getShortestPathIntersection(this.target, this.source.pos);
-    this.shape.setAttribute('d', `M${a.x} ${a.y} L${b.x} ${b.y}`);
+    this.view.setAttribute('d', `M${a.x} ${a.y} L${b.x} ${b.y}`);
     this.points = [ a, b ];
   }
 

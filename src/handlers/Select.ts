@@ -1,6 +1,7 @@
 import { EventHandler } from '../core/EventBus';
 import { DiagramElement } from '../elements/BaseElements';
 import { Node } from '../elements/nodes';
+import { Edge } from '../elements/edges';
 import { createShape } from '../util';
 import Model from '../elements/Model';
 
@@ -10,46 +11,107 @@ export class Select implements EventHandler {
   private editShape: SVGSVGElement;
   private deleteShape: SVGSVGElement;
   private model: Model;
-  private padding = 10;
+  private padding = 5;
 
   constructor(model: Model) {
     this.model = model;
     this.svgRoot = <SVGSVGElement><any>document.getElementById('root');
 
-    const editPath = `M0 1 L7 1 L7 0 L13 0 L13 1 L20 1 L20 5 L18 5 L18 25 L2 25 L2 5 L0 5 L0 1 M2 5 L18 5 M6 8 L6 20 M10 9 L10 22 M14 8 L14 20 `;
+    const attrCircle = {
+      tag: 'circle',
+      cx: 20,
+      cy: 20,
+      r: 17,
+      stroke: '#888',
+      'stroke-width': 2,
+      fill: '#DDD'
+    };
+
+    const editPath = 'M6 20 L12 23 L33 23 L33 17 L12 17 Z M30 17 L30 23 M12 17 L12 23 M15 19 L28 19 M15 21 L28 21';
     const editAttr = {
       tag: 'path',
-      id: 'edit',
       d: editPath,
-      stroke: '#333',
-      'stroke-width': '2',
-      fill: '#DDD'
+      stroke: '#000',
+      'stroke-width': 1,
+      fill: 'white'
     };
     const editShape = createShape(editAttr);
-    this.editShape = editShape;
+    const editBkg = createShape(attrCircle);
 
-    const deletePath = `M0 1 L7 1 L7 0 L13 0 L13 1 L20 1 L20 5 L18 5 L18 25 L2 25 L2 5 L0 5 L0 1 M2 5 L18 5 M6 8 L6 20 M10 9 L10 22 M14 8 L14 20 `;
-    const deleteAttr = {
+    let editGroup = createShape({ tag: 'g', id: 'edit', transform: 'rotate(-45, 20, 20) translate(0 0)' });
+    editGroup.appendChild(editBkg);
+    editGroup.appendChild(editShape);
+    this.editShape = editGroup;
+
+    const deletePath = 'M12 12 L18 12 L18 11 L22 11 L22 12 L28 12 L28 14 L27 14 L27 29 L13 29 L13 14 L12 14 Z M13 14 L27 14 M20 17 L20 26 M17 16 L17 27 M23 16 L23 27';
+    const deleteAttrPath = {
       tag: 'path',
-      id: 'trashcan',
       d: deletePath,
-      stroke: '#333',
-      'stroke-width': '2',
-      fill: '#DDD'
+      stroke: '#000',
+      'stroke-width': 1,
+      fill: 'white'
     };
-    const deleteShape = createShape(deleteAttr);
-    this.deleteShape = deleteShape;
+    const deleteShape = createShape(deleteAttrPath);
+    const deleteBkg = createShape(attrCircle);
+
+    let deleteGroup = createShape({ tag: 'g', id: 'trashcan', transform: 'translate(0 0)' });
+    deleteGroup.appendChild(deleteBkg);
+    deleteGroup.appendChild(deleteShape);
+
+    this.deleteShape = deleteGroup;
   }
 
   public handle(event, element: DiagramElement) {
-    let e = <Node>element;
-    if (document.getElementById('trashcan') === null) {
-      this.svgRoot.appendChild(this.deleteShape);
+    event.stopPropagation();
+    if (event.type === 'drag' || event.srcElement.id === 'background' || element === this.model) {
+      this.editShape.setAttributeNS(null, 'visibility', 'hidden');
+      this.deleteShape.setAttributeNS(null, 'visibility', 'hidden');
     }
-    const x = e.pos.x + e.width / 2 + this.padding;
-    const y = e.pos.y - e.height / 2 + this.padding / 2;
-    this.deleteShape.setAttributeNS(null, 'transform', 'translate(' + x + ' ' + y + ')');
-    this.deleteShape.onclick = e => this.model.removeElement(element.id);
+    else if (element instanceof Node) {
+      let e = <Node>element;
+      if (document.getElementById('trashcan') === null) {
+        this.svgRoot.appendChild(this.deleteShape);
+      }
+      if (document.getElementById('edit') === null) {
+        this.svgRoot.appendChild(this.editShape);
+      }
+
+      this.editShape.setAttributeNS(null, 'visibility', 'visible');
+      this.deleteShape.setAttributeNS(null, 'visibility', 'visible');
+
+      const x = e.pos.x + e.width / 2 + this.padding;
+      const y = e.pos.y - e.height / 2 + this.padding / 2;
+
+      let editorEvent = new Event('editor');
+      this.editShape.setAttributeNS(null, 'transform', `rotate(-45, ${x + 20}, ${y + 20}) translate(${x} ${y})`);
+      this.editShape.onclick = e => element.view.dispatchEvent(editorEvent);
+
+      this.deleteShape.setAttributeNS(null, 'transform', `translate(${x} ${y + 34 + this.padding})`);
+      this.deleteShape.onclick = e => this.model.removeElement(element.id);
+    }
+    else if (element instanceof Edge) {
+      let e = <Edge>element;
+      if (document.getElementById('trashcan') === null) {
+        this.svgRoot.appendChild(this.deleteShape);
+      }
+      this.editShape.setAttributeNS(null, 'visibility', 'hidden');
+      this.deleteShape.setAttributeNS(null, 'visibility', 'visible');
+
+      let x: number, y: number;
+
+      if (e.points.length === 2) {
+        x = (e.points[0].x + e.points[1].x) / 2;
+        y = (e.points[0].y + e.points[1].y) / 2;
+      }
+      else {
+        const i = Math.floor(e.points.length / 2);
+        x = e.points[i].x;
+        y = e.points[i].y;
+      }
+
+      this.deleteShape.setAttributeNS(null, 'transform', `translate(${x} ${y})`);
+      this.deleteShape.onclick = e => this.model.removeElement(element.id);
+    }
   }
 
 }

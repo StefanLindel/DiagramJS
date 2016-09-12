@@ -13,6 +13,9 @@ export class Clazz extends Node {
   };
 
   public init(json) {
+
+    this.label = json.name || json.label || ('New ' + this.type);
+
     if (json['attributes']) {
       for (let attr of json['attributes']) {
         this.attributes.push(attr);
@@ -66,7 +69,7 @@ export class Clazz extends Node {
       fill: 'black'
     };
     let label = this.createShape(attrLabel);
-    label.textContent = this.id;
+    label.textContent = this.label;
 
     let group = this.createShape({ tag: 'g', id: this.id, transform: 'translate(0 0)' });
     group.appendChild(nodeShape);
@@ -118,25 +121,53 @@ export class Clazz extends Node {
     }
 
     this.view = group;
-    EventBus.register(this, 'mousedown', 'mousemove', 'click', 'dblclick');
+    EventBus.register(this, 'mousedown', 'mousemove', 'click', 'dblclick', 'editor', 'drag');
 
     return group;
   }
 
-  public getMethodsAsString() {
+  public getPropertyAsString(type: string): string {
     let value = '';
-    for (let method of this.methods) {
-      value += method + '\n';
+    if (this[type]) {
+      for (let property of this[type]) {
+        value += property + '\n';
+      }
     }
     return value;
   }
 
-  public getAttributesAsString() {
-    let value = '';
-    for (let attribute of this.attributes) {
-      value += attribute + '\n';
+  // returns true if new properties are different from old ones
+  public convertStringToProperty(values: string, type: string): boolean {
+    if (!this[type]) {
+      return false;
     }
-    return value;
+
+    let properties = values.split(/\r?\n/);
+    let newProperties: string[] = [];
+    for (let property of properties) {
+      if (property && property.length > 0) {
+        newProperties.push(property);
+      }
+    }
+
+    let changed = false;
+    if (this[type].length !== newProperties.length) {
+      changed = true;
+    }
+    else {
+      for (let i = 0; i < this[type].length; i++) {
+        if (!this[type][i] || !newProperties[i] || this[type][i] !== newProperties[i]) {
+          changed = true;
+        }
+      }
+    }
+
+    if (changed) {
+      this[type] = newProperties;
+      this.height = this.labelHeight + this.padding * 2 + (this.attributes.length + this.methods.length) * this.attrHeight;
+    }
+
+    return changed;
   }
 
 }

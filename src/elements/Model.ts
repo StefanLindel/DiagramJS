@@ -6,14 +6,10 @@ import { Node } from './nodes';
 import { EventBus } from '../core/EventBus';
 import { createShape } from '../util';
 
-// TODO: replace ids with prefix + random number and use labels for names
-// counter = 0;
-// prefix = (prefix ? prefix + '-' : '') + Math.floor(Math.random() * 1000000000);
-// prefix = ++counter;
-
 interface DataNode {
   type?: string;
   id?: string;
+  label?: string;
   x?: number;
   y?: number;
   width?: number;
@@ -34,7 +30,7 @@ export default class Model extends DiagramElement {
   nodes: Node[] = [];
   edges: Edge[] = [];
   graph: Graph;
-  private count = 0;
+  private counter = 0;
 
   constructor(graph: Graph) {
     super();
@@ -61,7 +57,7 @@ export default class Model extends DiagramElement {
 
   public addElement(type: string): boolean {
     type = toPascalCase(type);
-    let id = 'New' + type + '$' + (this.count + 1);
+    let id = this.getNewId(type);
     let element = <DiagramElement>this.getElement(type, id, {});
     if (element) {
       return true;
@@ -134,38 +130,52 @@ export default class Model extends DiagramElement {
     this.graph.root.appendChild(this.graph.canvas);
 
     let mousewheel = 'onwheel' in document.createElement('div') ? 'wheel' : document.onmousewheel !== undefined ? 'mousewheel' : 'DOMMouseScroll';
-    EventBus.register(this, 'mousedown', 'mouseup', 'mouseleave', 'mousemove', mousewheel);
+    EventBus.register(this, 'mousedown', 'mouseup', 'mouseleave', 'mousemove', mousewheel, 'click', 'drag');
+  }
+
+  private getNewId(prefix?: string): string {
+    this.counter++;
+    let id = (prefix ? prefix.toLowerCase() + '-' : '') + Math.floor(Math.random() * 100000);
+    return id;
   }
 
   private addNode(node: DataNode): Node {
     let type = node.type || 'Node';
     type = toPascalCase(type);
-    let id = node.id ? node.id : type + '$' + (this.count + 1);
+    let id = this.getNewId(type);
     return <Node>this.getElement(type, id, node);
   }
 
-  private findNode(id: string) {
+  private findNodeById(id: string) {
     if (this.nodes[id]) {
       return this.nodes[id];
     }
     return false;
   }
 
+  private findNodeByLabel(label: string): Node {
+    for (let index in this.nodes) {
+      let node = this.nodes[index];
+      if (node.label === label) {
+        return node;
+      }
+    }
+  }
+
   private addEdge(edge: DataEdge) {
     let type = edge.type || 'Edge';
     type = toPascalCase(type);
-    let id = edge.id ? edge.id : type + '$' + (this.count + 1);
+    let id = this.getNewId(type);
 
     let newEdge = <Edge>this.getElement(type, id, edge);
-    let source = this.findNode(edge.source) || this.addNode({ id: edge.source });
-    let target = this.findNode(edge.target) || this.addNode({ id: edge.target });
+    let source = this.findNodeByLabel(edge.source) || this.addNode({ label: edge.source });
+    let target = this.findNodeByLabel(edge.target) || this.addNode({ label: edge.target });
     newEdge.withItem(source, target);
 
     return newEdge;
   };
 
   private getElement(type: string, id: string, data: Object): DiagramElement {
-    this.count++;
     if (this.graph.nodeFactory[type]) {
       let element: DiagramElement = new this.graph.nodeFactory[type](id, type);
       element.init(data);

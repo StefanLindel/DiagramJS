@@ -69,8 +69,13 @@ export class Drag implements EventHandler {
 
   private drag(evt, element: DiagramElement) {
     if (this.reinsert) {
-      this.svgRoot.appendChild(this.svgElement);
+      if (this.element.id !== 'RootElement') {
+        this.svgRoot.appendChild(this.svgElement);
+      }
       this.reinsert = false;
+
+      let dragEvent = new Event('drag');
+      element.view.dispatchEvent(dragEvent);
     }
     if (element.id === 'RootElement') {
       if (element.id !== this.element.id) {

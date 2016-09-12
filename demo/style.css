@@ -119,14 +119,14 @@ h1 {
   fill: black;
 }
 
-#trashcan {
-  cursor: pointer;
-  fill: white;
+#trashcan:hover circle {
+  stroke: #333;
+  fill: #ff9c9c;
 }
 
-#trashcan:hover {
-  stroke: #000;
-  fill: #CCC;
+#edit:hover circle {
+  stroke: #333;
+  fill: #fff68f;
 }
 
 .centercenter {

@@ -100,13 +100,13 @@ export default class Graph {
         EventBus.subscribe(new Zoom(), mousewheel);
       }
       if (features.editor) {
-        EventBus.subscribe(new Editor(), 'dblclick');
+        EventBus.subscribe(new Editor(this), 'dblclick', 'editor');
       }
       if (features.drag) {
         EventBus.subscribe(new Drag(), 'mousedown', 'mouseup', 'mousemove', 'mouseleave');
       }
       if (features.select) {
-        EventBus.subscribe(new Select(this.model), 'click');
+        EventBus.subscribe(new Select(this.model), 'click', 'drag');
       }
       if (features.palette) {
         new Palette(this);
