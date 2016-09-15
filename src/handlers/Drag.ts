@@ -22,7 +22,7 @@ export class Drag implements EventHandler {
       case 'mousedown':
         if ( (!this.dragging) || (element.id !== 'RootElement')) {
           this.element = element;
-          this.svgElement = <SVGSVGElement>element.view;
+          this.svgElement = <SVGSVGElement>element.$view;
           this.start(event, element);
         }
         break;
@@ -75,7 +75,7 @@ export class Drag implements EventHandler {
       this.reinsert = false;
 
       let dragEvent = new Event('drag');
-      element.view.dispatchEvent(dragEvent);
+      element.$view.dispatchEvent(dragEvent);
     }
     if (element.id === 'RootElement') {
       if (element.id !== this.element.id) {
@@ -84,7 +84,7 @@ export class Drag implements EventHandler {
       let model = <Model>this.element;
       const x = evt.clientX - this.mouseOffset.x;
       const y = evt.clientY - this.mouseOffset.y;
-      const newOrigin = model.graph.options.origin.add(new Point(x, y));
+      const newOrigin = model.$graph.options.origin.add(new Point(x, y));
       let values = this.svgRoot.getAttribute('viewBox').split(' ');
       const newViewBox = `${newOrigin.x * -1} ${newOrigin.y * -1} ${values[2]} ${values[3]}`;
       this.svgRoot.setAttribute('viewBox', newViewBox);
@@ -97,7 +97,7 @@ export class Drag implements EventHandler {
       const transX = sx + evt.clientX - this.mouseOffset.x;
       const transY = sy + evt.clientY - this.mouseOffset.y;
       this.svgElement.setAttributeNS(null, 'transform', 'translate(' + transX + ' ' + transY + ')');
-      node.pos.addNum(transX - sx, transY - sy);
+      node.getPos().addNum(transX - sx, transY - sy);
       node.redrawEdges();
     }
     this.mouseOffset.x = evt.clientX;

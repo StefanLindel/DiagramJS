@@ -5,36 +5,43 @@ export interface Size {
   height: number;
 }
 
-class Defaults {
+export abstract class DiagramElement {
   protected labelHeight = 25;
   protected labelFontSize = 14;
   protected attrHeight = 20;
   protected attrFontSize = 12;
-}
-
-export abstract class DiagramElement extends Defaults {
-
   public id: string;
   public type: string;
   public label: string;
-  public view: Element;
-
-  protected parent: DiagramElement = null;
+  public $view: Element;
+  private pos:Point = new Point();
+  private size:Point = new Point();
+  protected $parent: DiagramElement = null;
   protected isDraggable: boolean = true;
 
   constructor(type?: string, id?: string) {
-    super();
     this.type = type;
     this.id = id;
   }
 
+  public getPos():Point {
+    return this.pos;
+  }
+  public getSize():Point {
+    return this.size;
+  }
+  public getCenter(): Point {
+    var pos = this.getPos();
+    var size = this.getSize();
+    return new Point(pos.x + size.x / 2, pos.y + size.y / 2);
+  }
   abstract init(data: Object);
 
   abstract getSVG();
 
   protected getRoot(): DiagramElement {
-    if (this.parent) {
-      return this.parent.getRoot();
+    if (this.$parent) {
+      return this.$parent.getRoot();
     }
     return this;
   }
@@ -42,11 +49,36 @@ export abstract class DiagramElement extends Defaults {
   protected createShape(attrs): Element {
     return createShape(attrs);
   }
-
+  public withPos(x: number, y: number): DiagramElement {
+    if (x && y) {
+      this.pos = new Point(x, y);
+    } else {
+      if(typeof(x) != 'undefined') {
+        this.pos.x = x;
+      }
+      if(typeof(y) != 'undefined') {
+        this.pos.y = y;
+      }
+    }
+    return this;
+  }
+  public withSize(width: number, height: number): DiagramElement {
+    if (width && height) {
+      this.size = new Point(width, height);
+    } else {
+      if(typeof(width) != 'undefined') {
+        this.size.x = width;
+      }
+      if(typeof(height) != 'undefined') {
+        this.size.y = height;
+      }
+    }
+    return this;
+  }
 }
 
-export class Point {
 
+export class Point {
   x: number = 0;
   y: number = 0;
 

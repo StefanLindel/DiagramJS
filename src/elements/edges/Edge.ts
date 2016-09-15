@@ -8,10 +8,12 @@ export const enum Direction {
 
 export class Edge extends DiagramElement {
 
-  public source: Node;
-  public target: Node;
+  public source: string;
+  public target: string;
+  public $sNode: Node;
+  public $tNode: Node;
   public lineStyle: string;
-  public points: Point[];
+  public points: Point[]=[];
 
   constructor(id?: string, type?: string) {
     super();
@@ -26,8 +28,10 @@ export class Edge extends DiagramElement {
   public withItem(source: Node, target: Node): Edge {
     source.edges.push(this);
     target.edges.push(this);
-    this.source = source;
-    this.target = target;
+    this.$sNode = source;
+    this.$tNode = target;
+    this.source = source.id;
+    this.target = target.id;
     return this;
   };
 
@@ -52,16 +56,16 @@ export class Edge extends DiagramElement {
     };
     let shape = this.createShape(attr);
 
-    this.view = shape;
+    this.$view = shape;
     EventBus.register(this, 'click', 'editor');
 
     return shape;
   }
 
   public redraw() {
-    let a = this.getShortestPathIntersection(this.source, this.target.pos);
-    let b = this.getShortestPathIntersection(this.target, this.source.pos);
-    this.view.setAttribute('d', `M${a.x} ${a.y} L${b.x} ${b.y}`);
+    let a = this.getShortestPathIntersection(this.$sNode, this.$tNode.getPos());
+    let b = this.getShortestPathIntersection(this.$tNode, this.$sNode.getPos());
+    this.$view.setAttribute('d', `M${a.x} ${a.y} L${b.x} ${b.y}`);
     this.points = [ a, b ];
   }
 
@@ -84,10 +88,10 @@ export class Edge extends DiagramElement {
     let x = point.x;
     let y = point.y;
 
-    let minX = node.pos.x - node.width / 2;
-    let minY = node.pos.y - node.height / 2;
-    let maxX = minX + node.width;
-    let maxY = minY + node.height;
+    let minX = node.getPos().x - node.getSize().x / 2;
+    let minY = node.getPos().y - node.getSize().y / 2;
+    let maxX = minX + node.getSize().x;
+    let maxY = minY + node.getSize().y;
 
     let midX = (minX + maxX) / 2;
     let midY = (minY + maxY) / 2;

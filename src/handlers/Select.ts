@@ -78,13 +78,14 @@ export class Select implements EventHandler {
 
       this.editShape.setAttributeNS(null, 'visibility', 'visible');
       this.deleteShape.setAttributeNS(null, 'visibility', 'visible');
-
-      const x = e.pos.x + e.width / 2 + this.padding;
-      const y = e.pos.y - e.height / 2 + this.padding / 2;
+      const pos = e.getPos();
+      const size = e.getSize();
+      const x = pos.x + size.x / 2 + this.padding;
+      const y = pos.y - size.y / 2 + this.padding / 2;
 
       let editorEvent = new Event('editor');
       this.editShape.setAttributeNS(null, 'transform', `rotate(-45, ${x + 20}, ${y + 20}) translate(${x} ${y})`);
-      this.editShape.onclick = e => element.view.dispatchEvent(editorEvent);
+      this.editShape.onclick = e => element.$view.dispatchEvent(editorEvent);
 
       this.deleteShape.setAttributeNS(null, 'transform', `translate(${x} ${y + 34 + this.padding})`);
       this.deleteShape.onclick = e => this.model.removeElement(element.id);

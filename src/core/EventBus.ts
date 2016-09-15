@@ -10,7 +10,7 @@ export class EventBus {
 
   static register(diagramElement: DiagramElement, ...eventTypes: string[]) {
     for (let event of eventTypes) {
-      diagramElement.view.addEventListener(event, EventBus.publish.bind(null, diagramElement));
+      diagramElement.$view.addEventListener(event, EventBus.publish.bind(null, diagramElement));
     }
   }
 

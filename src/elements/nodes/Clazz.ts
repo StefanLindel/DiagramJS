@@ -9,36 +9,37 @@ export class Clazz extends Node {
 
   constructor(id?: string, type?: string) {
     super(id, type);
-    this.height = this.labelHeight + this.padding * 2;
+    this.getSize().y = this.labelHeight + this.padding * 2;
   };
 
-  public init(json) {
+  public init(json) : Clazz {
 
     this.label = json.name || json.label || ('New ' + this.type);
 
     if (json['attributes']) {
       for (let attr of json['attributes']) {
         this.attributes.push(attr);
-        this.height += this.attrHeight;
+        this.getSize().y += this.attrHeight;
       }
     }
     if (json['methods']) {
       for (let method of json['methods']) {
         this.methods.push(method);
-        this.height += this.attrHeight;
+        this.getSize().y += this.attrHeight;
       }
     }
+    return this;
   }
 
   public getSVG(): Element {
-    const pos = this.pos;
+    const pos = this.getPos();
 
     const attrNode = {
       tag: 'rect',
-      x: pos.x - this.width / 2,
-      y: pos.y - this.height / 2,
-      height: this.height,
-      width: this.width,
+      x: pos.x - this.getSize().x / 2,
+      y: pos.y - this.getSize().y / 2,
+      height: this.getSize().y,
+      width: this.getSize().x,
       rx: 1,
       ry: 1,
       style: 'fill:white;stroke:black;stroke-width:2'
@@ -48,10 +49,10 @@ export class Clazz extends Node {
     const contentHeight = this.padding + this.attrHeight * this.attributes.length;
     const attrContent = {
       tag: 'rect',
-      x: pos.x - this.width / 2,
-      y: pos.y - this.height / 2  + this.labelHeight,
+      x: pos.x - this.getSize().x / 2,
+      y: pos.y - this.getSize().y / 2  + this.labelHeight,
       height: contentHeight,
-      width: this.width,
+      width: this.getSize().x,
       style: 'fill:white;stroke:black;stroke-width:2'
     };
     const contentShape = this.createShape(attrContent);
@@ -60,7 +61,7 @@ export class Clazz extends Node {
     const attrLabel = {
       tag: 'text',
       x: pos.x,
-      y: pos.y - this.height / 2 + this.labelHeight / 2,
+      y: pos.y - this.getSize().y / 2 + this.labelHeight / 2,
       'text-anchor': 'middle',
       'alignment-baseline': 'central',
       'font-family': 'Verdana',
@@ -78,11 +79,11 @@ export class Clazz extends Node {
 
     // = = = ATTRIBUTES = = =
     if (this.attributes.length > 0) {
-      let y = pos.y - this.height / 2 + this.labelHeight + this.attrHeight / 2 + this.padding / 2;
+      let y = pos.y - this.getSize().y / 2 + this.labelHeight + this.attrHeight / 2 + this.padding / 2;
       for (let element of this.attributes) {
         const attrText = {
           tag: 'text',
-          x: pos.x - this.width / 2 + this.padding / 2,
+          x: pos.x - this.getSize().x / 2 + this.padding / 2,
           y: y,
           'text-anchor': 'start',
           'alignment-baseline': 'middle',
@@ -99,13 +100,13 @@ export class Clazz extends Node {
 
     // = = = METHODS = = =
     let height = this.attributes.length * this.attrHeight;
-    let y = pos.y - this.height / 2 + this.labelHeight + height + this.attrHeight / 2 + this.padding / 2;
+    let y = pos.y - this.getSize().y  / 2 + this.labelHeight + height + this.attrHeight / 2 + this.padding / 2;
     if (this.methods.length > 0) {
       y += this.attrHeight / 2;
       for (let element of this.methods) {
         const attrText = {
           tag: 'text',
-          x: pos.x - this.width / 2 + this.padding / 2,
+          x: pos.x - this.getSize().x / 2 + this.padding / 2,
           y: y,
           'text-anchor': 'start',
           'alignment-baseline': 'middle',
@@ -120,7 +121,7 @@ export class Clazz extends Node {
       }
     }
 
-    this.view = group;
+    this.$view = group;
     EventBus.register(this, 'mousedown', 'mousemove', 'click', 'dblclick', 'editor', 'drag');
 
     return group;
@@ -164,9 +165,8 @@ export class Clazz extends Node {
 
     if (changed) {
       this[type] = newProperties;
-      this.height = this.labelHeight + this.padding * 2 + (this.attributes.length + this.methods.length) * this.attrHeight;
+      this.getSize().y = this.labelHeight + this.padding * 2 + (this.attributes.length + this.methods.length) * this.attrHeight;
     }
-
     return changed;
   }
 

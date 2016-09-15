@@ -2,48 +2,42 @@ import { DiagramElement, Point } from '../BaseElements';
 import { Edge } from '../edges';
 
 export class Node extends DiagramElement {
-
-  pos: Point = new Point();
-  size: Point = new Point();
   edges: Edge[] = [];
-  width: number = 150;
-  height: number = 70;
   maxWidth: number = 250;
 
   constructor(id?: string, type?: string) {
     super();
+    this.withSize(150,  70);
     this.type = type || 'Node';
     this.id = id;
     this.edges = [];
   }
 
-  public init(data) {
+  public init(data) : Node{
     if (data['x'] && data['y']) {
-      this.pos = new Point(data['x'], data['y']);
+      this.withPos(data['x'], data['y']);
     }
     if (data['width'] || data['height']) {
-      this.size = new Point(data['width'], data['height']);
+      this.withSize(data['width'], data['height']);
     }
-  }
-
-  public withPos(x: number, y: number): Node {
-    if (x && y) {
-      this.pos = new Point(x, y);
+    if (data['label']) {
+      this.label = data['label'];
     }
     return this;
   }
 
-  public getSVG(): Element {
-    const pos = this.pos;
+  public getSVG() : Element {
+    const pos = this.getPos();
+    const size = this.getSize();
 
     const attr = {
       tag: 'rect',
-      x: pos.x - this.width / 2,
-      y: pos.y - this.height / 2,
+      x: pos.x - size.x / 2,
+      y: pos.y - size.y / 2,
       rx: 4,
       ry: 4,
-      height: this.height,
-      width: this.width,
+      height: size.y,
+      width: size.x,
       style: 'fill:white;stroke:black;stroke-width:2'
     };
     const shape = this.createShape(attr);
@@ -73,5 +67,4 @@ export class Node extends DiagramElement {
       edge.redraw();
     }
   }
-
 }

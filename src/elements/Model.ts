@@ -6,36 +6,17 @@ import { Node } from './nodes';
 import { EventBus } from '../core/EventBus';
 import { createShape } from '../util';
 
-interface DataNode {
-  type?: string;
-  id?: string;
-  label?: string;
-  x?: number;
-  y?: number;
-  width?: number;
-  height?: number;
-  attributes?: string[];
-  methods?: string[];
-}
-
-interface DataEdge {
-  type: string;
-  id?: string;
-  source: string;
-  target: string;
-}
-
 export default class Model extends DiagramElement {
 
-  nodes: Node[] = [];
-  edges: Edge[] = [];
-  graph: Graph;
+  nodes: Object = {};
+  edges: Object = {};
+  $graph: Graph;
   private counter = 0;
 
   constructor(graph: Graph) {
     super();
-    this.parent = null;
-    this.graph = graph;
+    this.$parent = null;
+    this.$graph = graph;
   }
 
   public init(data) {
@@ -79,7 +60,7 @@ export default class Model extends DiagramElement {
     else {
       return false;
     }
-    this.graph.layout();
+    this.$graph.layout();
     return true;
   }
 
@@ -118,16 +99,16 @@ export default class Model extends DiagramElement {
   }
 
   private initCanvas() {
-    this.graph.canvasSize = { width: this.graph.root.clientWidth, height: this.graph.root.clientHeight };
-    this.graph.canvas = createShape( {
+    this.$graph.canvasSize = { width: this.$graph.root.clientWidth, height: this.$graph.root.clientHeight };
+    this.$graph.canvas = createShape( {
       tag: 'svg',
       id: 'root',
-      width: this.graph.canvasSize.width,
-      height: this.graph.canvasSize.height,
-      viewBox: `${this.graph.options.origin.x * -1} ${this.graph.options.origin.y * -1} ${this.graph.canvasSize.width} ${this.graph.canvasSize.height}`
+      width: this.$graph.canvasSize.width,
+      height: this.$graph.canvasSize.height,
+      viewBox: `${this.$graph.options.origin.x * -1} ${this.$graph.options.origin.y * -1} ${this.$graph.canvasSize.width} ${this.$graph.canvasSize.height}`
     });
-    this.view = this.graph.canvas;
-    this.graph.root.appendChild(this.graph.canvas);
+    this.$view = this.$graph.canvas;
+    this.$graph.root.appendChild(this.$graph.canvas);
 
     let mousewheel = 'onwheel' in document.createElement('div') ? 'wheel' : document.onmousewheel !== undefined ? 'mousewheel' : 'DOMMouseScroll';
     EventBus.register(this, 'mousedown', 'mouseup', 'mouseleave', 'mousemove', mousewheel, 'click', 'drag');
@@ -139,7 +120,7 @@ export default class Model extends DiagramElement {
     return id;
   }
 
-  private addNode(node: DataNode): Node {
+  private addNode(node: Node): Node {
     let type = node.type || 'Node';
     type = toPascalCase(type);
     let id = this.getNewId(type);
@@ -162,32 +143,31 @@ export default class Model extends DiagramElement {
     }
   }
 
-  private addEdge(edge: DataEdge) {
+  private addEdge(edge) {
     let type = edge.type || 'Edge';
     type = toPascalCase(type);
     let id = this.getNewId(type);
 
     let newEdge = <Edge>this.getElement(type, id, edge);
-    let source = this.findNodeByLabel(edge.source) || this.addNode({ label: edge.source });
-    let target = this.findNodeByLabel(edge.target) || this.addNode({ label: edge.target });
+    let source = this.findNodeByLabel(<string>edge.source) || this.addNode(new Node().init({ label: edge.source }));
+    let target = this.findNodeByLabel(<string>edge.target) || this.addNode(new Node().init({ label: edge.target }));
     newEdge.withItem(source, target);
 
     return newEdge;
   };
 
   private getElement(type: string, id: string, data: Object): DiagramElement {
-    if (this.graph.nodeFactory[type]) {
-      let element: DiagramElement = new this.graph.nodeFactory[type](id, type);
+    if (this.$graph.nodeFactory[type]) {
+      let element: DiagramElement = new this.$graph.nodeFactory[type](id, type);
       element.init(data);
       this.nodes[id] = element;
       return element;
     }
-    if (this.graph.edgeFactory[type]) {
-      let element: DiagramElement = new this.graph.edgeFactory[type](id, type);
+    if (this.$graph.edgeFactory[type]) {
+      let element: DiagramElement = new this.$graph.edgeFactory[type](id, type);
       element.init(data);
       this.edges[id] = element;
       return element;
     }
   }
-
 }

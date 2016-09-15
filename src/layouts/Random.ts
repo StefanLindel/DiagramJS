@@ -12,7 +12,7 @@ export class Random implements Layout {
     if (model.nodes) {
       for (let id in model.nodes) {
         let node = model.nodes[id];
-        let pos: Point = node.pos;
+        let pos: Point = node.getPos();
         if (pos.x === 0 && pos.y === 0) {
           let x = getRandomInt(0, graph.canvasSize.width);
           let y = getRandomInt(0, graph.canvasSize.height);

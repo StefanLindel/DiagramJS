@@ -6,7 +6,7 @@ import Layout from '../layouts/Layout';
 import Model from '../elements/Model';
 import Options from './Options';
 import Palette from './Palette';
-import { Size } from '../elements/BaseElements';
+import { Size, Point } from '../elements/BaseElements';
 import { EventBus } from './EventBus';
 import { Editor, Drag, Select, Zoom } from '../handlers';
 
@@ -24,6 +24,9 @@ export default class Graph {
   constructor(json: Object, options: Options) {
     json = json || {};
     this.options = options;
+    if(!this.options.origin) {
+      this.options.origin =  new Point(150, 45);
+    }
     this.initFactories();
     this.initCanvas();
     this.model = new Model(this);
@@ -40,7 +43,7 @@ export default class Graph {
   }
 
   public layout() {
-    this.getLayout().layout(this);
+    this.getLayout().layout(this, this.model);
     this.draw();
   }
 
