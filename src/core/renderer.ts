@@ -1,5 +1,5 @@
 import Graph from './Graph';
-import { createShape } from '../util';
+import { util } from '../util';
 
 export function draw(graph: Graph) {
   clearCanvas(graph);
@@ -29,7 +29,7 @@ export function clearCanvas(graph: Graph) {
   }
 
   canvas.appendChild(createPattern());
-  const background = createShape( {
+  const background = util.createShape( {
     tag: 'rect',
     id: 'background',
     width: 5000,
@@ -45,8 +45,8 @@ export function clearCanvas(graph: Graph) {
 }
 
 function createPattern(): Element {
-  const defs = createShape({ tag: 'defs' });
-  const pattern = createShape( {
+  const defs = util.createShape({ tag: 'defs' });
+  const pattern = util.createShape( {
     tag: 'pattern',
     id: 'raster',
     patternUnits: 'userSpaceOnUse',
@@ -54,7 +54,7 @@ function createPattern(): Element {
     height: 40
   });
   const path = 'M0 4 L0 0 L4 0 M36 0 L40 0 L40 4 M40 36 L40 40 L36 40 M4 40 L0 40 L0 36';
-  const cross = createShape( {
+  const cross = util.createShape( {
         tag: 'path',
         d: path,
         stroke: '#DDD',

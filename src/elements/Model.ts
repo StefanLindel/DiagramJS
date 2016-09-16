@@ -1,10 +1,9 @@
 import Graph from '../core/Graph';
-import { toPascalCase } from '../util';
 import { DiagramElement } from './BaseElements';
 import { Edge } from './edges';
 import { Node } from './nodes';
 import { EventBus } from '../core/EventBus';
-import { createShape } from '../util';
+import { util } from '../util';
 
 export default class Model extends DiagramElement {
 
@@ -37,7 +36,7 @@ export default class Model extends DiagramElement {
   }
 
   public addElement(type: string): boolean {
-    type = toPascalCase(type);
+    type = util.toPascalCase(type);
     let id = this.getNewId(type);
     let element = <DiagramElement>this.getElement(type, id, {});
     if (element) {
@@ -100,7 +99,7 @@ export default class Model extends DiagramElement {
 
   private initCanvas() {
     this.$graph.canvasSize = { width: this.$graph.root.clientWidth, height: this.$graph.root.clientHeight };
-    this.$graph.canvas = createShape( {
+    this.$graph.canvas = util.createShape( {
       tag: 'svg',
       id: 'root',
       width: this.$graph.canvasSize.width,
@@ -122,7 +121,7 @@ export default class Model extends DiagramElement {
 
   private addNode(node: Node): Node {
     let type = node.type || 'Node';
-    type = toPascalCase(type);
+    type = util.toPascalCase(type);
     let id = this.getNewId(type);
     return <Node>this.getElement(type, id, node);
   }
@@ -145,7 +144,7 @@ export default class Model extends DiagramElement {
 
   private addEdge(edge) {
     let type = edge.type || 'Edge';
-    type = toPascalCase(type);
+    type = util.toPascalCase(type);
     let id = this.getNewId(type);
 
     let newEdge = <Edge>this.getElement(type, id, edge);

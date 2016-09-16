@@ -1,4 +1,4 @@
-import { createShape } from '../util';
+import { util } from '../util';
 
 export interface Size {
   width: number;
@@ -47,7 +47,7 @@ export abstract class DiagramElement {
   }
 
   protected createShape(attrs): Element {
-    return createShape(attrs);
+		return util.createShape(attrs);
   }
   public withPos(x: number, y: number): DiagramElement {
     if (x && y) {

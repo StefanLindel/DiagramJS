@@ -19,5 +19,4 @@ export class Zoom implements EventHandler {
 
     e.preventDefault();
   }
-
 }

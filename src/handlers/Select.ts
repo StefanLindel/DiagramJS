@@ -2,7 +2,7 @@ import { EventHandler } from '../core/EventBus';
 import { DiagramElement } from '../elements/BaseElements';
 import { Node } from '../elements/nodes';
 import { Edge } from '../elements/edges';
-import { createShape } from '../util';
+import { util } from '../util';
 import Model from '../elements/Model';
 
 export class Select implements EventHandler {
@@ -35,10 +35,10 @@ export class Select implements EventHandler {
       'stroke-width': 1,
       fill: 'white'
     };
-    const editShape = createShape(editAttr);
-    const editBkg = createShape(attrCircle);
+    const editShape = util.createShape(editAttr);
+    const editBkg = util.createShape(attrCircle);
 
-    let editGroup = createShape({ tag: 'g', id: 'edit', transform: 'rotate(-45, 20, 20) translate(0 0)' });
+    let editGroup = util.createShape({ tag: 'g', id: 'edit', transform: 'rotate(-45, 20, 20) translate(0 0)' });
     editGroup.appendChild(editBkg);
     editGroup.appendChild(editShape);
     this.editShape = editGroup;
@@ -51,10 +51,10 @@ export class Select implements EventHandler {
       'stroke-width': 1,
       fill: 'white'
     };
-    const deleteShape = createShape(deleteAttrPath);
-    const deleteBkg = createShape(attrCircle);
+    const deleteShape = util.createShape(deleteAttrPath);
+    const deleteBkg = util.createShape(attrCircle);
 
-    let deleteGroup = createShape({ tag: 'g', id: 'trashcan', transform: 'translate(0 0)' });
+    let deleteGroup = util.createShape({ tag: 'g', id: 'trashcan', transform: 'translate(0 0)' });
     deleteGroup.appendChild(deleteBkg);
     deleteGroup.appendChild(deleteShape);
 

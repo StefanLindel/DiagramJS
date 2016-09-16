@@ -1,6 +1,6 @@
 import { Point } from '../elements/BaseElements';
 import Graph from '../core/Graph';
-import { getRandomInt } from '../util';
+import { util } from '../util';
 import Layout from './Layout';
 
 export class Random implements Layout {
@@ -14,8 +14,8 @@ export class Random implements Layout {
         let node = model.nodes[id];
         let pos: Point = node.getPos();
         if (pos.x === 0 && pos.y === 0) {
-          let x = getRandomInt(0, graph.canvasSize.width);
-          let y = getRandomInt(0, graph.canvasSize.height);
+          let x = util.getRandomInt(0, graph.canvasSize.width);
+          let y = util.getRandomInt(0, graph.canvasSize.height);
           node.withPos(x, y);
         }
       }
