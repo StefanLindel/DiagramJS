@@ -1,10 +1,9 @@
-import { EventHandler } from '../core/EventBus';
+import { EventHandler } from '../EventBus';
 import { DiagramElement } from '../elements/BaseElements';
 import { Clazz } from '../elements/nodes';
-import Graph from '../core/Graph';
+import Graph from '../Graph';
 
 export class Editor implements EventHandler {
-
   private editorElement: Element;
   private clazz: Clazz;
   private graph: Graph;
@@ -13,10 +12,12 @@ export class Editor implements EventHandler {
     this.graph = graph;
   }
 
-  public handle(event, element: DiagramElement) {
+	public isEnable() : boolean {
+		return true;
+	}
 
+  public handle(event, element: DiagramElement) : boolean {
     if (element instanceof Clazz) {
-
       const clazz = element;
       const attributes = clazz.getPropertyAsString('attributes');
       const methods = clazz.getPropertyAsString('methods');
@@ -43,6 +44,7 @@ export class Editor implements EventHandler {
       this.clazz = clazz;
       document.body.appendChild(div);
     }
+		return true;
   }
 
   private cancel() {

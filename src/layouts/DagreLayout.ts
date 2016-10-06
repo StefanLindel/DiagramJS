@@ -1,7 +1,7 @@
 import { Edge } from '../elements/edges';
 import { Node } from '../elements/nodes';
 import { DiagramElement, Point } from '../elements/BaseElements';
-import Graph from '../core/Graph';
+import Graph from '../Graph';
 import Layout from './Layout';
 export class LayoutGraph {
 		public nodes:Object = {};
@@ -92,6 +92,13 @@ export class DagreLayout implements Layout {
 				n.withPos(Math.ceil(layoutNode.x), Math.ceil(layoutNode.y))
 			}
 		}
+		for(i in edges) {
+			if (!edges.hasOwnProperty(i) || typeof (edges[i]) === "function") {
+				continue;
+			}
+			e = edges[i];
+			e.calc(graph)
+		}
 		graph.draw();
 	}
 	public getNodeId (node) {
@@ -176,9 +183,14 @@ export class DagreLayout implements Layout {
 							weight = weight + edge.weight;
 						}
 					}
-
 					g.node(name).barycenter = sum / weight;
 					g.node(name).weight = weight;
+				}
+			} else if(layering[order].length>0) {
+				for(n in layering[order]) {
+					var name = layering[order][n];
+					g.node(name).barycenter = 1;
+					g.node(name).weight = 1;
 				}
 			}
 		}
@@ -189,6 +201,9 @@ export class DagreLayout implements Layout {
 				}
 				var node = g.nodes[layering[order][n]];
 				node.order = parseInt(n) + node.barycenter * node.weight;
+				if(isNaN(node.order )) {
+					console.log("ERROR");
+				}
 			}
 		}
 	};

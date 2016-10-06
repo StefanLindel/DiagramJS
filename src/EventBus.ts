@@ -1,7 +1,8 @@
-import { DiagramElement } from '../elements/BaseElements';
+import { DiagramElement } from './elements/BaseElements';
 
 export interface EventHandler {
-  handle(event: Event, element: DiagramElement);
+  handle(event: Event, element: DiagramElement) :boolean;
+	isEnable():boolean;
 };
 
 export class EventBus {
@@ -12,6 +13,15 @@ export class EventBus {
     for (let event of eventTypes) {
       diagramElement.$view.addEventListener(event, EventBus.publish.bind(null, diagramElement));
     }
+  }
+
+	static registerSVG(diagramElement: DiagramElement) {
+		for(let type in EventBus.handlers.keys()) {
+				console.log(type);
+		}
+    //for (let event of eventTypes) {
+    //  diagramElement.$view.addEventListener(event, EventBus.publish.bind(null, diagramElement));
+    //}
   }
 
   public static publish(element: DiagramElement, event: Event) {

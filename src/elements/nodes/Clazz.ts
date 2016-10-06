@@ -1,11 +1,13 @@
 import { Node } from './Node';
-import { EventBus } from '../../core/EventBus';
+import { EventBus } from '../../EventBus';
+import { util } from '../../util';
 
 export class Clazz extends Node {
 
   private attributes: string[] = [];
   private methods: string[] = [];
   private padding = 10;
+	private style:string;
 
   constructor(id?: string, type?: string) {
     super(id, type);
@@ -15,6 +17,7 @@ export class Clazz extends Node {
   public init(json) : Clazz {
 
     this.label = json.name || json.label || ('New ' + this.type);
+		this.style=json.style || "flat";
 
     if (json['attributes']) {
       for (let attr of json['attributes']) {
@@ -31,9 +34,134 @@ export class Clazz extends Node {
     return this;
   }
 
+	private getModernStyle() : Element {
+		let width, height, id, size, z, item, rect, g, board, styleHeader, headerHeight, x, y;
+		board = this.getRoot()["board"];
+		styleHeader = util.getStyle("ClazzHeader");
+		headerHeight = styleHeader.getNumber("height");
+		width = 0;
+		height = 10 + headerHeight;
+
+		if (this.type === "Object" || this.getRoot()["model"].getType().toLowerCase() === "objectdiagram") {
+			id = this.id.charAt(0).toLowerCase() + this.id.slice(1);
+			item = "Object";
+		} else {
+			id = this.id;
+			item = "Clazz";
+			if (this.counter) {
+				id += " (" + this.counter + ")";
+			}
+		}
+		g = util.create({tag: "g", model: this});
+		size = util.sizeOf(id, this);
+		width = Math.max(width, size.width);
+		if (this.attributes && this.attributes.length > 0) {
+			height = height + this.attributes.length * 25;
+			for (z = 0; z < this.attributes.length; z += 1) {
+				width = Math.max(width, util.sizeOf(this.attributes[z], this).width);
+			}
+		} else {
+			height += 20;
+		}
+		if (this.methods && this.methods.length > 0) {
+			height = height + this.methods.length * 25;
+			for (z = 0; z < this.methods.length; z += 1) {
+				width = Math.max(width, util.sizeOf(this.methods[z], this).width);
+			}
+		}
+		width += 20;
+
+		var pos = this.getPos();
+		y = pos.y;
+		x = pos.x;
+
+		rect = {
+			tag: "rect",
+			"width": width,
+			"height": height,
+			"x": x,
+			"y": y,
+			"class": item + " draggable",
+			"fill": "none"
+		};
+		g.appendChild(util.create(rect));
+		g.appendChild(util.create({
+			tag: "rect",
+			rx: 0,
+			"x": x,
+			"y": y,
+			height: headerHeight,
+			"width": width,
+			"class": "ClazzHeader"
+		}));
+
+		item = util.create({
+			tag: "text",
+			$font: true,
+			"class": "InfoText",
+			"text-anchor": "right",
+			"x": x + width / 2 - size.width / 2,
+			"y": y + (headerHeight / 2) + (size.height/2),
+			"width": size.width
+		});
+
+		if (this.type === "Object" || this.getRoot()["model"].type.toLowerCase() === "objectdiagram") {
+			item.setAttribute("text-decoration", "underline");
+		}
+		item.appendChild(document.createTextNode(id));
+
+		g.appendChild(item);
+		g.appendChild(util.create({
+			tag: "line",
+			x1: x,
+			y1: y + headerHeight,
+			x2: x + width,
+			y2: y + headerHeight,
+			stroke: "#000"
+		}));
+		y += headerHeight + 20;
+
+		if (this.attributes) {
+			for (z = 0; z < this.attributes.length; z += 1) {
+				g.appendChild(util.create({
+					tag: "text",
+					$font: true,
+					"text-anchor": "left",
+					"width": width,
+					"x": (x + 10),
+					"y": y,
+					value: this.attributes[z]
+				}));
+				y += 20;
+			}
+			if (this.attributes.length > 0) {
+				y -= 10;
+			}
+		}
+		if (this.methods && this.methods.length > 0) {
+			g.appendChild(util.create({tag: "line", x1: x, y1: y, x2: x + width, y2: y, stroke: "#000"}));
+			y += 20;
+			for (z = 0; z < this.methods.length; z += 1) {
+				g.appendChild(util.create({
+					tag: "text",
+					$font: true,
+					"text-anchor": "left",
+					"width": width,
+					"x": x + 10,
+					"y": y,
+					value: this.methods[z]
+				}));
+				y += 20;
+			}
+		}
+		return g;
+	}
   public getSVG(): Element {
     const pos = this.getPos();
 
+		if(this.style == "modern") {
+			return this.getModernStyle();
+		}
     const attrNode = {
       tag: 'rect',
       x: pos.x - this.getSize().x / 2,
@@ -122,8 +250,7 @@ export class Clazz extends Node {
     }
 
     this.$view = group;
-    EventBus.register(this, 'mousedown', 'mousemove', 'click', 'dblclick', 'editor', 'drag');
-
+		EventBus.register(this, 'mousedown', 'mousemove', 'click', 'dblclick', 'editor', 'drag');
     return group;
   }
 

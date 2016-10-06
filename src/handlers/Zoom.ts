@@ -1,4 +1,4 @@
-import { EventHandler } from '../core/EventBus';
+import { EventHandler } from '../EventBus';
 import { DiagramElement } from '../elements/BaseElements';
 
 export class Zoom implements EventHandler {
@@ -9,7 +9,7 @@ export class Zoom implements EventHandler {
     this.svgRoot = <SVGSVGElement><any>document.getElementById('root');
   }
 
-  public handle(e, element: DiagramElement) {
+  public handle(e, element: DiagramElement) :boolean{
     let delta = e.deltaY || e.wheelDeltaY || -e.wheelDelta;
     let d = 1 + (delta / 1000);
 
@@ -18,5 +18,9 @@ export class Zoom implements EventHandler {
     this.svgRoot.setAttribute('viewBox', newViewBox);
 
     e.preventDefault();
+		return true;
   }
+	public isEnable() : boolean {
+		return true;
+	}
 }

@@ -1,4 +1,4 @@
-import { EventHandler } from '../core/EventBus';
+import { EventHandler } from '../EventBus';
 import { DiagramElement, Point } from '../elements/BaseElements';
 import Model from '../elements/Model';
 import { Node } from '../elements/nodes';
@@ -16,7 +16,7 @@ export class Drag implements EventHandler {
     this.svgRoot = <SVGSVGElement><any>document.getElementById('root');
   }
 
-  public handle(event: Event, element: DiagramElement) {
+  public handle(event: Event, element: DiagramElement) : boolean {
     // event.stopPropagation();
     switch (event.type) {
       case 'mousedown':
@@ -43,7 +43,11 @@ export class Drag implements EventHandler {
         break;
       default: break;
     }
+		return true;
   }
+	public isEnable() : boolean {
+		return true;
+	}
 
   private reset() {
     this.dragging = false;

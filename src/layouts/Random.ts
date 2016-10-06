@@ -1,5 +1,5 @@
 import { Point } from '../elements/BaseElements';
-import Graph from '../core/Graph';
+import Graph from '../Graph';
 import { util } from '../util';
 import Layout from './Layout';
 
@@ -20,7 +20,5 @@ export class Random implements Layout {
         }
       }
     }
-
   }
-
 }

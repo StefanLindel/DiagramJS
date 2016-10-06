@@ -1,4 +1,4 @@
-import { EventHandler } from '../core/EventBus';
+import { EventHandler } from '../EventBus';
 import { DiagramElement } from '../elements/BaseElements';
 import { Node } from '../elements/nodes';
 import { Edge } from '../elements/edges';
@@ -61,7 +61,7 @@ export class Select implements EventHandler {
     this.deleteShape = deleteGroup;
   }
 
-  public handle(event, element: DiagramElement) {
+  public handle(event, element: DiagramElement) : boolean {
     event.stopPropagation();
     if (event.type === 'drag' || event.srcElement.id === 'background' || element === this.model) {
       this.editShape.setAttributeNS(null, 'visibility', 'hidden');
@@ -113,6 +113,9 @@ export class Select implements EventHandler {
       this.deleteShape.setAttributeNS(null, 'transform', `translate(${x} ${y})`);
       this.deleteShape.onclick = e => this.model.removeElement(element.id);
     }
+		return true;
   }
-
+	public isEnable() : boolean {
+		return true;
+	}
 }

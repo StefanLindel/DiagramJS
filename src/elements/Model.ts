@@ -1,8 +1,8 @@
-import Graph from '../core/Graph';
+import Graph from '../Graph';
 import { DiagramElement } from './BaseElements';
 import { Edge } from './edges';
 import { Node } from './nodes';
-import { EventBus } from '../core/EventBus';
+import { EventBus } from '../EventBus';
 import { util } from '../util';
 
 export default class Model extends DiagramElement {

@@ -23,214 +23,182 @@ export class Symbol extends Node {
 // {tag: "image", height: 30, width: 50, content$src: hallo}
 // {tag: "text", "text-anchor": "left", x: "10"}
 export class SymbolLibary {
-  public static draw(node:DiagramElement, parent?:Object) {
-    // Node is Symbol or simple Object
-    var symbol, fn = this[SymbolLibary.getName(node)];
-    if (typeof fn === "function") {
-      symbol = fn.apply(this, [node]);
-      if (!parent) {
-        return SymbolLibary.createGroup(node, symbol);
-      }
-      return SymbolLibary.createGroup(node, symbol);
-    } else if (node.type) {
-      symbol = new Symbol(node.type);
-      var pos = node.getPos();
-      var size = node.getSize();
-      symbol.withPos(pos.x, pos.y);
-      symbol.withSize(size.x, size.y);
-      symbol["value"] = node["value"];
-      parent = node["$parent"];
-      return SymbolLibary.draw(symbol, parent);
-    }
-    return null;
-  }
-  public static upFirstChar(txt:string) : string {
-    return txt.charAt(0).toUpperCase() + txt.slice(1).toLowerCase();
-  }
-  public static isSymbolName(typ:string) : boolean {
-    var fn = SymbolLibary["draw"+SymbolLibary.upFirstChar(typ)];
-    return typeof fn === "function";
-  }
-  public static isSymbol(node:Symbol) {
-    var fn = SymbolLibary[SymbolLibary.getName(node)];
-    return typeof fn === "function";
-  }
-  public static getName(node:DiagramElement) :string {
-    if (node.type) {
-      return "draw" + SymbolLibary.upFirstChar(node.type);
-    }
-    if (node["src"]) {
-      return "draw" + SymbolLibary.upFirstChar(node["src"]);
-    }
-    return "drawNode";
-  }
-  public static createImage(node:Symbol, model) {
-    var n, img:HTMLElement;
-    //node.model = node;
+	public static draw(node:DiagramElement, parent?:Object) {
+		// Node is Symbol or simple Object
+		var symbol, fn = this[SymbolLibary.getName(node)];
+		if (typeof fn === "function") {
+			symbol = fn.apply(this, [node]);
+			if (!parent) {
+				return SymbolLibary.createGroup(node, symbol);
+			}
+			return SymbolLibary.createGroup(node, symbol);
+		} else if (node.type) {
+			symbol = new Symbol(node.type);
+			var pos = node.getPos();
+			var size = node.getSize();
+			symbol.withPos(pos.x, pos.y);
+			symbol.withSize(size.x, size.y);
+			symbol["value"] = node["value"];
+			parent = node["$parent"];
+			return SymbolLibary.draw(symbol, parent);
+		}
+		return null;
+	}
+	public static upFirstChar(txt:string) : string {
+		return txt.charAt(0).toUpperCase() + txt.slice(1).toLowerCase();
+	}
+	public static isSymbolName(typ:string) : boolean {
+		var fn = SymbolLibary["draw"+SymbolLibary.upFirstChar(typ)];
+		return typeof fn === "function";
+	}
+	public static isSymbol(node:Symbol) {
+		var fn = SymbolLibary[SymbolLibary.getName(node)];
+		return typeof fn === "function";
+	}
+	public static getName(node:DiagramElement) :string {
+		if (node.type) {
+			return "draw" + SymbolLibary.upFirstChar(node.type);
+		}
+		if (node["src"]) {
+			return "draw" + SymbolLibary.upFirstChar(node["src"]);
+		}
+		return "drawNode";
+	}
+	public static createImage(node:Symbol, model) {
+		var n, img:HTMLElement;
+		//node.model = node;
+		if (SymbolLibary.isSymbol(node)) {
+			return SymbolLibary.draw(null, node);
+		}
+		n = {tag: "img", model: node, src: node["src"]};
+		var size = node.getSize();
+		if (size.isEmpty() == false) {
+			n.width = size.x;
+			n.height = size.y;
+		} else {
+			n.xmlns = "http://www.w3.org/1999/xhtml";
+		}
+		img = util.create(n);
+		if (size.isEmpty()) {
+			model.appendImage(img);
+			return null;
+		}
+		return img;
+	}
+	public static createGroup(node:DiagramElement, group) {
+		var func, y:number, yr:number, z:number, box, item, transform, i, offsetX = 0, offsetY = 0;
+		var svg:any;
+		if(node.type.toUpperCase() == "HTML") {
+			svg = util.create({tag: "svg", style: {left: group.x + node.getPos().x, top: group.y + node.getPos().y, position: "absolute"}});
+		} else {
+			svg = util.create({tag: "g"});
+			transform = "translate(" + group.pos.x + " " + group.pos.y + ")";
+			if (group.scale) {
+				transform += " scale(" + group.scale + ")";
+			}
+			if (group.rotate) {
+				transform += " rotate(" + group.rotate + ")";
+			}
+			svg.setAttribute('transform', transform);
+		}
+		for (i = 0; i < group.items.length; i += 1) {
+			svg.appendChild(util.create(group.items[i]));
+		}
+		var elements = node["elements"];
+		util.setSize(svg, group.width+node.getSize().x, group.height+node.getSize().y);
+		node["$heightMin"] = node.getSize().y;
+		if (elements) {
+			for (i = 0; i < elements.length; i += 1) {
+				if (!elements[i] && elements[i].length < 1) {
+					elements.splice(i, 1);
+					i -= 1;
+				}
+			}
+			box = util.create({tag: "g"});
+			z = elements.length * 25 + 6;
+			box.appendChild(util.create({tag: "rect", rx: 0, x: offsetX, y: (offsetY + 28), width: 60, height: z, stroke: "#000", fill: "#fff", opacity: "0.7"}));
+			node["$heightMax"] = z + node["$heightMin"];
 
-    if (SymbolLibary.isSymbol(node)) {
-      return SymbolLibary.draw(null, node);
-    }
-    n = {tag: "img", model: node, src: node["src"]};
-    var size = node.getSize();
-    if (size.isEmpty() == false) {
-      n.width = size.x;
-      n.height = size.y;
-    } else {
-      n.xmlns = "http://www.w3.org/1999/xhtml";
-    }
-    img = util.create(n);
-    if (size.isEmpty()) {
-      model.appendImage(img);
-      return null;
-    }
-    return img;
-  }
-  public static createGroup(node:DiagramElement, group) {
-    var func, y:number, yr:number, z:number, box, item, transform, i, offsetX = 0, offsetY = 0;
-    var svg:any;
-    if(node.type.toUpperCase() == "HTML") {
-      svg = util.create({
-        tag: "svg",
-        style: {left: group.x + node.getPos().x, top: group.y + node.getPos().y, position: "absolute"}
-      });
-    } else {
-      svg = util.create({tag: "g"});
-      transform = "translate(" + group.pos.x + " " + group.pos.y + ")";
-      if (group.scale) {
-        transform += " scale(" + group.scale + ")";
-      }
-      if (group.rotate) {
-        transform += " rotate(" + group.rotate + ")";
-      }
-      svg.setAttribute('transform', transform);
-    }
-    for (i = 0; i < group.items.length; i += 1) {
-      svg.appendChild(util.create(group.items[i]));
-    }
-    var elements = node["elements"];
-    util.setSize(svg, group.width+node.getSize().x, group.height+node.getSize().y);
-    node["$heightMin"] = node.getSize().y;
-    if (elements) {
-      for (i = 0; i < elements.length; i += 1) {
-        if (!elements[i] && elements[i].length < 1) {
-          elements.splice(i, 1);
-          i -= 1;
-        }
-      }
-      box = util.create({tag: "g"});
-      z = elements.length * 25 + 6;
-      box.appendChild(util.create({
-        tag: "rect",
-        rx: 0,
-        x: offsetX,
-        y: (offsetY + 28),
-        width: 60,
-        height: z,
-        stroke: "#000",
-        fill: "#fff",
-        opacity: "0.7"
-      }));
-      node["$heightMax"] = z + node["$heightMin"];
+			svg["elements"] = elements;
+			svg["activ"] = util.create({tag: "text", $font: true, "text-anchor": "left", "width": 60, "x": (10 + offsetX), "y": 20, value: node["activText"]});
+			svg.appendChild(svg.activ);
+			y = offsetY + 46;
+			yr = offsetY + 28;
 
-      svg["elements"] = elements;
-      svg["activ"] = util.create({
-        tag: "text",
-        $font: true,
-        "text-anchor": "left",
-        "width": 60,
-        "x": (10 + offsetX),
-        "y": 20,
-        value: node["activText"]
-      });
-      svg.appendChild(svg.activ);
-      y = offsetY + 46;
-      yr = offsetY + 28;
+			func = function (event) {
+				svg.activ.textContent = event.currentTarget.value;
+			};
+			for (z = 0; z < elements.length; z += 1) {
+				box.appendChild(util.create({tag: "text", $font: true, "text-anchor": "left", "width": 60, "x": 10, "y": y, value: elements[z]}));
+				item = box.appendChild(util.create({tag: "rect", rx: 0, x: offsetX, y: yr, width: 60, height: 24, stroke: "none", "class": "SVGChoice"}));
+				item.value = elements[z];
+				if (node["action"]) {
+					item.onclick = node["action"];
+				} else {
+					item.onclick = func;
+				}
+				y += 26;
+				yr += 26;
+			}
+			svg.choicebox = box;
+		}
+		svg.tool = node;
+		svg.onclick = function () {
+			if (svg.status === "close") {
+				svg.open();
+			} else {
+				svg.close();
+			}
+		};
+		svg.close = function () {
+			if (svg.status === "open" && svg.choicebox) {
+				this.removeChild(svg.choicebox);
+			}
+			svg.status = "close";
+			svg.tool.size.height = svg.tool.heightMin;
+			//typ.util.setSize(g, g.tool.width + g.tool.x, g.tool.height + g.tool.y);
+			util.setSize(svg, svg.tool.size.x, svg.tool.size.y);
+		};
+		svg.open = function () {
+			if (this.tagName === "svg") {
+				return;
+			}
+			if (svg.status === "close" && svg.choicebox) {
+				this.appendChild(svg.choicebox);
+			}
+			svg.status = "open";
+			svg.tool.size.height = svg.tool.heightMax;
+			util.setSize(svg, svg.tool.width, svg.tool.height);
+			//typ.util.setSize(g, g.tool.width + g.tool.x + 10, g.tool.height + g.tool.y + 10);
+		};
+		svg.close();
+		return svg;
+	};
+	public static addChild(parent, json) : void {
+		var item;
+		if (json.offsetLeft) {
+			item = json;
+		} else {
+			item = util.create(json);
+		}
+		item.setAttribute("class", "draggable");
+		parent.appendChild(item);
+	};
 
-      func = function (event) {
-        svg.activ.textContent = event.currentTarget.value;
-      };
-      for (z = 0; z < elements.length; z += 1) {
-        box.appendChild(util.create({
-          tag: "text",
-          $font: true,
-          "text-anchor": "left",
-          "width": 60,
-          "x": 10,
-          "y": y,
-          value: elements[z]
-        }));
-        item = box.appendChild(util.create({tag: "rect", rx: 0, x: offsetX, y: yr, width: 60, height: 24, stroke: "none", "class": "SVGChoice"}));
-        item.value = elements[z];
-        if (node["action"]) {
-          item.onclick = node["action"];
-        } else {
-          item.onclick = func;
-        }
-        y += 26;
-        yr += 26;
-      }
-      svg.choicebox = box;
-    }
-    svg.tool = node;
-    svg.onclick = function () {
-      if (svg.status === "close") {
-        svg.open();
-      } else {
-        svg.close();
-      }
-    };
-    svg.close = function () {
-      if (svg.status === "open" && svg.choicebox) {
-        this.removeChild(svg.choicebox);
-      }
-      svg.status = "close";
-      svg.tool.size.height = svg.tool.heightMin;
-      //typ.util.setSize(g, g.tool.width + g.tool.x, g.tool.height + g.tool.y);
-      util.setSize(svg, svg.tool.size.x, svg.tool.size.y);
-    };
-    svg.open = function () {
-      if (this.tagName === "svg") {
-        return;
-      }
-      if (svg.status === "close" && svg.choicebox) {
-        this.appendChild(svg.choicebox);
-      }
-      svg.status = "open";
-      svg.tool.size.height = svg.tool.heightMax;
-      util.setSize(svg, svg.tool.width, svg.tool.height);
-      //typ.util.setSize(g, g.tool.width + g.tool.x + 10, g.tool.height + g.tool.y + 10);
-    };
-    svg.close();
-
-    return svg;
-  };
-
-  public static addChild(parent, json) : void {
-    var item;
-    if (json.offsetLeft) {
-      item = json;
-    } else {
-      item = util.create(json);
-    }
-    item.setAttribute("class", "draggable");
-    parent.appendChild(item);
-  };
-
-  public static all(node) :void {
-    SymbolLibary.drawSmiley(node);
-    SymbolLibary.drawDatabase(node);
-    SymbolLibary.drawLetter(node);
-    SymbolLibary.drawMobilephone(node);
-    SymbolLibary.drawWall(node);
-    SymbolLibary.drawActor(node);
-    SymbolLibary.drawLamp(node);
-    SymbolLibary.drawArrow(node);
-    SymbolLibary.drawButton(node);
-    SymbolLibary.drawDropdown(node);
-    SymbolLibary.drawClassicon(node);
-    SymbolLibary.drawEdgeicon(node);
-  };
+	public static all(node) :void {
+		SymbolLibary.drawSmiley(node);
+		SymbolLibary.drawDatabase(node);
+		SymbolLibary.drawLetter(node);
+		SymbolLibary.drawMobilephone(node);
+		SymbolLibary.drawWall(node);
+		SymbolLibary.drawActor(node);
+		SymbolLibary.drawLamp(node);
+		SymbolLibary.drawArrow(node);
+		SymbolLibary.drawButton(node);
+		SymbolLibary.drawDropdown(node);
+		SymbolLibary.drawClassicon(node);
+		SymbolLibary.drawEdgeicon(node);
+	};
 
   public static drawSmiley(node:DiagramElement) : DiagramElement {
     return SO.create({
@@ -324,69 +292,30 @@ export class SymbolLibary {
     });
   };
 
-  public static drawLamp(node:DiagramElement) :DiagramElement{
-    return SO.create({
-      x: node.getPos().x || 0,
-      y: node.getPos().y || 0,
-      width: 25,
-      height: 50,
-      items: [
-        {
-          tag: "path",
-          d: "m 22.47 10.58c-6.57 0-11.89 5.17-11.89 11.54 0 2.35 0.74 4.54 2 6.36 2 4 4.36 5.63 4.42 10.4l 11.15 0c 0.12-4.9 2.5-6.8 4.43-10.4 1.39-1.5 1.8-4.5 1.8-6.4 0-6.4-5.3-11.5-11.9-11.5z",
-          fill: "white",
-          stroke: "black"
-        },
-        {
-          tag: "path",
-          d: "m 18.4 40 8 0c 0.58 0 1 0.5 1 1 0 0.6-0.5 1-1 1l-8 0c-0.6 0-1-0.47-1-1 0-0.58 0.47-1 1-1z"
-        },
-        {
-          tag: "path",
-          d: "m 18.4 42.7 8 0c 0.58 0 1 0.47 1 1 0 0.58-0.47 1-1 1l-8 0c-0.58 0-1-0.47-1-1 0-0.58 0.46-1 1-1z"
-        },
-        {
-          tag: "path",
-          d: "m 18.4 45.3 8 0c 0.58 0 1 0.47 1 1 0 0.58-0.47 1-1 1l-8 0c-0.58 0-1-0.47-1-1 0-0.58 0.46-1 1-1z"
-        },
-        {tag: "path", d: "m 19.5 48c 0.37 0.8 1 1.3 1.9 1.7 0.6 0.3 1.5 0.3 2 0 0.8-0.3 1.4-0.8 1.9-1.8z"},
-        {
-          tag: "path",
-          d: "m 6 37.5 4.2-4c 0.3-0.3 0.8-0.3 1 0 0.3 0.3 0.3 0.8 0 1.1l-4.2 4c-0.3 0.3-0.8 0.3-1.1 0-0.3-0.3-0.3-0.8 0-1z"
-        },
-        {
-          tag: "path",
-          d: "m 39 37.56-4.15-4c-0.3-0.3-0.8-0.3-1 0-0.3 0.3-0.3 0.8 0 1l 4.2 4c 0.3 0.3 0.8 0.3 1 0 0.3-0.3 0.3-0.8 0-1z"
-        },
-        {
-          tag: "path",
-          d: "m 38 23 5.8 0c 0.4 0 0.8-0.3 0.8-0.8 0-0.4-0.3-0.8-0.8-0.8l-5.8 0c-0.4 0-0.8 0.3-0.8 0.8 0 0.4 0.3 0.8 0.8 0.8z"
-        },
-        {
-          tag: "path",
-          d: "m 1.3 23 6 0c 0.4 0 0.8-0.3 0.8-0.8 0-0.4-0.3-0.8-0.8-0.8l-5.9 0c-0.4 0-0.8 0.3-0.8 0.8 0 0.4 0.3 0.8 0.8 0.8z"
-        },
-        {
-          tag: "path",
-          d: "m 34.75 11.2 4-4.1c 0.3-0.3 0.3-0.8 0-1-0.3-0.3-0.8-0.3-1 0l-4 4.1c-0.3 0.3-0.3 0.8 0 1 0.3 0.3 0.8 0.3 1 0z"
-        },
-        {
-          tag: "path",
-          d: "m 11.23 10-4-4c-0.3-0.3-0.8-0.3-1 0-0.3 0.3-0.3 0.8 0 1l 4.2 4c 0.3 0.3 0.8 0.3 1 0 0.3-0.3 0.3-0.8 0-1z"
-        },
-        {
-          tag: "path",
-          d: "m 21.64 1.3 0 5.8c 0 0.4 0.3 0.8 0.8 0.8 0.4 0 0.8-0.3 0.8-0.8l 0-5.8c 0-0.4-0.3-0.8-0.8-0.8-0.4 0-0.8 0.3-0.8 0.8z"
-        },
-        {
-          tag: "path",
-          d: "m 26.1 24.3c-0.5 0-1 0.2-1.3 0.4-1.1 0.6-2 3-2.27 3.5-0.26-0.69-1.14-2.9-2.2-3.5-0.7-0.4-2-0.7-2.5 0-0.6 0.8 0.2 2.2 0.9 2.9 1 0.9 3.9 0.9 3.9 0.9 0 0 0 0 0 0 0.54 0 2.8 0 3.7-0.9 0.7-0.7 1.5-2 0.9-2.9-0.2-0.3-0.7-0.4-1.2-0.4z"
-        },
-        {tag: "path", d: "m 22.5 28.57 0 10.7"}
-      ]
-    });
-  };
-
+	public static drawLamp(node:DiagramElement) :DiagramElement{
+		return SO.create({
+			x: node.getPos().x || 0,
+			y: node.getPos().y || 0,
+			width: 25,
+			height: 50,
+			items: [
+				{tag: "path", d: "m 22.47 10.58c-6.57 0-11.89 5.17-11.89 11.54 0 2.35 0.74 4.54 2 6.36 2 4 4.36 5.63 4.42 10.4l 11.15 0c 0.12-4.9 2.5-6.8 4.43-10.4 1.39-1.5 1.8-4.5 1.8-6.4 0-6.4-5.3-11.5-11.9-11.5z", fill: "white", stroke: "black"},
+				{tag: "path", d: "m 18.4 40 8 0c 0.58 0 1 0.5 1 1 0 0.6-0.5 1-1 1l-8 0c-0.6 0-1-0.47-1-1 0-0.58 0.47-1 1-1z"},
+				{tag: "path", d: "m 18.4 42.7 8 0c 0.58 0 1 0.47 1 1 0 0.58-0.47 1-1 1l-8 0c-0.58 0-1-0.47-1-1 0-0.58 0.46-1 1-1z"},
+				{tag: "path", d: "m 18.4 45.3 8 0c 0.58 0 1 0.47 1 1 0 0.58-0.47 1-1 1l-8 0c-0.58 0-1-0.47-1-1 0-0.58 0.46-1 1-1z"},
+				{tag: "path", d: "m 19.5 48c 0.37 0.8 1 1.3 1.9 1.7 0.6 0.3 1.5 0.3 2 0 0.8-0.3 1.4-0.8 1.9-1.8z"},
+				{tag: "path", d: "m 6 37.5 4.2-4c 0.3-0.3 0.8-0.3 1 0 0.3 0.3 0.3 0.8 0 1.1l-4.2 4c-0.3 0.3-0.8 0.3-1.1 0-0.3-0.3-0.3-0.8 0-1z"},
+				{tag: "path", d: "m 39 37.56-4.15-4c-0.3-0.3-0.8-0.3-1 0-0.3 0.3-0.3 0.8 0 1l 4.2 4c 0.3 0.3 0.8 0.3 1 0 0.3-0.3 0.3-0.8 0-1z"},
+				{tag: "path", d: "m 38 23 5.8 0c 0.4 0 0.8-0.3 0.8-0.8 0-0.4-0.3-0.8-0.8-0.8l-5.8 0c-0.4 0-0.8 0.3-0.8 0.8 0 0.4 0.3 0.8 0.8 0.8z"},
+				{tag: "path", d: "m 1.3 23 6 0c 0.4 0 0.8-0.3 0.8-0.8 0-0.4-0.3-0.8-0.8-0.8l-5.9 0c-0.4 0-0.8 0.3-0.8 0.8 0 0.4 0.3 0.8 0.8 0.8z"},
+				{tag: "path", d: "m 34.75 11.2 4-4.1c 0.3-0.3 0.3-0.8 0-1-0.3-0.3-0.8-0.3-1 0l-4 4.1c-0.3 0.3-0.3 0.8 0 1 0.3 0.3 0.8 0.3 1 0z"},
+				{tag: "path", d: "m 11.23 10-4-4c-0.3-0.3-0.8-0.3-1 0-0.3 0.3-0.3 0.8 0 1l 4.2 4c 0.3 0.3 0.8 0.3 1 0 0.3-0.3 0.3-0.8 0-1z"},
+				{tag: "path", d: "m 21.64 1.3 0 5.8c 0 0.4 0.3 0.8 0.8 0.8 0.4 0 0.8-0.3 0.8-0.8l 0-5.8c 0-0.4-0.3-0.8-0.8-0.8-0.4 0-0.8 0.3-0.8 0.8z"},
+				{tag: "path", d: "m 26.1 24.3c-0.5 0-1 0.2-1.3 0.4-1.1 0.6-2 3-2.27 3.5-0.26-0.69-1.14-2.9-2.2-3.5-0.7-0.4-2-0.7-2.5 0-0.6 0.8 0.2 2.2 0.9 2.9 1 0.9 3.9 0.9 3.9 0.9 0 0 0 0 0 0 0.54 0 2.8 0 3.7-0.9 0.7-0.7 1.5-2 0.9-2.9-0.2-0.3-0.7-0.4-1.2-0.4z"},
+				{tag: "path", d: "m 22.5 28.57 0 10.7"}
+			]
+		});
+	};
   public static drawStop(node:DiagramElement) : DiagramElement{
     return SO.create({
       x: node.getPos().x || 0,

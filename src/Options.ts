@@ -1,4 +1,4 @@
-import { Point } from '../elements/BaseElements';
+import { Point } from './elements/BaseElements';
 
 interface Options {
   canvas?: string;

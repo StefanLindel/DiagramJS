@@ -39,7 +39,7 @@ export abstract class DiagramElement {
 
   abstract getSVG();
 
-  protected getRoot(): DiagramElement {
+  public getRoot(): DiagramElement {
     if (this.$parent) {
       return this.$parent.getRoot();
     }
@@ -122,11 +122,9 @@ export class Point {
       this.y = (this.y / count);
     }
   }
-
   public isEmpty(): boolean {
     return this.x < 1 && this.y < 1;
   }
-
   public size(posA: Point, posB: Point) {
     let x1 = 0, x2 = 0, y1 = 0, y2 = 0;
     if (posA) {
@@ -147,6 +145,88 @@ export class Point {
     } else {
       this.y = y2 - y1;
     }
-  };
+  }
+}
+	//				######################################################### Line #########################################################
+	export class Line extends DiagramElement {
+		public static FORMAT = {SOLID: "SOLID", DOTTED: "DOTTED", PATH: "PATH"};
+		private line: string;
+		private path: string;
+		private angle: number;
+		source: Point;
+		public target:Point;
+		public color:string;
 
+		public init(data: Object) {
+		}
+
+		public getTyp(): string {
+			return "SVG";
+		}
+
+		public getPos() {
+			var pos = new Point();
+			pos.center(this.source, this.target);
+			return pos;
+		};
+
+		public getSize() {
+			var pos = new Point();
+			pos.size(this.source, this.target);
+			return pos;
+		}
+		public withColor(color:string): Line {
+			this.color = color;
+			return this;
+		}
+
+		public withSize(x: number, y: number): DiagramElement {
+			return this;
+		}
+
+		public withPath(path: Array<Point>, close, angle?: any): Line {
+			var i: number, d: string = "M" + path[0].x + " " + path[0].y;
+			this.line = Line.FORMAT.PATH; // It is a Path not a Line
+			for (i = 1; i < path.length; i += 1) {
+				d = d + "L " + path[i].x + " " + path[i].y;
+			}
+			if (close) {
+				d = d + " Z";
+				this.target = path[0];
+			} else {
+				this.target = path[path.length - 1];
+			}
+			this.path = d;
+			if (angle instanceof Number) {
+				this.angle = angle;
+			} else if (angle) {
+				//var lineangle, start = path[0], end = path[path.length - 1];
+				//lineangle = Math.atan2(end.y - start.y, end.x - start.x);
+			}
+			return this;
+		}
+		public getSVG(): HTMLElement {
+			if (this.line === "PATH") {
+				return util.create({
+					tag: "path",
+					"d": this.path,
+					"fill": this.color,
+					stroke: "#000",
+					"stroke-width": "1px"
+				});
+			}
+			var line = util.create({
+				tag: "line",
+				'x1': this.source.x,
+				'y1': this.source.y,
+				'x2': this.target.x,
+				'y2': this.target.y,
+				"stroke": util.getColor(this.color)
+			});
+			if (this.line && this.line.toLowerCase() === "dotted") {
+				line.setAttribute("stroke-miterlimit", "4");
+				line.setAttribute("stroke-dasharray", "1,1");
+			}
+			return line;
+		}
 }
