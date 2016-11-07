@@ -5,10 +5,25 @@
 	<meta charset="utf-8" />
 	<title>Bridge - Simple Example</title>
 	<script language="Javascript" src="bridge.js"></script>
+	<link type="text/css" rel="stylesheet" href="material.css" />
+	<link type="text/css" rel="stylesheet" href="style.css" />
 </head>
+<body>
+
+<table id="persons" control="Table" style="border:1px solid red;"><tr><th>#</th></tr><tr><td>1</td></tr></table>
+
 <script>
-var bridge = new Bridge();
-bridge.load({class:table, columns:[{id:'firstname'}, {id:'lastname'}]});
+//var bridge = new Bridge();
+bridge.load({control:"table", class:"talk", columns:[{id:'room'}, {id:'day'}, {id:'talk'},  {id:'state'}]});
+bridge.load("persons");
+
+
+bridge.executeChange({id:"t1", class:"talk", property:{room:"Heyl", day:"Monday",talk: "01. Meier", state:"ok", comment:"", no:"", slides:"", html:"", Author: "", "Peer Info": "", Explorer: "Explorer"}});
+bridge.executeChange({id:"t1", upd:{talk: "01. Schulze"}});
+bridge.executeChange({id:"r2", class:"room", property:{name:"Heyl"}});
+bridge.executeChange({id:"t2", class:"talk", property:{room:"Heyl", day:"Monday",talk: "02. Schmidt", state:"ok", comment:"", no:"", slides:"", html:"", Author: "", "Peer Info": "", Explorer: "Explorer"}});
+
 //new Table()
 </script>
-<body>
+</body>
+
