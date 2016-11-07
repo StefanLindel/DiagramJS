@@ -5,12 +5,12 @@ export class Aggregation extends Edge {
   public getSVG(): Element {
     let line = super.getSVG();
 
-    const endPointA = this.$points[this.$points.length - 1];
-    const endPointB = this.$points[this.$points.length - 2];
-    let direction = this.getDirection(endPointA, endPointB);
+    const endLine = this.$points[this.$points.length - 1];
+    //const endPointB = this.$points[this.$points.length - 2];
+    let direction = this.getDirection(endLine.source, endLine.target);
 
-    const x = endPointA.x;
-    const y = endPointA.y;
+    const x = endLine.getPos().x;
+    const y = endLine.getPos().y;
 
     let path: string;
     switch (direction) {

@@ -100,14 +100,14 @@ export class Select implements EventHandler {
 
       let x: number, y: number;
 
-      if (e.points.length === 2) {
-        x = (e.points[0].x + e.points[1].x) / 2;
-        y = (e.points[0].y + e.points[1].y) / 2;
+      if (e.$points.length === 2) {
+        x = (e.$points[0].getPos().x + e.$points[1].getPos().x) / 2;
+        y = (e.$points[0].getPos().y + e.$points[1].getPos().y) / 2;
       }
       else {
-        const i = Math.floor(e.points.length / 2);
-        x = e.points[i].x;
-        y = e.points[i].y;
+        const i = Math.floor(e.$points.length / 2);
+        x = e.$points[i].getPos().x;
+        y = e.$points[i].getPos().y;
       }
 
       this.deleteShape.setAttributeNS(null, 'transform', `translate(${x} ${y})`);

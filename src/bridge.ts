@@ -1,4 +1,4 @@
-abstract class Control {
+export abstract class Control {
 	id:string;
 	public owner:Bridge;
 	constructor(owner:Bridge, data) {
@@ -10,7 +10,7 @@ abstract class Control {
 	}
 }
 
-class Table extends Control {
+export class Table extends Control {
 	private columns:Column[] = [];
 	private cells:Object = {};
 	private class:string;
@@ -188,12 +188,12 @@ class Table extends Control {
 		}
 	}
 }
-class Column {
+export class Column {
 	label:string;
 	attribute:string;
 	$element:HTMLTableHeaderCellElement;
 }
-class Data {
+export class Data {
 	id:string;
 	$listener:Control[]=[];
 	class:string;
@@ -219,7 +219,7 @@ class Data {
 		}
 	}
 }
-class Bridge {
+export default class Bridge {
 	private version:String = "0.42.01.1601007-1739";
 	private listener:Array<Object> = [];
 	private controlFactory:Object = {};
@@ -311,4 +311,3 @@ class Bridge {
 		return control.getValue(attribute);
 	}
 }
-var bridge = new Bridge();

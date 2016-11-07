@@ -1,13 +1,11 @@
-import Graph from './Graph';
-import Options from './Options';
-import { Point } from './elements/BaseElements';
+import Bridge from './bridge';
 
-class Diagram {
-  private graph: Graph;
-  constructor(options?: Options) {
-    this.graph = new Graph({init:true}, options);
+class BridgeAdapter {
+  private bridge: Bridge;
+  constructor() {
+    this.bridge = new Bridge();
   }
 }
 (function() {
-	let dialoader = new Diagram();
+	let bridgeloader = new BridgeAdapter();
 })();

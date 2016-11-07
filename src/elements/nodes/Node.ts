@@ -4,7 +4,8 @@ import { Edge } from '../edges';
 export class Node extends DiagramElement {
   edges: Edge[] = [];
   maxWidth: number = 250;
-	protected counter:number;
+  protected counter:number;
+  private status:string;
 
   constructor(id?: string, type?: string) {
     super();
@@ -64,14 +65,14 @@ export class Node extends DiagramElement {
   }
 
 	public getShowed():Node {
-		if (this.status === "close") {
-			if (!this.$parent.isClosed()) {
-				return this;
-			}
-		}
-		if (this.isClosed()) {
-			return this.$parent.getShowed();
-		}
+//FIXME		if (this.status === "close") {
+//			if (!this.$parent.isClosed()) {
+//				return this;
+//			}
+//		}
+//		if (this.isClosed()) {
+//			return this.$parent.getShowed();
+//		}
 		return this;
 	}
 

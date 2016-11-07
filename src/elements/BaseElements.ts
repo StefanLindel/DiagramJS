@@ -153,7 +153,7 @@ export class Point {
 		private line: string;
 		private path: string;
 		private angle: number;
-		source: Point;
+        public source: Point;
 		public target:Point;
 		public color:string;
 
