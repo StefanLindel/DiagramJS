@@ -152,7 +152,7 @@ export class Point {
 		public static FORMAT = {SOLID: "SOLID", DOTTED: "DOTTED", PATH: "PATH"};
 		private line: string;
 		private path: string;
-		private angle: number;
+		private angle: Number;
         public source: Point;
 		public target:Point;
 		public color:string;
