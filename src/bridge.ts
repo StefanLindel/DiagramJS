@@ -1,4 +1,4 @@
-export abstract class Control {
+abstract class Control {
 	id:string;
 	public owner:Bridge;
 	constructor(owner:Bridge, data) {
@@ -10,12 +10,12 @@ export abstract class Control {
 	}
 }
 
-export class Table extends Control {
+class Table extends Control {
 	private columns:Column[] = [];
 	private cells:Object = {};
 	private class:string;
-
 	private $element:HTMLElement;
+
 	constructor(owner, data) {
 		super(owner, data);
 		let id:string;
@@ -41,7 +41,7 @@ export class Table extends Control {
 		} else {
 			table.className="mdl-data-table mdl-js-data-table mdl-data-table--selectable mdl-shadow--2dp";
 		}
-		
+
 		this.id = id;
 		table.id = id;
 		table.setAttribute("control", this.constructor["name"].toLowerCase());
@@ -138,7 +138,7 @@ export class Table extends Control {
 		parent.appendChild(svg);
 		return svg;
 	}
-		
+
 	public parsingData(row: HTMLTableRowElement) {
 		let id = row.getAttribute("id");
  		let item:Data = this.owner.getItem(id);
@@ -188,12 +188,12 @@ export class Table extends Control {
 		}
 	}
 }
-export class Column {
+class Column {
 	label:string;
 	attribute:string;
 	$element:HTMLTableHeaderCellElement;
 }
-export class Data {
+class Data {
 	id:string;
 	$listener:Control[]=[];
 	class:string;
@@ -217,15 +217,17 @@ export class Data {
 		if(pos>=0) {
 			this.$listener.splice(pos, 1);
 		}
+
 	}
 }
-export default class Bridge {
+default class Bridge {
 	private version:String = "0.42.01.1601007-1739";
 	private listener:Array<Object> = [];
 	private controlFactory:Object = {};
 	private controls:Object = {};
 	private items:Object = {};
 	private controlNo:number = 1;
+
 
 	constructor() {
 		this.addControl(Table);
@@ -311,3 +313,4 @@ export default class Bridge {
 		return control.getValue(attribute);
 	}
 }
+var bridge = new Bridge();
