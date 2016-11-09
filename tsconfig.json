@@ -9,7 +9,8 @@
     "suppressImplicitAnyIndexErrors": true,
     "sourceMap": true,
     "target": "es6",
-    "pretty": true
+    "pretty": true,
+    "outFile": "build/output.js"
   },
   "exclude": [
     "build",
