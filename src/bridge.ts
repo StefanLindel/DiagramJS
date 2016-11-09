@@ -1,4 +1,4 @@
-export default class Bridge {
+class Bridge {
     private version: String = "0.42.01.1601007-1739";
     private listener: Array<Object> = [];
     private controlFactory: Object = {};
