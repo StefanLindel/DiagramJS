@@ -1,3 +1,7 @@
 .search{
-	background: url('data:image/svg+xml;utf8,"<svg width="16" height="16"><path d="m 37.9,0 c 0,7.9 -5.9,20.9 -10.7,26.4 -0.7,0.8 47.8,38.1 45,35 C 71.3,60.5 28,25.6 27.5,26.4 20.3,33.5 10.6,37.9 0,37.9 -20.9,37.9 -37.9,20.9 -37.9,0 c 0,-20.9 17,-37.9 37.9,-37.9 20.9,0 37.9,17 37.9,37.9 z" style="fill:none;stroke:#000000;transform:transform:scale(0.4);"></path></svg>') no-repeat right center;
+	background: url("data:image/svg+xml;utf8,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' style='cursor:hand;' height='16'%3E%3Cpath style='fill:#007fff;' d='M 9.5,7.8 C 9.3,8.1 9,8.4 8.7,8.8 8.3,9.1 7.9,9.4 7.6,9.5 L 13.6,15.2 15.5,13.5 9.5,7.8 Z'%3E%3C/path%3E%3Ccircle style='fill:none;stroke:#007fff;stroke-width:1;' cx='5' cy='5' r='4'%3E%3C/circle%3E%3C/svg%3E") no-repeat right center;
+	border-radius:6px;
+	padding:2px;
+	box-shadow: 0 4px 8px 0 rgba(0,0,0,0.2), 0 6px 20px 0 rgba(0,0,0,0.19);
+	pdding-right:20px;
 }
