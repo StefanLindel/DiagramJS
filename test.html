@@ -4,13 +4,23 @@
 <head>
 	<meta charset="utf-8" />
 	<title>Bridge - Simple Example</title>
-	<script language="Javascript" src="build/bridge.js"></script>
+	<script language="Javascript" src="build/output.js"></script>
 	<link type="text/css" rel="stylesheet" href="material.css" />
 	<link type="text/css" rel="stylesheet" href="style.css" />
 </head>
 <body>
 
-<table id="persons" control="Table" style="border:1px solid red;"><tr><th>#</th></tr><tr><td>1</td></tr></table>
+<!--<table id="persons" control="Table"  style="border:1px solid red;"><tr><th>#</th></tr><tr><td>1</td></tr></table>-->
+<table id="persons" control="Table"  style="border:1px solid red;">
+	<thead>
+		<tr>
+			<th>room</th>
+			<th>day</th>
+			<th>talk</th>
+			<th>state</th>
+		</tr>
+	</thead>
+</table>
 
 <script>
 //var bridge = new Bridge();
