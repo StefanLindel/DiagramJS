@@ -332,79 +332,79 @@ class SearchComponent {
         var split = this.getSearchArray();
 
         var items;
-        if (searchText != "" && oldSearch != null && searchText.indexOf(oldSearch) >= 0 && searchText.indexOf("|") < 0) {
-
-            items = this.searchFilter(this.showedItems, split);
-        } else {
-            items = this.searchFull(this.items, split);
-        }
-        this.showedItems = items;
+        // if (searchText != "" && oldSearch != null && searchText.indexOf(oldSearch) >= 0 && searchText.indexOf("|") < 0) {
+        //
+        //     items = this.searchFilter(this.showedItems, split);
+        // } else {
+        //     items = this.searchFull(this.items, split);
+        // }
+        // this.showedItems = items;
         this.refreshCounter();
     }
 
     public searchFilter(root, split) {
-        var items = new ItemList(this.options);
-        // Search for Simple Context
-        for (var i = 0; i < root.size(); i++) {
-            var item = root.get(i);
-            if (this.searching(item, split)) {
-                items.add(item, item.id);
-            } else {
-                this.table.removeChild(item["gui"]);
-            }
-        }
-        return items;
+        // var items = new ItemList(this.options);
+        // // Search for Simple Context
+        // for (var i = 0; i < root.size(); i++) {
+        //     var item = root.get(i);
+        //     if (this.searching(item, split)) {
+        //         items.add(item, item.id);
+        //     } else {
+        //         this.table.removeChild(item["gui"]);
+        //     }
+        // }
+        // return items;
     };
 
-    TableView
-.
-    prototype
-.
-    searchFull = function (root, split) {
-        var items = new ItemList(this.options);
-        items.setTable(this.table);
-
-        for (var i = 0; i < root.size(); i++) {
-            var item = root.get(i);
-            if (this.searching(item, split)) {
-                items.add(item, item.id);
-            }
-        }
-        this.removeAll();
-        if (items.size() > 0) {
-            this.showColumns();
-            items.showAll();
-        }
-        return items;
-    };
-    TableView
-.
-    prototype
-.
-    searching = function (item, split) {
-        var fullText = "";
-        for (var i = 0; i < this.searchColumns.length; i++) {
-            if (this.searchColumns[i].trim().length > 0) {
-                fullText = fullText + " " + item["children"].getById(this.searchColumns[i]).innerHTML;
-            }
-        }
-        var fullText = fullText.trim().toLowerCase();
-        for (var z = 0; z < split.length; z++) {
-            if ("" != split[z]) {
-                if (split[z].indexOf("|") > 0) {
-                    var orSplit = split[z].split("|");
-                    for (var o = 0; o < orSplit.length; o++) {
-                        if (this.searchSimpleText(orSplit[o], fullText)) {
-                            return true;
-                        }
-                    }
-                    return false;
-                }
-                return this.searchSimpleText(split[z], fullText);
-            }
-        }
-        return true;
-    }
+//     TableView
+// .
+//     prototype
+// .
+//     searchFull = function (root, split) {
+//         var items = new ItemList(this.options);
+//         items.setTable(this.table);
+//
+//         for (var i = 0; i < root.size(); i++) {
+//             var item = root.get(i);
+//             if (this.searching(item, split)) {
+//                 items.add(item, item.id);
+//             }
+//         }
+//         this.removeAll();
+//         if (items.size() > 0) {
+//             this.showColumns();
+//             items.showAll();
+//         }
+//         return items;
+//     };
+//     TableView
+// .
+//     prototype
+// .
+//     searching = function (item, split) {
+//         var fullText = "";
+//         for (var i = 0; i < this.searchColumns.length; i++) {
+//             if (this.searchColumns[i].trim().length > 0) {
+//                 fullText = fullText + " " + item["children"].getById(this.searchColumns[i]).innerHTML;
+//             }
+//         }
+//         var fullText = fullText.trim().toLowerCase();
+//         for (var z = 0; z < split.length; z++) {
+//             if ("" != split[z]) {
+//                 if (split[z].indexOf("|") > 0) {
+//                     var orSplit = split[z].split("|");
+//                     for (var o = 0; o < orSplit.length; o++) {
+//                         if (this.searchSimpleText(orSplit[o], fullText)) {
+//                             return true;
+//                         }
+//                     }
+//                     return false;
+//                 }
+//                 return this.searchSimpleText(split[z], fullText);
+//             }
+//         }
+//         return true;
+//     }
 
     public getSearchArray() {
         var pos = 0;
@@ -437,14 +437,14 @@ class SearchComponent {
     }
 
     public refreshCounter() {
-        var countElement = document.getElementById('talkCount');
-        if (countElement) {
-            var txt = (this.showedItems.size() > 0 && searchText.length > 0 ) ? this.options.TEXT_SEARCHLIST : this.options.TEXT_SEARCHFULLLIST;
-            countElement.innerHTML = txt.replace("%LEN%", this.root['children'].length).replace("%COUNT%", this.showedItems.size()).replace("%SEARCH%", origSearchText);
-        }
-        if (this.countColumn) {
-            this.countColumn.innerHTML = this.countColumn["label"] + " (" + this.showedItems.size() + ")";
-        }
+        // var countElement = document.getElementById('talkCount');
+        // if (countElement) {
+        //     var txt = (this.showedItems.size() > 0 && searchText.length > 0 ) ? this.options.TEXT_SEARCHLIST : this.options.TEXT_SEARCHFULLLIST;
+        //     countElement.innerHTML = txt.replace("%LEN%", this.root['children'].length).replace("%COUNT%", this.showedItems.size()).replace("%SEARCH%", origSearchText);
+        // }
+        // if (this.countColumn) {
+        //     this.countColumn.innerHTML = this.countColumn["label"] + " (" + this.showedItems.size() + ")";
+        // }
     };
 }
 
