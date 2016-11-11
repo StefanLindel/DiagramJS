@@ -115,8 +115,8 @@ abstract class Control {
 }
 
 class BidiMap {
-    private model: Object;
-    private htmlsElements: Object;
+    private model: Object = {};
+    private htmlsElements: Object = {};
 
     public with(model: Data, value: HTMLElement): BidiMap {
         this.model[model.id] = model;
@@ -459,6 +459,7 @@ class Table extends Control {
 
     constructor(owner, data) {
         super(owner, data);
+        this.$searchControl = new SearchComponent(this);
         let id: string;
         // init form HTML
         if (typeof(data) === "string") {
@@ -552,7 +553,9 @@ class Table extends Control {
         //if(data["searchproperty"]){
         let searchBar = document.createElement("div");
         this.printSearchbar(searchBar);
-        this.$headersection.appendChild(searchBar);
+
+        let first = this.$headersection.children.item(0);
+        this.$headersection.insertBefore(searchBar, first)
 
         //}
         // init from
