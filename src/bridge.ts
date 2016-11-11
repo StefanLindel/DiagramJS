@@ -476,8 +476,8 @@ class Input extends Control {
         if(!this.property){
             // if(inputField){
             // TODO disuss how to decide, which property we should listen on...
-            this.property = id;
-            //     this.property = inputField.getAttribute("Property");
+            // this.property = id;
+            this.property = inputField.getAttribute("Property");
             // }
         }
 
@@ -517,7 +517,7 @@ class Input extends Control {
         // check for new Element in Bridge
         if (entity) {
             if (!this.class || this.class === entity.class) {
-                if(entity.id == this.id.split(".")[0]){
+                if(entity.id == this.property.split(".")[0]){
                     entity.addListener(this);
                 }
             }

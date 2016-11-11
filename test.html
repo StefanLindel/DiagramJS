@@ -22,15 +22,17 @@
 	</thead>
 </table>
 
-<input control="Input" id="t1.talk" property="talk" type="text" value="01. Meier">
+<input control="Input" id="t1talk" property="t1.talk" type="text" value="01. Meier" oncontextmenu="alert('t1.talk');">
 
 <script>
 //var bridge = new Bridge();
 bridge.load({control:"table", class:"talk", columns:[{id:'room'}, {id:'day'}, {id:'talk'},  {id:'state'}]});
 bridge.load("persons");
 
-bridge.load("t1.talk");
-bridge.load({control:"input", class:"talk", id:"t2.talk", property:"t1.talk", type:"text"});
+bridge.load("t1talk");
+bridge.load({control:"input", class:"talk", id:"t2.talk", property:"t2.talk", type:"text"});
+// for debugging purpose:
+document.getElementById("t2.talk").setAttribute("oncontextmenu",  "alert('t2.talk');");
 
 
 bridge.executeChange({id:"t1", class:"talk", property:{room:"Heyl", day:"Monday",talk: "01. Meier", state:"ok", comment:"", no:"", slides:"", html:"", Author: "", "Peer Info": "", Explorer: "Explorer"}});
