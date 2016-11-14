@@ -197,6 +197,12 @@ class Input extends Control {
             }
         }
     }
+
+    public setProperty(property: string){
+        let objId = property.split(".")[0];
+        var object = this.owner.getItem(objId);
+        // add listener to object..
+    }
 }
 
 class Table extends Control {
@@ -226,7 +232,7 @@ class Table extends Control {
             id = data.id;
             this.class = data.class;
             if(data.searchColumns) {
-                if (typeof(data) === "string") {
+                if (typeof(data.searchColumns) === "string") {
                     this.searchColumns = data.searchColumns.split(" ");
                 } else {
                     this.searchColumns = data.searchColumns;
@@ -517,7 +523,7 @@ class Table extends Control {
          let fullText:string = "";
          for (let i:number = 0; i < this.searchColumns.length; i++) {
              if (this.searchColumns[i].trim().length > 0) {
-                 fullText = fullText + " " + item["model"].getById(this.searchColumns[i]).innerHTML;
+                 fullText = fullText + " " + item.model.getById(this.searchColumns[i]).innerHTML;
              }
          }
          fullText = fullText.trim().toLowerCase();
@@ -566,6 +572,10 @@ class Data {
     class: string;
     public values = {};
 
+    public getValue(attribute) {
+        return this.values[attribute];
+    }
+
     public setValue(attribute, newValue) {
         let oldValue = this.values[attribute];
         this.values[attribute] = newValue;
@@ -586,7 +596,6 @@ class Data {
         if (pos >= 0) {
             this.$listener.splice(pos, 1);
         }
-
     }
 }
 var bridge = new Bridge();
