@@ -29,7 +29,7 @@
     bridge.load({control: "table", class: "talk", columns: [{id: 'room'}, {id: 'day'}, {id: 'talk'}, {id: 'state'}]});
     bridge.load("persons");
 
-    bridge.load("t1talk");
+    var t1controlid = bridge.load("t1talk");
     bridge.load({control: "input", class: "talk", id: "t2.talk", property: "t2.talk", type: "text"});
     // for debugging purpose:
     document.getElementById("t2.talk").setAttribute("oncontextmenu", "alert('t2.talk');");
@@ -73,8 +73,10 @@
     });
 
     // change property of input field:
-    var t1talk = document.getElementById("t1talk");
-    t1talk.setAttribute("property", "t2.room");
+//    var t1talk = document.getElementById("t1talk");
+//    t1talk.setAttribute("property", "t2.room");
+    var t1control =  bridge.controls[t1controlid];
+    t1control.setProperty("t1.talk");
 </script>
 </body>
 

@@ -1,5 +1,7 @@
 class BridgeElement {
-    private static _elements: Map<String, BridgeElement>;
+    private static elementSet: Set<BridgeElement> = new Set();
+    private static _elements: Map<String, BridgeElement> = new Map();
+    static elementNum: number = 0;
 
     static get elements(): Map<String, BridgeElement> {
         return this._elements;
@@ -14,11 +16,12 @@ class BridgeElement {
     }
 
     static addElements(id: String, element: BridgeElement) {
-        this._elements.set(id, element);
+        this.elements.set(id, element);
     }
 
     constructor(model: Data) {
         this.model = model;
+        BridgeElement.elementSet.add(this);
     }
 
     public model: Data;

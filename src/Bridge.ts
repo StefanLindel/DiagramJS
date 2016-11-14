@@ -30,7 +30,7 @@ class Bridge {
         return "control" + (this.controlNo++);
     }
 
-    public load(json) {
+    public load(json): string {
         let className;
         if (typeof(json) === "object") {
             if (!json["id"]) {
@@ -52,7 +52,9 @@ class Bridge {
             let obj = this.controlFactory[className];
             let control = new obj(this, json);
             this.controls[control.id] = control;
+            return control.id;
         }
+        return null;
         //bridge.load("{class:table, columns:[{id:'firstname'}, {id:'lastname'}]}");
     }
 

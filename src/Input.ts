@@ -84,6 +84,8 @@ class Input extends Control {
     public setProperty(property: string) {
         let objId = property.split(".")[0];
         var object = this.owner.getItem(objId);
+        this.property = property;
+        this._lastProperty = null;
 
         // remove listener on old object
         if (this.entity) {
@@ -94,6 +96,9 @@ class Input extends Control {
         if (object) {
             object.addListener(this);
             this.entity = object;
+            this.$element.value = object.values[this.lastProperty];
         }
+
+
     }
 }
