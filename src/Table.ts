@@ -1,13 +1,5 @@
 ///<reference path="Bridge.ts"/>
-
-class TableElement {
-    constructor(model:Data) {
-        this.model = model;
-    }
-    public model:Data;
-    public gui:HTMLTableRowElement;
-}
-
+///<reference path="BridgeElement.ts"/>
 
 
 class Table extends Control {
@@ -17,8 +9,8 @@ class Table extends Control {
     private $element: HTMLElement;
     private $bodysection: HTMLTableSectionElement;
     private $headersection: HTMLTableSectionElement;
-    private showedItems:Array<TableElement>=[];
-    private items:Array<TableElement>=[];
+    private showedItems:Array<BridgeElement>=[];
+    private items:Array<BridgeElement>=[];
     private countElement:HTMLElement;
     private countColumn:HTMLElement;
     private countColumnPos:number;
@@ -232,7 +224,7 @@ class Table extends Control {
         if (entity) {
             if (!this.class || this.class === entity.class) {
                 entity.addListener(this);
-                let item:TableElement = new TableElement(entity);
+                let item:BridgeElement = new BridgeElement(entity);
                 this.items.push(item);
                 if(this.searching(item)) {
                     this.showItem(item);
@@ -304,11 +296,11 @@ class Table extends Control {
         this.searchText = split;
         return split;
     }
-    public searchFilter(root:Array<TableElement>) {
-        this.showedItems=new Array<TableElement>();
+    public searchFilter(root:Array<BridgeElement>) {
+        this.showedItems=new Array<BridgeElement>();
         // Search for Simple Context
         for (let i:number = 0; i < root.length; i++) {
-            var item:TableElement = root[i];
+            var item:BridgeElement = root[i];
             if (this.searching(item)) {
                 this.showItem(item);
             } else {
@@ -317,14 +309,14 @@ class Table extends Control {
         }
     }
 
-    public showItem(item:TableElement) {
+    public showItem(item:BridgeElement) {
         this.showedItems.push(item);
     }
-    public removeItem(item:TableElement) {
+    public removeItem(item:BridgeElement) {
         this.$bodysection.removeChild(item.gui);
     }
 
-    public searching(item:TableElement) : boolean {
+    public searching(item:BridgeElement) : boolean {
         let fullText:string = "";
         for (let i:number = 0; i < this.searchColumns.length; i++) {
             if (this.searchColumns[i].trim().length > 0) {

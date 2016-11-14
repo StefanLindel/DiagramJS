@@ -2,6 +2,7 @@
 ///<reference path="Input.ts"/>
 ///<reference path="Table.ts"/>
 ///<reference path="Data.ts"/>
+///<reference path="BridgeElement.ts"/>
 
 
 class Bridge {

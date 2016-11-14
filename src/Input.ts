@@ -2,12 +2,13 @@
 ///<reference path="Bridge.ts"/>
 
 class Input extends Control {
-    private class:string;
+    private class: string;
     private $element: HTMLInputElement;
     private property: string;
     private type: string;
+    private entity;
 
-    constructor(owner, data){
+    constructor(owner, data) {
         super(owner, data);
         let id: string;
         // init form HTML
@@ -25,7 +26,7 @@ class Input extends Control {
         this.id = id;
         let inputField: HTMLElement = document.getElementById(id);
 
-        if(!this.property){
+        if (!this.property) {
             // if(inputField){
             // TODO disuss how to decide, which property we should listen on...
             // this.property = id;
@@ -33,9 +34,9 @@ class Input extends Control {
             // }
         }
 
-        if(inputField instanceof HTMLInputElement){
+        if (inputField instanceof HTMLInputElement) {
             this.$element = inputField;
-        }else {
+        } else {
             if (!inputField) {
                 this.$element = document.createElement("input");
                 this.$element.setAttribute("type", this.type);
@@ -52,33 +53,47 @@ class Input extends Control {
     private _lastProperty: string;
 
     get lastProperty(): string {
-        if(!this._lastProperty){
+        if (!this._lastProperty) {
             let arr = this.property.split(".");
-            this._lastProperty = arr[arr.length-1];
+            this._lastProperty = arr[arr.length - 1];
         }
         return this._lastProperty;
     }
 
     propertyChange(entity: Data, property: string, oldValue, newValue) {
-        if(property == this.lastProperty){
+        if (property == this.lastProperty) {
             this.$element.value = newValue;
         }
     }
 
     public addItem(source: Bridge, entity: Data) {
+        this.entity = entity;
         // check for new Element in Bridge
         if (entity) {
             if (!this.class || this.class === entity.class) {
-                if(entity.id == this.property.split(".")[0]){
+                if (entity.id == this.property.split(".")[0]) {
                     entity.addListener(this);
                 }
             }
         }
     }
 
-    public setProperty(property: string){
+    /*
+     Property looks like: "t1.talk"
+     */
+    public setProperty(property: string) {
         let objId = property.split(".")[0];
         var object = this.owner.getItem(objId);
+
+        // remove listener on old object
+        if (this.entity) {
+            this.entity.removeListener(this);
+        }
+
         // add listener to object..
+        if (object) {
+            object.addListener(this);
+            this.entity = object;
+        }
     }
 }
