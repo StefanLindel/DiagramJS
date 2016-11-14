@@ -62,7 +62,7 @@ class Bridge {
         let newData = this.hasItem(change.id);
         let item: Data = this.getItem(change.id);
         if (change["class"]) {
-            item.class = change["class"];
+            item.property = change["class"];
         }
         if (newData) {
             for (let i in this.controls) {
@@ -90,11 +90,11 @@ class Bridge {
         }
     }
 
-    public hasItem(id: string): boolean {
+    public hasItem(id: string) : boolean {
         return (this.items[id] == null)
     }
 
-    public getItem(id: string): Data {
+    public getItem(id: string) : Data {
         let item = this.items[id];
         if (!item) {
             item = new Data();
@@ -104,7 +104,7 @@ class Bridge {
         return item;
     }
 
-    public getValue(id: string, attribute: string) {
+    public getValue(id: string, attribute: string) : any {
         let control = this.items[id];
         return control.getValue(attribute);
     }

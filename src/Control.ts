@@ -10,7 +10,5 @@ abstract class Control {
 
     public abstract propertyChange(entity: Data, property: string, oldValue, newValue);
 
-    public addItem(source: Bridge, entity: Data) {
-
-    }
+    public addItem(source: Bridge, entity: Data) {}
 }

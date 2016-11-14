@@ -3,7 +3,7 @@
 class Data {
     id: string;
     $listener: Control[] = [];
-    class: string;
+    property: string;
     public values = {};
 
     public getValue(attribute) {

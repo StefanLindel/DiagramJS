@@ -26,11 +26,11 @@
 
 <script>
     //var bridge = new Bridge();
-    bridge.load({control: "table", class: "talk", columns: [{id: 'room'}, {id: 'day'}, {id: 'talk'}, {id: 'state'}]});
+    bridge.load({control: "table", property: "talk", columns: [{id: 'room'}, {id: 'day'}, {id: 'talk'}, {id: 'state'}]});
     bridge.load("persons");
 
     var t1controlid = bridge.load("t1talk");
-    bridge.load({control: "input", class: "talk", id: "t2.talk", property: "t2.talk", type: "text"});
+    bridge.load({control: "input", property: "talk", id: "t2.talk", property: "t2.talk", type: "text"});
     // for debugging purpose:
     document.getElementById("t2.talk").setAttribute("oncontextmenu", "alert('t2.talk');");
 

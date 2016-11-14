@@ -5,12 +5,13 @@
 class Table extends Control {
     private columns: Column[] = [];
     private cells: Object = {};
-    private class: string;
+    private property: string;
     private $element: HTMLElement;
     private $bodysection: HTMLTableSectionElement;
     private $headersection: HTMLTableSectionElement;
     private showedItems:Array<BridgeElement>=[];
     private items:Array<BridgeElement>=[];
+    private itemsIds:Object={};
     private countElement:HTMLElement;
     private countColumn:HTMLElement;
     private countColumnPos:number;
@@ -27,12 +28,18 @@ class Table extends Control {
             id = data;
         } else {
             id = data.id;
-            this.class = data.class;
+            this.property = data.property;
             if(data.searchColumns) {
+                let search:Array<string>=[];
                 if (typeof(data.searchColumns) === "string") {
-                    this.searchColumns = data.searchColumns.split(" ");
+                    search = data.searchColumns.split(" ");
                 } else {
-                    this.searchColumns = data.searchColumns;
+                    search = data.searchColumns;
+                }
+                for(let z:number=0;z<search.length;z++) {
+                    if (search[z].trim().length > 0) {
+                        this.searchColumns.push(search[z].trim());
+                    }
                 }
             }
 
@@ -72,7 +79,13 @@ class Table extends Control {
                     headerrow = row;
                     this.parsingHeader(row);
                 } else {
-                    this.parsingData(row);
+                    // Its a tbody
+                    for (let r in row.children) {
+                        if (row.children.hasOwnProperty(r) === false) {
+                            continue;
+                        }
+                        this.parsingData(<HTMLTableRowElement>row.children[r]);
+                    }
                 }
             } else {
                 // fallback, if there are no thead and tbody...
@@ -128,7 +141,12 @@ class Table extends Control {
 
         let search = document.createElement("input");
         var that = this;
-        search.onchange = function(evt){that.search(evt.target["value"]);};
+        search.addEventListener(
+            'keyup',
+            function(evt){
+                that.search(evt.target["value"]);
+            },
+            false);
         search.className = "search";
         cell.appendChild(search);
         if(this.resultColumn) {
@@ -194,8 +212,31 @@ class Table extends Control {
     }
 
     public propertyChange(entity: Data, property: string, oldValue, newValue) {
-        let row: HTMLTableRowElement = this.cells[entity.id];
+        if (entity) {
+            // Check for Show
+            if (this.property && this.property !== entity.property) {
+                return;
+            }
+        }
+        if(!entity.id) {
+            return;
+        }
+        let item:BridgeElement = <BridgeElement>this.itemsIds[entity.id];
+        let row:HTMLTableRowElement;
+        if(!item) {
+            item = new BridgeElement(entity);
+            this.items.push(item);
+            this.itemsIds[entity.id] = item;
+        }
+        row = this.cells[entity.id];
+        if(row) {
+            item.gui = row;
+        }
+        if(this.searching(item) == false) {
+            return;
+        }
         let cell;
+
         if (!row) {
             row = document.createElement("tr");
             let count = this.columns.length;
@@ -204,9 +245,10 @@ class Table extends Control {
                 row.appendChild(cell);
             }
             this.cells[entity.id] = row;
+            entity.addListener(this);
+            //FIXME FOR SORTING
             this.$bodysection.appendChild(row);
         }
-
         for (let c in this.columns) {
             if (this.columns.hasOwnProperty(c) === false) {
                 continue;
@@ -215,20 +257,6 @@ class Table extends Control {
             if (name === property) {
                 cell = row.children[c];
                 cell.innerHTML = newValue;
-            }
-        }
-    }
-
-    public addItem(source: Bridge, entity: Data) {
-        // check for new Element in Bridge
-        if (entity) {
-            if (!this.class || this.class === entity.class) {
-                entity.addListener(this);
-                let item:BridgeElement = new BridgeElement(entity);
-                this.items.push(item);
-                if(this.searching(item)) {
-                    this.showItem(item);
-                }
             }
         }
     }
@@ -268,10 +296,10 @@ class Table extends Control {
     }
     public parseSearchArray() {
         let pos:number = 0;
-        let split:Array<string> = new Array<string>();
+        let split:Array<string> = [];
         let quote:boolean = false;
         for (var i:number = 0; i < this.lastSearchText.length; i++) {
-            if (this.lastSearchText.charAt(i) == " " && !quote) {
+            if ((this.lastSearchText.charAt(i) == " ") && !quote ) {
                 var txt = this.lastSearchText.substring(pos, i).trim();
                 if (txt.length > 0) {
                     split.push(txt);
@@ -297,7 +325,7 @@ class Table extends Control {
         return split;
     }
     public searchFilter(root:Array<BridgeElement>) {
-        this.showedItems=new Array<BridgeElement>();
+        this.showedItems=[];
         // Search for Simple Context
         for (let i:number = 0; i < root.length; i++) {
             var item:BridgeElement = root[i];
@@ -319,43 +347,54 @@ class Table extends Control {
     public searching(item:BridgeElement) : boolean {
         let fullText:string = "";
         for (let i:number = 0; i < this.searchColumns.length; i++) {
-            if (this.searchColumns[i].trim().length > 0) {
-                fullText = fullText + " " ;//+ item.model.getById(this.searchColumns[i]).innerHTML;
-            }
+            fullText = fullText + " "  + item.model.getValue(this.searchColumns[i]);
         }
         fullText = fullText.trim().toLowerCase();
         for (let z:number = 0; z < this.searchText.length; z++) {
             if ("" != this.searchText[z]) {
+                var orSplit:Array<string>;
                 if (this.searchText[z].indexOf("|") > 0) {
-                    var orSplit:Array<string> = this.searchText[z].split("|");
-                    for (var o = 0; o < orSplit.length; o++) {
-                        if (this.searchSimpleText(orSplit[o], fullText)) {
-                            return true;
+                    orSplit = this.searchText[z].split("|");
+                } else {
+                    orSplit = [this.searchText[z]];
+                }
+                let o:number = 0;
+                for (; o < orSplit.length; o++) {
+                    let pos:number = orSplit[o].indexOf(":");
+                    if (orSplit[o].indexOf("#")==0 && pos > 1) {
+                        //if (searchProperties.contains(propString)) {
+                            let value:string  = orSplit[o].substring(pos + 1);
+                            let column:string = orSplit[o].substring(1, pos - 1);
+                            let dataValue:Object = item.model.getValue(column);
+                            if(dataValue) {
+                                if(dataValue.toString().toLowerCase().indexOf(value) >= 0) {
+                                // Search for simple Property
+                                    break;
+                                }
+                            }
+                    } else if(orSplit[o].length>1&&orSplit[o].indexOf("-")==0){
+                        if(fullText.indexOf(orSplit[o].substring(1)) < 0){
+                            break;
                         }
+                    } else if(fullText.indexOf(orSplit[o]) >= 0){
+                        // his search word is found in full text
+                        break;
                     }
+                }
+                if(o ==orSplit.length) {
                     return false;
                 }
-                return this.searchSimpleText(this.searchText[z], fullText);
             }
         }
         return true;
     }
-    public searchSimpleText(search:string, fullText:string) : boolean{
-        if(search.length>1&&search.indexOf("-")==0){
-            if(fullText.indexOf(search.substring(1)) >= 0){
-                return false;
+    public addItem(source: Bridge, entity: Data) {
+        // check for new Element in Bridge
+        if (entity) {
+            if (!this.property || this.property === entity.property) {
+                entity.addListener(this);
             }
-        }else if(fullText.indexOf(search) < 0){
-            // no this search word is not found in full text
-            return false;
-        }else if(search.indexOf(" ")>0){
-            //let z:number=search.indexOf(" ");
-            //var pos = fullText.indexOf(this.searchText[z]) + this.searchText[z].length;
-            //if(pos<fullText.length && fullText.charAt(pos)!=" "){
-            //    return false;
-            //}
         }
-        return true;
     }
 }
 class Column {

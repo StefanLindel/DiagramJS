@@ -70,7 +70,7 @@ class Input extends Control {
         this.entity = entity;
         // check for new Element in Bridge
         if (entity) {
-            if (!this.class || this.class === entity.class) {
+            if (!this.class || this.class === entity.property) {
                 if (entity.id == this.property.split(".")[0]) {
                     entity.addListener(this);
                 }
