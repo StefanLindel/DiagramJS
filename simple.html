@@ -11,7 +11,7 @@
 <body>
 <script>
 //var bridge = new Bridge();
-bridge.load({control:"table", class:"talk", columns:[{id:'room'}, {id:'day'}, {id:'talk'},  {id:'state'}]});
+bridge.load({control:"table", class:"talk", columns:[{id:'room'}, {id:'day'}, {id:'talk'},  {id:'state'}], searchColumns:["day", "talk"]});
 //bridge.load("persons");
 
 bridge.executeChange({id:"t1", class:"talk", property:{room:"Heyl", day:"Monday",talk: "01. Meier", state:"ok", comment:"", no:"", slides:"", html:"", Author: "", "Peer Info": "", Explorer: "Explorer"}});

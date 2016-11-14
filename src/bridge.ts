@@ -1,5 +1,5 @@
 class Bridge {
-    private version: String = "0.42.01.1601007-1739";
+    public static version:string = "0.42.01.1601007-1739";
     private listener: Array<Object> = [];
     private controlFactory: Object = {};
     private controls: Object = {};
@@ -115,120 +115,6 @@ abstract class Control {
     }
 }
 
-class BidiMap {
-    private model: Object = {};
-    private htmlsElements: Object = {};
-
-    public with(model: Data, value: HTMLElement): BidiMap {
-        this.model[model.id] = model;
-        this.htmlsElements[model.id] = value;
-        return this;
-    }
-}
-class ItemList {
-    private children: Array<Object>;
-    private indexer: Object;
-    private sortFields: Array<String>;
-    private table: HTMLTableElement;
-
-    constructor(sortItems: String) {
-        this.children = new Array();
-        this.indexer = new Object();
-        this.sortFields = [];
-        if (sortItems) {
-            this.sortFields = sortItems.toLowerCase().split(",");
-        }
-    }
-
-    public add(item: Data, id: string) {
-        let index: number = -1;
-        id = id.toLowerCase();
-        if (item) {
-            if (this.sortFields.length < 1) {
-                this.children.push(item);
-                index = this.children.length;
-            } else {
-                index = this.indexOf(item, this.children);
-                var array = this.children;
-                this.children.splice(index, 0, item);
-            }
-            this.indexer[id] = item;
-        }
-        return index;
-    }
-
-    public indexOf(element, array, start?: number, end?: number): number {
-        start = start || 0;
-        end = end || array.length;
-        var pivot = start + (end - start) / 2;
-        if (end - start == 0 || array[pivot] === element) return pivot;
-        var diff = this.sort(element, array[pivot]);
-
-        if (end - start <= 1) {
-            if (diff >= 0) {
-                return end;
-            }
-            return start;
-        }
-
-        if (diff == 0) {
-            return pivot;
-        } else if (diff > 0) {
-            return this.indexOf(element, array, pivot, end);
-        } else {
-            return this.indexOf(element, array, start, pivot);
-        }
-    }
-
-    public sort(a, b) {
-        for (var i in this.sortFields) {
-            var tdA = a["children"].getById(this.sortFields[i]);
-            var tdB = b["children"].getById(this.sortFields[i]);
-            if (tdA && tdB) {
-                if (tdA.innerHTML != tdB.innerHTML) {
-                    return (tdA.innerHTML < tdB.innerHTML) ? -1 : 1;
-                }
-            }
-        }
-        return 0;
-    }
-
-    public size() {
-        return this.children.length;
-    }
-
-    public get(i: number) {
-        return this.children[i];
-    }
-
-    public getById(id: string) {
-        return this.indexer[id];
-    }
-
-    public setTable(table) {
-        this.table = table;
-    }
-
-    public resort(sortFields: String) {
-        this.sortFields = sortFields.toLowerCase().split(",");
-        var sortfnc = this.sort;
-        this.children.sort(sortfnc);
-        this.removeAll();
-    }
-
-    public removeAll() {
-        while (this.table.childNodes.length > 0) {
-            this.table.removeChild(this.table.childNodes[0]);
-        }
-    }
-
-    public showAll() {
-        for (var i = 0; i < this.size(); i++) {
-            this.table.appendChild(this.get(i)["gui"]);
-        }
-    }
-}
-
 class TableElement {
     constructor(model:Data) {
         this.model = model;
@@ -320,15 +206,15 @@ class Table extends Control {
     private $element: HTMLElement;
     private $bodysection: HTMLTableSectionElement;
     private $headersection: HTMLTableSectionElement;
-    private showedItems:Array<TableElement>=new Array<TableElement>();
-    private items:Array<TableElement>=new Array<TableElement>();
+    private showedItems:Array<TableElement>=[];
+    private items:Array<TableElement>=[];
     private countElement:HTMLElement;
     private countColumn:HTMLElement;
     private countColumnPos:number;
     private resultColumn:string;
     private lastSearchText:string;
-    private searchColumns:Array<string>=new Array<string>();
-    private searchText:Array<string>=new Array<string>();
+    private searchColumns:Array<string>=[];
+    private searchText:Array<string>=[];
 
     constructor(owner, data) {
         super(owner, data);
@@ -339,6 +225,14 @@ class Table extends Control {
         } else {
             id = data.id;
             this.class = data.class;
+            if(data.searchColumns) {
+                if (typeof(data) === "string") {
+                    this.searchColumns = data.searchColumns.split(" ");
+                } else {
+                    this.searchColumns = data.searchColumns;
+                }
+            }
+
         }
         if (!id) {
             return;
@@ -548,7 +442,6 @@ class Table extends Control {
         let oldSearch:string = this.lastSearchText;
         this.lastSearchText = searchText;
 
-        var items;
         this.parseSearchArray();
         if (searchText != "" && oldSearch != null && searchText.indexOf(oldSearch) >= 0 && searchText.indexOf("|") < 0) {
              this.searchFilter(this.showedItems);
@@ -624,7 +517,7 @@ class Table extends Control {
          let fullText:string = "";
          for (let i:number = 0; i < this.searchColumns.length; i++) {
              if (this.searchColumns[i].trim().length > 0) {
-                 fullText = fullText + " " + item["children"].getById(this.searchColumns[i]).innerHTML;
+                 fullText = fullText + " " + item["model"].getById(this.searchColumns[i]).innerHTML;
              }
          }
          fullText = fullText.trim().toLowerCase();
