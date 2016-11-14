@@ -1,119 +1,4 @@
-class Bridge {
-    public static version:string = "0.42.01.1601007-1739";
-    private listener: Array<Object> = [];
-    private controlFactory: Object = {};
-    private controls: Object = {};
-    private items: Object = {};
-    private controlNo: number = 1;
-
-    constructor() {
-        this.addControl(Table);
-        this.addControl(Input);
-    }
-
-    public addListener = function (listener) {
-        this.listener.push(listener);
-    };
-
-    public addControl(control) {
-        this.controlFactory[control.name.toLowerCase()] = control;
-    }
-
-    public getId(): string {
-        return "control" + (this.controlNo++);
-    }
-
-    public load(json) {
-        let className;
-        if (typeof(json) === "object") {
-            if (!json["id"]) {
-                json["id"] = this.getId();
-            }
-            className = json["control"].toLowerCase();
-        } else {
-            let item = document.getElementById(json);
-            if (item) {
-                className = item.getAttribute("control");
-                if (className) {
-                    className = className.toLowerCase();
-                } else {
-                    className = "";
-                }
-            }
-        }
-        if (typeof(this.controlFactory[className]) === "object" || typeof(this.controlFactory[className]) === "function") {
-            let obj = this.controlFactory[className];
-            let control = new obj(this, json);
-            this.controls[control.id] = control;
-        }
-        //bridge.load("{class:table, columns:[{id:'firstname'}, {id:'lastname'}]}");
-    }
-
-    public executeChange(change) {
-        let newData = this.hasItem(change.id);
-        let item: Data = this.getItem(change.id);
-        if (change["class"]) {
-            item.class = change["class"];
-        }
-        if (newData) {
-            for (let i in this.controls) {
-                if (this.controls.hasOwnProperty(i) === false) {
-                    continue;
-                }
-                this.controls[i].addItem(this, item);
-            }
-        }
-        this.addProperties(change["property"], item);
-        this.addProperties(change["upd"], item);
-    }
-
-    public addProperties(prop: Object, item: Data) {
-        if (!prop) {
-            return;
-        }
-        for (let property in prop) {
-            if (prop.hasOwnProperty(property) === false) {
-                continue;
-            }
-            if (prop[property] && "" !== prop[property]) {
-                item.setValue(property, prop[property]);
-            }
-        }
-    }
-
-    public hasItem(id: string): boolean {
-        return (this.items[id] == null)
-    }
-
-    public getItem(id: string): Data {
-        let item = this.items[id];
-        if (!item) {
-            item = new Data();
-            item.id = id;
-            this.items[id] = item;
-        }
-        return item;
-    }
-
-    public getValue(id: string, attribute: string) {
-        let control = this.items[id];
-        return control.getValue(attribute);
-    }
-}
-abstract class Control {
-    id: string;
-    public owner: Bridge;
-
-    constructor(owner: Bridge, data) {
-        this.owner = owner;
-    }
-
-    public abstract propertyChange(entity: Data, property: string, oldValue, newValue);
-
-    public addItem(source: Bridge, entity: Data) {
-
-    }
-}
+///<reference path="Bridge.ts"/>
 
 class TableElement {
     constructor(model:Data) {
@@ -123,87 +8,7 @@ class TableElement {
     public gui:HTMLTableRowElement;
 }
 
-class Input extends Control {
-    private class:string;
-    private $element: HTMLInputElement;
-    private property: string;
-    private type: string;
 
-    constructor(owner, data){
-        super(owner, data);
-        let id: string;
-        // init form HTML
-        if (typeof(data) === "string") {
-            id = data;
-        } else {
-            id = data.id;
-            this.class = data.class;
-            this.type = data.type;
-            this.property = data.property;
-        }
-        if (!id) {
-            return;
-        }
-        this.id = id;
-        let inputField: HTMLElement = document.getElementById(id);
-
-        if(!this.property){
-            // if(inputField){
-            // TODO disuss how to decide, which property we should listen on...
-            // this.property = id;
-            this.property = inputField.getAttribute("Property");
-            // }
-        }
-
-        if(inputField instanceof HTMLInputElement){
-            this.$element = inputField;
-        }else {
-            if (!inputField) {
-                this.$element = document.createElement("input");
-                this.$element.setAttribute("type", this.type);
-                this.$element.setAttribute("id", this.id);
-                this.$element.setAttribute("property", this.property);
-                document.getElementsByTagName("body")[0].appendChild(this.$element);
-            } else {
-                // the id is already taken by an object, that is not an input field...
-                return;
-            }
-        }
-    }
-
-    private _lastProperty: string;
-
-    get lastProperty(): string {
-        if(!this._lastProperty){
-            let arr = this.property.split(".");
-            this._lastProperty = arr[arr.length-1];
-        }
-        return this._lastProperty;
-    }
-
-    propertyChange(entity: Data, property: string, oldValue, newValue) {
-        if(property == this.lastProperty){
-            this.$element.value = newValue;
-        }
-    }
-
-    public addItem(source: Bridge, entity: Data) {
-        // check for new Element in Bridge
-        if (entity) {
-            if (!this.class || this.class === entity.class) {
-                if(entity.id == this.property.split(".")[0]){
-                    entity.addListener(this);
-                }
-            }
-        }
-    }
-
-    public setProperty(property: string){
-        let objId = property.split(".")[0];
-        var object = this.owner.getItem(objId);
-        // add listener to object..
-    }
-}
 
 class Table extends Control {
     private columns: Column[] = [];
@@ -450,7 +255,7 @@ class Table extends Control {
 
         this.parseSearchArray();
         if (searchText != "" && oldSearch != null && searchText.indexOf(oldSearch) >= 0 && searchText.indexOf("|") < 0) {
-             this.searchFilter(this.showedItems);
+            this.searchFilter(this.showedItems);
         } else {
             this.searchFilter(this.items);
         }
@@ -519,30 +324,30 @@ class Table extends Control {
         this.$bodysection.removeChild(item.gui);
     }
 
-     public searching(item:TableElement) : boolean {
-         let fullText:string = "";
-         for (let i:number = 0; i < this.searchColumns.length; i++) {
-             if (this.searchColumns[i].trim().length > 0) {
-                 fullText = fullText + " " + item.model.getById(this.searchColumns[i]).innerHTML;
-             }
-         }
-         fullText = fullText.trim().toLowerCase();
-         for (let z:number = 0; z < this.searchText.length; z++) {
-             if ("" != this.searchText[z]) {
-                 if (this.searchText[z].indexOf("|") > 0) {
-                     var orSplit:Array<string> = this.searchText[z].split("|");
-                     for (var o = 0; o < orSplit.length; o++) {
-                         if (this.searchSimpleText(orSplit[o], fullText)) {
-                             return true;
-                         }
-                     }
-                     return false;
-                 }
-                 return this.searchSimpleText(this.searchText[z], fullText);
-             }
-         }
-         return true;
-     }
+    public searching(item:TableElement) : boolean {
+        let fullText:string = "";
+        for (let i:number = 0; i < this.searchColumns.length; i++) {
+            if (this.searchColumns[i].trim().length > 0) {
+                fullText = fullText + " " ;//+ item.model.getById(this.searchColumns[i]).innerHTML;
+            }
+        }
+        fullText = fullText.trim().toLowerCase();
+        for (let z:number = 0; z < this.searchText.length; z++) {
+            if ("" != this.searchText[z]) {
+                if (this.searchText[z].indexOf("|") > 0) {
+                    var orSplit:Array<string> = this.searchText[z].split("|");
+                    for (var o = 0; o < orSplit.length; o++) {
+                        if (this.searchSimpleText(orSplit[o], fullText)) {
+                            return true;
+                        }
+                    }
+                    return false;
+                }
+                return this.searchSimpleText(this.searchText[z], fullText);
+            }
+        }
+        return true;
+    }
     public searchSimpleText(search:string, fullText:string) : boolean{
         if(search.length>1&&search.indexOf("-")==0){
             if(fullText.indexOf(search.substring(1)) >= 0){
@@ -566,36 +371,3 @@ class Column {
     attribute: string;
     $element: HTMLTableHeaderCellElement;
 }
-class Data {
-    id: string;
-    $listener: Control[] = [];
-    class: string;
-    public values = {};
-
-    public getValue(attribute) {
-        return this.values[attribute];
-    }
-
-    public setValue(attribute, newValue) {
-        let oldValue = this.values[attribute];
-        this.values[attribute] = newValue;
-        for (let i in this.$listener) {
-            if (this.$listener.hasOwnProperty(i) === false) {
-                continue;
-            }
-            this.$listener[i].propertyChange(this, attribute, oldValue, newValue);
-        }
-    }
-
-    public addListener(control: Control) {
-        this.$listener.push(control);
-    }
-
-    public removeListener(control: Control) {
-        let pos = this.$listener.indexOf(control);
-        if (pos >= 0) {
-            this.$listener.splice(pos, 1);
-        }
-    }
-}
-var bridge = new Bridge();
