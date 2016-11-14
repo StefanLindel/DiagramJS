@@ -229,92 +229,6 @@ class ItemList {
     }
 }
 
-
-class SearchComponent {
-    private sortFields: Array<String>;
-    private lastSearchText;
-    private owner: Table;
-    private searchInput: HTMLInputElement;
-    private counter: HTMLElement;
-
-    constructor(owner: Table) {
-        this.sortFields = [];
-        //if(options && options.sortitems && options.sortitems.length > 0){this.sortFields=options.sortitems.toLowerCase().split(",");}
-        this.owner = owner;
-    }
-
-    public printSearchbar(parent: HTMLElement) {
-        this.searchInput = document.createElement("input");
-        let that = this;
-        this.searchInput.className = "search";
-
-        this.searchInput.onchange = function (event) {
-            that.searchItems(event);
-        };
-        parent.appendChild(this.searchInput);
-
-        this.counter = document.createElement("div");
-        parent.appendChild(this.counter);
-    }
-
-    public sort(a, b) {
-        for (var i in this.sortFields) {
-            var tdA = a["children"].getById(this.sortFields[i]);
-            var tdB = b["children"].getById(this.sortFields[i]);
-            if (tdA && tdB) {
-                if (tdA.innerHTML != tdB.innerHTML) {
-                    return (tdA.innerHTML < tdB.innerHTML) ? -1 : 1;
-                }
-            }
-        }
-        return 0;
-    }
-
-    public with(model: Data, value: HTMLElement): SearchComponent {
-        this.map.with(model, value);
-        return this;
-    }
-
-    public indexOf(element, array, start, end) {
-        start = start || 0;
-        end = end || array.length;
-        var pivot = parseInt(start + (end - start) / 2, 10);
-        if (end - start == 0 || array[pivot] === element) return pivot;
-        var diff = this.sort(element, array[pivot]);
-
-        if (end - start <= 1) {
-            if (diff >= 0) {
-                return end;
-            }
-            return start;
-        }
-
-        if (diff == 0) {
-            return pivot;
-        } else if (diff > 0) {
-            return this.indexOf(element, array, pivot, end);
-        } else {
-            return this.indexOf(element, array, start, pivot);
-        }
-    }
-
-    public searchItems(evt) {
-        // get search criteria
-        this.showItems(evt.target.value);
-    }
-
-    public refreshCounter() {
-        // var countElement = document.getElementById('talkCount');
-        // if (countElement) {
-        //     var txt = (this.showedItems.size() > 0 && searchText.length > 0 ) ? this.options.TEXT_SEARCHLIST : this.options.TEXT_SEARCHFULLLIST;
-        //     countElement.innerHTML = txt.replace("%LEN%", this.root['children'].length).replace("%COUNT%", this.showedItems.size()).replace("%SEARCH%", origSearchText);
-        // }
-        // if (this.countColumn) {
-        //     this.countColumn.innerHTML = this.countColumn["label"] + " (" + this.showedItems.size() + ")";
-        // }
-    };
-}
-
 class TableElement {
     constructor(model:Data) {
         this.model = model;
@@ -404,21 +318,20 @@ class Table extends Control {
     private cells: Object = {};
     private class: string;
     private $element: HTMLElement;
-    //private $searchControl: SearchComponent;
     private $bodysection: HTMLTableSectionElement;
     private $headersection: HTMLTableSectionElement;
-    //private items:Object;
     private showedItems:Array<TableElement>=new Array<TableElement>();
     private items:Array<TableElement>=new Array<TableElement>();
-    private resultColumn;
-    private counter:HTMLElement;
-    private lastSearchText:String;
-    private searchColumns:Array<String>=new Array<String>();
-    private searchText:Array<String>=new Array<String>();
+    private countElement:HTMLElement;
+    private countColumn:HTMLElement;
+    private countColumnPos:number;
+    private resultColumn:string;
+    private lastSearchText:string;
+    private searchColumns:Array<string>=new Array<string>();
+    private searchText:Array<string>=new Array<string>();
 
     constructor(owner, data) {
         super(owner, data);
-        this.$searchControl = new SearchComponent(this);
         let id: string;
         // init form HTML
         if (typeof(data) === "string") {
@@ -510,17 +423,29 @@ class Table extends Control {
         }
         // Check for SearchBar
         //if(data["searchproperty"]){
-        let searchBar = document.createElement("div");
+        // Create Full Row
+        let searchBar = document.createElement("tr");
+        let cell = document.createElement("td");
+        cell.setAttribute("colspan", ""+this.columns.length);
+        searchBar.appendChild(cell);
 
         let search = document.createElement("input");
         var that = this;
-        search.onchange = function(evt){that.search(evt.target.value);};
+        search.onchange = function(evt){that.search(evt.target["value"]);};
         search.className = "search";
-        searchBar.appendChild(search);
+        cell.appendChild(search);
         if(this.resultColumn) {
             if(this.resultColumn.startsWith("#") == false) {
-                this.counter = document.createElement("div");
-                searchBar.appendChild(this.counter);
+                this.countElement = document.createElement("div");
+                searchBar.appendChild(this.countElement);
+            } else {
+                for(let z:number=0;z<this.$headersection.children.length;z++) {
+                    if(this.$headersection.children[z].innerHTML === this.resultColumn) {
+                        this.countColumn = <HTMLElement> this.$headersection.children[z];
+                        this.countColumnPos = z;
+                        break;
+                    }
+                }
             }
         }
         let first = this.$headersection.children.item(0);
@@ -616,11 +541,11 @@ class Table extends Control {
         if (!origSearchText) {
             origSearchText = "";
         }
-        let searchText:String = origSearchText.trim().toLowerCase();
+        let searchText:string = origSearchText.trim().toLowerCase();
         if (searchText == this.lastSearchText && searchText != "") {
             return 0; // <==== nothing to be done
         }
-        let oldSearch:String = this.lastSearchText;
+        let oldSearch:string = this.lastSearchText;
         this.lastSearchText = searchText;
 
         var items;
@@ -628,13 +553,26 @@ class Table extends Control {
         if (searchText != "" && oldSearch != null && searchText.indexOf(oldSearch) >= 0 && searchText.indexOf("|") < 0) {
              this.searchFilter(this.showedItems);
         } else {
-            this.searchFull(this.items);
+            this.searchFilter(this.items);
         }
         this.refreshCounter();
     }
+    public refreshCounter() {
+        if(this.countColumn) {
+            this.countColumn.innerHTML = this.columns[this.countColumnPos].label + " (" + this.showedItems.length + ")";
+        }
+        //var countElement = document.getElementById('talkCount');
+        //if (countElement) {
+        //     var txt = (this.showedItems.size() > 0 && searchText.length > 0 ) ? this.options.TEXT_SEARCHLIST : this.options.TEXT_SEARCHFULLLIST;
+        //     countElement.innerHTML = txt.replace("%LEN%", this.root['children'].length).replace("%COUNT%", this.showedItems.size()).replace("%SEARCH%", origSearchText);
+        // }
+        // if (this.countColumn) {
+        //     this.countColu1mn.innerHTML = this.countColumn["label"] + " (" + this.showedItems.size() + ")";
+        // }
+    }
     public parseSearchArray() {
         let pos:number = 0;
-        let split:Array<String> = new Array<String>();
+        let split:Array<string> = new Array<string>();
         let quote:boolean = false;
         for (var i:number = 0; i < this.lastSearchText.length; i++) {
             if (this.lastSearchText.charAt(i) == " " && !quote) {
@@ -665,28 +603,13 @@ class Table extends Control {
     public searchFilter(root:Array<TableElement>) {
         this.showedItems=new Array<TableElement>();
         // Search for Simple Context
-        for (let i:Number = 0; i < root.length; i++) {
+        for (let i:number = 0; i < root.length; i++) {
             var item:TableElement = root[i];
             if (this.searching(item)) {
                 this.showItem(item);
             } else {
                 this.removeItem(item);
             }
-        }
-    }
-    public searchFull(root:Array<TableElement>) {
-        this.showedItems=new Array<TableElement>();
-
-        for (var i = 0; i < root.size(); i++) {
-            var item = root.get(i);
-            if (this.searching(item, split)) {
-                items.add(item, item.id);
-            }
-        }
-        this.removeAll();
-        if (items.size() > 0) {
-            this.showColumns();
-            items.showAll();
         }
     }
 
@@ -708,7 +631,7 @@ class Table extends Control {
          for (let z:number = 0; z < this.searchText.length; z++) {
              if ("" != this.searchText[z]) {
                  if (this.searchText[z].indexOf("|") > 0) {
-                     var orSplit = this.searchText[z].split("|");
+                     var orSplit:Array<string> = this.searchText[z].split("|");
                      for (var o = 0; o < orSplit.length; o++) {
                          if (this.searchSimpleText(orSplit[o], fullText)) {
                              return true;
@@ -716,7 +639,7 @@ class Table extends Control {
                      }
                      return false;
                  }
-                 return this.searchSimpleText(split[z], fullText);
+                 return this.searchSimpleText(this.searchText[z], fullText);
              }
          }
          return true;
