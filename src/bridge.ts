@@ -114,16 +114,6 @@ abstract class Control {
     }
 }
 
-class BidiMap {
-    private model: Object;
-    private htmlsElements: Object;
-
-    public with(model: Data, value: HTMLElement): BidiMap {
-        this.model[model.id] = model;
-        this.htmlsElements[model.id] = value;
-        return this;
-    }
-}
 class ItemList {
     private children: Array<Object>;
     private indexer: Object;
@@ -230,7 +220,6 @@ class ItemList {
 
 
 class SearchComponent {
-    private map: BidiMap = new BidiMap();
     private sortFields: Array<String>;
     private lastSearchText;
     private owner: Table;
@@ -252,22 +241,6 @@ class SearchComponent {
             that.searchItems(event);
         };
         parent.appendChild(this.searchInput);
-
-        //let xmlns = "http://www.w3.org/2000/svg";
-        //let svg = document.createElementNS(xmlns, "svg");
-        //svg.setAttribute("width", "16");
-        //svg.setAttribute("height", "16");
-        //let path = document.createElementNS(xmlns, "path");
-        //path.setAttribute("style", "fill:#007fff;");
-        //path.setAttribute("d", "M 9.5,7.8 C 9.3,8.1 9,8.4 8.7,8.8 8.3,9.1 7.9,9.4 7.6,9.5 L 13.6,15.2 15.5,13.5 9.5,7.8 Z");
-        //svg.appendChild(path);
-        //path = document.createElementNS(xmlns, "circle");
-        //path.setAttribute("style", "fill:none;stroke:#007fff;stroke-width:1;");
-        //path.setAttribute("cx", "5");
-        //path.setAttribute("cy", "5");
-        //path.setAttribute("r", "4");
-        //svg.appendChild(path);
-        //parent.appendChild(svg);
 
         this.counter = document.createElement("div");
         parent.appendChild(this.counter);
@@ -319,123 +292,6 @@ class SearchComponent {
         this.showItems(evt.target.value);
     }
 
-    public showItems(origSearchText) {
-        if (!origSearchText) {
-            origSearchText = "";
-        }
-        var searchText = origSearchText.trim().toLowerCase();
-        if (searchText == this.lastSearchText && searchText != "") {
-            return 0; // <==== nothing to be done
-        }
-        var oldSearch = this.lastSearchText;
-        this.lastSearchText = searchText;
-        var split = this.getSearchArray();
-
-        var items;
-        // if (searchText != "" && oldSearch != null && searchText.indexOf(oldSearch) >= 0 && searchText.indexOf("|") < 0) {
-        //
-        //     items = this.searchFilter(this.showedItems, split);
-        // } else {
-        //     items = this.searchFull(this.items, split);
-        // }
-        // this.showedItems = items;
-        this.refreshCounter();
-    }
-
-    public searchFilter(root, split) {
-        // var items = new ItemList(this.options);
-        // // Search for Simple Context
-        // for (var i = 0; i < root.size(); i++) {
-        //     var item = root.get(i);
-        //     if (this.searching(item, split)) {
-        //         items.add(item, item.id);
-        //     } else {
-        //         this.table.removeChild(item["gui"]);
-        //     }
-        // }
-        // return items;
-    };
-
-//     TableView
-// .
-//     prototype
-// .
-//     searchFull = function (root, split) {
-//         var items = new ItemList(this.options);
-//         items.setTable(this.table);
-//
-//         for (var i = 0; i < root.size(); i++) {
-//             var item = root.get(i);
-//             if (this.searching(item, split)) {
-//                 items.add(item, item.id);
-//             }
-//         }
-//         this.removeAll();
-//         if (items.size() > 0) {
-//             this.showColumns();
-//             items.showAll();
-//         }
-//         return items;
-//     };
-//     TableView
-// .
-//     prototype
-// .
-//     searching = function (item, split) {
-//         var fullText = "";
-//         for (var i = 0; i < this.searchColumns.length; i++) {
-//             if (this.searchColumns[i].trim().length > 0) {
-//                 fullText = fullText + " " + item["children"].getById(this.searchColumns[i]).innerHTML;
-//             }
-//         }
-//         var fullText = fullText.trim().toLowerCase();
-//         for (var z = 0; z < split.length; z++) {
-//             if ("" != split[z]) {
-//                 if (split[z].indexOf("|") > 0) {
-//                     var orSplit = split[z].split("|");
-//                     for (var o = 0; o < orSplit.length; o++) {
-//                         if (this.searchSimpleText(orSplit[o], fullText)) {
-//                             return true;
-//                         }
-//                     }
-//                     return false;
-//                 }
-//                 return this.searchSimpleText(split[z], fullText);
-//             }
-//         }
-//         return true;
-//     }
-
-    public getSearchArray() {
-        var pos = 0;
-        var split = new Array();
-        var quote = false;
-        for (var i = 0; i < this.lastSearchText.length; i++) {
-            if (this.lastSearchText.charAt(i) == " " && !quote) {
-                var txt = this.lastSearchText.substring(pos, i).trim();
-                if (txt.length > 0) {
-                    split.push(txt);
-                }
-                pos = i + 1;
-            } else if (this.lastSearchText.charAt(i) == "\"") {
-                if (quote) {
-                    var txt = this.lastSearchText.substring(pos, i).trim();
-                    if (txt.length > 0) {
-                        split.push(txt);
-                    }
-                    pos = i + 1;
-                } else {
-                    pos = i + 1;
-                }
-                quote = !quote;
-            }
-        }
-        if (pos < this.lastSearchText.length) {
-            split.push(this.lastSearchText.substring(pos, this.lastSearchText.length).trim());
-        }
-        return split;
-    }
-
     public refreshCounter() {
         // var countElement = document.getElementById('talkCount');
         // if (countElement) {
@@ -447,15 +303,29 @@ class SearchComponent {
         // }
     };
 }
-
+class TableElement {
+    constructor(model:Data) {
+        this.model = model;
+    }
+    public model:Data;
+    public gui:HTMLTableRowElement;
+}
 class Table extends Control {
     private columns: Column[] = [];
     private cells: Object = {};
     private class: string;
     private $element: HTMLElement;
-    private $searchControl: SearchComponent;
+    //private $searchControl: SearchComponent;
     private $bodysection: HTMLTableSectionElement;
     private $headersection: HTMLTableSectionElement;
+    //private items:Object;
+    private showedItems:Array<TableElement>=new Array<TableElement>();
+    private items:Array<TableElement>=new Array<TableElement>();
+    private resultColumn;
+    private counter:HTMLElement;
+    private lastSearchText:String;
+    private searchColumns:Array<String>=new Array<String>();
+    private searchText:Array<String>=new Array<String>();
 
     constructor(owner, data) {
         super(owner, data);
@@ -551,35 +421,19 @@ class Table extends Control {
         // Check for SearchBar
         //if(data["searchproperty"]){
         let searchBar = document.createElement("div");
-        this.printSearchbar(searchBar);
-        this.$headersection.appendChild(searchBar);
-
-        //}
-        // init from
-    }
-
-    public printSearchbar(parent: HTMLElement) {
         let search = document.createElement("input");
+        var that = this;
+        search.onchange = function(evt){that.search(evt.target.value);};
         search.className = "search";
-        parent.appendChild(search);
+        searchBar.appendChild(search);
+        if(this.resultColumn) {
+            if(this.resultColumn.startsWith("#") == false) {
+                this.counter = document.createElement("div");
+                searchBar.appendChild(this.counter);
+            }
+        }
 
-        let xmlns = "http://www.w3.org/2000/svg";
-        let svg = document.createElementNS(xmlns, "svg");
-        svg.setAttribute("width", "16");
-        svg.setAttribute("height", "16");
-        let path = document.createElementNS(xmlns, "path");
-        path.setAttribute("style", "fill:#007fff;");
-        path.setAttribute("d", "M 9.5,7.8 C 9.3,8.1 9,8.4 8.7,8.8 8.3,9.1 7.9,9.4 7.6,9.5 L 13.6,15.2 15.5,13.5 9.5,7.8 Z");
-
-        svg.appendChild(path);
-        path = document.createElementNS(xmlns, "circle");
-        path.setAttribute("style", "fill:none;stroke:#007fff;stroke-width:1;");
-        path.setAttribute("cx", "5");
-        path.setAttribute("cy", "5");
-        path.setAttribute("r", "4");
-        svg.appendChild(path);
-        parent.appendChild(svg);
-        return svg;
+        this.$headersection.appendChild(searchBar);
     }
 
     public parsingHeader(row: HTMLTableRowElement) {
@@ -624,7 +478,6 @@ class Table extends Control {
                 item[colAttribute] = cell.innerHTML.trim();
             }
         }
-        this.$searchControl.with(item, row);
     }
 
     public propertyChange(entity: Data, property: string, oldValue, newValue) {
@@ -658,8 +511,141 @@ class Table extends Control {
         if (entity) {
             if (!this.class || this.class === entity.class) {
                 entity.addListener(this);
+                let item:TableElement = new TableElement(entity);
+                this.items.push(item);
+                if(this.searching(item)) {
+                    this.showItem(item);
+                }
             }
         }
+    }
+
+    // Searching
+    public search(origSearchText:String) {
+        if (!origSearchText) {
+            origSearchText = "";
+        }
+        let searchText:String = origSearchText.trim().toLowerCase();
+        if (searchText == this.lastSearchText && searchText != "") {
+            return 0; // <==== nothing to be done
+        }
+        let oldSearch:String = this.lastSearchText;
+        this.lastSearchText = searchText;
+
+        var items;
+        this.parseSearchArray();
+        if (searchText != "" && oldSearch != null && searchText.indexOf(oldSearch) >= 0 && searchText.indexOf("|") < 0) {
+             this.searchFilter(this.showedItems);
+        } else {
+            this.searchFull(this.items);
+        }
+        this.refreshCounter();
+    }
+    public parseSearchArray() {
+        let pos:number = 0;
+        let split:Array<String> = new Array<String>();
+        let quote:boolean = false;
+        for (var i:number = 0; i < this.lastSearchText.length; i++) {
+            if (this.lastSearchText.charAt(i) == " " && !quote) {
+                var txt = this.lastSearchText.substring(pos, i).trim();
+                if (txt.length > 0) {
+                    split.push(txt);
+                }
+                pos = i + 1;
+            } else if (this.lastSearchText.charAt(i) == "\"") {
+                if (quote) {
+                    var txt = this.lastSearchText.substring(pos, i).trim();
+                    if (txt.length > 0) {
+                        split.push(txt);
+                    }
+                    pos = i + 1;
+                } else {
+                    pos = i + 1;
+                }
+                quote = !quote;
+            }
+        }
+        if (pos < this.lastSearchText.length) {
+            split.push(this.lastSearchText.substring(pos, this.lastSearchText.length).trim());
+        }
+        this.searchText = split;
+        return split;
+    }
+    public searchFilter(root:Array<TableElement>) {
+        this.showedItems=new Array<TableElement>();
+        // Search for Simple Context
+        for (let i:Number = 0; i < root.length; i++) {
+            var item:TableElement = root[i];
+            if (this.searching(item)) {
+                this.showItem(item);
+            } else {
+                this.removeItem(item);
+            }
+        }
+    }
+    public searchFull(root:Array<TableElement>) {
+        this.showedItems=new Array<TableElement>();
+
+        for (var i = 0; i < root.size(); i++) {
+            var item = root.get(i);
+            if (this.searching(item, split)) {
+                items.add(item, item.id);
+            }
+        }
+        this.removeAll();
+        if (items.size() > 0) {
+            this.showColumns();
+            items.showAll();
+        }
+    }
+
+    public showItem(item:TableElement) {
+        this.showedItems.push(item);
+    }
+    public removeItem(item:TableElement) {
+        this.$bodysection.removeChild(item.gui);
+    }
+
+     public searching(item:TableElement) : boolean {
+         let fullText:string = "";
+         for (let i:number = 0; i < this.searchColumns.length; i++) {
+             if (this.searchColumns[i].trim().length > 0) {
+                 fullText = fullText + " " + item["children"].getById(this.searchColumns[i]).innerHTML;
+             }
+         }
+         fullText = fullText.trim().toLowerCase();
+         for (let z:number = 0; z < this.searchText.length; z++) {
+             if ("" != this.searchText[z]) {
+                 if (this.searchText[z].indexOf("|") > 0) {
+                     var orSplit = this.searchText[z].split("|");
+                     for (var o = 0; o < orSplit.length; o++) {
+                         if (this.searchSimpleText(orSplit[o], fullText)) {
+                             return true;
+                         }
+                     }
+                     return false;
+                 }
+                 return this.searchSimpleText(split[z], fullText);
+             }
+         }
+         return true;
+     }
+    public searchSimpleText(search:string, fullText:string) : boolean{
+        if(search.length>1&&search.indexOf("-")==0){
+            if(fullText.indexOf(search.substring(1)) >= 0){
+                return false;
+            }
+        }else if(fullText.indexOf(search) < 0){
+            // no this search word is not found in full text
+            return false;
+        }else if(search.indexOf(" ")>0){
+            //let z:number=search.indexOf(" ");
+            //var pos = fullText.indexOf(this.searchText[z]) + this.searchText[z].length;
+            //if(pos<fullText.length && fullText.charAt(pos)!=" "){
+            //    return false;
+            //}
+        }
+        return true;
     }
 }
 class Column {
