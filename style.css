@@ -5,3 +5,33 @@
 	box-shadow: 0 4px 8px 0 rgba(0,0,0,0.2), 0 6px 20px 0 rgba(0,0,0,0.19);
 	width:100%;
 }
+.sort{
+	cursor:pointer;
+}
+.sort:hover:after{
+	content: '';
+	float: right;
+	margin-top: 4px;
+	border-width: 0 4px 4px;
+	border-style: solid;
+	border-color: #404040 transparent;
+}
+
+.sort.asc:after{
+	content: '';
+	float: right;
+	margin-top: 6px;
+	border-width: 0 4px 4px;
+	border-style: solid;
+	border-color: #404040 transparent;
+	opacity:0.4;
+}
+.sort.desc:after{
+	content: '';
+	float: right;
+	margin-top: 6px;
+	border-width:4px 4px 0;
+	border-style: solid;
+	border-color: #404040 transparent;
+	opacity:0.4;
+}

@@ -245,9 +245,7 @@ class Table extends Control {
                 row.appendChild(cell);
             }
             this.cells[entity.id] = row;
-            entity.addListener(this);
-            //FIXME FOR SORTING
-            this.$bodysection.appendChild(row);
+            item.gui = row;
         }
         for (let c in this.columns) {
             if (this.columns.hasOwnProperty(c) === false) {
@@ -259,6 +257,7 @@ class Table extends Control {
                 cell.innerHTML = newValue;
             }
         }
+        this.showItem(item, true);
     }
 
     // Searching
@@ -329,19 +328,18 @@ class Table extends Control {
         // Search for Simple Context
         for (let i:number = 0; i < root.length; i++) {
             var item:BridgeElement = root[i];
-            if (this.searching(item)) {
-                this.showItem(item);
-            } else {
-                this.removeItem(item);
-            }
+            this.showItem(item, this.searching(item));
         }
     }
 
-    public showItem(item:BridgeElement) {
-        this.showedItems.push(item);
-    }
-    public removeItem(item:BridgeElement) {
-        this.$bodysection.removeChild(item.gui);
+    public showItem(item:BridgeElement, visible:boolean) {
+        if(visible) {
+            this.showedItems.push(item);
+            this.$bodysection.appendChild(item.gui);
+        } else if(item.gui && item.gui.parentElement) {
+            this.$bodysection.removeChild(item.gui);
+        }
+
     }
 
     public searching(item:BridgeElement) : boolean {
