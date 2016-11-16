@@ -2,7 +2,6 @@
 ///<reference path="Bridge.ts"/>
 
 class Input extends Control {
-    private class: string;
     private $element: HTMLInputElement;
     private property: string;
     private type: string;
@@ -17,7 +16,6 @@ class Input extends Control {
             id = data;
         } else {
             id = data.id;
-            this.class = data.class;
             this.type = data.type;
             this.property = data.property;
         }
@@ -89,14 +87,14 @@ class Input extends Control {
     }
 
     public addItem(source: Bridge, entity: Data) {
-        this.entity = entity;
         // check for new Element in Bridge
         if (entity) {
-            if (!this.class || this.class === entity.property) {
+            //if (!this.class || this.class === entity.property) {
                 if (entity.id == this.property.split(".")[0]) {
+                    this.entity = entity;
                     entity.addListener(this);
                 }
-            }
+            //}
         }
     }
 
@@ -120,7 +118,5 @@ class Input extends Control {
             this.entity = object;
             this.$element.value = object.values[this.lastProperty];
         }
-
-
     }
 }

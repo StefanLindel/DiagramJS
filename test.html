@@ -31,6 +31,17 @@
     bridge.load({control: "table", property: "talk", columns: [{id: 'room'}, {id: 'day'}, {id: 'talk'}, {id: 'state'}], searchColumns:["day", "talk"]});
     bridge.load("persons");
 
+    var json = {
+        id: "t1",
+        control: "form",
+        elements: [
+            {id: "testid1", property: "talk"},
+            {id: "testid2", property: "room"},
+            {id: "testid3", property: "day"}
+        ]
+    };
+    bridge.load(json);
+
     bridge.load("divContainer");
 
     var t1controlid = bridge.load("t1talk");
@@ -101,6 +112,7 @@
 
     var divContainer = document.getElementById("divContainer");
     divContainer.innerHTML = "01. Test";
+
 </script>
 </body>
 
