@@ -7,6 +7,7 @@ class Input extends Control {
     private property: string;
     private type: string;
     private entity;
+    private applyingChange: boolean = false;
 
     constructor(owner, data) {
         super(owner, data);
@@ -48,6 +49,25 @@ class Input extends Control {
                 return;
             }
         }
+
+        // check if object already exists
+        let item = this.owner.getItem(this.property.split(".")[0]);
+        if(item){
+            item.addListener(this);
+            this.entity = item;
+        }
+
+        // Add listener to Input field:
+        this.$element.onchange = ((ev: Event) => {
+                this.applyingChange = true;
+                this.controlChanged();
+                this.applyingChange = false;
+            }
+        );
+    }
+
+    private controlChanged() {
+        bridge.setValue(this.entity, this.lastProperty, this.$element.value);
     }
 
     private _lastProperty: string;
@@ -61,7 +81,7 @@ class Input extends Control {
     }
 
     propertyChange(entity: Data, property: string, oldValue, newValue) {
-        if (property == this.lastProperty) {
+        if (!this.applyingChange && property == this.lastProperty) {
             this.$element.value = newValue;
         }
     }
