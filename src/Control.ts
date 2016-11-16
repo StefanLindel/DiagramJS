@@ -3,6 +3,8 @@
 abstract class Control {
     id: string;
     public owner: Bridge;
+    protected items:Set<BridgeElement>=new Set<BridgeElement>();
+
 
     constructor(owner: Bridge, data) {
         this.owner = owner;
