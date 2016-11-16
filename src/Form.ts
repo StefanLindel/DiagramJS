@@ -10,13 +10,14 @@ class Form extends Control {
     /**
      * Data should look like the following json:
      *
-     * {
+     * <pre>{
      *      id: "t1",
+     *      control: "form",
      *      elements: [
-     *          {property: "talk"},
-     *          {property: "room"}
+     *          {id: "inputField1", property: "talk"},
+     *          {id: "inputField2", property: "room"}
      *      ]
-     * }
+     * }</pre>
      * @param owner
      * @param data
      */
@@ -51,27 +52,32 @@ class Form extends Control {
         // check if object already exists
         let objId = this.id;
         let hasItem = this.owner.hasItem(objId);
-        if(hasItem){
+        if (hasItem) {
             var item = this.owner.getItem(objId);
             item.addListener(this);
             this.entity = item;
         }
 
         // now create all the sub input controls
-        for (let field of data.elements){
+        for (let field of data.elements) {
             this.createField(field);
         }
     }
 
     private createField(field: Object) {
-        if(field.hasOwnProperty("property")){
+        if (field.hasOwnProperty("property")) {
             var property = field["property"];
             property = this.id + '.' + property;
 
             let input = document.createElement("input");
             input.type = "text";
             // TODO: set unique id's...
-            let id = bridge.getId();
+            var id: string;
+            if (field.hasOwnProperty("id")) {
+                id = field["id"];
+            } else {
+                id = bridge.getId();
+            }
             input.setAttribute("id", id);
             input.setAttribute("control", "Input");
             input.setAttribute("property", property);
@@ -81,7 +87,6 @@ class Form extends Control {
             bridge.load(id);
         }
     }
-
 
     propertyChange(entity: Data, property: string, oldValue, newValue) {
     }

@@ -120,7 +120,7 @@ class Bridge {
             obj = object;
             id = object['id'];
         }else {
-            console.log("object is neither Data nor String..")
+            console.log("object is neither Data nor String..");
             return;
         }
         if(obj){
