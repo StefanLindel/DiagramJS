@@ -3,7 +3,8 @@
 ///<reference path="Table.ts"/>
 ///<reference path="Data.ts"/>
 ///<reference path="BridgeElement.ts"/>
-
+///<reference path="Div.ts"/>
+///<reference path="Form.ts"/>
 
 class Bridge {
     public static version: string = "0.42.01.1601007-1739";
@@ -16,6 +17,8 @@ class Bridge {
     constructor() {
         this.addControl(Table);
         this.addControl(Input);
+        this.addControl(Div);
+        this.addControl(Form);
     }
 
     public addListener = function (listener) {
