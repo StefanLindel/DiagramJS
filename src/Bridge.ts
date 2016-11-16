@@ -59,7 +59,7 @@ class Bridge {
     }
 
     public executeChange(change) {
-        let newData = this.hasItem(change.id);
+        let newData = !this.hasItem(change.id);
         let item: Data = this.getItem(change.id);
         if (change["class"]) {
             item.property = change["class"];
@@ -91,7 +91,7 @@ class Bridge {
     }
 
     public hasItem(id: string) : boolean {
-        return (this.items[id] == null)
+        return (this.items[id] != null)
     }
 
     public getItem(id: string) : Data {

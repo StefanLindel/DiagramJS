@@ -51,8 +51,10 @@ class Input extends Control {
         }
 
         // check if object already exists
-        let item = this.owner.getItem(this.property.split(".")[0]);
-        if(item){
+        let objId = this.property.split(".")[0];
+        let hasItem = this.owner.hasItem(objId);
+        if(hasItem){
+            var item = this.owner.getItem(objId);
             item.addListener(this);
             this.entity = item;
         }
@@ -60,13 +62,13 @@ class Input extends Control {
         // Add listener to Input field:
         this.$element.onchange = ((ev: Event) => {
                 this.applyingChange = true;
-                this.controlChanged();
+                this.controlChanged(ev);
                 this.applyingChange = false;
             }
         );
     }
 
-    private controlChanged() {
+    private controlChanged(ev: Event) {
         bridge.setValue(this.entity, this.lastProperty, this.$element.value);
     }
 
