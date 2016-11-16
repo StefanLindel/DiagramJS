@@ -104,11 +104,6 @@ class Bridge {
         return item;
     }
 
-    public getValue(id: string, attribute: string) : any {
-        let control = this.items[id];
-        return control.getValue(attribute);
-    }
-
     public setValue(object: Object, attribute: string, value: Object){
         var obj:Object;
         var id:string;
@@ -126,6 +121,7 @@ class Bridge {
             return;
         }
         if(obj){
+            // Could be done here, but currently is done at this.execueChange..:
             //obj[attribute] = value;
         }
         var upd = {};
@@ -133,21 +129,36 @@ class Bridge {
         this.executeChange({'id':id, upd});
     }
 
-    // public getValue(object: Object, attribute: string){
-    //     if(object instanceof String || typeof object === "string"){
-    //         // object is only the id of the Object, we want to change
-    //         let id: string = object.toString();
-    //         let obj = this.getItem(id);
-    //         if(obj){
-    //             obj[attribute] = value;
-    //         }
-    //         var upd = {};
-    //         upd[attribute] = value;
-    //         this.executeChange({'id':id, upd});
-    //     }else{
-    //         // object is the real Object, we want to change
-    //         object[attribute] = value;
-    //     }
-    // }
+    public getValue(object: Object, attribute: string): any{
+        var obj:Object;
+        var id:string;
+        if(object instanceof String || typeof object === "string"){
+            // object is only the id of the Object, we want to change
+            id = object.toString();
+            obj = this.getItem(id);
+
+        }else if(object.hasOwnProperty("id")) {
+            // object is the real Object, we want to change
+            obj = object;
+            id = object['id'];
+        }else {
+            console.log("object is neither Data nor String..");
+            return;
+        }
+        if(obj){
+            if(obj.hasOwnProperty(attribute)){
+                return obj[attribute];
+            }else if(obj instanceof Data){
+                return (<Data>obj).getValue(attribute);
+            }else{
+                return null;
+            }
+        }
+    }
+
+    public getNumber(object: Object, attribute: string, defaultValue: number = 0): number {
+        let res = <number>this.getValue(object, attribute);
+        return (typeof res === 'number') ? res : defaultValue;
+    }
 }
 var bridge = new Bridge();

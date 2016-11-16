@@ -23,13 +23,9 @@
 
     var addButton = document.getElementById("addButton");
     addButton.onclick = function () {
-        bridge.executeChange({
-            id: "number",
-            upd: {
-                value: 2
-            }
-        });
-        bridge.setValue('number', 'value', 2);
+        var value = bridge.getNumber("number", "value", 0);
+        value++;
+        bridge.setValue('number', 'value', value);
     };
 
     var echoButton = document.getElementById("echoButton");
