@@ -70,13 +70,15 @@ class Form extends Control {
 
             let input = document.createElement("input");
             input.type = "text";
-            input.setAttribute("id", "x"+property);
+            // TODO: set unique id's...
+            let id = bridge.getId();
+            input.setAttribute("id", id);
             input.setAttribute("control", "Input");
             input.setAttribute("property", property);
 
             this.$element.appendChild(input);
 
-            bridge.load("x"+property);
+            bridge.load(id);
         }
     }
 
