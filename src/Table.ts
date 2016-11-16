@@ -10,7 +10,6 @@ class Table extends Control {
     private $bodysection: HTMLTableSectionElement;
     private $headersection: HTMLTableSectionElement;
     private showedItems:Array<BridgeElement>=[];
-    private items:Array<BridgeElement>=[];
     private itemsIds:Object={};
     private countElement:HTMLElement;
     private countColumn:HTMLElement;
@@ -168,6 +167,7 @@ class Table extends Control {
     }
 
     public parsingHeader(row: HTMLTableRowElement) {
+        let that = this;
         for (let i in row.children) {
             if (row.children.hasOwnProperty(i) === false) {
                 continue;
@@ -185,6 +185,8 @@ class Table extends Control {
                     break;
                 }
             }
+            column.classList.add("sort");
+
             if (col === null) {
                 col = new Column();
                 col.label = id;
@@ -192,6 +194,12 @@ class Table extends Control {
                 col.$element = column;
                 this.columns.push(col);
             }
+            column.addEventListener('touch',
+                function(evt){
+                    that.sort(col);
+                },
+                false);
+
         }
     }
 
@@ -225,7 +233,7 @@ class Table extends Control {
         let row:HTMLTableRowElement;
         if(!item) {
             item = new BridgeElement(entity);
-            this.items.push(item);
+            this.items.add(item);
             this.itemsIds[entity.id] = item;
         }
         row = this.cells[entity.id];
@@ -274,9 +282,9 @@ class Table extends Control {
 
         this.parseSearchArray();
         if (searchText != "" && oldSearch != null && searchText.indexOf(oldSearch) >= 0 && searchText.indexOf("|") < 0) {
-            this.searchFilter(this.showedItems);
+            this.searchArray(this.showedItems);
         } else {
-            this.searchFilter(this.items);
+            this.searchSet(this.items);
         }
         this.refreshCounter();
     }
@@ -323,12 +331,23 @@ class Table extends Control {
         this.searchText = split;
         return split;
     }
-    public searchFilter(root:Array<BridgeElement>) {
+    public sort(column:Column) {
+
+    }
+    public searchArray(root:Array<BridgeElement>) {
         this.showedItems=[];
         // Search for Simple Context
         for (let i:number = 0; i < root.length; i++) {
             var item:BridgeElement = root[i];
             this.showItem(item, this.searching(item));
+        }
+    }
+    public searchSet(root:Set<BridgeElement>) {
+        this.showedItems=[];
+        // Search for Simple Context
+        for (let item of root) {
+            let child : BridgeElement = <BridgeElement>item;
+            this.showItem(child, this.searching(child));
         }
     }
 
