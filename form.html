@@ -15,7 +15,10 @@
         elements: [
             {id: "testid1", property: "talk"},
             {id: "testid2", property: "room"},
-            {id: "testid3", property: "day"}
+            {id: "testid3", property: "day"},
+            {id: "testid4", property: "time", type:"time"},
+            {id: "testid5", property: "mail", type:"mail"},
+            {id: "testid6", property: "state", pattern:"^(ok|no)$"}
         ]
     };
     bridge.load(json);
@@ -25,6 +28,8 @@
         class: "talk",
         property: {
             room: "Heyl",
+            time: "20:15",
+            mail: "test@host.de",
             day: "Monday",
             talk: "01. Meier",
             state: "ok",

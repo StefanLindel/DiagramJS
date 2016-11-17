@@ -67,7 +67,11 @@ class Input extends Control {
     }
 
     private controlChanged(ev: Event) {
-        bridge.setValue(this.entity, this.lastProperty, this.$element.value);
+        if(this.$element.checkValidity()){
+            bridge.setValue(this.entity, this.lastProperty, this.$element.value);
+        }else{
+            console.log("value does not match the pattern...");
+        }
     }
 
     private _lastProperty: string;
