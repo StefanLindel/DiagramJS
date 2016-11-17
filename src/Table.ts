@@ -5,7 +5,6 @@
 class Table extends Control {
     private columns: Column[] = [];
     private cells: Object = {};
-    private property: string;
     private $element: HTMLElement;
     private $bodysection: HTMLTableSectionElement;
     private $headersection: HTMLTableSectionElement;
@@ -76,7 +75,14 @@ class Table extends Control {
             if (row instanceof HTMLTableSectionElement) {
                 if (row.tagName == "THEAD") {
                     headerrow = row;
-                    this.parsingHeader(row);
+                    // Its a thead
+                    for (let r in row.children) {
+                        if (row.children.hasOwnProperty(r) === false) {
+                            continue;
+                        }
+                        this.parsingHeader(<HTMLTableRowElement>row.children[r]);
+                    }
+                    //this.parsingHeader(row);
                 } else {
                     // Its a tbody
                     for (let r in row.children) {
@@ -126,6 +132,7 @@ class Table extends Control {
                 col.attribute = col["attribute"] || column.id;
                 col.$element = document.createElement("th");
                 col.$element.innerHTML = col.label;
+                this.addHeaderInfo(col);
                 this.columns.push(col);
                 headerrow.appendChild(col.$element);
             }
@@ -167,7 +174,6 @@ class Table extends Control {
     }
 
     public parsingHeader(row: HTMLTableRowElement) {
-        let that = this;
         for (let i in row.children) {
             if (row.children.hasOwnProperty(i) === false) {
                 continue;
@@ -185,8 +191,6 @@ class Table extends Control {
                     break;
                 }
             }
-            column.classList.add("sort");
-
             if (col === null) {
                 col = new Column();
                 col.label = id;
@@ -194,13 +198,18 @@ class Table extends Control {
                 col.$element = column;
                 this.columns.push(col);
             }
-            column.addEventListener('touch',
-                function(evt){
-                    that.sort(col);
-                },
-                false);
-
+            this.addHeaderInfo(col);
         }
+    }
+    private addHeaderInfo(col:Column) {
+        let element : HTMLTableCellElement = col.$element;
+        let that = this;
+        element.classList.add("sort");
+        element.addEventListener('touch',
+            function(evt){
+                that.sort(col);
+            },
+            false);
     }
 
 

@@ -4,7 +4,6 @@
 class Input extends Control {
     private class: string;
     private $element: HTMLInputElement;
-    private property: string;
     private type: string;
     private entity;
 
