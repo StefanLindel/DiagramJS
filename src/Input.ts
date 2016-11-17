@@ -67,6 +67,7 @@ class Input extends Control {
     }
 
     private controlChanged(ev: Event) {
+        // TODO: maybe better try checking per hand...?
         if(this.$element.checkValidity()){
             bridge.setValue(this.entity, this.lastProperty, this.$element.value);
         }else{

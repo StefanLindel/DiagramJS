@@ -82,7 +82,9 @@ class Form extends Control {
             input.setAttribute("control", "Input");
             input.setAttribute("property", property);
             input.setAttribute("type", field.hasOwnProperty("type")?field['type']:'text');
-            input.setAttribute("pattern", field.hasOwnProperty("pattern")?field['pattern']:'');
+            if(field.hasOwnProperty("pattern")){
+                input.setAttribute("pattern", field['pattern']);
+            }
 
             this.$element.appendChild(input);
 
