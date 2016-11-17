@@ -3,7 +3,8 @@
 ///<reference path="Table.ts"/>
 ///<reference path="Data.ts"/>
 ///<reference path="BridgeElement.ts"/>
-
+///<reference path="Div.ts"/>
+///<reference path="Form.ts"/>
 
 class Bridge {
     public static version: string = "0.42.01.1601007-1739";
@@ -16,6 +17,8 @@ class Bridge {
     constructor() {
         this.addControl(Table);
         this.addControl(Input);
+        this.addControl(Div);
+        this.addControl(Form);
     }
 
     public addListener = function (listener) {
@@ -59,7 +62,7 @@ class Bridge {
     }
 
     public executeChange(change) {
-        let newData = this.hasItem(change.id);
+        let newData = !this.hasItem(change.id);
         let item: Data = this.getItem(change.id);
         if (change["class"]) {
             item.property = change["class"];
@@ -91,7 +94,7 @@ class Bridge {
     }
 
     public hasItem(id: string) : boolean {
-        return (this.items[id] == null)
+        return (this.items[id] != null)
     }
 
     public getItem(id: string) : Data {
@@ -104,9 +107,61 @@ class Bridge {
         return item;
     }
 
-    public getValue(id: string, attribute: string) : any {
-        let control = this.items[id];
-        return control.getValue(attribute);
+    public setValue(object: Object, attribute: string, value: Object){
+        var obj:Object;
+        var id:string;
+        if(object instanceof String || typeof object === "string"){
+            // object is only the id of the Object, we want to change
+            id = object.toString();
+            obj = this.getItem(id);
+
+        }else if(object.hasOwnProperty("id")){
+            // object is the real Object, we want to change
+            obj = object;
+            id = object['id'];
+        }else {
+            console.log("object is neither Data nor String..");
+            return;
+        }
+        if(obj){
+            // Could be done here, but currently is done at this.execueChange..:
+            //obj[attribute] = value;
+        }
+        var upd = {};
+        upd[attribute] = value;
+        this.executeChange({'id':id, upd});
+    }
+
+    public getValue(object: Object, attribute: string): any{
+        var obj:Object;
+        var id:string;
+        if(object instanceof String || typeof object === "string"){
+            // object is only the id of the Object, we want to change
+            id = object.toString();
+            obj = this.getItem(id);
+
+        }else if(object.hasOwnProperty("id")) {
+            // object is the real Object, we want to change
+            obj = object;
+            id = object['id'];
+        }else {
+            console.log("object is neither Data nor String..");
+            return;
+        }
+        if(obj){
+            if(obj.hasOwnProperty(attribute)){
+                return obj[attribute];
+            }else if(obj instanceof Data){
+                return (<Data>obj).getValue(attribute);
+            }else{
+                return null;
+            }
+        }
+    }
+
+    public getNumber(object: Object, attribute: string, defaultValue: number = 0): number {
+        let res = <number>this.getValue(object, attribute);
+        return (typeof res === 'number') ? res : defaultValue;
     }
 }
 var bridge = new Bridge();

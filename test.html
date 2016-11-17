@@ -22,12 +22,27 @@
     </thead>
 </table>
 
+<div id="divContainer" control="Div" property="t1.talk" style="border: groove" onchange="alert('change!');"></div>
+
 <input control="Input" id="t1talk" property="t1.talk" type="text" value="01. Meier" oncontextmenu="alert('t1.talk');">
 
 <script>
     //var bridge = new Bridge();
-    bridge.load({control: "table", property: "talk", columns: [{id: 'room'}, {id: 'day'}, {id: 'talk'}, {id: 'state'}]});
+    bridge.load({control: "table", property: "talk", columns: [{id: 'room'}, {id: 'day'}, {id: 'talk'}, {id: 'state'}], searchColumns:["day", "talk"]});
     bridge.load("persons");
+
+    var json = {
+        id: "t1",
+        control: "form",
+        elements: [
+            {id: "testid1", property: "talk"},
+            {id: "testid2", property: "room"},
+            {id: "testid3", property: "day"}
+        ]
+    };
+    bridge.load(json);
+
+    bridge.load("divContainer");
 
     var t1controlid = bridge.load("t1talk");
     bridge.load({control: "input", property: "talk", id: "t2.talk", property: "t2.talk", type: "text"});
@@ -71,12 +86,33 @@
             Explorer: "Explorer"
         }
     });
+    bridge.executeChange({
+        id: "t3",
+        class: "talk",
+        property: {
+            room: "1603",
+            day: "Tuesday",
+            talk: "03. Peter",
+            state: "ok",
+            comment: "",
+            no: "",
+            slides: "",
+            html: "",
+            Author: "",
+            "Peer Info": "",
+            Explorer: "Explorer"
+        }
+    });
 
     // change property of input field:
 //    var t1talk = document.getElementById("t1talk");
 //    t1talk.setAttribute("property", "t2.room");
     var t1control =  bridge.controls[t1controlid];
     t1control.setProperty("t1.talk");
+
+    var divContainer = document.getElementById("divContainer");
+    divContainer.innerHTML = "01. Test";
+
 </script>
 </body>
 

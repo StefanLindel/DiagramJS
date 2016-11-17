@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>ClickCounter</title>
+    <script src="build/output.js"></script>
+</head>
+<body>
+<input control="Input" id="number" property="number.value" type="number" value="0"/>
+<input id="addButton" type="button" value="Add"/>
+<input id="echoButton" type="button" value="Show Value"/>
+</body>
+
+<script type="text/javascript">
+    bridge.executeChange({
+        id: 'number',
+        property: {
+           value: 0
+        }
+    });
+
+    var numberField = bridge.load("number");
+
+    var addButton = document.getElementById("addButton");
+    addButton.onclick = function () {
+        var value = bridge.getNumber("number", "value", 0);
+        value++;
+        bridge.setValue('number', 'value', value);
+    };
+
+    var echoButton = document.getElementById("echoButton");
+    echoButton.onclick = function () {
+        var value = bridge.getValue('number', 'value');
+        alert(value);
+    };
+
+
+</script>
+
+</html>

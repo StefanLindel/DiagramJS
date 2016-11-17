@@ -1,9 +1,10 @@
 ///<reference path="Control.ts"/>
 ///<reference path="Bridge.ts"/>
 
-class Input extends Control {
-    private $element: HTMLInputElement;
-    private type: string;
+class Div extends Control {
+    private class: string;
+    private $element: HTMLDivElement;
+    private property: string;
     private entity;
     private applyingChange: boolean = false;
 
@@ -15,29 +16,28 @@ class Input extends Control {
             id = data;
         } else {
             id = data.id;
-            this.type = data.type;
+            this.class = data.class;
             this.property = data.property;
         }
         if (!id) {
             return;
         }
         this.id = id;
-        let inputField: HTMLElement = document.getElementById(id);
+        let div: HTMLElement = document.getElementById(id);
 
         if (!this.property) {
             // if(inputField){
             // TODO disuss how to decide, which property we should listen on...
             // this.property = id;
-            this.property = inputField.getAttribute("Property");
+            this.property = div.getAttribute("Property");
             // }
         }
 
-        if (inputField instanceof HTMLInputElement) {
-            this.$element = inputField;
+        if (div instanceof HTMLDivElement) {
+            this.$element = div;
         } else {
-            if (!inputField) {
-                this.$element = document.createElement("input");
-                this.$element.setAttribute("type", this.type);
+            if (!div) {
+                this.$element = document.createElement("div");
                 this.$element.setAttribute("id", this.id);
                 this.$element.setAttribute("property", this.property);
                 document.getElementsByTagName("body")[0].appendChild(this.$element);
@@ -55,18 +55,10 @@ class Input extends Control {
             item.addListener(this);
             this.entity = item;
         }
-
-        // Add listener to Input field:
-        this.$element.onchange = ((ev: Event) => {
-                this.applyingChange = true;
-                this.controlChanged(ev);
-                this.applyingChange = false;
-            }
-        );
     }
 
     private controlChanged(ev: Event) {
-        bridge.setValue(this.entity, this.lastProperty, this.$element.value);
+        bridge.setValue(this.entity, this.lastProperty, this.$element.innerHTML);
     }
 
     private _lastProperty: string;
@@ -81,19 +73,19 @@ class Input extends Control {
 
     propertyChange(entity: Data, property: string, oldValue, newValue) {
         if (!this.applyingChange && property == this.lastProperty) {
-            this.$element.value = newValue;
+            this.$element.innerHTML = newValue;
         }
     }
 
     public addItem(source: Bridge, entity: Data) {
+        this.entity = entity;
         // check for new Element in Bridge
         if (entity) {
-            //if (!this.class || this.class === entity.property) {
+            if (!this.class || this.class === entity.property) {
                 if (entity.id == this.property.split(".")[0]) {
-                    this.entity = entity;
                     entity.addListener(this);
                 }
-            //}
+            }
         }
     }
 
@@ -115,7 +107,7 @@ class Input extends Control {
         if (object) {
             object.addListener(this);
             this.entity = object;
-            this.$element.value = object.values[this.lastProperty];
+            this.$element.innerHTML = object.values[this.lastProperty];
         }
     }
 }
