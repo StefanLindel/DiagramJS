@@ -12,13 +12,15 @@
     var json = {
         id: "t1",
         control: "form",
+        method: "get",
         elements: [
-            {id: "testid1", property: "talk"},
-            {id: "testid2", property: "room"},
-            {id: "testid3", property: "day"},
-            {id: "testid4", property: "time", type:"time"},
-            {id: "testid5", property: "mail", type:"mail"},
-            {id: "testid6", property: "state", pattern:"^(ok|no)$"}
+            {id: "testid1", name: "testid1", property: "talk"},
+            {id: "testid2", name: "testid2", property: "room"},
+            {id: "testid3", name: "testid3", property: "day"},
+            {id: "testid4", name: "testid4", property: "time", type: "time"},
+            {id: "testid5", name: "testid5", property: "mail", type: "mail"},
+            {id: "testid6", name: "testid6", property: "state", pattern: "^(ok|no)$"},
+            {id: "btn", property: "test", type: "submit"}
         ]
     };
     bridge.load(json);

@@ -163,5 +163,9 @@ class Bridge {
         let res = <number>this.getValue(object, attribute);
         return (typeof res === 'number') ? res : defaultValue;
     }
+
+    getControl(controlId: string) {
+        return this.controls[controlId];
+    }
 }
 var bridge = new Bridge();
