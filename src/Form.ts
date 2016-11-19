@@ -42,6 +42,15 @@ class Form extends Control {
             if (!form) {
                 this.$element = document.createElement("form");
                 this.$element.setAttribute("id", this.id);
+
+                // add all the attributes to the form element
+                for (let attr in data) {
+                    if (attr == "elements") {
+                        continue;
+                    }
+                    this.$element.setAttribute(attr, data[attr]);
+                }
+
                 document.getElementsByTagName("body")[0].appendChild(this.$element);
             } else {
                 // the id is already taken by an object, that is not an input field...
@@ -64,29 +73,43 @@ class Form extends Control {
         }
     }
 
+    /**
+     * Here we create the form elements and put all the attributes to them in order for the Control only having to load
+     * the data were appending here. Alternative would be loading with the bridge and afterwards setting
+     * the owner to the form instead of the body..
+     * @param field
+     */
     private createField(field: Object) {
+        var control = "input";
+        if (field.hasOwnProperty("control")){
+            control = field['control'];
+        }
+        let input = document.createElement(control);
+        input.setAttribute("control", control);
+        var id: string;
+        if (!field.hasOwnProperty("id")) {
+            // TODO: not the best solution for generating unique id's for forms...
+            id = bridge.getId();
+            field['id'] = id;
+        }
         if (field.hasOwnProperty("property")) {
             var property = field["property"];
             property = this.id + '.' + property;
-
-            let input = document.createElement("input");
-            input.type = "text";
-            // TODO: set unique id's...
-            var id: string;
-            if (field.hasOwnProperty("id")) {
-                id = field["id"];
-            } else {
-                id = bridge.getId();
-            }
-            input.setAttribute("id", id);
-            input.setAttribute("control", "Input");
             input.setAttribute("property", property);
-
-            this.$element.appendChild(input);
-
-            bridge.load(id);
         }
+        for (let attr in field) {
+            if (attr == "property" ||attr == "control" || !field.hasOwnProperty(attr)) {
+                continue;
+            }
+            input.setAttribute(attr, field[attr]);
+        }
+
+        this.$element.appendChild(input);
+
+        var controlId = bridge.load(field['id']);
+        this.children.set(controlId, bridge.getControl(controlId));
     }
+
 
     propertyChange(entity: Data, property: string, oldValue, newValue) {
     }

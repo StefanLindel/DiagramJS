@@ -28,7 +28,9 @@ class Input extends Control {
             // if(inputField){
             // TODO disuss how to decide, which property we should listen on...
             // this.property = id;
-            this.property = inputField.getAttribute("Property");
+            if (inputField.hasAttribute("Property")) {
+                this.property = inputField.getAttribute("Property");
+            }
             // }
         }
 
@@ -48,25 +50,31 @@ class Input extends Control {
         }
 
         // check if object already exists
-        let objId = this.property.split(".")[0];
-        let hasItem = this.owner.hasItem(objId);
-        if(hasItem){
-            var item = this.owner.getItem(objId);
-            item.addListener(this);
-            this.entity = item;
-        }
-
-        // Add listener to Input field:
-        this.$element.onchange = ((ev: Event) => {
-                this.applyingChange = true;
-                this.controlChanged(ev);
-                this.applyingChange = false;
+        if (this.property) {
+            let objId = this.property.split(".")[0];
+            let hasItem = this.owner.hasItem(objId);
+            if (hasItem) {
+                var item = this.owner.getItem(objId);
+                item.addListener(this);
+                this.entity = item;
             }
-        );
+
+            // Add listener to Input field:
+            this.$element.onchange = ((ev: Event) => {
+                    this.applyingChange = true;
+                    this.controlChanged(ev);
+                    this.applyingChange = false;
+                }
+            );
+        }
     }
 
     private controlChanged(ev: Event) {
-        bridge.setValue(this.entity, this.lastProperty, this.$element.value);
+        if (this.$element.checkValidity()) {
+            bridge.setValue(this.entity, this.lastProperty, this.$element.value);
+        } else {
+            console.log("value does not match the pattern...");
+        }
     }
 
     private _lastProperty: string;
@@ -80,20 +88,18 @@ class Input extends Control {
     }
 
     propertyChange(entity: Data, property: string, oldValue, newValue) {
-        if (!this.applyingChange && property == this.lastProperty) {
+        if (this.property && !this.applyingChange && property == this.lastProperty) {
             this.$element.value = newValue;
         }
     }
 
     public addItem(source: Bridge, entity: Data) {
         // check for new Element in Bridge
-        if (entity) {
-            //if (!this.class || this.class === entity.property) {
-                if (entity.id == this.property.split(".")[0]) {
-                    this.entity = entity;
-                    entity.addListener(this);
-                }
-            //}
+        if (this.property && entity) {
+            if (entity.id == this.property.split(".")[0]) {
+                this.entity = entity;
+                entity.addListener(this);
+            }
         }
     }
 

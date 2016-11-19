@@ -18,6 +18,7 @@
         <th>day</th>
         <th>talk</th>
         <th>state</th>
+        <th>time</th>
     </tr>
     </thead>
 </table>
@@ -28,16 +29,24 @@
 
 <script>
     //var bridge = new Bridge();
-    bridge.load({control: "table", property: "talk", columns: [{id: 'room'}, {id: 'day'}, {id: 'talk'}, {id: 'state'}], searchColumns:["day", "talk"]});
+    bridge.load({
+        control: "table",
+        property: "talk",
+        columns: [{id: 'room'}, {id: 'day'}, {id: 'talk'}, {id: 'state'}, {id: 'time'}],
+        searchColumns: ["day", "talk"]
+    });
     bridge.load("persons");
 
     var json = {
         id: "t1",
         control: "form",
         elements: [
-            {id: "testid1", property: "talk"},
-            {id: "testid2", property: "room"},
-            {id: "testid3", property: "day"}
+            {id: "testid1", name: "testid1", property: "talk"},
+            {id: "testid2", name: "testid2", property: "room"},
+            {id: "testid3", name: "testid3", property: "day"},
+            {id: "testid4", name: "testid4", property: "time", type: "time"},
+            {id: "testid5", name: "testid5", property: "time", type: "text"},
+            {id: "testid6", type: "submit"}
         ]
     };
     bridge.load(json);
@@ -58,6 +67,7 @@
             day: "Monday",
             talk: "01. Meier",
             state: "ok",
+            time: "18:15",
             comment: "",
             no: "",
             slides: "",
@@ -83,7 +93,8 @@
             html: "",
             Author: "",
             "Peer Info": "",
-            Explorer: "Explorer"
+            Explorer: "Explorer",
+            time: "20:15"
         }
     });
     bridge.executeChange({
@@ -100,14 +111,15 @@
             html: "",
             Author: "",
             "Peer Info": "",
-            Explorer: "Explorer"
+            Explorer: "Explorer",
+            time: "20:15"
         }
     });
 
     // change property of input field:
-//    var t1talk = document.getElementById("t1talk");
-//    t1talk.setAttribute("property", "t2.room");
-    var t1control =  bridge.controls[t1controlid];
+    //    var t1talk = document.getElementById("t1talk");
+    //    t1talk.setAttribute("property", "t2.room");
+    var t1control = bridge.controls[t1controlid];
     t1control.setProperty("t1.talk");
 
     var divContainer = document.getElementById("divContainer");
