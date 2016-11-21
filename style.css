@@ -34,3 +34,17 @@
 	border-color: #404040 transparent;
 	opacity:1;
 }
+.resize{
+	border:0;
+	border-right:1px solid black;
+	width:10px;
+	padding:0;
+	cursor:ew-resize;
+}
+.resize:hover{
+	border-right:1px dotted black;
+}
+.resizebody{
+}
+.resizebody:hover{
+}

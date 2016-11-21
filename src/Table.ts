@@ -126,6 +126,7 @@ class Table extends Control {
                 this.$headersection.appendChild(headerrow);
             }
         }
+        var that = this;
         if (data["columns"]) {
             // It is a json must add all things and generate HTML
             for (let i in data["columns"]) {
@@ -138,9 +139,39 @@ class Table extends Control {
                 col.attribute = col["attribute"] || column.id;
                 col.$element = document.createElement("th");
                 col.$element.innerHTML = col.label;
+                // resize Header
+                col.$resize = document.createElement("th");
+                col.$resize.style.setProperty("padding", "0");
+                col.$resize.classList.add("resize");
+                col.$resize.addEventListener(
+                    'mousemove',
+                    function(evt){
+                        that.resizeColumn(evt, col);
+                    },
+                    false);
+                col.$resize.addEventListener(
+                    'mousedown',
+                    function(evt){
+                        that.resizeColumnStart(evt, col);
+                    },
+                    false);
+                col.$resize.addEventListener(
+                    'mouseup',
+                    function(evt){
+                        that.resizeColumnStart(evt, col);
+                    },
+                    false);
+                col.$resize.addEventListener(
+                    'resize',
+                    function(evt){
+                        that.resizeColumnStart(evt, col);
+                    },
+                    false);
+
                 this.addHeaderInfo(col);
                 this.columns.push(col);
                 headerrow.appendChild(col.$element);
+                headerrow.appendChild(col.$resize);
             }
         }
         // Check for SearchBar
@@ -148,11 +179,10 @@ class Table extends Control {
         // Create Full Row
         let searchBar = document.createElement("tr");
         let cell = document.createElement("td");
-        cell.setAttribute("colspan", ""+this.columns.length);
+        cell.setAttribute("colspan", ""+(this.columns.length*2));
         searchBar.appendChild(cell);
 
         let search = document.createElement("input");
-        var that = this;
         search.addEventListener(
             'keyup',
             function(evt){
@@ -178,6 +208,31 @@ class Table extends Control {
         let first = this.$headersection.children.item(0);
         this.$headersection.insertBefore(searchBar, first)
     }
+
+    public resizeColumn(evt, column:Column) {
+        if(evt.buttons==1) {
+            if(!column.resizeEvent["timeStamp"] || evt.timeStamp - column.resizeEvent["timeStamp"] > 2000) {
+                // Only Save position
+                column.resizeEvent["pageX"] = evt.pageX;
+            } else {
+                let x = evt.pageX - column.resizeEvent["pageX"];
+                let width = column.$element.offsetWidth;
+                column.$element.width = ""+ (width + x);
+                column.resizeEvent["pageX"] = evt.pageX;
+                evt.stopPropagation();
+            }
+            column.resizeEvent["timeStamp"] = evt.timeStamp;
+        }
+    }
+    public resizeColumnStart(evt, column:Column) {
+        if (evt.buttons == 1) {
+            column.resizeEvent["pageX"] = evt.pageX;
+            column.resizeEvent["timeStamp"] = evt.timeStamp;
+        } else {
+            column.resizeEvent["timeStamp"] = 0;
+        }
+    }
+
 
     public parsingHeader(row: HTMLTableRowElement) {
         for (let i in row.children) {
@@ -212,7 +267,7 @@ class Table extends Control {
         let that = this;
         element.classList.add("sort");
         element.addEventListener('click',
-            function(evt){
+            function(){
                 that.sort(col);
             },
             false);
@@ -268,17 +323,19 @@ class Table extends Control {
             for (let i = 0; i < count; i++) {
                 cell = document.createElement("td");
                 row.appendChild(cell);
+                // Resize Column
+                cell = document.createElement("td");
+                cell.style.setProperty("padding", "0");
+                cell.classList.add("resizebody");
+                row.appendChild(cell);
             }
             this.cells[entity.id] = row;
             item.gui = row;
         }
-        for (let c in this.columns) {
-            if (this.columns.hasOwnProperty(c) === false) {
-                continue;
-            }
+        for(let c:number =0;c<this.columns.length;c++) {
             let name = this.columns[c].attribute;
             if (name === property) {
-                cell = row.children[c];
+                cell = row.children[c*2];
                 cell.innerHTML = newValue;
             }
         }
@@ -314,7 +371,7 @@ class Table extends Control {
         let i=0;
         while(i<len) {
             let item: BridgeElement = this.showedItems[i];
-            if (i != this.indexOfChild(item)) {
+            if (i != Table.indexOfChild(item)) {
                 break;
             }
             i = i + 1;
@@ -334,7 +391,7 @@ class Table extends Control {
             //console.log(item);
         //}
     }
-    private indexOfChild( item:BridgeElement) {
+    private static indexOfChild( item:BridgeElement) {
         let i:number = 0;
         let child:Node = item.gui;
         while( (child = child.previousSibling) != null ) {
@@ -512,4 +569,6 @@ class Column {
     label: string;
     attribute: string;
     $element: HTMLTableHeaderCellElement;
+    $resize: HTMLTableHeaderCellElement;
+    resizeEvent = {};
 }

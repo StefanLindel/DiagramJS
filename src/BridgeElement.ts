@@ -1,5 +1,8 @@
 class BridgeElement {
     private static elementSet: Set<BridgeElement> = new Set();
+    public model: Data;
+    public id:string;
+    public gui: HTMLElement;
     //static elementNum: number = 0;
 
     constructor(model: Data) {
@@ -7,8 +10,4 @@ class BridgeElement {
         this.id = model.id;
         BridgeElement.elementSet.add(this);
     }
-
-    public model: Data;
-    public id:string;
-    public gui: HTMLTableRowElement;
 }
