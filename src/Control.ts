@@ -13,5 +13,12 @@ abstract class Control {
 
     public abstract propertyChange(entity: Data, property: string, oldValue, newValue);
 
-    public addItem(source: Bridge, entity: Data) {}
+    public addItem(source: Bridge, entity: Data) {
+        // check for new Element in Bridge
+        if (entity) {
+            if (!this.property || this.property === entity.property) {
+                entity.addListener(this);
+            }
+        }
+    }
 }

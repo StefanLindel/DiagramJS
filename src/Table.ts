@@ -17,6 +17,8 @@ class Table extends Control {
     private lastSearchText:string;
     private searchColumns:Array<string>=[];
     private searchText:Array<string>=[];
+    private sortColumn:Column;
+    private direction;
 
     constructor(owner, data) {
         super(owner, data);
@@ -47,7 +49,11 @@ class Table extends Control {
         }
         let table: HTMLElement = document.getElementById(id);
         let headerrow: HTMLTableRowElement;
-        if (!table) {
+        if (table) {
+            if(!this.property) {
+                this.property = table.getAttribute("property");
+            }
+        } else {
             table = document.createElement("table");
             document.getElementsByTagName("body")[0].appendChild(table);
         }
@@ -205,7 +211,7 @@ class Table extends Control {
         let element : HTMLTableCellElement = col.$element;
         let that = this;
         element.classList.add("sort");
-        element.addEventListener('touch',
+        element.addEventListener('click',
             function(evt){
                 that.sort(col);
             },
@@ -253,8 +259,10 @@ class Table extends Control {
             return;
         }
         let cell;
+        let showItem=false;
 
         if (!row) {
+            showItem = true;
             row = document.createElement("tr");
             let count = this.columns.length;
             for (let i = 0; i < count; i++) {
@@ -274,7 +282,94 @@ class Table extends Control {
                 cell.innerHTML = newValue;
             }
         }
-        this.showItem(item, true);
+        if(showItem) {
+            this.showItem(item, true);
+        }
+    }
+    public sort(column:Column) {
+        if(this.sortColumn == column ) {
+            if(this.direction == 1) {
+                this.direction = -1;
+                column.$element.classList.remove("asc");
+                column.$element.classList.add("desc");
+            } else {
+                this.direction = 1;
+                column.$element.classList.remove("desc");
+                column.$element.classList.add("asc");
+            }
+        } else {
+            if(this.sortColumn != null ) {
+                this.sortColumn.$element.classList.remove("desc");
+                this.sortColumn.$element.classList.remove("asc");
+            }
+            this.sortColumn = column;
+            this.sortColumn.$element.classList.add("asc");
+            this.direction = 1;
+        }
+        let that = this;
+        let sort = function(a,b) { return that.sorting(a,b);};
+        this.showedItems.sort(sort);
+        let len:number = this.showedItems.length;
+        let body = this.$bodysection;
+        let i=0;
+        while(i<len) {
+            let item: BridgeElement = this.showedItems[i];
+            if (i != this.indexOfChild(item)) {
+                break;
+            }
+            i = i + 1;
+        }
+        while (body.children.length > i) {
+            body.removeChild(body.children.item(body.children.length - 1));
+        }
+        while(i<len) {
+            let item: BridgeElement = this.showedItems[i];
+            body.appendChild(item.gui);
+            i = i + 1;
+        }
+
+          //      body.removeChild(item.gui);
+          //      body.remove
+
+            //console.log(item);
+        //}
+    }
+    private indexOfChild( item:BridgeElement) {
+        let i:number = 0;
+        let child:Node = item.gui;
+        while( (child = child.previousSibling) != null ) {
+            i++;
+        }
+        return i;
+    }
+
+    public sorting(a:BridgeElement, b:BridgeElement) : number {
+
+        let path:string[] = this.sortColumn.attribute.split(".");
+        let itemA = a.model.values;
+        let itemB = b.model.values;
+        var check = this.sortColumn.attribute;
+        for(var p=0;p<path.length;p++) {
+            check = path[p];
+            if(itemA[check]) {
+                itemA = itemA[check];
+            }else{
+                return 0;
+            }
+            if(itemB[check]) {
+                itemB = itemB[check];
+            }else{
+                return 0;
+            }
+        }
+        if(itemA!=itemB){
+            if(this.direction == 1) {
+                return (itemA<itemB) ? -1 : 1;
+            }
+            return (itemA<itemB) ? 1 : -1;
+
+        }
+        return 0;
     }
 
     // Searching
@@ -340,9 +435,7 @@ class Table extends Control {
         this.searchText = split;
         return split;
     }
-    public sort(column:Column) {
 
-    }
     public searchArray(root:Array<BridgeElement>) {
         this.showedItems=[];
         // Search for Simple Context
@@ -413,14 +506,6 @@ class Table extends Control {
             }
         }
         return true;
-    }
-    public addItem(source: Bridge, entity: Data) {
-        // check for new Element in Bridge
-        if (entity) {
-            if (!this.property || this.property === entity.property) {
-                entity.addListener(this);
-            }
-        }
     }
 }
 class Column {

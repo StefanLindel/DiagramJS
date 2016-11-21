@@ -4,7 +4,6 @@
 class Div extends Control {
     private class: string;
     private $element: HTMLDivElement;
-    private property: string;
     private entity;
     private applyingChange: boolean = false;
 
