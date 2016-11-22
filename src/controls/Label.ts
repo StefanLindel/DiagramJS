@@ -1,7 +1,6 @@
-///<reference path="Bridge.ts"/>
-///<reference path="Control.ts"/>
+import Control from '../Control'
 
-class Label extends Control {
+export class Label extends Control {
     constructor(owner, data) {
         super(owner, data);
         this.createControl(document.getElementsByTagName("body")[0], data);

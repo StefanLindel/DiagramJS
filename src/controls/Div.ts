@@ -1,7 +1,6 @@
-///<reference path="Control.ts"/>
-///<reference path="Bridge.ts"/>
+import Control from '../Control'
 
-class Div extends Control {
+export class Div extends Control {
     private class: string;
     private $element: HTMLDivElement;
     private entity;
@@ -57,7 +56,7 @@ class Div extends Control {
     }
 
     private controlChanged(ev: Event) {
-        bridge.setValue(this.entity, this.lastProperty, this.$element.innerHTML);
+        this.owner.setValue(this.entity, this.lastProperty, this.$element.innerHTML);
     }
 
     private _lastProperty: string;

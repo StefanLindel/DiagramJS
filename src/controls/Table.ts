@@ -1,8 +1,6 @@
-///<reference path="Bridge.ts"/>
-///<reference path="BridgeElement.ts"/>
+import Control from '../Control'
 
-
-class Table extends Control {
+export class Table extends Control {
     private columns: Column[] = [];
     private cells: Object = {};
     private $element: HTMLElement;
@@ -175,7 +173,7 @@ class Table extends Control {
             let link = document.createElement("a");
             link.appendChild(document.createTextNode("fix") );
 
-            link.appendChild("")
+            // link.appendChild("");
             link.href = "javascript:void(0);";
             context.appendChild(link);
         }

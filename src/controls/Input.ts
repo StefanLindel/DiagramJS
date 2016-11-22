@@ -1,7 +1,6 @@
-///<reference path="Control.ts"/>
-///<reference path="Bridge.ts"/>
+import Control from '../Control'
 
-class Input extends Control {
+export class Input extends Control {
     private $element: HTMLInputElement;
     private type: string;
     private entity;

@@ -1,14 +1,6 @@
-///<reference path="Control.ts"/>
-///<reference path="Input.ts"/>
-///<reference path="Table.ts"/>
-///<reference path="Data.ts"/>
-///<reference path="BridgeElement.ts"/>
-///<reference path="Div.ts"/>
-///<reference path="Form.ts"/>
-///<reference path="Label.ts"/>
-///<reference path="BR.ts"/>
+import * as controls from './controls'
 
-class Bridge {
+export default class Bridge {
     public static version: string = "0.42.01.1601007-1739";
     private listener: Array<Object> = [];
     private controlFactory: Object = {};
@@ -17,11 +9,9 @@ class Bridge {
     private controlNo: number = 1;
 
     constructor() {
-        this.addControl(Table);
-        this.addControl(Input);
-        this.addControl(Div);
-        this.addControl(Form);
-        this.addControl(Label);
+        for (let control in controls){
+            this.addControl(control);
+        }
     }
 
     public addListener = function (listener) {

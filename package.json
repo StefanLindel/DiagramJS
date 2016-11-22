@@ -37,7 +37,7 @@
   },
   "scripts": {
     "build-dev": "tsc && rollup -m -c || true",
-    "build-prod": "rimraf build && tsc && rollup -c && rimraf build/tmp && babel build -d build && uglifyjs ./build/diagram.js -o ./build/diagram.min.js -c || true",
+    //"build-prod": "rimraf build && tsc && rollup -c && rimraf build/tmp && babel build -d build && uglifyjs ./build/diagram.js -o ./build/diagram.min.js -c || true",
     "build-watch": "npm-watch"
   }
 }

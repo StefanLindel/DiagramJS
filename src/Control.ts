@@ -1,4 +1,4 @@
-///<reference path="Bridge.ts"/>
+import Bridge from "./Bridge"
 
 abstract class Control {
     id: string;

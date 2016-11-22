@@ -1,7 +1,7 @@
-///<reference path="Control.ts"/>
-///<reference path="Bridge.ts"/>
+import Control from '../Control'
+import {Input} from './Input'
 
-class Form extends Control {
+export class Form extends Control {
     private $element: HTMLFormElement;
     private entity;
     private applyingChange: boolean = false;
@@ -78,7 +78,7 @@ class Form extends Control {
             if (!field.hasOwnProperty("control")) {
                 field['control'] = 'input';
             }
-            bridge.load(field);
+            this.owner.load(field);
         }
 
     }

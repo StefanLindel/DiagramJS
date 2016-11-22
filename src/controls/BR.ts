@@ -1,7 +1,6 @@
-///<reference path="Control.ts"/>
-///<reference path="Bridge.ts"/>
+import Control from '../Control'
 
-class BR extends Control {
+export class BR extends Control {
     constructor(owner, data) {
         super(owner, data);
         this.createControl(document.getElementsByTagName("body")[0], data);

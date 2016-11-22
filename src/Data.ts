@@ -1,4 +1,4 @@
-///<reference path="Bridge.ts"/>
+import Control from './Control'
 
 class Data {
     id: string;
