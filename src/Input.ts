@@ -3,7 +3,6 @@
 
 class Input extends Control {
     private $element: HTMLInputElement;
-    private property: string;
     private type: string;
     private entity;
     private applyingChange: boolean = false;

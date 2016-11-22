@@ -5,7 +5,6 @@
 class Table extends Control {
     private columns: Column[] = [];
     private cells: Object = {};
-    private property: string;
     private $element: HTMLElement;
     private $bodysection: HTMLTableSectionElement;
     private $headersection: HTMLTableSectionElement;
@@ -18,6 +17,11 @@ class Table extends Control {
     private lastSearchText:string;
     private searchColumns:Array<string>=[];
     private searchText:Array<string>=[];
+    private sortColumn:Column;
+    private direction;
+    private resizeColumn:Column;
+    private resizeTimeStamp:number;
+    private resizeX:number;
 
     constructor(owner, data) {
         super(owner, data);
@@ -48,7 +52,11 @@ class Table extends Control {
         }
         let table: HTMLElement = document.getElementById(id);
         let headerrow: HTMLTableRowElement;
-        if (!table) {
+        if (table) {
+            if(!this.property) {
+                this.property = table.getAttribute("property");
+            }
+        } else {
             table = document.createElement("table");
             document.getElementsByTagName("body")[0].appendChild(table);
         }
@@ -76,7 +84,14 @@ class Table extends Control {
             if (row instanceof HTMLTableSectionElement) {
                 if (row.tagName == "THEAD") {
                     headerrow = row;
-                    this.parsingHeader(row);
+                    // Its a thead
+                    for (let r in row.children) {
+                        if (row.children.hasOwnProperty(r) === false) {
+                            continue;
+                        }
+                        this.parsingHeader(<HTMLTableRowElement>row.children[r]);
+                    }
+                    //this.parsingHeader(row);
                 } else {
                     // Its a tbody
                     for (let r in row.children) {
@@ -114,6 +129,7 @@ class Table extends Control {
                 this.$headersection.appendChild(headerrow);
             }
         }
+        var that = this;
         if (data["columns"]) {
             // It is a json must add all things and generate HTML
             for (let i in data["columns"]) {
@@ -126,20 +142,77 @@ class Table extends Control {
                 col.attribute = col["attribute"] || column.id;
                 col.$element = document.createElement("th");
                 col.$element.innerHTML = col.label;
+                // resize Header
+                col.$resize = document.createElement("th");
+                col.$resize.style.setProperty("padding", "0");
+                col.$resize.classList.add("resize");
+                this.addHeaderInfo(col);
                 this.columns.push(col);
                 headerrow.appendChild(col.$element);
+                headerrow.appendChild(col.$resize);
             }
+            let cell = document.createElement("th");
+            cell.classList.add("tableOption");
+            headerrow.appendChild(cell);
+
+            let context = document.createElement("div");
+            context.classList.add("dropdown-content");
+            context.style.setProperty("position", "absolute");
+            //cell.appendChild(document.createElement("br"));
+            cell.appendChild(context);
+
+            /* When the user clicks on the button,
+             toggle between hiding and showing the dropdown content */
+            cell.addEventListener(
+                'click',
+                function(evt){
+                    context.classList.toggle("show");
+                },
+                false);
+
+
+
+            let link = document.createElement("a");
+            link.appendChild(document.createTextNode("fix") );
+
+            link.appendChild("")
+            link.href = "javascript:void(0);";
+            context.appendChild(link);
         }
+        this.$element.addEventListener(
+            'mousemove',
+            function(evt){
+                that.resizingColumn(evt);
+            },
+            false);
+        this.$element.addEventListener(
+            'mousedown',
+            function(evt){
+                that.resizeColumnStart(evt);
+            },
+            false);
+        this.$element.addEventListener(
+            'mouseup',
+            function(evt){
+                that.resizeColumnStart(evt);
+            },
+            false);
+        this.$element.addEventListener(
+            'resize',
+            function(evt){
+                that.resizeColumnStart(evt);
+            },
+            false);
+
         // Check for SearchBar
         //if(data["searchproperty"]){
         // Create Full Row
         let searchBar = document.createElement("tr");
         let cell = document.createElement("td");
-        cell.setAttribute("colspan", ""+this.columns.length);
+        cell.setAttribute("colspan", ""+(this.columns.length*2));
         searchBar.appendChild(cell);
 
         let search = document.createElement("input");
-        var that = this;
         search.addEventListener(
             'keyup',
             function(evt){
@@ -166,8 +239,37 @@ class Table extends Control {
         this.$headersection.insertBefore(searchBar, first)
     }
 
+    public resizingColumn(evt) {
+        if(evt.buttons==1 && this.resizeColumn) {
+            if(this.resizeTimeStamp && evt.timeStamp - this.resizeTimeStamp < 2000) {
+                let x = evt.pageX - this.resizeX;
+                let width = this.resizeColumn.$element.offsetWidth;
+                this.resizeColumn.$element.width = ""+ (width + x);
+                evt.stopPropagation();
+            }
+            this.resizeX = evt.pageX;
+            this.resizeTimeStamp = evt.timeStamp;
+        }
+    }
+    public resizeColumnStart(evt) {
+        if (evt.buttons == 1) {
+            let c:number;
+            for(c=0;c<this.columns.length;c++) {
+                if(this.columns[c].$resize === evt.target) {
+                    this.resizeColumn = this.columns[c];
+                    break;
+                }
+            }
+            this.resizeTimeStamp = evt.timeStamp;
+            this.resizeX  = evt.pageX;
+        } else {
+            this.resizeColumn = null;
+            this.resizeTimeStamp = 0;
+        }
+    }
+
+
     public parsingHeader(row: HTMLTableRowElement) {
-        let that = this;
         for (let i in row.children) {
             if (row.children.hasOwnProperty(i) === false) {
                 continue;
@@ -185,8 +287,6 @@ class Table extends Control {
                     break;
                 }
             }
-            column.classList.add("sort");
-
             if (col === null) {
                 col = new Column();
                 col.label = id;
@@ -194,13 +294,18 @@ class Table extends Control {
                 col.$element = column;
                 this.columns.push(col);
             }
-            column.addEventListener('touch',
-                function(evt){
-                    that.sort(col);
-                },
-                false);
-
+            this.addHeaderInfo(col);
         }
+    }
+    private addHeaderInfo(col:Column) {
+        let element : HTMLTableCellElement = col.$element;
+        let that = this;
+        element.classList.add("sort");
+        element.addEventListener('click',
+            function(){
+                that.sort(col);
+            },
+            false);
     }
 
 
@@ -244,28 +349,119 @@ class Table extends Control {
             return;
         }
         let cell;
+        let showItem=false;
 
         if (!row) {
+            showItem = true;
             row = document.createElement("tr");
             let count = this.columns.length;
             for (let i = 0; i < count; i++) {
                 cell = document.createElement("td");
                 row.appendChild(cell);
+                // Resize Column
+                cell = document.createElement("td");
+                cell.style.setProperty("padding", "0");
+                cell.classList.add("resizebody");
+                row.appendChild(cell);
             }
             this.cells[entity.id] = row;
             item.gui = row;
         }
-        for (let c in this.columns) {
-            if (this.columns.hasOwnProperty(c) === false) {
-                continue;
-            }
+        for(let c:number =0;c<this.columns.length;c++) {
             let name = this.columns[c].attribute;
             if (name === property) {
-                cell = row.children[c];
+                cell = row.children[c*2];
                 cell.innerHTML = newValue;
             }
         }
-        this.showItem(item, true);
+        if(showItem) {
+            this.showItem(item, true);
+        }
+    }
+    public sort(column:Column) {
+        if(this.sortColumn == column ) {
+            if(this.direction == 1) {
+                this.direction = -1;
+                column.$element.classList.remove("asc");
+                column.$element.classList.add("desc");
+            } else {
+                this.direction = 1;
+                column.$element.classList.remove("desc");
+                column.$element.classList.add("asc");
+            }
+        } else {
+            if(this.sortColumn != null ) {
+                this.sortColumn.$element.classList.remove("desc");
+                this.sortColumn.$element.classList.remove("asc");
+            }
+            this.sortColumn = column;
+            this.sortColumn.$element.classList.add("asc");
+            this.direction = 1;
+        }
+        let that = this;
+        let sort = function(a,b) { return that.sorting(a,b);};
+        this.showedItems.sort(sort);
+        let len:number = this.showedItems.length;
+        let body = this.$bodysection;
+        let i=0;
+        while(i<len) {
+            let item: BridgeElement = this.showedItems[i];
+            if (i != Table.indexOfChild(item)) {
+                break;
+            }
+            i = i + 1;
+        }
+        while (body.children.length > i) {
+            body.removeChild(body.children.item(body.children.length - 1));
+        }
+        while(i<len) {
+            let item: BridgeElement = this.showedItems[i];
+            body.appendChild(item.gui);
+            i = i + 1;
+        }
+
+          //      body.removeChild(item.gui);
+          //      body.remove
+
+            //console.log(item);
+        //}
+    }
+    private static indexOfChild( item:BridgeElement) {
+        let i:number = 0;
+        let child:Node = item.gui;
+        while( (child = child.previousSibling) != null ) {
+            i++;
+        }
+        return i;
+    }
+
+    public sorting(a:BridgeElement, b:BridgeElement) : number {
+
+        let path:string[] = this.sortColumn.attribute.split(".");
+        let itemA = a.model.values;
+        let itemB = b.model.values;
+        var check = this.sortColumn.attribute;
+        for(var p=0;p<path.length;p++) {
+            check = path[p];
+            if(itemA[check]) {
+                itemA = itemA[check];
+            }else{
+                return 0;
+            }
+            if(itemB[check]) {
+                itemB = itemB[check];
+            }else{
+                return 0;
+            }
+        }
+        if(itemA!=itemB){
+            if(this.direction == 1) {
+                return (itemA<itemB) ? -1 : 1;
+            }
+            return (itemA<itemB) ? 1 : -1;
+
+        }
+        return 0;
     }
 
     // Searching
@@ -331,9 +527,7 @@ class Table extends Control {
         this.searchText = split;
         return split;
     }
-    public sort(column:Column) {
 
-    }
     public searchArray(root:Array<BridgeElement>) {
         this.showedItems=[];
         // Search for Simple Context
@@ -405,17 +599,11 @@ class Table extends Control {
         }
         return true;
     }
-    public addItem(source: Bridge, entity: Data) {
-        // check for new Element in Bridge
-        if (entity) {
-            if (!this.property || this.property === entity.property) {
-                entity.addListener(this);
-            }
-        }
-    }
 }
 class Column {
     label: string;
     attribute: string;
     $element: HTMLTableHeaderCellElement;
-}
+    $resize: HTMLTableHeaderCellElement;
+    visible:boolean;
+ }

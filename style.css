@@ -6,32 +6,86 @@
 	width:100%;
 }
 .sort{
+	margin-top: 8px;
 	cursor:pointer;
 }
-.sort:hover:after{
+.sort:after{
+	cursor:pointer;
 	content: '';
 	float: right;
-	margin-top: 4px;
 	border-width: 0 4px 4px;
 	border-style: solid;
+	border-color: #fff transparent;
+	margin-top: 10px;
+}
+.sort:hover:after{
+	border-width: 0 4px 4px;
 	border-color: #404040 transparent;
+	opacity:0.4;
 }
 
 .sort.asc:after{
-	content: '';
-	float: right;
-	margin-top: 6px;
 	border-width: 0 4px 4px;
-	border-style: solid;
 	border-color: #404040 transparent;
-	opacity:0.4;
+	opacity:1;
 }
 .sort.desc:after{
-	content: '';
-	float: right;
-	margin-top: 6px;
 	border-width:4px 4px 0;
-	border-style: solid;
 	border-color: #404040 transparent;
-	opacity:0.4;
+	opacity:1;
+}
+.resize{
+	border:0;
+	border-right:1px solid black;
+	width:10px;
+	padding:0;
+	cursor:ew-resize;
+}
+.tableOption{
+	background: url("data:image/svg+xml;utf8,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16'%3E%3Cpath style='stroke-linejoin:round;stroke:#000000;stroke-width:0.5px;' d='M 1 1 L 15 1 L 1 1 z M 1 8 L 15 8 L 1 8 z M 1 15 L 15 15 L 1 15 z'%3E%3C/path%3E%3C/svg%3E") no-repeat center;
+	background-color:#FAFAFA;
+	width:16px;
+	height:16px;
+	content:'';
+	cursor:pointer;
+}
+.tableOption:hover {
+	background-color: #CCC;
+}
+.resize:hover{
+	border-right:1px dotted black;
+}
+/* The container <div> - needed to position the dropdown content */
+.dropdown {
+	position: relative;
+	display: inline-block;
+}
+
+/* Dropdown Content (Hidden by Default) */
+.dropdown-content {
+	display: none;
+	position: absolute;
+	background-color: #f9f9f9;
+	min-width: 160px;
+	box-shadow: 0px 8px 16px 0px rgba(0,0,0,0.2);
+	right:0;
+	float:right;
+}
+
+/* Links inside the dropdown */
+.dropdown-content a {
+	color: black;
+	padding: 12px 16px;
+	text-decoration: none;
+	display: block;
+}
+
+/* Change color of dropdown links on hover */
+.dropdown-content a:hover {background-color: #f1f1f1}
+
+/* Show the dropdown menu (use JS to add this class to the .dropdown-content container when the user clicks on the dropdown button) */
+.show {display:block;}
+.resizebody{
+}
+.resizebody:hover{
 }
