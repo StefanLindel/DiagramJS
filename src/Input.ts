@@ -16,8 +16,12 @@ class Input extends Control {
             id = data;
         } else {
             id = data.id;
-            this.type = data.type;
-            this.property = data.property;
+            if (data.type) {
+                this.type = data['type'];
+            } else {
+                this.type = 'text'
+            }
+            this.property = data['property'];
         }
         if (!id) {
             return;
@@ -26,13 +30,13 @@ class Input extends Control {
         let inputField: HTMLElement = document.getElementById(id);
 
         if (!this.property) {
-            // if(inputField){
-            // TODO disuss how to decide, which property we should listen on...
-            // this.property = id;
-            if (inputField.hasAttribute("Property")) {
-                this.property = inputField.getAttribute("Property");
+            if (inputField) {
+                // TODO disuss how to decide, which property we should listen on...
+                // this.property = id;
+                if (inputField.hasAttribute("Property")) {
+                    this.property = inputField.getAttribute("Property");
+                }
             }
-            // }
         }
 
         if (inputField instanceof HTMLInputElement) {
@@ -40,7 +44,10 @@ class Input extends Control {
         } else {
             if (!inputField) {
                 this.$element = document.createElement("input");
-                this.$element.setAttribute("type", this.type);
+                if (this.type)
+                    this.$element.setAttribute("type", this.type);
+                if (data.hasOwnProperty("control"))
+                    this.$element.setAttribute("control", data['control']);
                 this.$element.setAttribute("id", this.id);
                 this.$element.setAttribute("property", this.property);
                 document.getElementsByTagName("body")[0].appendChild(this.$element);

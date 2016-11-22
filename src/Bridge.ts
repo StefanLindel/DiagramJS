@@ -5,6 +5,8 @@
 ///<reference path="BridgeElement.ts"/>
 ///<reference path="Div.ts"/>
 ///<reference path="Form.ts"/>
+///<reference path="Label.ts"/>
+///<reference path="BR.ts"/>
 
 class Bridge {
     public static version: string = "0.42.01.1601007-1739";
@@ -19,6 +21,7 @@ class Bridge {
         this.addControl(Input);
         this.addControl(Div);
         this.addControl(Form);
+        this.addControl(Label);
     }
 
     public addListener = function (listener) {

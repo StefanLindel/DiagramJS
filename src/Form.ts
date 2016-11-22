@@ -69,8 +69,18 @@ class Form extends Control {
 
         // now create all the sub input controls
         for (let field of data.elements) {
-            this.createField(field);
+            // this.createField(field);
+            if (field.hasOwnProperty("property")) {
+                var property = field["property"];
+                property = this.id + '.' + property;
+                field['property'] = property;
+            }
+            if (!field.hasOwnProperty("control")) {
+                field['control'] = 'input';
+            }
+            bridge.load(field);
         }
+
     }
 
     /**
@@ -81,7 +91,7 @@ class Form extends Control {
      */
     private createField(field: Object) {
         var control = "input";
-        if (field.hasOwnProperty("control")){
+        if (field.hasOwnProperty("control")) {
             control = field['control'];
         }
         let input = document.createElement(control);
@@ -98,7 +108,7 @@ class Form extends Control {
             input.setAttribute("property", property);
         }
         for (let attr in field) {
-            if (attr == "property" ||attr == "control" || !field.hasOwnProperty(attr)) {
+            if (attr == "property" || attr == "control" || !field.hasOwnProperty(attr)) {
                 continue;
             }
             input.setAttribute(attr, field[attr]);

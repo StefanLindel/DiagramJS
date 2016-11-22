@@ -54,7 +54,7 @@
     bridge.load("divContainer");
 
     var t1controlid = bridge.load("t1talk");
-    bridge.load({control: "input", property: "talk", id: "t2.talk", property: "t2.talk", type: "text"});
+    bridge.load({control: "input", id: "t2.talk", property: "t2.talk", type: "text"});
     // for debugging purpose:
     document.getElementById("t2.talk").setAttribute("oncontextmenu", "alert('t2.talk');");
 
@@ -124,6 +124,8 @@
 
     var divContainer = document.getElementById("divContainer");
     divContainer.innerHTML = "01. Test";
+
+    bridge.load({id:"label", control: "label", textContent: "Testitest"});
 
 </script>
 </body>
