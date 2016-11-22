@@ -19,6 +19,9 @@ class Table extends Control {
     private searchText:Array<string>=[];
     private sortColumn:Column;
     private direction;
+    private resizeColumn:Column;
+    private resizeTimeStamp:number;
+    private resizeX:number;
 
     constructor(owner, data) {
         super(owner, data);
@@ -143,37 +146,64 @@ class Table extends Control {
                 col.$resize = document.createElement("th");
                 col.$resize.style.setProperty("padding", "0");
                 col.$resize.classList.add("resize");
-                col.$resize.addEventListener(
-                    'mousemove',
-                    function(evt){
-                        that.resizeColumn(evt, col);
-                    },
-                    false);
-                col.$resize.addEventListener(
-                    'mousedown',
-                    function(evt){
-                        that.resizeColumnStart(evt, col);
-                    },
-                    false);
-                col.$resize.addEventListener(
-                    'mouseup',
-                    function(evt){
-                        that.resizeColumnStart(evt, col);
-                    },
-                    false);
-                col.$resize.addEventListener(
-                    'resize',
-                    function(evt){
-                        that.resizeColumnStart(evt, col);
-                    },
-                    false);
-
                 this.addHeaderInfo(col);
                 this.columns.push(col);
                 headerrow.appendChild(col.$element);
                 headerrow.appendChild(col.$resize);
             }
+            let cell = document.createElement("th");
+            cell.classList.add("tableOption");
+            headerrow.appendChild(cell);
+
+            let context = document.createElement("div");
+            context.classList.add("dropdown-content");
+            context.style.setProperty("position", "absolute");
+            //cell.appendChild(document.createElement("br"));
+            cell.appendChild(context);
+
+            /* When the user clicks on the button,
+             toggle between hiding and showing the dropdown content */
+            cell.addEventListener(
+                'click',
+                function(evt){
+                    context.classList.toggle("show");
+                },
+                false);
+
+
+
+            let link = document.createElement("a");
+            link.appendChild(document.createTextNode("fix") );
+
+            link.appendChild("")
+            link.href = "javascript:void(0);";
+            context.appendChild(link);
         }
+        this.$element.addEventListener(
+            'mousemove',
+            function(evt){
+                that.resizingColumn(evt);
+            },
+            false);
+        this.$element.addEventListener(
+            'mousedown',
+            function(evt){
+                that.resizeColumnStart(evt);
+            },
+            false);
+        this.$element.addEventListener(
+            'mouseup',
+            function(evt){
+                that.resizeColumnStart(evt);
+            },
+            false);
+        this.$element.addEventListener(
+            'resize',
+            function(evt){
+                that.resizeColumnStart(evt);
+            },
+            false);
+
         // Check for SearchBar
         //if(data["searchproperty"]){
         // Create Full Row
@@ -209,27 +239,32 @@ class Table extends Control {
         this.$headersection.insertBefore(searchBar, first)
     }
 
-    public resizeColumn(evt, column:Column) {
-        if(evt.buttons==1) {
-            if(!column.resizeEvent["timeStamp"] || evt.timeStamp - column.resizeEvent["timeStamp"] > 2000) {
-                // Only Save position
-                column.resizeEvent["pageX"] = evt.pageX;
-            } else {
-                let x = evt.pageX - column.resizeEvent["pageX"];
-                let width = column.$element.offsetWidth;
-                column.$element.width = ""+ (width + x);
-                column.resizeEvent["pageX"] = evt.pageX;
+    public resizingColumn(evt) {
+        if(evt.buttons==1 && this.resizeColumn) {
+            if(this.resizeTimeStamp && evt.timeStamp - this.resizeTimeStamp < 2000) {
+                let x = evt.pageX - this.resizeX;
+                let width = this.resizeColumn.$element.offsetWidth;
+                this.resizeColumn.$element.width = ""+ (width + x);
                 evt.stopPropagation();
             }
-            column.resizeEvent["timeStamp"] = evt.timeStamp;
+            this.resizeX = evt.pageX;
+            this.resizeTimeStamp = evt.timeStamp;
         }
     }
-    public resizeColumnStart(evt, column:Column) {
+    public resizeColumnStart(evt) {
         if (evt.buttons == 1) {
-            column.resizeEvent["pageX"] = evt.pageX;
-            column.resizeEvent["timeStamp"] = evt.timeStamp;
+            let c:number;
+            for(c=0;c<this.columns.length;c++) {
+                if(this.columns[c].$resize === evt.target) {
+                    this.resizeColumn = this.columns[c];
+                    break;
+                }
+            }
+            this.resizeTimeStamp = evt.timeStamp;
+            this.resizeX  = evt.pageX;
         } else {
-            column.resizeEvent["timeStamp"] = 0;
+            this.resizeColumn = null;
+            this.resizeTimeStamp = 0;
         }
     }
 
@@ -570,5 +605,5 @@ class Column {
     attribute: string;
     $element: HTMLTableHeaderCellElement;
     $resize: HTMLTableHeaderCellElement;
-    resizeEvent = {};
-}
+    visible:boolean;
+ }
