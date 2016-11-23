@@ -1,4 +1,6 @@
 import Control from '../Control'
+import Bridge from '../Bridge'
+import Data from '../Data'
 
 export class Input extends Control {
     private $element: HTMLInputElement;
@@ -77,7 +79,7 @@ export class Input extends Control {
 
     private controlChanged(ev: Event) {
         if (this.$element.checkValidity()) {
-            bridge.setValue(this.entity, this.lastProperty, this.$element.value);
+            this.owner.setValue(this.entity, this.lastProperty, this.$element.value);
         } else {
             console.log("value does not match the pattern...");
         }

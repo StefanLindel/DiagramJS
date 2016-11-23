@@ -1,4 +1,6 @@
 import Control from '../Control'
+import Bridge from '../Bridge'
+import Data from '../Data'
 
 export class Div extends Control {
     private class: string;

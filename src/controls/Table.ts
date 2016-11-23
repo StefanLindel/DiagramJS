@@ -1,4 +1,6 @@
 import Control from '../Control'
+import BridgeElement from '../BridgeElement'
+import Data from '../Data'
 
 export class Table extends Control {
     private columns: Column[] = [];

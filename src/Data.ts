@@ -1,6 +1,6 @@
 import Control from './Control'
 
-class Data {
+export default class Data {
     id: string;
     $listener: Control[] = [];
     property: string;

@@ -1,4 +1,5 @@
 import Control from '../Control'
+import Data from '../Data'
 import {Input} from './Input'
 
 export class Form extends Control {
@@ -99,7 +100,7 @@ export class Form extends Control {
         var id: string;
         if (!field.hasOwnProperty("id")) {
             // TODO: not the best solution for generating unique id's for forms...
-            id = bridge.getId();
+            id = this.owner.getId();
             field['id'] = id;
         }
         if (field.hasOwnProperty("property")) {
@@ -116,8 +117,8 @@ export class Form extends Control {
 
         this.$element.appendChild(input);
 
-        var controlId = bridge.load(field['id']);
-        this.children.set(controlId, bridge.getControl(controlId));
+        var controlId = this.owner.load(field['id']);
+        this.children.set(controlId, this.owner.getControl(controlId));
     }
 
 

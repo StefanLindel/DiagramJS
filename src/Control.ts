@@ -1,6 +1,8 @@
 import Bridge from "./Bridge"
+import Data from './Data'
+import BridgeElement from './BridgeElement'
 
-abstract class Control {
+export default class Control {
     id: string;
     public owner: Bridge;
     public property: string;
@@ -11,7 +13,9 @@ abstract class Control {
         this.owner = owner;
     }
 
-    public abstract propertyChange(entity: Data, property: string, oldValue, newValue);
+    public propertyChange(entity: Data, property: string, oldValue, newValue) {
+
+    }
 
     public addItem(source: Bridge, entity: Data) {
         // check for new Element in Bridge

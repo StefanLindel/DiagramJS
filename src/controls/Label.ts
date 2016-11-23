@@ -1,4 +1,5 @@
 import Control from '../Control'
+import Data from '../Data'
 
 export class Label extends Control {
     constructor(owner, data) {

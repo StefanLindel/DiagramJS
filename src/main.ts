@@ -1,4 +1,4 @@
-//import { Bridge } from './bridge';
+import Bridge from './Bridge';
 
 class BridgeAdapter {
   private bridge: Bridge;

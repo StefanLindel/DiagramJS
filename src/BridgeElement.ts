@@ -1,4 +1,6 @@
-class BridgeElement {
+import Data from './Data'
+
+export default class BridgeElement {
     private static elementSet: Set<BridgeElement> = new Set();
     public model: Data;
     public id:string;

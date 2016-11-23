@@ -1,4 +1,5 @@
 import * as controls from './controls'
+import Data from './Data'
 
 export default class Bridge {
     public static version: string = "0.42.01.1601007-1739";
@@ -9,9 +10,9 @@ export default class Bridge {
     private controlNo: number = 1;
 
     constructor() {
-        for (let control in controls){
-            this.addControl(control);
-        }
+			for(let c in controls) {
+				    this.addControl(controls[c]);
+			}
     }
 
     public addListener = function (listener) {
@@ -100,6 +101,7 @@ export default class Bridge {
         return item;
     }
 
+
     public setValue(object: Object, attribute: string, value: Object){
         var obj:Object;
         var id:string;
@@ -125,6 +127,7 @@ export default class Bridge {
         this.executeChange({'id':id, upd});
     }
 
+
     public getValue(object: Object, attribute: string): any{
         var obj:Object;
         var id:string;
@@ -132,7 +135,6 @@ export default class Bridge {
             // object is only the id of the Object, we want to change
             id = object.toString();
             obj = this.getItem(id);
-
         }else if(object.hasOwnProperty("id")) {
             // object is the real Object, we want to change
             obj = object;
