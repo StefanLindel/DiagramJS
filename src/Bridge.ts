@@ -81,7 +81,7 @@ export default class Bridge {
             if (prop.hasOwnProperty(property) === false) {
                 continue;
             }
-            if (prop[property] && "" !== prop[property]) {
+            if (prop[property] != null && "" !== prop[property]) {
                 item.setValue(property, prop[property]);
             }
         }
