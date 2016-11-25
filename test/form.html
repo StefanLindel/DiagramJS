@@ -10,7 +10,8 @@
 </body>
 <script type="text/javascript">
     var json = {
-        id: "t1",
+        id: "t1form",
+        property: "t1",
         control: "form",
         method: "get",
         elements: [
@@ -25,7 +26,7 @@
             {id: "btn", property: "test", type: "submit"}
         ]
     };
-    bridge.load(json);
+    var t1formId = bridge.load(json);
 
     bridge.executeChange({
         id: "t1",
@@ -46,6 +47,28 @@
             Explorer: "Explorer"
         }
     });
+    bridge.executeChange({
+        id: "t2",
+        class: "talk",
+        property: {
+            room: "Heyl",
+            day: "Monday",
+            mail: "test2@host.de",
+            talk: "02. Schmidt",
+            state: "ok",
+            comment: "",
+            no: "",
+            slides: "",
+            html: "",
+            Author: "",
+            "Peer Info": "",
+            Explorer: "Explorer",
+            time: "20:15"
+        }
+    });
+
+    var t1control = bridge.controls[t1formId];
+    t1control.setProperty("t2");
 
 </script>
 </html>

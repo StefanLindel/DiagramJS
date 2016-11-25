@@ -5,7 +5,6 @@ import Data from '../Data'
 export class Input extends Control {
     private $element: HTMLInputElement;
     private type: string;
-    private entity;
     private applyingChange: boolean = false;
 
     constructor(owner, data) {
@@ -85,16 +84,6 @@ export class Input extends Control {
         }
     }
 
-    private _lastProperty: string;
-
-    get lastProperty(): string {
-        if (!this._lastProperty) {
-            let arr = this.property.split(".");
-            this._lastProperty = arr[arr.length - 1];
-        }
-        return this._lastProperty;
-    }
-
     propertyChange(entity: Data, property: string, oldValue, newValue) {
         if (this.property && !this.applyingChange && property == this.lastProperty) {
             this.$element.value = newValue;
@@ -111,25 +100,8 @@ export class Input extends Control {
         }
     }
 
-    /*
-     Property looks like: "t1.talk"
-     */
-    public setProperty(property: string) {
-        let objId = property.split(".")[0];
-        var object = this.owner.getItem(objId);
-        this.property = property;
-        this._lastProperty = null;
 
-        // remove listener on old object
-        if (this.entity) {
-            this.entity.removeListener(this);
-        }
-
-        // add listener to object..
-        if (object) {
-            object.addListener(this);
-            this.entity = object;
-            this.$element.value = object.values[this.lastProperty];
-        }
+    protected updateElement(value: string) {
+        this.$element.value = value;
     }
 }

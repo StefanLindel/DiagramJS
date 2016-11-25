@@ -20,4 +20,8 @@ export class BR extends Control {
         }
         parent.appendChild(label);
     }
+
+
+    public setProperty(property: string): void {
+    }
 }

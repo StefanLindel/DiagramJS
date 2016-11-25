@@ -1,12 +1,11 @@
-import Control from '../Control'
-import Data from '../Data'
-import {Input} from './Input'
+import Control from "../Control";
+import Data from "../Data";
 
 export class Form extends Control {
     private $element: HTMLFormElement;
-    private entity;
     private applyingChange: boolean = false;
-    private children: Map<string, Input> = new Map();
+    private children: Map<string, Control> = new Map();
+    // private property: string = "";
 
     /**
      * Data should look like the following json:
@@ -39,10 +38,17 @@ export class Form extends Control {
 
         if (form instanceof HTMLFormElement) {
             this.$element = form;
+            if (this.$element.hasAttribute("property")) {
+                this.property = this.$element.getAttribute("property");
+            }
         } else {
             if (!form) {
                 this.$element = document.createElement("form");
                 this.$element.setAttribute("id", this.id);
+
+                if (data.hasOwnProperty("property")) {
+                    this.property = data['property'];
+                }
 
                 // add all the attributes to the form element
                 for (let attr in data) {
@@ -60,7 +66,7 @@ export class Form extends Control {
         }
 
         // check if object already exists
-        let objId = this.id;
+        let objId = this.property;
         let hasItem = this.owner.hasItem(objId);
         if (hasItem) {
             var item = this.owner.getItem(objId);
@@ -73,13 +79,14 @@ export class Form extends Control {
             // this.createField(field);
             if (field.hasOwnProperty("property")) {
                 var property = field["property"];
-                property = this.id + '.' + property;
+                property = this.property + '.' + property;
                 field['property'] = property;
             }
             if (!field.hasOwnProperty("control")) {
                 field['control'] = 'input';
             }
-            this.owner.load(field);
+            let controlId = this.owner.load(field);
+            this.children.set(controlId, this.owner.getControl(controlId));
         }
 
     }
@@ -123,5 +130,12 @@ export class Form extends Control {
 
 
     propertyChange(entity: Data, property: string, oldValue, newValue) {
+    }
+
+    public setProperty(id: string): void {
+        this.property = id;
+        for (let [id, childControl] of this.children) {
+            childControl.setProperty(this.property + "." + childControl.lastProperty);
+        }
     }
 }

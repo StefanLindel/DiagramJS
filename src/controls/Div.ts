@@ -5,7 +5,6 @@ import Data from '../Data'
 export class Div extends Control {
     private class: string;
     private $element: HTMLDivElement;
-    private entity;
     private applyingChange: boolean = false;
 
     constructor(owner, data) {
@@ -61,16 +60,6 @@ export class Div extends Control {
         this.owner.setValue(this.entity, this.lastProperty, this.$element.innerHTML);
     }
 
-    private _lastProperty: string;
-
-    get lastProperty(): string {
-        if (!this._lastProperty) {
-            let arr = this.property.split(".");
-            this._lastProperty = arr[arr.length - 1];
-        }
-        return this._lastProperty;
-    }
-
     propertyChange(entity: Data, property: string, oldValue, newValue) {
         if (!this.applyingChange && property == this.lastProperty) {
             this.$element.innerHTML = newValue;
@@ -86,28 +75,6 @@ export class Div extends Control {
                     entity.addListener(this);
                 }
             }
-        }
-    }
-
-    /*
-     Property looks like: "t1.talk"
-     */
-    public setProperty(property: string) {
-        let objId = property.split(".")[0];
-        var object = this.owner.getItem(objId);
-        this.property = property;
-        this._lastProperty = null;
-
-        // remove listener on old object
-        if (this.entity) {
-            this.entity.removeListener(this);
-        }
-
-        // add listener to object..
-        if (object) {
-            object.addListener(this);
-            this.entity = object;
-            this.$element.innerHTML = object.values[this.lastProperty];
         }
     }
 }
