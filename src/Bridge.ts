@@ -156,7 +156,16 @@ export default class Bridge {
 
     public getNumber(object: Object, attribute: string, defaultValue: number = 0): number {
         let res = <number>this.getValue(object, attribute);
-        return (typeof res === 'number') ? res : defaultValue;
+        if(typeof res === "number"){
+            return res;
+        }else if (typeof res === "string"){
+            // check whether res is a number
+            let number = Number(res);
+            if(!Number.isNaN(number)){
+                return number;
+            }
+        }
+        return defaultValue;
     }
 
     getControl(controlId: string) {
