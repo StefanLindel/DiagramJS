@@ -135,7 +135,10 @@ export class Form extends Control {
     public setProperty(id: string): void {
         this.property = id;
         for (let [id, childControl] of this.children) {
-            childControl.setProperty(this.property + "." + childControl.lastProperty);
+            // only set Property, if there is a Property defined before
+            if (childControl.property) {
+                childControl.setProperty(this.property + "." + childControl.lastProperty);
+            }
         }
     }
 }

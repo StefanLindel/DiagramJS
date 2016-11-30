@@ -23,7 +23,8 @@
             {id: "testid4", name: "testid4", property: "time", type: "time"},
             {id: "testid5", name: "testid5", property: "mail", type: "mail"},
             {id: "testid6", name: "testid6", property: "state", pattern: "^(ok|no)$"},
-            {id: "btn", property: "test", type: "submit"}
+            {id: "btn", value: "test", type: "submit"},
+            {id: "btn2", value: "Button", type:"button"}
         ]
     };
     var t1formId = bridge.load(json);
@@ -31,7 +32,7 @@
     bridge.executeChange({
         id: "t1",
         class: "talk",
-        property: {
+        prop: {
             room: "Heyl",
             time: "20:15",
             mail: "test@host.de",
@@ -50,7 +51,7 @@
     bridge.executeChange({
         id: "t2",
         class: "talk",
-        property: {
+        prop: {
             room: "Heyl",
             day: "Monday",
             mail: "test2@host.de",
@@ -70,5 +71,7 @@
     var t1control = bridge.controls[t1formId];
     t1control.setProperty("t2");
 
+    var test = bridge.getItem("t1");
+    var x = test;
 </script>
 </html>

@@ -44,6 +44,9 @@ export default class Control {
      Property looks like: "t1.talk"
      */
     public setProperty(property: string): void {
+        if(!this.property){
+            return;
+        }
         let objId = property.split(".")[0];
         var object = this.owner.getItem(objId);
         this.property = property;

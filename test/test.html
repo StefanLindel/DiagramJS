@@ -37,7 +37,7 @@
     });
     bridge.load("persons");
 
-    var json = {
+    var form = {
         id: "t1form",
         property: "t1",
         control: "form",
@@ -50,7 +50,7 @@
             {id: "testid6", type: "submit"}
         ]
     };
-    bridge.load(json);
+    bridge.load(form);
 
     bridge.load("divContainer");
 
@@ -63,7 +63,7 @@
     bridge.executeChange({
         id: "t1",
         class: "talk",
-        property: {
+        prop: {
             room: "Heyl",
             day: "Monday",
             talk: "01. Meier",
@@ -79,11 +79,11 @@
         }
     });
     bridge.executeChange({id: "t1", upd: {talk: "01. Schulze"}});
-    bridge.executeChange({id: "r2", class: "room", property: {name: "Heyl"}});
+    bridge.executeChange({id: "r2", class: "room", prop: {name: "Heyl"}});
     bridge.executeChange({
         id: "t2",
         class: "talk",
-        property: {
+        prop: {
             room: "Heyl",
             day: "Monday",
             talk: "02. Schmidt",
@@ -101,7 +101,7 @@
     bridge.executeChange({
         id: "t3",
         class: "talk",
-        property: {
+        prop: {
             room: "1603",
             day: "Tuesday",
             talk: "03. Peter",

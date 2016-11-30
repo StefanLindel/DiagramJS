@@ -1,6 +1,6 @@
-import Control from '../Control'
-import Bridge from '../Bridge'
-import Data from '../Data'
+import Control from "../Control";
+import Bridge from "../Bridge";
+import Data from "../Data";
 
 export class Input extends Control {
     private $element: HTMLInputElement;
@@ -43,12 +43,18 @@ export class Input extends Control {
         } else {
             if (!inputField) {
                 this.$element = document.createElement("input");
-                if (this.type)
-                    this.$element.setAttribute("type", this.type);
-                if (data.hasOwnProperty("control"))
-                    this.$element.setAttribute("control", data['control']);
-                this.$element.setAttribute("id", this.id);
-                this.$element.setAttribute("property", this.property);
+                if (typeof(data) !== "string") {
+                    for (let attr in data) {
+                        this.$element.setAttribute(attr, data[attr]);
+                    }
+                } else {
+                    if (this.type)
+                        this.$element.setAttribute("type", this.type);
+                    if (data.hasOwnProperty("control"))
+                        this.$element.setAttribute("control", data['control']);
+                    this.$element.setAttribute("id", this.id);
+                    this.$element.setAttribute("property", this.property);
+                }
                 document.getElementsByTagName("body")[0].appendChild(this.$element);
             } else {
                 // the id is already taken by an object, that is not an input field...
@@ -99,7 +105,6 @@ export class Input extends Control {
             }
         }
     }
-
 
     protected updateElement(value: string) {
         this.$element.value = value;

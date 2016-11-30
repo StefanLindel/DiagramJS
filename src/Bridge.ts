@@ -1,4 +1,5 @@
 import * as controls from './controls'
+import * as adapters from './adapters'
 import Data from './Data'
 
 export default class Bridge {
@@ -6,6 +7,7 @@ export default class Bridge {
     private listener: Array<Object> = [];
     private controlFactory: Object = {};
     private controls: Object = {};
+    private adapters: Object = {};
     private items: Object = {};
     private controlNo: number = 1;
 
@@ -13,6 +15,9 @@ export default class Bridge {
 			for(let c in controls) {
 				    this.addControl(controls[c]);
 			}
+			for (let adapter in adapters){
+                this.adapters[adapter] = new adapters[adapter];
+            }
     }
 
     public addListener = function (listener) {
@@ -69,8 +74,12 @@ export default class Bridge {
                 this.controls[i].addItem(this, item);
             }
         }
-        this.addProperties(change["property"], item);
+        this.addProperties(change["prop"], item);
         this.addProperties(change["upd"], item);
+
+        for (let adapter in this.adapters){
+            this.adapters[adapter].executeChange(JSON.stringify(change));
+        }
     }
 
     public addProperties(prop: Object, item: Data) {
