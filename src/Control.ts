@@ -1,6 +1,8 @@
 import Bridge from "./Bridge";
 import Data from "./Data";
 import BridgeElement from "./BridgeElement";
+import EventListener from "./EventListener";
+import Event from "./Event";
 
 export default class Control {
     id: string;
@@ -9,6 +11,7 @@ export default class Control {
     protected items: Set<BridgeElement> = new Set<BridgeElement>();
     protected _lastProperty: string;
     protected entity: Data;
+    protected eventListener: Set<EventListener>;
 
     get lastProperty(): string {
         if (!this.property) {
@@ -66,5 +69,21 @@ export default class Control {
     }
 
     protected updateElement(value: string): void {
+    }
+
+    protected fireEvent(event: Event){
+        if (!this.eventListener){
+            return;
+        }
+        for (let listener of this.eventListener){
+            listener.update(event);
+        }
+    }
+
+    public addEventListener(eventListener: EventListener) : void{
+        if(!this.eventListener){
+            this.eventListener = new Set<EventListener>()
+        }
+        this.eventListener.add(eventListener);
     }
 }
