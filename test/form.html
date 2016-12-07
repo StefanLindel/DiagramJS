@@ -12,14 +12,19 @@
     var json = {
         id: "t1form",
         property: "t1",
-        control: "form",
+        class: "form",
         method: "get",
+
         elements: [
-            {id: "Label1", control: "label" ,textContent: "Talk:"},
+            {id: "Label1", class: "label" ,textContent: "Talk:"},
             {id: "testid1", name: "testid1", property: "talk"},
+            {class: "br"},
+            {id: "Label2", class: "label" ,textContent: "Room:"},
             {id: "testid2", name: "testid2", property: "room"},
+            {class: "br"},
+            {id: "Label3", class: "label" ,textContent: "Day:"},
             {id: "testid3", name: "testid3", property: "day"},
-            {control: "br"},
+            {class: "br"},
             {id: "testid4", name: "testid4", property: "time", type: "time"},
             {id: "testid5", name: "testid5", property: "mail", type: "mail"},
             {id: "testid6", name: "testid6", property: "state", pattern: "^(ok|no)$"},
@@ -69,7 +74,7 @@
     });
 
     var t1control = bridge.controls[t1formId];
-    t1control.setProperty("t2");
+    t1control.setProperty("t1");
 
     var test = bridge.getItem("t1");
     var x = test;

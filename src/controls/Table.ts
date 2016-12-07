@@ -76,7 +76,7 @@ export class Table extends Control {
 
         this.id = id;
         table.id = id;
-        table.setAttribute("control", this.constructor["name"].toLowerCase());
+        table.setAttribute("class", this.constructor["name"].toLowerCase());
         let i = 0;
         for (let c in table.children) {
             if (table.children.hasOwnProperty(c) === false) {

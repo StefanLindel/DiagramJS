@@ -1,6 +1,6 @@
-import * as controls from './controls'
-import * as adapters from './adapters'
-import Data from './Data'
+import * as controls from "./controls";
+import * as adapters from "./adapters";
+import Data from "./Data";
 
 export default class Bridge {
     public static version: string = "0.42.01.1601007-1739";
@@ -12,12 +12,12 @@ export default class Bridge {
     private controlNo: number = 1;
 
     constructor() {
-			for(let c in controls) {
-				    this.addControl(controls[c]);
-			}
-			for (let adapter in adapters){
-                this.adapters[adapter] = new adapters[adapter];
-            }
+        for (let c in controls) {
+            this.addControl(controls[c]);
+        }
+        for (let adapter in adapters) {
+            this.adapters[adapter] = new adapters[adapter];
+        }
     }
 
     public addListener = function (listener) {
@@ -38,11 +38,11 @@ export default class Bridge {
             if (!json["id"]) {
                 json["id"] = this.getId();
             }
-            className = json["control"].toLowerCase();
+            className = json["class"].toLowerCase();
         } else {
             let item = document.getElementById(json);
             if (item) {
-                className = item.getAttribute("control");
+                className = item.getAttribute("class");
                 if (className) {
                     className = className.toLowerCase();
                 } else {
@@ -77,7 +77,7 @@ export default class Bridge {
         this.addProperties(change["prop"], item);
         this.addProperties(change["upd"], item);
 
-        for (let adapter in this.adapters){
+        for (let adapter in this.adapters) {
             this.adapters[adapter].executeChange(JSON.stringify(change));
         }
     }
@@ -96,11 +96,11 @@ export default class Bridge {
         }
     }
 
-    public hasItem(id: string) : boolean {
+    public hasItem(id: string): boolean {
         return (this.items[id] != null)
     }
 
-    public getItem(id: string) : Data {
+    public getItem(id: string): Data {
         let item = this.items[id];
         if (!item) {
             item = new Data();
@@ -111,53 +111,53 @@ export default class Bridge {
     }
 
 
-    public setValue(object: Object, attribute: string, value: Object){
-        var obj:Object;
-        var id:string;
-        if(object instanceof String || typeof object === "string"){
+    public setValue(object: Object, attribute: string, value: Object) {
+        var obj: Object;
+        var id: string;
+        if (object instanceof String || typeof object === "string") {
             // object is only the id of the Object, we want to change
             id = object.toString();
             obj = this.getItem(id);
 
-        }else if(object.hasOwnProperty("id")){
+        } else if (object.hasOwnProperty("id")) {
             // object is the real Object, we want to change
             obj = object;
             id = object['id'];
-        }else {
+        } else {
             console.log("object is neither Data nor String..");
             return;
         }
-        if(obj){
+        if (obj) {
             // Could be done here, but currently is done at this.execueChange..:
             //obj[attribute] = value;
         }
         var upd = {};
         upd[attribute] = value;
-        this.executeChange({'id':id, upd});
+        this.executeChange({'id': id, upd});
     }
 
 
-    public getValue(object: Object, attribute: string): any{
-        var obj:Object;
-        var id:string;
-        if(object instanceof String || typeof object === "string"){
+    public getValue(object: Object, attribute: string): any {
+        var obj: Object;
+        var id: string;
+        if (object instanceof String || typeof object === "string") {
             // object is only the id of the Object, we want to change
             id = object.toString();
             obj = this.getItem(id);
-        }else if(object.hasOwnProperty("id")) {
+        } else if (object.hasOwnProperty("id")) {
             // object is the real Object, we want to change
             obj = object;
             id = object['id'];
-        }else {
+        } else {
             console.log("object is neither Data nor String..");
             return;
         }
-        if(obj){
-            if(obj.hasOwnProperty(attribute)){
+        if (obj) {
+            if (obj.hasOwnProperty(attribute)) {
                 return obj[attribute];
-            }else if(obj instanceof Data){
+            } else if (obj instanceof Data) {
                 return (<Data>obj).getValue(attribute);
-            }else{
+            } else {
                 return null;
             }
         }
@@ -165,12 +165,12 @@ export default class Bridge {
 
     public getNumber(object: Object, attribute: string, defaultValue: number = 0): number {
         let res = <number>this.getValue(object, attribute);
-        if(typeof res === "number"){
+        if (typeof res === "number") {
             return res;
-        }else if (typeof res === "string"){
+        } else if (typeof res === "string") {
             // check whether res is a number
             let number = Number(res);
-            if(!Number.isNaN(number)){
+            if (!Number.isNaN(number)) {
                 return number;
             }
         }

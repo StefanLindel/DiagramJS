@@ -82,8 +82,8 @@ export class Form extends Control {
                 property = this.property + '.' + property;
                 field['property'] = property;
             }
-            if (!field.hasOwnProperty("control")) {
-                field['control'] = 'input';
+            if (!field.hasOwnProperty("class")) {
+                field['class'] = 'input';
             }
             let controlId = this.owner.load(field);
             this.children.set(controlId, this.owner.getControl(controlId));
@@ -99,11 +99,11 @@ export class Form extends Control {
      */
     private createField(field: Object) {
         var control = "input";
-        if (field.hasOwnProperty("control")) {
-            control = field['control'];
+        if (field.hasOwnProperty("class")) {
+            control = field['class'];
         }
         let input = document.createElement(control);
-        input.setAttribute("control", control);
+        input.setAttribute("class", control);
         var id: string;
         if (!field.hasOwnProperty("id")) {
             // TODO: not the best solution for generating unique id's for forms...
@@ -116,7 +116,7 @@ export class Form extends Control {
             input.setAttribute("property", property);
         }
         for (let attr in field) {
-            if (attr == "property" || attr == "control" || !field.hasOwnProperty(attr)) {
+            if (attr == "property" || attr == "class" || !field.hasOwnProperty(attr)) {
                 continue;
             }
             input.setAttribute(attr, field[attr]);

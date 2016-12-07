@@ -50,8 +50,8 @@ export class Input extends Control {
                 } else {
                     if (this.type)
                         this.$element.setAttribute("type", this.type);
-                    if (data.hasOwnProperty("control"))
-                        this.$element.setAttribute("control", data['control']);
+                    if (data.hasOwnProperty("class"))
+                        this.$element.setAttribute("class", data['class']);
                     this.$element.setAttribute("id", this.id);
                     this.$element.setAttribute("property", this.property);
                 }
@@ -74,9 +74,9 @@ export class Input extends Control {
 
             // Add listener to Input field:
             this.$element.onchange = ((ev: Event) => {
-                    this.applyingChange = true;
+                    // this.applyingChange = true;
                     this.controlChanged(ev);
-                    this.applyingChange = false;
+                    // this.applyingChange = false;
                 }
             );
         }

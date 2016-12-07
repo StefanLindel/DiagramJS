@@ -11,7 +11,7 @@
 <body>
 
 <!--<table id="persons" control="Table"  style="border:1px solid red;"><tr><th>#</th></tr><tr><td>1</td></tr></table>-->
-<table id="persons" control="Table" style="border:1px solid red;" property="talk">
+<table id="persons" class="Table" style="border:1px solid red;" property="talk">
     <thead>
     <tr>
         <th>room</th>
@@ -23,14 +23,14 @@
     </thead>
 </table>
 
-<div id="divContainer" control="Div" property="t1.talk" style="border: groove" onchange="alert('change!');"></div>
+<div id="divContainer" class="Div" property="t1.talk" style="border: groove" onchange="alert('change!');"></div>
 
-<input control="Input" id="t1talk" property="t1.talk" type="text" value="01. Meier" oncontextmenu="alert('t1.talk');">
+<input class="Input" id="t1talk" property="t1.talk" type="text" value="01. Meier" oncontextmenu="alert('t1.talk');">
 
 <script>
     //var bridge = new Bridge();
     bridge.load({
-        control: "table",
+        class: "table",
         property: "talk",
         columns: [{id: 'room'}, {id: 'day'}, {id: 'talk'}, {id: 'state'}, {id: 'time'}],
         searchColumns: ["day", "talk"]
@@ -40,7 +40,7 @@
     var form = {
         id: "t1form",
         property: "t1",
-        control: "form",
+        class: "form",
         elements: [
             {id: "testid1", name: "testid1", property: "talk"},
             {id: "testid2", name: "testid2", property: "room"},
@@ -55,7 +55,7 @@
     bridge.load("divContainer");
 
     var t1controlid = bridge.load("t1talk");
-    bridge.load({control: "input", id: "t2.talk", property: "t2.talk", type: "text"});
+    bridge.load({class: "input", id: "t2.talk", property: "t2.talk", type: "text"});
     // for debugging purpose:
     document.getElementById("t2.talk").setAttribute("oncontextmenu", "alert('t2.talk');");
 
@@ -126,7 +126,7 @@
     var divContainer = document.getElementById("divContainer");
     divContainer.innerHTML = "01. Test";
 
-    bridge.load({id:"label", control: "label", textContent: "Testitest"});
+    bridge.load({id:"label", class: "label", textContent: "Testitest"});
 
 </script>
 </body>
