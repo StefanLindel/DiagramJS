@@ -1,0 +1,111 @@
+<html><head>
+	<meta charset="utf-8">
+	<title>Bridge - Simple Example</title>
+	<script language="Javascript" src="../build/output.js"></script>
+	<link type="text/css" rel="stylesheet" href="../material.css">
+	<link type="text/css" rel="stylesheet" href="../style.css">
+</head>
+<body>
+<table class="mdl-data-table mdl-js-data-table mdl-data-table--selectable mdl-shadow--2dp" id="control1" control="table">
+	<tbody>
+		<tr>
+			<td>Heyl</td>
+			<td class="resizebody" style="padding: 0px;"></td>
+			<td>Monday</td>
+			<td class="resizebody" style="padding: 0px;"></td>
+			<td>01. Schulze</td>
+			<td class="resizebody" style="padding: 0px;"></td>
+			<td>ok</td>
+			<td class="resizebody" style="padding: 0px;"></td>
+		</tr>
+		<tr>
+			<td>Heyl</td>
+			<td class="resizebody" style="padding: 0px;"></td>
+			<td>Monday</td>
+			<td class="resizebody" style="padding: 0px;"></td>
+			<td>02. Schmidt</td>
+			<td class="resizebody" style="padding: 0px;"></td>
+			<td>ok</td>
+			<td class="resizebody" style="padding: 0px;"></td>
+		</tr>
+	</tbody>
+	<thead>
+		<tr><td colspan="8"><input class="search"></td></tr>
+		<tr>
+			<th class="sort" id="room">room</th>
+			<th class="resize" style="padding: 0px;"></th>
+			<th class="sort" id="day">day</th>
+			<th class="resize" style="padding: 0px;"></th>
+			<th class="sort" id="talk">talk</th>
+			<th class="resize" style="padding: 0px;"></th>
+			<th class="sort">state</th>
+			<th class="resize" style="padding: 0px;"></th>
+			<th class="tableOption"><div class="dropdown-content" style="position: absolute;"><a href="javascript:void(0);">fix</a></div></th>
+		</tr></thead>
+	</table>
+<script>
+function register(item) {
+	item.ondragstart = handleDragStart;
+	item.ondragenter = handleDragEnter;
+	item.ondragleave = handleDragLeave;
+
+	item.ondragover = handleDragOver;
+	item.ondrop = handleDrop;
+	item.ondragend = handleDragEnd;
+}
+var item = document.getElementById("room");
+register(item);
+register(document.getElementById("day"));
+register(document.getElementById("talk"));
+
+
+var dragSrcEl = null;
+
+function handleDragStart(e) {
+  // Target (this) element is the source node.
+  this.style.opacity = '0.4';
+
+  dragSrcEl = this;
+
+  e.dataTransfer.effectAllowed = 'move';
+  e.dataTransfer.setData('text/html', this.innerHTML);
+}
+function handleDragEnter(e) {
+  // this / e.target is the current hover target.
+  this.classList.add('over');
+}
+
+function handleDragLeave(e) {
+  this.classList.remove('over');  // this / e.target is previous target element.
+}
+
+function handleDragOver(e) {
+  if (e.preventDefault) {
+    e.preventDefault(); // Necessary. Allows us to drop.
+  }
+
+  e.dataTransfer.dropEffect = 'move';  // See the section on the DataTransfer object.
+
+  return false;
+}
+function handleDrop(e) {
+  // this / e.target is current target element.
+
+  if (e.stopPropagation) {
+    e.stopPropagation(); // stops the browser from redirecting.
+  }
+
+  // See the section on the DataTransfer object.
+
+  return false;
+}
+function handleDragEnd(e) {
+  // this/e.target is the source node.
+
+  [].forEach.call(cols, function (col) {
+    col.classList.remove('over');
+  });
+}
+</script>
+</body>
+</html>

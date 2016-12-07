@@ -1,6 +1,7 @@
 import Control from '../Control'
 import BridgeElement from '../BridgeElement'
 import Data from '../Data'
+import {util} from '../util'
 
 export class Table extends Control {
     private columns: Column[] = [];
@@ -22,6 +23,7 @@ export class Table extends Control {
     private resizeColumn:Column;
     private resizeTimeStamp:number;
     private resizeX:number;
+    private columnMover:ColumnMove = new ColumnMove(this);
 
     constructor(owner, data) {
         super(owner, data);
@@ -129,7 +131,7 @@ export class Table extends Control {
                 this.$headersection.appendChild(headerrow);
             }
         }
-        var that = this;
+
         if (data["columns"]) {
             // It is a json must add all things and generate HTML
             for (let i in data["columns"]) {
@@ -143,13 +145,14 @@ export class Table extends Control {
                 col.$element = document.createElement("th");
                 col.$element.innerHTML = col.label;
                 // resize Header
-                col.$resize = document.createElement("th");
-                col.$resize.style.setProperty("padding", "0");
+                col.$resize = document.createElement("div");
                 col.$resize.classList.add("resize");
+                col.$element.appendChild(col.$resize);
+
                 this.addHeaderInfo(col);
                 this.columns.push(col);
                 headerrow.appendChild(col.$element);
-                headerrow.appendChild(col.$resize);
+                this.columnMover.register(col);
             }
             let cell = document.createElement("th");
             cell.classList.add("tableOption");
@@ -165,12 +168,10 @@ export class Table extends Control {
              toggle between hiding and showing the dropdown content */
             cell.addEventListener(
                 'click',
-                function(evt){
+                function(){
                     context.classList.toggle("show");
                 },
                 false);
-
-
 
             let link = document.createElement("a");
             link.appendChild(document.createTextNode("fix") );
@@ -179,46 +180,17 @@ export class Table extends Control {
             link.href = "javascript:void(0);";
             context.appendChild(link);
         }
-        this.$element.addEventListener(
-            'mousemove',
-            function(evt){
-                that.resizingColumn(evt);
-            },
-            false);
-        this.$element.addEventListener(
-            'mousedown',
-            function(evt){
-                that.resizeColumnStart(evt);
-            },
-            false);
-        this.$element.addEventListener(
-            'mouseup',
-            function(evt){
-                that.resizeColumnStart(evt);
-            },
-            false);
-        this.$element.addEventListener(
-            'resize',
-            function(evt){
-                that.resizeColumnStart(evt);
-            },
-            false);
+        this.registerEvents('mousemove', 'mousedown', 'mouseup', 'resize', 'keyup');
 
         // Check for SearchBar
         //if(data["searchproperty"]){
         // Create Full Row
         let searchBar = document.createElement("tr");
         let cell = document.createElement("td");
-        cell.setAttribute("colspan", ""+(this.columns.length*2));
+        cell.setAttribute("colspan", ""+(this.columns.length));
         searchBar.appendChild(cell);
 
         let search = document.createElement("input");
-        search.addEventListener(
-            'keyup',
-            function(evt){
-                that.search(evt.target["value"]);
-            },
-            false);
         search.className = "search";
         cell.appendChild(search);
         if(this.resultColumn) {
@@ -238,7 +210,31 @@ export class Table extends Control {
         let first = this.$headersection.children.item(0);
         this.$headersection.insertBefore(searchBar, first)
     }
-
+    private registerEvents(...events:string[]) {
+        let that = this;
+        for (var i = 0; i < events.length; i++) {
+            this.$element.addEventListener(events[i], function(evt){that.tableEvent(events[i], evt);}, false);
+        }
+    }
+    public tableEvent(type:string, e:Event) {
+        if(type=='mousedown' || type=='resize') {
+            // End to Resize
+            if (e["buttons"] == 1) {
+                let c:number;
+                for(c=0;c<this.columns.length;c++) {
+                    if(this.columns[c].$resize === e.target) {
+                        this.resizeColumn = this.columns[c];
+                        break;
+                    }
+                }
+                this.resizeTimeStamp = e.timeStamp;
+                this.resizeX  = e["pageX"];
+            } else {
+                this.resizeColumn = null;
+                this.resizeTimeStamp = 0;
+            }
+        }
+    }
     public resizingColumn(evt) {
         if(evt.buttons==1 && this.resizeColumn) {
             if(this.resizeTimeStamp && evt.timeStamp - this.resizeTimeStamp < 2000) {
@@ -251,24 +247,6 @@ export class Table extends Control {
             this.resizeTimeStamp = evt.timeStamp;
         }
     }
-    public resizeColumnStart(evt) {
-        if (evt.buttons == 1) {
-            let c:number;
-            for(c=0;c<this.columns.length;c++) {
-                if(this.columns[c].$resize === evt.target) {
-                    this.resizeColumn = this.columns[c];
-                    break;
-                }
-            }
-            this.resizeTimeStamp = evt.timeStamp;
-            this.resizeX  = evt.pageX;
-        } else {
-            this.resizeColumn = null;
-            this.resizeTimeStamp = 0;
-        }
-    }
-
-
     public parsingHeader(row: HTMLTableRowElement) {
         for (let i in row.children) {
             if (row.children.hasOwnProperty(i) === false) {
@@ -358,11 +336,6 @@ export class Table extends Control {
             for (let i = 0; i < count; i++) {
                 cell = document.createElement("td");
                 row.appendChild(cell);
-                // Resize Column
-                cell = document.createElement("td");
-                cell.style.setProperty("padding", "0");
-                cell.classList.add("resizebody");
-                row.appendChild(cell);
             }
             this.cells[entity.id] = row;
             item.gui = row;
@@ -370,7 +343,7 @@ export class Table extends Control {
         for(let c:number =0;c<this.columns.length;c++) {
             let name = this.columns[c].attribute;
             if (name === property) {
-                cell = row.children[c*2];
+                cell = row.children[c];
                 cell.innerHTML = newValue;
             }
         }
@@ -440,8 +413,8 @@ export class Table extends Control {
         let path:string[] = this.sortColumn.attribute.split(".");
         let itemA = a.model.values;
         let itemB = b.model.values;
-        var check = this.sortColumn.attribute;
-        for(var p=0;p<path.length;p++) {
+        let check = this.sortColumn.attribute;
+        for(let p=0;p<path.length;p++) {
             check = path[p];
             if(itemA[check]) {
                 itemA = itemA[check];
@@ -501,16 +474,16 @@ export class Table extends Control {
         let pos:number = 0;
         let split:Array<string> = [];
         let quote:boolean = false;
-        for (var i:number = 0; i < this.lastSearchText.length; i++) {
+        for (let i:number = 0; i < this.lastSearchText.length; i++) {
             if ((this.lastSearchText.charAt(i) == " ") && !quote ) {
-                var txt = this.lastSearchText.substring(pos, i).trim();
+                let txt = this.lastSearchText.substring(pos, i).trim();
                 if (txt.length > 0) {
                     split.push(txt);
                 }
                 pos = i + 1;
             } else if (this.lastSearchText.charAt(i) == "\"") {
                 if (quote) {
-                    var txt = this.lastSearchText.substring(pos, i).trim();
+                    let txt = this.lastSearchText.substring(pos, i).trim();
                     if (txt.length > 0) {
                         split.push(txt);
                     }
@@ -532,7 +505,7 @@ export class Table extends Control {
         this.showedItems=[];
         // Search for Simple Context
         for (let i:number = 0; i < root.length; i++) {
-            var item:BridgeElement = root[i];
+            let item:BridgeElement = root[i];
             this.showItem(item, this.searching(item));
         }
     }
@@ -563,7 +536,7 @@ export class Table extends Control {
         fullText = fullText.trim().toLowerCase();
         for (let z:number = 0; z < this.searchText.length; z++) {
             if ("" != this.searchText[z]) {
-                var orSplit:Array<string>;
+                let orSplit:Array<string>;
                 if (this.searchText[z].indexOf("|") > 0) {
                     orSplit = this.searchText[z].split("|");
                 } else {
@@ -599,11 +572,89 @@ export class Table extends Control {
         }
         return true;
     }
+    public getColumn() : Column[]{
+        return this.columns;
+    }
 }
 class Column {
     label: string;
     attribute: string;
     $element: HTMLTableHeaderCellElement;
-    $resize: HTMLTableHeaderCellElement;
+    $resize: HTMLDivElement;
     visible:boolean;
+ }
+
+ class ColumnMove {
+    private owner:Table;
+    private dragSrcEl:Column = null;
+    constructor(owner:Table) {
+        this.owner = owner;
+    }
+    public register(item:Column) {
+        let gui:HTMLElement  = item.$element;
+        let that = this;
+        gui.ondragstart = function(e){that.handleDragStart(e, item)};
+        gui.ondragenter = function(){ item.$element.classList.add('over')};
+        gui.ondragleave = function(){ item.$element.classList.remove('over')};
+        gui.ondragover = function(e){ColumnMove.handleDragOver(e)};
+        gui.ondrop =  function(e){that.handleDrop(e)};
+        gui.ondragend = function(e){that.handleDragEnd(e, item)};
+     }
+    public handleDragStart(e:DragEvent, c:Column) {
+        // Target (this) element is the source node.
+         c.$element.style.opacity = '0.4';
+         this.dragSrcEl = c;
+         e.dataTransfer.effectAllowed = 'move';
+         e.dataTransfer.setData('text/json', JSON.stringify(util.toJson(c)));
+    }
+    public static handleDragOver(e:DragEvent) {
+         if (e.preventDefault) {
+             e.preventDefault(); // Necessary. Allows us to drop.
+         }
+         e.dataTransfer.dropEffect = 'move';  // See the section on the DataTransfer object.
+         return false;
+    }
+    public handleDrop(e:DragEvent) {
+        // this / e.target is current target element.
+         if (e.stopPropagation) {
+             e.stopPropagation(); // stops the browser from redirecting.
+         }
+         // See the section on the DataTransfer object.
+        let columns = this.owner.getColumn();
+        let start=-1, end=-1;
+        for (let i = 0; i < columns.length; i++) {
+            if( columns[i].$element == e.currentTarget) {
+                end = i;
+            }
+            if( columns[i].$element == this.dragSrcEl.$element) {
+                start=i;
+            }
+            if(start>=0 && end>=0) {
+                break;
+            }
+        }
+        let diff:number=1;
+        if(start>end) {
+            diff=-1;
+        }
+        let line:HTMLElement = this.dragSrcEl.$element.parentElement;
+        while(start != end) {
+            line.removeChild(columns[start+diff].$element);
+            line.insertBefore(columns[start].$element, columns[start+diff].$element)
+            //line.inser
+
+            columns[start] = columns[start+diff];
+            start = start+diff;
+        }
+        columns[end] = this.dragSrcEl;
+        return false;
+     }
+     public handleDragEnd(e:DragEvent, c:Column) {
+         // this/e.target is the source node.
+         c.$element.style.opacity = '1';
+         let columns:Column[] = this.owner.getColumn();
+         for(let i=0;i<columns.length;i++) {
+             columns[i].$element.classList.remove('over')
+         }
+     }
  }

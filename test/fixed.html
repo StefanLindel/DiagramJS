@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html><head><title>testdoc</title>
+<style type="text/css">
+    body { font:16px Calibri;}
+    table { border-collapse:separate; border-top: 3px solid grey; }
+    td, th {
+        margin:0;
+        border:3px solid grey;
+        border-top-width:0px;
+        white-space:nowrap;
+    }
+    div {
+        width: 600px;
+        overflow-x:scroll;  
+        margin-left:5em;
+        overflow-y:visible;
+        padding-bottom:1px;
+    }
+    .headcol {
+        position:absolute;
+        width:5em;
+        left:0;
+        top:auto;
+        border-right: 0px none black;
+        border-top-width:3px; /*only relevant for first row*/
+        margin-top:-3px; /*compensate for top border*/
+    }
+    .headcol:before {content: 'Row ';}
+    .long { background:yellow; letter-spacing:1em; }
+</style></head>
+<body>
+<div><table>
+    <tr><th class="headcol">1</th><td class="long">QWERTYUIOPASDFGHJKLZXCVBNM</td><td class="headcol">QWERTYUIOPASDFGHJKLZXCVBNM</td></tr>
+    <tr><th class="headcol">2</th><td class="long">QWERTYUIOPASDFGHJKLZXCVBNM</td><td class="long">QWERTYUIOPASDFGHJKLZXCVBNM</td></tr>
+    <tr><th class="headcol">3</th><td class="long">QWERTYUIOPASDFGHJKLZXCVBNM</td><td class="long">QWERTYUIOPASDFGHJKLZXCVBNM</td></tr>
+    <tr><th class="headcol">4</th><td class="long">QWERTYUIOPASDFGHJKLZXCVBNM</td><td class="long">QWERTYUIOPASDFGHJKLZXCVBNM</td></tr>
+    <tr><th class="headcol">5</th><td class="long">QWERTYUIOPASDFGHJKLZXCVBNM</td><td class="long">QWERTYUIOPASDFGHJKLZXCVBNM</td></tr>
+    <tr><th class="headcol">6</th><td class="long">QWERTYUIOPASDFGHJKLZXCVBNM</td><td class="long">QWERTYUIOPASDFGHJKLZXCVBNM</td></tr>
+    <tr><th class="headcol">7</th><td class="long">QWERTYUIOPASDFGHJKLZXCVBNM</td><td class="long">QWERTYUIOPASDFGHJKLZXCVBNM</td></tr>
+    <tr><th class="headcol">8</th><td class="long">QWERTYUIOPASDFGHJKLZXCVBNM</td><td class="long">QWERTYUIOPASDFGHJKLZXCVBNM</td></tr>
+    <tr><th class="headcol">9</th><td class="long">QWERTYUIOPASDFGHJKLZXCVBNM</td><td class="long">QWERTYUIOPASDFGHJKLZXCVBNM</td></tr>
+</table></div>
+</body>
+</html>

@@ -1,0 +1,24 @@
+Tabelle:
+- Verschieben
+- Spalten fixieren
+- Editieren
+- Spalten ausblenden
+- Export
+
+Form komplett anhand eines Item Vertical
+ 
+
+
+
+Java:
+- Mail
+- Broadcast
+- Webconnection (FileConnection)
+
+
+
+Grafiken:
+
+MOF Attribute:Typ= Wert
+Dependency
+

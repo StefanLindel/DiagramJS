@@ -161,23 +161,23 @@ export default class Graph {
   }
 
   private initFeatures(features) {
-    if (features) {
-      if (features.zoom) {
-        let mousewheel = 'onwheel' in document.createElement('div') ? 'wheel' : document.onmousewheel !== undefined ? 'mousewheel' : 'DOMMouseScroll';
-        EventBus.subscribe(new Zoom(), mousewheel);
+      if (features) {
+          if (features.zoom) {
+              let mousewheel = 'onwheel' in document.createElement('div') ? 'wheel' : document.onmousewheel !== undefined ? 'mousewheel' : 'DOMMouseScroll';
+              EventBus.subscribe(new Zoom(), mousewheel);
+          }
+          if (features.editor) {
+              EventBus.subscribe(new Editor(this), 'dblclick', 'editor');
+          }
+          if (features.drag) {
+              EventBus.subscribe(new Drag(), 'mousedown', 'mouseup', 'mousemove', 'mouseleave');
+          }
+          if (features.select) {
+              EventBus.subscribe(new Select(this.model), 'click', 'drag');
+          }
+          if (features.palette) {
+              new Palette(this);
+          }
       }
-      if (features.editor) {
-        EventBus.subscribe(new Editor(this), 'dblclick', 'editor');
-      }
-      if (features.drag) {
-        EventBus.subscribe(new Drag(), 'mousedown', 'mouseup', 'mousemove', 'mouseleave');
-      }
-      if (features.select) {
-        EventBus.subscribe(new Select(this.model), 'click', 'drag');
-      }
-      if (features.palette) {
-        new Palette(this);
-      }
-    }
   }
 }

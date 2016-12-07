@@ -200,4 +200,54 @@ export class util {
 		}
 		return "#000";
 	}
+	public static toJson(ref) : Object {
+		let result = {};
+		return util.copy(result, ref, false, false);
+	}
+	/**
+	 * copy One Json into another
+	 * @function
+	 * @param ref reference Json
+	 * @param src source Json
+	 * @param full all attributes include privet $
+	 * @param replace set the original reference or copy it
+	 * @returns ref
+	 * @name copy
+	 */
+	public static copy(ref, src, full:boolean, replace:boolean) {
+		if (src) {
+			let i;
+			for (i in src) {
+				if (!src.hasOwnProperty(i) || typeof (src[i]) === "function") {
+					continue;
+				}
+				if (i.charAt(0) === "$") {
+					if (full) {ref[i] = src[i]; }
+					continue;
+				}
+				if (typeof (src[i]) === "object") {
+					if (replace) {
+						ref[i] = src[i];
+						continue;
+					}
+					if (!ref[i]) {
+						if (src[i] instanceof Array) {
+							ref[i] = [];
+						} else {
+							ref[i] = {};
+						}
+					}
+					util.copy(ref[i], src[i], full, false);
+				} else {
+					if (src[i] === "") {
+						continue;
+					}
+					ref[i] = src[i];
+				}
+			}
+			if (src.width) {ref.$startWidth = src.width; }
+			if (src.height) {ref.$startHeight = src.height; }
+		}
+		return ref;
+	};
 }
