@@ -25,6 +25,9 @@ export class Table extends Control {
     private moveTimeStamp:number;
     private moveX:number;
     private dragSrcEl:Column = null;
+    private movePos:number;
+    private dragColumn:Column;
+    private dragPos:number;
 
     constructor(owner, data) {
         super(owner, data);
@@ -145,11 +148,8 @@ export class Table extends Control {
                 col.attribute = col["attribute"] || column.id;
                 col.$element = document.createElement("th");
                 col.$element.innerHTML = col.label;
-                col.$element.ondragstart = function(e){
-                    console.log("dragstart:"+column);
-                    e.dataTransfer.effectAllowed = 'move';
-                    e.dataTransfer.setData('text/json', JSON.stringify(util.toJson(column)));
-                };
+                col.$element.draggable = true;
+
                 // resize Header
                 col.$resize = document.createElement("div");
                 col.$resize.classList.add("resize");
@@ -183,10 +183,7 @@ export class Table extends Control {
             link.href = "javascript:void(0);";
             context.appendChild(link);
         }
-        this.registerEvents('mousemove', 'mousedown', 'mouseup', 'resize', 'keyup');
-        this.$element.addEventListener("dragstart", function(e) {
-            console.log("dragstart: table" );
-        });
+        this.registerEvents(['mousemove', 'mousedown', 'mouseup', 'resize', 'dragstart', 'dragover', 'drop', 'dragend']);
 
         // Check for SearchBar
         //if(data["searchproperty"]){
@@ -219,13 +216,12 @@ export class Table extends Control {
         let first = this.$headersection.children.item(0);
         this.$headersection.insertBefore(searchBar, first)
     }
-    private registerEvents(...events:string[]) {
+    private registerEvents(events:string[]) {
         let that = this;
         for (let i = 0; i < events.length; i++) {
             this.$element.addEventListener(events[i], function (evt) {return that.tableEvent(events[i], evt);});
         }
     }
-
 
     public tableEvent(type:string, e:Event) {
         console.log("table:"+type);
@@ -246,19 +242,13 @@ export class Table extends Control {
                 for (c = 0; c < this.columns.length; c++) {
                     if (this.columns[c].$resize === e.target) {
                         this.moveElement = this.columns[c];
+                        this.movePos = c;
                         this.isDrag = false;
                         break;
                     } else if (this.columns[c].$element === e.target) {
                         this.moveElement = this.columns[c];
+                        this.movePos = c;
                         this.isDrag = true;
-                        let element:HTMLElement  = this.moveElement.$element;
-                        element.style.opacity = '0.4';
-                        this.moveElement.$element.draggable = true;
-                        element.ondragstart.call(this, new DragEvent());
-                        return true;
-
-
-                        //element.ondragstart.call(this);
                     }
                 }
                 this.moveTimeStamp= e.timeStamp;
@@ -272,7 +262,6 @@ export class Table extends Control {
                     if (this.isDrag) {
                         //FIXME
                     } else {
-                        console.log("MOVE")
                         let x = eventX - this.moveX;
                         let width = this.moveElement.$element.offsetWidth;
                         this.moveElement.$element.width = "" + (width + x);
@@ -282,37 +271,33 @@ export class Table extends Control {
                 this.moveX = eventX;
                 this.moveTimeStamp = e.timeStamp;
             }
+        } else if(this.isDrag) {
+            this.columnDragEvent(type, <DragEvent> e);
         }
     }
-    public dragEvent(type:string, e:Event) {
-        console.log("column:"+type);
-        let column: Column = null;
-        for (let c = 0; c < this.columns.length; c++) {
-            if (this.columns[c].$element == e.target) {
-                column = this.columns[c];
-                break;
-            }
-        }
-        if (column != null) {
-            // Column Found
-            this.columnDragEvent(type, column, <DragEvent> e);
-        }
-    }
-
-    private columnDragEvent(type:string, column:Column, e:DragEvent) {
+    private columnDragEvent(type:string, e:DragEvent) {
         if (type == 'dragstart') {
             // Target (this) element is the source node.
-            column.$element.style.opacity = '0.4';
-            this.dragSrcEl = column;
+            this.moveElement.$element.style.opacity = '0.4';
             e.dataTransfer.effectAllowed = 'move';
-            e.dataTransfer.setData('text/json', JSON.stringify(util.toJson(column)));
+            e.dataTransfer.setData('text/json', JSON.stringify(util.toJson(this.moveElement)));
         } else  if(type == 'dragenter') {
-            column.$element.classList.add('over');
+
         } else  if(type == 'dragleave') {
-            column.$element.classList.remove('over');
+            this.moveElement.$element.classList.remove('over');
         } else if(type == 'dragover') {
             if (e.preventDefault) {
                 e.preventDefault(); // Necessary. Allows us to drop.
+            }
+            let ele:HTMLElement = <HTMLElement>e.target;
+            for (let c = 0; c < this.columns.length; c++) {
+                if (this.columns[c].$element == e.target) {
+                    this.dragColumn = this.columns[c];
+                    this.dragPos = c;
+                    this.dragColumn.$element.classList.add('over');
+                } else {
+                    this.columns[c].$element.classList.remove('over');
+                }
             }
             e.dataTransfer.dropEffect = 'move';  // See the section on the DataTransfer object.
         } else if(type == 'drop') {
@@ -349,7 +334,7 @@ export class Table extends Control {
             this.columns[end] = this.dragSrcEl;
         } else if(type == 'dragend') {
             // this/e.target is the source node.
-            column.$element.style.opacity = '1';
+            this.moveElement.$element.style.opacity = '1';
             for(let i=0;i<this.columns.length;i++) {
                 this.columns[i].$element.classList.remove('over')
             }

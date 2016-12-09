@@ -1,14 +1,15 @@
 <html><body>
 <div id="table" style="border: 1px solid green;width:300px;height:100px">
-<div id="from" style="border: 1px solid black;height:50px;width:50px;margin:20px;float: left;"></div>
-<div id="to" style="border: 1px solid red;height:50px;width:50px;margin:20px;float: left;"></div>
+<div id="from" draggable="true" style="border: 1px solid black;height:50px;width:50px;margin:20px;float: left;"></div>
+<div id="to" draggable="true" style="border: 1px solid red;height:50px;width:50px;margin:20px;float: left;"></div>
 </div>
 <script>
-document.getElementById("table").onmousedown = mousedown;
-document.getElementById("table").ondragstart = dragstart;
-document.getElementById("from").ondragstart = dragstart;
-document.getElementById("table").onmousemove = mousemove;
-document.getElementById("table").onmouseup = mouseup;
+var useCapture=true;
+//document.getElementById("table").addEventListener("mousedown", mousedown, useCapture);
+document.getElementById("table").addEventListener("dragstart", dragstart, useCapture);
+//document.getElementById("from").addEventListener("dragstart", dragstart, useCapture);
+//document.getElementById("table").addEventListener("mousemove", mousemove, useCapture);
+//document.getElementById("table").addEventListener("mouseup", mouseup, useCapture);
 function mousedown(e){
 	//e.target.draggable = true;
 	//e.target.ondragstart.call(this, new DragEvent("text/json", null));
