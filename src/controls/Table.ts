@@ -20,10 +20,11 @@ export class Table extends Control {
     private searchText:Array<string>=[];
     private sortColumn:Column;
     private direction;
-    private resizeColumn:Column;
-    private resizeTimeStamp:number;
-    private resizeX:number;
-    private columnMover:ColumnMove = new ColumnMove(this);
+    private moveElement:Column = null;
+    private isDrag:boolean = false;
+    private moveTimeStamp:number;
+    private moveX:number;
+    private dragSrcEl:Column = null;
 
     constructor(owner, data) {
         super(owner, data);
@@ -76,7 +77,7 @@ export class Table extends Control {
 
         this.id = id;
         table.id = id;
-        table.setAttribute("class", this.constructor["name"].toLowerCase());
+        table.setAttribute("type", this.constructor["name"].toLowerCase());
         let i = 0;
         for (let c in table.children) {
             if (table.children.hasOwnProperty(c) === false) {
@@ -144,15 +145,18 @@ export class Table extends Control {
                 col.attribute = col["attribute"] || column.id;
                 col.$element = document.createElement("th");
                 col.$element.innerHTML = col.label;
+                col.$element.ondragstart = function(e){
+                    console.log("dragstart:"+column);
+                    e.dataTransfer.effectAllowed = 'move';
+                    e.dataTransfer.setData('text/json', JSON.stringify(util.toJson(column)));
+                };
                 // resize Header
                 col.$resize = document.createElement("div");
                 col.$resize.classList.add("resize");
                 col.$element.appendChild(col.$resize);
-
                 this.addHeaderInfo(col);
                 this.columns.push(col);
                 headerrow.appendChild(col.$element);
-                this.columnMover.register(col);
             }
             let cell = document.createElement("th");
             cell.classList.add("tableOption");
@@ -161,7 +165,6 @@ export class Table extends Control {
             let context = document.createElement("div");
             context.classList.add("dropdown-content");
             context.style.setProperty("position", "absolute");
-            //cell.appendChild(document.createElement("br"));
             cell.appendChild(context);
 
             /* When the user clicks on the button,
@@ -181,6 +184,9 @@ export class Table extends Control {
             context.appendChild(link);
         }
         this.registerEvents('mousemove', 'mousedown', 'mouseup', 'resize', 'keyup');
+        this.$element.addEventListener("dragstart", function(e) {
+            console.log("dragstart: table" );
+        });
 
         // Check for SearchBar
         //if(data["searchproperty"]){
@@ -192,6 +198,9 @@ export class Table extends Control {
 
         let search = document.createElement("input");
         search.className = "search";
+        let that = this;
+        search.addEventListener('keyup', function(evt){that.search(evt.target["value"]);});
+
         cell.appendChild(search);
         if(this.resultColumn) {
             if(this.resultColumn.startsWith("#") == false) {
@@ -212,39 +221,138 @@ export class Table extends Control {
     }
     private registerEvents(...events:string[]) {
         let that = this;
-        for (var i = 0; i < events.length; i++) {
-            this.$element.addEventListener(events[i], function(evt){that.tableEvent(events[i], evt);}, false);
+        for (let i = 0; i < events.length; i++) {
+            this.$element.addEventListener(events[i], function (evt) {return that.tableEvent(events[i], evt);});
         }
     }
+
+
     public tableEvent(type:string, e:Event) {
-        if(type=='mousedown' || type=='resize') {
+        console.log("table:"+type);
+        let button: number = 0;
+        let eventX: number = 0;
+        if (e instanceof MouseEvent) {
+            button = e.buttons;
+            eventX = e.pageX;
+        }
+        console.log("table:"+type);
+        if (type == 'mouseup') {
+            this.moveElement = null;
+        } else if (type == 'mousedown' || type == 'resize') {
             // End to Resize
-            if (e["buttons"] == 1) {
-                let c:number;
-                for(c=0;c<this.columns.length;c++) {
-                    if(this.columns[c].$resize === e.target) {
-                        this.resizeColumn = this.columns[c];
+            this.moveElement = null;
+            if (button == 1) {
+                let c: number;
+                for (c = 0; c < this.columns.length; c++) {
+                    if (this.columns[c].$resize === e.target) {
+                        this.moveElement = this.columns[c];
+                        this.isDrag = false;
                         break;
+                    } else if (this.columns[c].$element === e.target) {
+                        this.moveElement = this.columns[c];
+                        this.isDrag = true;
+                        let element:HTMLElement  = this.moveElement.$element;
+                        element.style.opacity = '0.4';
+                        this.moveElement.$element.draggable = true;
+                        element.ondragstart.call(this, new DragEvent());
+                        return true;
+
+
+                        //element.ondragstart.call(this);
                     }
                 }
-                this.resizeTimeStamp = e.timeStamp;
-                this.resizeX  = e["pageX"];
+                this.moveTimeStamp= e.timeStamp;
+                this.moveX = eventX;
             } else {
-                this.resizeColumn = null;
-                this.resizeTimeStamp = 0;
+                this.moveTimeStamp = 0;
+            }
+        } else if (type == 'mousemove') {
+            if (button == 1 && this.moveElement) {
+                if (this.moveTimeStamp && e.timeStamp - this.moveTimeStamp < 2000) {
+                    if (this.isDrag) {
+                        //FIXME
+                    } else {
+                        console.log("MOVE")
+                        let x = eventX - this.moveX;
+                        let width = this.moveElement.$element.offsetWidth;
+                        this.moveElement.$element.width = "" + (width + x);
+                        e.stopPropagation();
+                    }
+                }
+                this.moveX = eventX;
+                this.moveTimeStamp = e.timeStamp;
             }
         }
     }
-    public resizingColumn(evt) {
-        if(evt.buttons==1 && this.resizeColumn) {
-            if(this.resizeTimeStamp && evt.timeStamp - this.resizeTimeStamp < 2000) {
-                let x = evt.pageX - this.resizeX;
-                let width = this.resizeColumn.$element.offsetWidth;
-                this.resizeColumn.$element.width = ""+ (width + x);
-                evt.stopPropagation();
+    public dragEvent(type:string, e:Event) {
+        console.log("column:"+type);
+        let column: Column = null;
+        for (let c = 0; c < this.columns.length; c++) {
+            if (this.columns[c].$element == e.target) {
+                column = this.columns[c];
+                break;
             }
-            this.resizeX = evt.pageX;
-            this.resizeTimeStamp = evt.timeStamp;
+        }
+        if (column != null) {
+            // Column Found
+            this.columnDragEvent(type, column, <DragEvent> e);
+        }
+    }
+
+    private columnDragEvent(type:string, column:Column, e:DragEvent) {
+        if (type == 'dragstart') {
+            // Target (this) element is the source node.
+            column.$element.style.opacity = '0.4';
+            this.dragSrcEl = column;
+            e.dataTransfer.effectAllowed = 'move';
+            e.dataTransfer.setData('text/json', JSON.stringify(util.toJson(column)));
+        } else  if(type == 'dragenter') {
+            column.$element.classList.add('over');
+        } else  if(type == 'dragleave') {
+            column.$element.classList.remove('over');
+        } else if(type == 'dragover') {
+            if (e.preventDefault) {
+                e.preventDefault(); // Necessary. Allows us to drop.
+            }
+            e.dataTransfer.dropEffect = 'move';  // See the section on the DataTransfer object.
+        } else if(type == 'drop') {
+            // this / e.target is current target element.
+            if (e.stopPropagation) {
+                e.stopPropagation(); // stops the browser from redirecting.
+            }
+            // See the section on the DataTransfer object.
+            let start=-1, end=-1;
+            for (let i = 0; i < this.columns.length; i++) {
+                if( this.columns[i].$element == e.currentTarget) {
+                    end = i;
+                }
+                if( this.columns[i].$element == this.dragSrcEl.$element) {
+                    start=i;
+                }
+                if(start>=0 && end>=0) {
+                    break;
+                }
+            }
+            let diff:number=1;
+            if(start>end) {
+                diff=-1;
+            }
+            let line:HTMLElement = this.dragSrcEl.$element.parentElement;
+            while(start != end) {
+                line.removeChild(this.columns[start+diff].$element);
+                line.insertBefore(this.columns[start].$element, this.columns[start+diff].$element);
+                //line.inser
+
+                this.columns[start] = this.columns[start+diff];
+                start = start+diff;
+            }
+            this.columns[end] = this.dragSrcEl;
+        } else if(type == 'dragend') {
+            // this/e.target is the source node.
+            column.$element.style.opacity = '1';
+            for(let i=0;i<this.columns.length;i++) {
+                this.columns[i].$element.classList.remove('over')
+            }
         }
     }
     public parsingHeader(row: HTMLTableRowElement) {
@@ -582,79 +690,4 @@ class Column {
     $element: HTMLTableHeaderCellElement;
     $resize: HTMLDivElement;
     visible:boolean;
- }
-
- class ColumnMove {
-    private owner:Table;
-    private dragSrcEl:Column = null;
-    constructor(owner:Table) {
-        this.owner = owner;
-    }
-    public register(item:Column) {
-        let gui:HTMLElement  = item.$element;
-        let that = this;
-        gui.ondragstart = function(e){that.handleDragStart(e, item)};
-        gui.ondragenter = function(){ item.$element.classList.add('over')};
-        gui.ondragleave = function(){ item.$element.classList.remove('over')};
-        gui.ondragover = function(e){ColumnMove.handleDragOver(e)};
-        gui.ondrop =  function(e){that.handleDrop(e)};
-        gui.ondragend = function(e){that.handleDragEnd(e, item)};
-     }
-    public handleDragStart(e:DragEvent, c:Column) {
-        // Target (this) element is the source node.
-         c.$element.style.opacity = '0.4';
-         this.dragSrcEl = c;
-         e.dataTransfer.effectAllowed = 'move';
-         e.dataTransfer.setData('text/json', JSON.stringify(util.toJson(c)));
-    }
-    public static handleDragOver(e:DragEvent) {
-         if (e.preventDefault) {
-             e.preventDefault(); // Necessary. Allows us to drop.
-         }
-         e.dataTransfer.dropEffect = 'move';  // See the section on the DataTransfer object.
-         return false;
-    }
-    public handleDrop(e:DragEvent) {
-        // this / e.target is current target element.
-         if (e.stopPropagation) {
-             e.stopPropagation(); // stops the browser from redirecting.
-         }
-         // See the section on the DataTransfer object.
-        let columns = this.owner.getColumn();
-        let start=-1, end=-1;
-        for (let i = 0; i < columns.length; i++) {
-            if( columns[i].$element == e.currentTarget) {
-                end = i;
-            }
-            if( columns[i].$element == this.dragSrcEl.$element) {
-                start=i;
-            }
-            if(start>=0 && end>=0) {
-                break;
-            }
-        }
-        let diff:number=1;
-        if(start>end) {
-            diff=-1;
-        }
-        let line:HTMLElement = this.dragSrcEl.$element.parentElement;
-        while(start != end) {
-            line.removeChild(columns[start+diff].$element);
-            line.insertBefore(columns[start].$element, columns[start+diff].$element)
-            //line.inser
-
-            columns[start] = columns[start+diff];
-            start = start+diff;
-        }
-        columns[end] = this.dragSrcEl;
-        return false;
-     }
-     public handleDragEnd(e:DragEvent, c:Column) {
-         // this/e.target is the source node.
-         c.$element.style.opacity = '1';
-         let columns:Column[] = this.owner.getColumn();
-         for(let i=0;i<columns.length;i++) {
-             columns[i].$element.classList.remove('over')
-         }
-     }
  }
