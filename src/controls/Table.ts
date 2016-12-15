@@ -3,6 +3,7 @@ import BridgeElement from '../BridgeElement'
 import Data from '../Data'
 import {util} from '../util'
 
+//noinspection JSUnusedGlobalSymbols
 export class Table extends Control {
     private columns: Column[] = [];
     private cells: Object = {};
@@ -24,10 +25,10 @@ export class Table extends Control {
     private isDrag:boolean = false;
     private moveTimeStamp:number;
     private moveX:number;
-    private dragSrcEl:Column = null;
     private movePos:number;
     private dragColumn:Column;
     private dragPos:number;
+    private tableOption:HTMLTableHeaderCellElement;
 
     constructor(owner, data) {
         super(owner, data);
@@ -158,30 +159,12 @@ export class Table extends Control {
                 this.columns.push(col);
                 headerrow.appendChild(col.$element);
             }
-            let cell = document.createElement("th");
-            cell.classList.add("tableOption");
-            headerrow.appendChild(cell);
-
-            let context = document.createElement("div");
-            context.classList.add("dropdown-content");
-            context.style.setProperty("position", "absolute");
-            cell.appendChild(context);
-
-            /* When the user clicks on the button,
-             toggle between hiding and showing the dropdown content */
-            cell.addEventListener(
-                'click',
-                function(){
-                    context.classList.toggle("show");
-                },
-                false);
-
-            let link = document.createElement("a");
-            link.appendChild(document.createTextNode("fix") );
-
-            // link.appendChild("");
-            link.href = "javascript:void(0);";
-            context.appendChild(link);
+            this.tableOption = document.createElement("th");
+            this.tableOption.classList.add("tableOption");
+            headerrow.appendChild(this.tableOption);
+            let context:HTMLElement = this.addOptionItem(null, this.tableOption, true);
+            let contentChild:HTMLElement = this.addOptionItem("show", context, true);
+            let simpleLink:HTMLElement = this.addOptionItem("show", contentChild, false);
         }
         this.registerEvents(['mousemove', 'mousedown', 'mouseup', 'resize', 'dragstart', 'dragover', 'drop', 'dragend']);
 
@@ -216,6 +199,34 @@ export class Table extends Control {
         let first = this.$headersection.children.item(0);
         this.$headersection.insertBefore(searchBar, first)
     }
+
+    private addOptionItem(label:string, parent:HTMLElement, sub:boolean) :HTMLElement {
+        let labelControl;
+        if(label) {
+            labelControl = document.createElement("a");
+            labelControl.appendChild(document.createTextNode(label) );
+            labelControl.href = "javascript:void(0);";
+            parent.appendChild(labelControl);
+        }
+        if (sub) {
+            let context = document.createElement("div");
+            context.classList.add("dropdown-content");
+            context.style.setProperty("position", "absolute");
+            parent.appendChild(context);
+
+            /* When the user clicks on the button,
+             toggle between hiding and showing the dropdown content */
+            parent.addEventListener(
+                'click',
+                function () {
+                    context.classList.toggle("show");
+                },
+                false);
+            return context;
+        }
+        return labelControl;
+    }
+
     private registerEvents(events:string[]) {
         let that = this;
         for (let i = 0; i < events.length; i++) {
@@ -224,14 +235,12 @@ export class Table extends Control {
     }
 
     public tableEvent(type:string, e:Event) {
-        console.log("table:"+type);
         let button: number = 0;
         let eventX: number = 0;
         if (e instanceof MouseEvent) {
             button = e.buttons;
             eventX = e.pageX;
         }
-        console.log("table:"+type);
         if (type == 'mouseup') {
             this.moveElement = null;
         } else if (type == 'mousedown' || type == 'resize') {
@@ -289,15 +298,21 @@ export class Table extends Control {
             if (e.preventDefault) {
                 e.preventDefault(); // Necessary. Allows us to drop.
             }
-            let ele:HTMLElement = <HTMLElement>e.target;
+            //let ele:HTMLElement = <HTMLElement>e.target;
             for (let c = 0; c < this.columns.length; c++) {
                 if (this.columns[c].$element == e.target) {
                     this.dragColumn = this.columns[c];
                     this.dragPos = c;
-                    this.dragColumn.$element.classList.add('over');
+                    this.columns[c].$element.classList.add('over');
                 } else {
                     this.columns[c].$element.classList.remove('over');
                 }
+            }
+            if(e.target == this.tableOption) {
+                this.tableOption.classList.add('over');
+                this.dragPos = this.columns.length;
+            }else {
+                this.tableOption.classList.remove('over');
             }
             e.dataTransfer.dropEffect = 'move';  // See the section on the DataTransfer object.
         } else if(type == 'drop') {
@@ -305,39 +320,47 @@ export class Table extends Control {
             if (e.stopPropagation) {
                 e.stopPropagation(); // stops the browser from redirecting.
             }
+            if(this.movePos == this.dragPos) {
+                return;
+            }
+            //movePos -> dragPos
             // See the section on the DataTransfer object.
-            let start=-1, end=-1;
-            for (let i = 0; i < this.columns.length; i++) {
-                if( this.columns[i].$element == e.currentTarget) {
-                    end = i;
-                }
-                if( this.columns[i].$element == this.dragSrcEl.$element) {
-                    start=i;
-                }
-                if(start>=0 && end>=0) {
-                    break;
-                }
+            // DataModel
+            this.columns.splice(this.movePos, 1);
+            if(this.movePos>=this.dragPos) {
+                this.columns.splice(this.dragPos, 0, this.moveElement);
+            }else {
+                this.columns.splice(this.dragPos-1, 0, this.moveElement);
             }
-            let diff:number=1;
-            if(start>end) {
-                diff=-1;
-            }
-            let line:HTMLElement = this.dragSrcEl.$element.parentElement;
-            while(start != end) {
-                line.removeChild(this.columns[start+diff].$element);
-                line.insertBefore(this.columns[start].$element, this.columns[start+diff].$element);
-                //line.inser
 
-                this.columns[start] = this.columns[start+diff];
-                start = start+diff;
+            // Header Line
+            let line:HTMLElement = this.moveElement.$element.parentElement;
+            line.removeChild(this.moveElement.$element);
+            if(this.dragPos < this.columns.length) {
+                line.insertBefore(this.moveElement.$element, this.dragColumn.$element);
+            } else {
+                line.insertBefore(this.moveElement.$element, this.tableOption);
             }
-            this.columns[end] = this.dragSrcEl;
+
+            let oldElement:Element;
+            let newElement:Element;
+
+            // Now all Childs
+             for(let i=0;i<this.$bodysection.children.length;i++) {
+                 // Each line
+                 line = <HTMLElement>this.$bodysection.children.item(i);
+                 oldElement = line.children.item(this.movePos);
+                 newElement = line.children.item(this.dragPos);
+                 line.removeChild(oldElement);
+                 line.insertBefore(oldElement, newElement);
+             }
         } else if(type == 'dragend') {
             // this/e.target is the source node.
             this.moveElement.$element.style.opacity = '1';
             for(let i=0;i<this.columns.length;i++) {
                 this.columns[i].$element.classList.remove('over')
             }
+            this.tableOption.classList.remove('over');
         }
     }
     public parsingHeader(row: HTMLTableRowElement) {
@@ -665,6 +688,7 @@ export class Table extends Control {
         }
         return true;
     }
+    //noinspection JSUnusedGlobalSymbols
     public getColumn() : Column[]{
         return this.columns;
     }

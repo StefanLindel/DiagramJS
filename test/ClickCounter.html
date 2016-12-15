@@ -22,6 +22,10 @@
     bridge.executeChange({"class": "number", "id": "number", "prop": {"value": 0}});
 
     var numberField = bridge.load("number");
+	
+	bridge.load({"class":"input", type:"button", value:"blub"});
+	var button = bridge.load("button");
+	button.$element.innerHTML ="WELT";
 
     var addButton = document.getElementById("addButton");
     addButton.onclick = function () {
