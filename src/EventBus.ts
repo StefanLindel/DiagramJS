@@ -20,7 +20,7 @@ export class EventBus {
 				console.log(type);
 		}
     //for (let event of eventTypes) {
-    //  diagramElement.$view.addEventListener(event, EventBus.publish.bind(null, diagramElement));
+    //  diagramElement.$view.addListener(event, EventBus.publish.bind(null, diagramElement));
     //}
   }
 

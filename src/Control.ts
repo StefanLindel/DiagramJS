@@ -2,7 +2,7 @@ import Bridge from "./Bridge";
 import Data from "./Data";
 import BridgeElement from "./BridgeElement";
 import EventListener from "./EventListener";
-import Event from "./Event";
+import SimpleEvent from "./Event";
 
 export default class Control {
     id: string;
@@ -12,6 +12,10 @@ export default class Control {
     protected _lastProperty: string;
     protected entity: Data;
     protected eventListener: Set<EventListener>;
+
+    public createEventListener(): EventListener {
+        return new EventListener();
+    }
 
     get lastProperty(): string {
         if (!this.property) {
@@ -47,7 +51,7 @@ export default class Control {
      Property looks like: "t1.talk"
      */
     public setProperty(property: string): void {
-        if(!this.property){
+        if (!this.property) {
             return;
         }
         let objId = property.split(".")[0];
@@ -71,19 +75,32 @@ export default class Control {
     protected updateElement(value: string): void {
     }
 
-    protected fireEvent(event: Event){
-        if (!this.eventListener){
+    /**
+     * The oldValue is used for the ChangeEvents in order to being able to have the old value in the Event.
+     * @type {any}
+     */
+    protected oldValue: Object = null;
+
+    public fireEvent(event: SimpleEvent) {
+        if (!this.eventListener) {
             return;
         }
-        for (let listener of this.eventListener){
+        for (let listener of this.eventListener) {
             listener.update(event);
         }
     }
 
-    public addEventListener(eventListener: EventListener) : void{
-        if(!this.eventListener){
+    public addListener(eventListener: EventListener): void {
+        if (!this.eventListener) {
             this.eventListener = new Set<EventListener>()
         }
         this.eventListener.add(eventListener);
+    }
+
+    protected registerListenerOnHTMLObject() {
+    }
+
+    public static registerListenerOnHTMLObjects(eventType: string, htmlElement:HTMLElement, listener: EventListenerOrEventListenerObject){
+        htmlElement.addEventListener(eventType , listener);
     }
 }

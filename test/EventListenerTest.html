@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>EventListener</title>
+    <script src="../build/output.js"></script>
+</head>
+<body>
+<input class="Input" id="number" property="number.value" type="number" value="0"/>
+<input id="addButton" class="input" type="button" value="Add"/>
+<input id="subButton" class="input" type="button" value="Sub"/>
+<input id="echoButton" class="input" type="button" value="Show Value"/>
+
+<script type="text/javascript">
+    let eventListenerAdd = new EventListener();
+    eventListenerAdd.onUpdate = function (event) {
+        var value = bridge.getNumber("number", "value", 0);
+        ++value;
+        bridge.setValue('number', 'value', value);
+    };
+    let eventListenerSub = new EventListener();
+    eventListenerSub.onUpdate = function (event) {
+        var value = bridge.getNumber("number", "value", 0);
+        --value;
+        bridge.setValue('number', 'value', value);
+    };
+    let eventListenerEcho = new EventListener();
+    eventListenerEcho.onUpdate = function (event) {
+        var value = bridge.getNumber("number", "value", 0);
+        alert("Value:" + value);
+    };
+
+    let eventListenerField = new EventListener();
+    eventListenerField.onUpdate = function (event) {
+        alert("attr: " + event.attribute + ", oldValue: " + event.oldValue + ", newValue: " + event.newValue);
+    };
+
+    bridge.executeChange({"class": "number", "id": "number", "prop": {"value": 0}});
+
+    var numberFieldId = bridge.load("number");
+
+    let addButtonId = bridge.load("addButton");
+    let subButtonId = bridge.load("subButton");
+    let echoButtonId = bridge.load("echoButton");
+
+    let addButton = bridge.controls[addButtonId];
+    let subButton = bridge.controls[subButtonId];
+    let echoButton = bridge.controls[echoButtonId];
+    let numberField = bridge.controls[numberFieldId];
+
+    addButton.addListener(eventListenerAdd);
+    subButton.addListener(eventListenerSub);
+    echoButton.addListener(eventListenerEcho);
+    numberField.addListener(eventListenerField);
+
+//    let btn = document.getElementById("number");
+//    btn.addEventListener("change" ,(ev)=>{alert(ev);});
+</script>
+
+</body>
+</html>

@@ -39,7 +39,7 @@
   },
   "scripts": {
     "build-dev": "tsc && rollup -m -c || true",
-    "build-dev-es5": "rimraf build && tsc && rollup -c && rimraf build/tmp && babel build -d build || true",
+    "build-dev-es5": "rimraf build && tsc && rollup -c && rimraf build/tmp && babel build -d build -s || true",
     "build-watch": "npm-watch"
   }
 }

@@ -1,4 +1,4 @@
-import Event from "./Event";
+import SimpleEvent from "./Event";
 
 export default class EventListener {
 
@@ -12,7 +12,7 @@ export default class EventListener {
         this._onUpdate = value;
     }
 
-    update(event: Event) {
-        this.onUpdate.call(event);
+    update(event: SimpleEvent) {
+        this.onUpdate(event);
     }
 }

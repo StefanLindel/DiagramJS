@@ -1,6 +1,7 @@
 import Control from "../Control";
 import Bridge from "../Bridge";
 import Data from "../Data";
+import SimpleEvent from "../Event";
 
 export class Input extends Control {
     private $element: HTMLInputElement;
@@ -40,6 +41,7 @@ export class Input extends Control {
 
         if (inputField instanceof HTMLInputElement) {
             this.$element = inputField;
+            this.type = inputField.type;
         } else {
             if (!inputField) {
                 this.$element = document.createElement("input");
@@ -80,6 +82,8 @@ export class Input extends Control {
                 }
             );
         }
+
+        this.registerListenerOnHTMLObject();
     }
 
     private controlChanged(ev: Event) {
@@ -108,5 +112,21 @@ export class Input extends Control {
 
     protected updateElement(value: string) {
         this.$element.value = value;
+    }
+
+    protected registerListenerOnHTMLObject() {
+        let control = this;
+        if (this.type == "button") {
+            Control.registerListenerOnHTMLObjects("click", this.$element, (ev: Event) => {
+                control.fireEvent(new SimpleEvent("click", false, true));
+            });
+        } else {
+            Control.registerListenerOnHTMLObjects("change", this.$element, (ev: Event) => {
+                    let newValue = control.$element.value;
+                    control.fireEvent(new SimpleEvent(control.property, control.oldValue, newValue));
+                    control.oldValue = newValue;
+                }
+            );
+        }
     }
 }

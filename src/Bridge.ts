@@ -1,6 +1,7 @@
 import * as controls from "./controls";
 import * as adapters from "./adapters";
 import Data from "./Data";
+import EventListener from "./EventListener";
 
 export default class Bridge {
     public static version: string = "0.42.01.1601007-1739";
