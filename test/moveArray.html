@@ -1,0 +1,15 @@
+<html>
+<script>
+var array = ["Hallo", "Stefan", "Welt"];
+var pos = 2;
+var end=1;
+var element = array[pos];
+array.splice(pos, 1);
+array.splice(end, 0, element);
+for(var i=0;i<array.length;i++) {
+	document.write(array[i]);
+	document.write("<br/>");
+}
+//var fruits = ["Banana", "Orange", "Apple", "Mango"];
+</script>
+</html>

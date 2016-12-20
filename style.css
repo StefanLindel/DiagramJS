@@ -44,7 +44,6 @@
 	border: 2px dashed #000;
 	border-left: 2px solid red;
 }
-
 .resize{
 	border:0;
 	width: 10px;
@@ -66,6 +65,10 @@
 	height:16px;
 	content:'';
 	cursor:pointer;
+}
+.tableOption.over {
+	border: 2px dashed #000;
+	border-left: 2px solid red;
 }
 .tableOption:hover {
 	background-color: #CCC;
@@ -104,4 +107,34 @@
 .resizebody{
 }
 .resizebody:hover{
+}
+.online {
+	background-color: green;
+	border:1px solid black;
+	width: 16px;
+	height: 16px;
+	border-radius: 8px;
+	float:left;
+}
+
+.offline {
+	background-color: red;
+	border:1px solid black;
+	width: 16px;
+	height: 16px;
+	border-radius: 8px;
+	float:left;
+}
+.lang {
+	padding-left:30px;
+}
+.onlineStatus {
+	top:0px;
+	margin:10px;
+	float:right;
+	background-color:#CCC;
+	height:20px;
+	padding:5px;
+	width:60px;
+	border-radius: 20px;
 }

@@ -1,9 +1,10 @@
 import Control from "../Control";
 import Data from "../Data";
 
+//noinspection JSUnusedGlobalSymbols
 export class Form extends Control {
     private $element: HTMLFormElement;
-    private applyingChange: boolean = false;
+    //private applyingChange: boolean = false;
     private children: Map<string, Control> = new Map();
     // private property: string = "";
 
@@ -23,7 +24,7 @@ export class Form extends Control {
      */
     constructor(owner, data) {
         super(owner, data);
-        var id: string;
+        let id: string;
         // init form HTML
         if (typeof(data) === "string") {
             id = data;
@@ -52,6 +53,9 @@ export class Form extends Control {
 
                 // add all the attributes to the form element
                 for (let attr in data) {
+                    if (data.hasOwnProperty(attr) === false) {
+                        continue;
+                    }
                     if (attr == "elements") {
                         continue;
                     }
@@ -69,7 +73,7 @@ export class Form extends Control {
         let objId = this.property;
         let hasItem = this.owner.hasItem(objId);
         if (hasItem) {
-            var item = this.owner.getItem(objId);
+            let item = this.owner.getItem(objId);
             item.addListener(this);
             this.entity = item;
         }
@@ -78,15 +82,15 @@ export class Form extends Control {
         for (let field of data.elements) {
             // this.createField(field);
             if (field.hasOwnProperty("property")) {
-                var property = field["property"];
+                let property = field["property"];
                 property = this.property + '.' + property;
                 field['property'] = property;
             }
             if (!field.hasOwnProperty("class")) {
                 field['class'] = 'input';
             }
-            let controlId = this.owner.load(field);
-            this.children.set(controlId, this.owner.getControl(controlId));
+            let control:Control = this.owner.load(field);
+            this.children.set(control.id, control);
         }
 
     }
@@ -98,20 +102,20 @@ export class Form extends Control {
      * @param field
      */
     private createField(field: Object) {
-        var control = "input";
+        let control = "input";
         if (field.hasOwnProperty("class")) {
             control = field['class'];
         }
         let input = document.createElement(control);
         input.setAttribute("class", control);
-        var id: string;
+        let id: string;
         if (!field.hasOwnProperty("id")) {
             // TODO: not the best solution for generating unique id's for forms...
             id = this.owner.getId();
             field['id'] = id;
         }
         if (field.hasOwnProperty("property")) {
-            var property = field["property"];
+            let property = field["property"];
             property = this.id + '.' + property;
             input.setAttribute("property", property);
         }
@@ -124,8 +128,8 @@ export class Form extends Control {
 
         this.$element.appendChild(input);
 
-        var controlId = this.owner.load(field['id']);
-        this.children.set(controlId, this.owner.getControl(controlId));
+        let newcontrol:Control = this.owner.load(field['id']);
+        this.children.set(newcontrol.id, newcontrol);
     }
 
 
@@ -135,6 +139,9 @@ export class Form extends Control {
     public setProperty(id: string): void {
         this.property = id;
         for (let [id, childControl] of this.children) {
+            if (this.children.hasOwnProperty(id) === false) {
+                continue;
+            }
             // only set Property, if there is a Property defined before
             if (childControl.property) {
                 childControl.setProperty(this.property + "." + childControl.lastProperty);

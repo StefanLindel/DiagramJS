@@ -1,0 +1,52 @@
+<html>
+<head><style>
+.online {
+	background-color: green;
+	border:1px solid black;
+	width: 16px;
+	height: 16px;
+	border-radius: 8px;
+	float:left;
+}
+
+.offline {
+	background-color: red;
+	border:1px solid black;
+	width: 16px;
+	height: 16px;
+	border-radius: 8px;
+	float:left;
+}
+.lang {
+	padding-left:30px;
+}
+.onlineStatus {
+	float:right;
+	background-color:#CCC;
+	height:20px;
+	padding:5px;
+	width:60px;
+	border-radius: 20px;
+}
+</style></head><body>
+<div id="log"></div>
+<div id="onlineStatus" class="onlineStatus">
+	<div id="status" class="online"></div>
+	<div id="lang" class="lang">DE</div>
+</div>
+<p>This is a test</p>
+<script>
+window.addEventListener('load', function() {
+  var status = document.getElementById("status");
+
+  var func = function updateOnlineStatus(event) {
+    var condition = navigator.onLine ? "online" : "offline";
+	status.className = condition;
+
+    log.insertAdjacentHTML("beforeend", "Event: " + event.type + "; Status: " + condition);
+  }
+
+  window.addEventListener('online',  func);
+  window.addEventListener('offline', func);
+});
+</script></body></html>
