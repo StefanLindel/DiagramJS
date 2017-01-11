@@ -2,6 +2,7 @@ import * as controls from "./controls";
 import * as adapters from "./adapters";
 import Data from "./Data";
 import Control from "./Control";
+import {Adapter} from "./Adapter";
 
 export default class Bridge {
     //noinspection JSUnusedGlobalSymbols
@@ -9,7 +10,7 @@ export default class Bridge {
     private listener: Array<Object> = [];
     private controlFactory: Object = {};
     private controls: Object = {};
-    private adapters: Object = {};
+    private adapters: Set<Adapter> = new Set<Adapter>();
     private items: Object = {};
     private controlNo: number = 1;
     private online:boolean = true;
@@ -223,6 +224,16 @@ export default class Bridge {
 
     getControl(controlId: string) {
         return this.controls[controlId];
+    }
+
+    public registerListener(eventType: string, control: Control): void{
+        control.registerListenerOnHTMLObject(eventType);
+    }
+
+    public fireEvent(evt: Event) {
+        for (let adapter in this.adapters){
+            this.adapters[adapter].fireEvent(evt);
+        }
     }
 }
 //noinspection JSUnusedLocalSymbols

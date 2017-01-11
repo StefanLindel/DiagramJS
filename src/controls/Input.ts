@@ -82,8 +82,6 @@ export class Input extends Control {
                 }
             );
         }
-
-        this.registerListenerOnHTMLObject();
     }
 
     private controlChanged(ev: Event) {
@@ -114,19 +112,25 @@ export class Input extends Control {
         this.$element.value = value;
     }
 
-    protected registerListenerOnHTMLObject() {
+    public registerListenerOnHTMLObject(eventType: string): boolean {
         let control = this;
-        if (this.type == "button") {
-            Control.registerListenerOnHTMLObjects("click", this.$element, (ev: Event) => {
-                control.fireEvent(new SimpleEvent("click", false, true));
-            });
-        } else {
-            Control.registerListenerOnHTMLObjects("change", this.$element, (ev: Event) => {
-                    let newValue = control.$element.value;
-                    control.fireEvent(new SimpleEvent(control.property, control.oldValue, newValue));
-                    control.oldValue = newValue;
-                }
-            );
-        }
+        // if (this.type == "button") {
+        //     Control.registerListenerOnHTMLObjects("click", this.$element, (ev: Event) => {
+        //         control.fireEvent(new SimpleEvent("click", false, true));
+        //     });
+        // } else {
+        //     Control.registerListenerOnHTMLObjects("change", this.$element, (ev: Event) => {
+        //             let newValue = control.$element.value;
+        //             control.fireEvent(new SimpleEvent(control.property, control.oldValue, newValue));
+        //             control.oldValue = newValue;
+        //         }
+        //     );
+        // }
+
+        this.$element.addEventListener(eventType, (t)=>{
+            this.owner.fireEvent(t);
+        });
+
+        return true;
     }
 }

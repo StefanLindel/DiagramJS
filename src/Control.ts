@@ -12,6 +12,7 @@ export default class Control {
     protected _lastProperty: string;
     protected entity: Data;
     protected eventListener: Set<EventListener>;
+    protected eventsToListen: Set<string>;
 
     public createEventListener(): EventListener {
         return new EventListener();
@@ -82,12 +83,12 @@ export default class Control {
     protected oldValue: Object = null;
 
     public fireEvent(event: SimpleEvent) {
-        if (!this.eventListener) {
-            return;
-        }
-        for (let listener of this.eventListener) {
-            listener.update(event);
-        }
+        // if (!this.eventListener) {
+        //     return;
+        // }
+        // for (let listener of this.eventListener) {
+        //     listener.update(event);
+        // }
     }
 
     public addListener(eventListener: EventListener): void {
@@ -97,10 +98,28 @@ export default class Control {
         this.eventListener.add(eventListener);
     }
 
-    protected registerListenerOnHTMLObject() {
+    public registerEvent(eventType: string) {
+        if (!this.eventsToListen) {
+            this.eventsToListen = new Set();
+        }
+        if (this.eventsToListen.has(eventType)) {
+            return true;
+        } else {
+            this.eventsToListen.add(eventType);
+
+            // register on HTMLElement
+
+            this.registerListenerOnHTMLObject(eventType);
+
+            return true;
+        }
     }
 
-    public static registerListenerOnHTMLObjects(eventType: string, htmlElement:HTMLElement, listener: EventListenerOrEventListenerObject){
-        htmlElement.addEventListener(eventType , listener);
+    public registerListenerOnHTMLObject(eventType: string): boolean {
+        return false;
+    }
+
+    public static registerListenerOnHTMLObjects(eventType: string, htmlElement: HTMLElement, listener: EventListenerOrEventListenerObject) {
+        htmlElement.addEventListener(eventType, listener);
     }
 }
