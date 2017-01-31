@@ -76,21 +76,6 @@ export default class Control {
     protected updateElement(value: string): void {
     }
 
-    /**
-     * The oldValue is used for the ChangeEvents in order to being able to have the old value in the Event.
-     * @type {any}
-     */
-    protected oldValue: Object = null;
-
-    public fireEvent(event: SimpleEvent) {
-        // if (!this.eventListener) {
-        //     return;
-        // }
-        // for (let listener of this.eventListener) {
-        //     listener.update(event);
-        // }
-    }
-
     public addListener(eventListener: EventListener): void {
         if (!this.eventListener) {
             this.eventListener = new Set<EventListener>()
@@ -119,7 +104,13 @@ export default class Control {
         return false;
     }
 
-    public static registerListenerOnHTMLObjects(eventType: string, htmlElement: HTMLElement, listener: EventListenerOrEventListenerObject) {
-        htmlElement.addEventListener(eventType, listener);
+    protected registerListener(eventType: string, htmlElement: HTMLElement) {
+        let control = this;
+        let listener = (t)=>{
+            t.eventType = eventType;
+            t.id = control.id;
+            control.owner.fireEvent(t);
+        }
+         htmlElement.addEventListener(eventType, listener);
     }
 }

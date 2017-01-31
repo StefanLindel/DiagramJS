@@ -1,3 +1,4 @@
 export abstract class Adapter{
-    abstract fireEvent(evt: Event): boolean;
+    id:string = null;
+    abstract update(evt: Object): boolean;
 }

@@ -1,0 +1,25 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <meta charset="utf-8"/>
+    <title>Bridge - Simple Example</title>
+    <script type="text/javascript" src="build/output.js"></script>
+    <link type="text/css" rel="stylesheet" href="material.css"/>
+    <link type="text/css" rel="stylesheet" href="style.css"/>
+</head>
+<body>
+<script>
+function callback() {};
+callback.prototype.add = function() {
+    alert("asdhjd");
+};
+_callBack1 = new callback();
+
+console.log(bridge.load({"class":"input","id":"J1.N1","property":"number.value","value":0,"type":"number"}));
+console.log(bridge.load({"class":"input","value":"Fire Event","type":"button", "id":"J1.N2"}));
+bridge.registerListener("click", "J1.N2");
+bridge.addAdapter(new DelegateAdapter());
+bridge.registerListener("click", "J1.N2", "_callBack1.add");
+</script>
+</body></html>

@@ -1,8 +1,8 @@
 import * as controls from "./controls";
-import * as adapters from "./adapters";
 import Data from "./Data";
 import Control from "./Control";
 import {Adapter} from "./Adapter";
+
 
 export default class Bridge {
     //noinspection JSUnusedGlobalSymbols
@@ -10,7 +10,7 @@ export default class Bridge {
     private listener: Array<Object> = [];
     private controlFactory: Object = {};
     private controls: Object = {};
-    private adapters: Set<Adapter> = new Set<Adapter>();
+    private adapters:Map<string, Adapter[]> = new Map<string, Adapter[]>();
     private items: Object = {};
     private controlNo: number = 1;
     private online:boolean = true;
@@ -23,10 +23,7 @@ export default class Bridge {
         for(i=0;i<keys.length;i++) {
             this.addControl(controls[keys[i]]);
         }
-        keys = Object.keys(adapters);
-        for(i=0;i<keys.length;i++) {
-            this.adapters[i] = new adapters[keys[i]];
-        }
+
         let that = this;
         window.addEventListener('load', function() {
             let updateOnlineStatus = function updateOnlineStatus() {that.setOnline(navigator.onLine);};
@@ -123,7 +120,7 @@ export default class Bridge {
         Bridge.addProperties(change["upd"], item);
 
         for (let adapter in this.adapters) {
-            this.adapters[adapter].executeChange(JSON.stringify(change));
+            this.adapters[adapter].update(JSON.stringify(change));
         }
     }
 
@@ -226,15 +223,88 @@ export default class Bridge {
         return this.controls[controlId];
     }
 
-    public registerListener(eventType: string, control: Control): void{
+    public registerListener(eventType: string, control: Control, callBackfunction:string): Control {
+        if(typeof control === "string") {
+            control = this.getControl(control);
+        }
+        if(!control) {
+            return null;
+        }
+        if(eventType) {
+            eventType = eventType.toLowerCase();
+        }
         control.registerListenerOnHTMLObject(eventType);
+        if(callBackfunction) {
+            let adapter:DelegateAdapter = new DelegateAdapter();
+            adapter.callBackfunction = callBackfunction;
+            adapter.id = control.id;
+            this.addAdapter(adapter, eventType);
+        }
+        return control;
+    }
+
+    public addAdapter(adapter:Adapter, eventType:string) : Adapter {
+        if(!eventType) {
+            eventType = null;
+        }
+        let handlers = this.adapters.get(eventType);
+
+        if (handlers === null || handlers === undefined) {
+            handlers = [];
+            this.adapters.set(eventType, handlers);
+        }
+        handlers.push(adapter);
+        return adapter;
     }
 
     public fireEvent(evt: Event) {
-        for (let adapter in this.adapters){
-            this.adapters[adapter].fireEvent(evt);
+        let handlers = this.adapters.get(null);
+        if(handlers) {
+            for(let i=0;i<handlers.length;i++) {
+                let adapter = handlers[i];
+                if(adapter.id == null || adapter.id === evt["id"]) {
+                    adapter.update(evt);
+                }
+            }
+        }
+        handlers = this.adapters.get(evt["eventType"]);
+        if(handlers) {
+            for (let i = 0; i < handlers.length; i++) {
+                let adapter = handlers[i];
+                if (adapter.id == null || adapter.id === evt["id"]) {
+                    adapter.update(evt);
+                }
+            }
         }
     }
 }
+export class DelegateAdapter extends Adapter {
+    adapter:Adapter;
+    callBackfunction:string;
+    update(evt: Object): boolean {
+        if(this.adapter) {
+            this.adapter.update(evt);
+            return true;
+        } else if(this.callBackfunction) {
+            return this.executeFunction(this.callBackfunction);
+        }
+        return false;
+    }
+    private executeFunction = function(string) : boolean{
+        let scope = window;
+        let scopeSplit = string.split('.');
+        for (let i = 0; i < scopeSplit.length - 1; i++) {
+            scope = scope[scopeSplit[i]];
+            if (scope == undefined) return false;
+        }
+        let fn:any = scope[scopeSplit[scopeSplit.length - 1]];
+        if(typeof fn === 'function') {
+            fn.call(scope);
+            return true;
+        }
+        return false;
+    }
+}
+
 //noinspection JSUnusedLocalSymbols
 const bridge = new Bridge();

@@ -1,7 +1,6 @@
 import Control from "../Control";
 import Bridge from "../Bridge";
 import Data from "../Data";
-import SimpleEvent from "../Event";
 
 export class Input extends Control {
     private $element: HTMLInputElement;
@@ -47,6 +46,9 @@ export class Input extends Control {
                 this.$element = document.createElement("input");
                 if (typeof(data) !== "string") {
                     for (let attr in data) {
+                        if(data.hasOwnProperty(attr) == false) {
+                            continue;
+                        }
                         this.$element.setAttribute(attr, data[attr]);
                     }
                 } else {
@@ -69,9 +71,11 @@ export class Input extends Control {
             let objId = this.property.split(".")[0];
             let hasItem = this.owner.hasItem(objId);
             if (hasItem) {
-                var item = this.owner.getItem(objId);
+                let item = this.owner.getItem(objId);
                 item.addListener(this);
                 this.entity = item;
+            } else {
+                this.entity = new Data();
             }
 
             // Add listener to Input field:
@@ -81,6 +85,8 @@ export class Input extends Control {
                     // this.applyingChange = false;
                 }
             );
+        } else {
+            this.entity = new Data();
         }
     }
 
@@ -113,24 +119,7 @@ export class Input extends Control {
     }
 
     public registerListenerOnHTMLObject(eventType: string): boolean {
-        let control = this;
-        // if (this.type == "button") {
-        //     Control.registerListenerOnHTMLObjects("click", this.$element, (ev: Event) => {
-        //         control.fireEvent(new SimpleEvent("click", false, true));
-        //     });
-        // } else {
-        //     Control.registerListenerOnHTMLObjects("change", this.$element, (ev: Event) => {
-        //             let newValue = control.$element.value;
-        //             control.fireEvent(new SimpleEvent(control.property, control.oldValue, newValue));
-        //             control.oldValue = newValue;
-        //         }
-        //     );
-        // }
-
-        this.$element.addEventListener(eventType, (t)=>{
-            this.owner.fireEvent(t);
-        });
-
+        this.registerListener(eventType, this.$element);
         return true;
     }
 }
