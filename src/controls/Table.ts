@@ -32,13 +32,19 @@ export class Table extends Control {
 
     constructor(owner, data) {
         super(owner, data);
+        this.initControl(data);
+    }
+    public initControl(data:any) {
         let id: string;
         // init form HTML
         if (typeof(data) === "string") {
             id = data;
         } else {
             id = data.id;
-            this.property = data.property;
+            if(data.property) {
+                this.property = data.property;
+            }
+
             if(data.searchColumns) {
                 let search:Array<string>=[];
                 if (typeof(data.searchColumns) === "string") {
@@ -47,14 +53,64 @@ export class Table extends Control {
                     search = data.searchColumns;
                 }
                 for(let z:number=0;z<search.length;z++) {
-                    if (search[z].trim().length > 0) {
-                        this.searchColumns.push(search[z].trim());
+                    let item = search[z].trim();
+                    if (item.length > 0) {
+                        if(this.searchColumns.indexOf(item)<0) {
+                            this.searchColumns.push(item);
+                        }
                     }
                 }
             }
 
         }
         if (!id) {
+            return;
+        }
+        if(this.$element) {
+            // Must be an Update
+            if (data["columns"]) {
+                // It is a json must add all things and generate HTML
+                for (let i in data["columns"]) {
+                    if (data["columns"].hasOwnProperty(i) === false) {
+                        continue;
+                    }
+                    let col = new Column();
+                    let column = data["columns"][i];
+                    col.label = column.id;
+                    col.attribute = col["attribute"] || column.id;
+                    col.$element = document.createElement("th");
+                    col.$element.innerHTML = col.label;
+                    col.$element.draggable = true;
+
+                    // resize Header
+                    col.$resize = document.createElement("div");
+                    col.$resize.classList.add("resize");
+                    col.$element.appendChild(col.$resize);
+                    this.addHeaderInfo(col);
+                    this.columns.push(col);
+                    this.tableOption.parentElement.insertBefore(col.$element, this.tableOption);
+                    //this.$headersection.insertBefore(this.tableOption);
+                }
+                for(let i in this.showedItems) {
+                    let item:BridgeElement = this.showedItems[i];
+                    let cell;
+                    // Now Add some Children
+                    while(item.gui.children.length < this.columns.length) {
+                        cell = document.createElement("td");
+                        item.gui.appendChild(cell);
+                    }
+                    // Now Remove Some Children
+                    while(item.gui.children.length > this.columns.length) {
+                        item.gui.removeChild(item.gui.children[item.gui.children.length-1]);
+                    }
+                    for(let c:number =0;c<this.columns.length;c++) {
+                        let name = this.columns[c].attribute;
+                        let count = this.columns.length;
+                        cell = item.gui.children[c];
+                        cell.innerHTML = item.model.getValue(name);
+                    }
+                }
+            }
             return;
         }
         let table: HTMLElement = document.getElementById(id);
@@ -467,6 +523,7 @@ export class Table extends Control {
             this.showItem(item, true);
         }
     }
+
     public sort(column:Column) {
         if(this.sortColumn == column ) {
             if(this.direction == 1) {

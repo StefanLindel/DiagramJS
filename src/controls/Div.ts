@@ -8,7 +8,7 @@ export class Div extends Control {
     private applyingChange: boolean = false;
 
     constructor(owner, data) {
-        super(owner, data);
+        super(owner);
         let id: string;
         // init form HTML
         if (typeof(data) === "string") {
@@ -48,9 +48,9 @@ export class Div extends Control {
 
         // check if object already exists
         let objId = this.property.split(".")[0];
-        let hasItem = this.owner.hasItem(objId);
+        let hasItem = this.$owner.hasItem(objId);
         if(hasItem){
-            var item = this.owner.getItem(objId);
+            var item = this.$owner.getItem(objId);
             item.addListener(this);
             this.entity = item;
         }

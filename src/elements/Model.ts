@@ -1,8 +1,7 @@
-import Graph from '../Graph';
+import Graph from '../controls/Graph';
 import { DiagramElement } from './BaseElements';
 import { Edge } from './edges';
 import { Node } from './nodes';
-import { EventBus } from '../EventBus';
 import { util } from '../util';
 
 export default class Model extends DiagramElement {
@@ -110,7 +109,7 @@ export default class Model extends DiagramElement {
     this.$graph.root.appendChild(this.$graph.canvas);
 
     let mousewheel = 'onwheel' in document.createElement('div') ? 'wheel' : document.onmousewheel !== undefined ? 'mousewheel' : 'DOMMouseScroll';
-    EventBus.register(this, 'mousedown', 'mouseup', 'mouseleave', 'mousemove', mousewheel, 'click', 'drag');
+    //FIXME EventBus.register(this, 'mousedown', 'mouseup', 'mouseleave', 'mousemove', mousewheel, 'click', 'drag');
   }
 
   private getNewId(prefix?: string): string {

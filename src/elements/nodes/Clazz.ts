@@ -1,5 +1,5 @@
 import { Node } from './Node';
-import { EventBus } from '../../EventBus';
+//import { EventBus } from '../../EventBus';
 import { util } from '../../util';
 
 export class Clazz extends Node {
@@ -250,7 +250,7 @@ export class Clazz extends Node {
     }
 
     this.$view = group;
-		EventBus.register(this, 'mousedown', 'mousemove', 'click', 'dblclick', 'editor', 'drag');
+		//FIXME EventBus.register(this, 'mousedown', 'mousemove', 'click', 'dblclick', 'editor', 'drag');
     return group;
   }
 

@@ -6,10 +6,10 @@ import SimpleEvent from "./Event";
 
 export default class Control {
     id: string;
-    public owner: Bridge;
+    public $owner: Control;
     public property: string;
-    protected items: Set<BridgeElement> = new Set<BridgeElement>();
-    protected _lastProperty: string;
+    //protected items: Set<BridgeElement> = new Set<BridgeElement>();
+    protected $lastProperty: string;
     protected entity: Data;
     protected eventListener: Set<EventListener>;
     protected eventsToListen: Set<string>;
@@ -22,16 +22,26 @@ export default class Control {
         if (!this.property) {
             return "";
         }
-        if (!this._lastProperty) {
+        if (!this.$lastProperty) {
             let arr = this.property.split(".");
-            this._lastProperty = arr[arr.length - 1];
+            this.$lastProperty = arr[arr.length - 1];
         }
-        return this._lastProperty;
+        return this.$lastProperty;
     }
 
 
-    constructor(owner: Bridge, data) {
-        this.owner = owner;
+    constructor(owner: Control) {
+        this.$owner = owner;
+    }
+
+    public initControl(data:any) {
+    }
+
+    public getItem(id: string): Data {
+        return null;
+    }
+    public hasItem(id: string): boolean {
+        return false;
     }
 
     public propertyChange(entity: Data, property: string, oldValue, newValue) {
@@ -56,9 +66,9 @@ export default class Control {
             return;
         }
         let objId = property.split(".")[0];
-        var object = this.owner.getItem(objId);
+        let object = this.$owner.getItem(objId);
         this.property = property;
-        this._lastProperty = null;
+        this.$lastProperty = null;
 
         // remove listener on old object
         if (this.entity) {
@@ -109,8 +119,11 @@ export default class Control {
         let listener = (t)=>{
             t.eventType = eventType;
             t.id = control.id;
-            control.owner.fireEvent(t);
-        }
+            control.$owner.fireEvent(t);
+        };
          htmlElement.addEventListener(eventType, listener);
+    }
+    public fireEvent(evt: Event) : void {
+
     }
 }

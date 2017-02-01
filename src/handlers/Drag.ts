@@ -1,4 +1,4 @@
-import { EventHandler } from '../EventBus';
+//import { EventHandler } from '../EventBus';
 import { DiagramElement, Point } from '../elements/BaseElements';
 import Model from '../elements/Model';
 import { Node } from '../elements/nodes';

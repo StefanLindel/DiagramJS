@@ -1,17 +1,18 @@
 import { util } from '../util';
+import Control from "../Control";
 
 export interface Size {
   width: number;
   height: number;
 }
 
-export abstract class DiagramElement {
+export abstract class DiagramElement extends Control {
   protected labelHeight = 25;
   protected labelFontSize = 14;
   protected attrHeight = 20;
   protected attrFontSize = 12;
   public id: string;
-  public type: string;
+  //public type: string; // Property
   public label: string;
   public $view: Element;
   private pos:Point = new Point();
@@ -19,9 +20,15 @@ export abstract class DiagramElement {
   protected $parent: DiagramElement = null;
   protected isDraggable: boolean = true;
 
-  constructor(type?: string, id?: string) {
-    this.type = type;
-    this.id = id;
+    //protected $lastProperty: string;
+    //protected entity: Data;
+    //protected eventListener: Set<EventListener>;
+    //protected eventsToListen: Set<string>;
+
+  constructor(owner:Control, type?: string, id?: string) {
+      super(owner);
+      this.property = type;
+      this.id = id;
   }
 
   public getPos():Point {

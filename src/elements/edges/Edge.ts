@@ -1,5 +1,5 @@
 import { DiagramElement, Point,Line } from '../BaseElements';
-import { EventBus } from '../../EventBus';
+//import { EventBus } from '../../EventBus';
 import { Node } from '../nodes';
 
 export const enum Direction {
@@ -60,7 +60,7 @@ export class Edge extends DiagramElement {
 
     this.$view = shape;
 
-		EventBus.register(this, 'click', 'editor');
+		//FIXME EventBus.register(this, 'click', 'editor');
     return shape;
   }
 

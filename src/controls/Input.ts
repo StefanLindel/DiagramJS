@@ -9,6 +9,9 @@ export class Input extends Control {
 
     constructor(owner, data) {
         super(owner, data);
+        this.initControl(data);
+    }
+    public initControl(data:any) {
         let id: string;
         // init form HTML
         if (typeof(data) === "string") {

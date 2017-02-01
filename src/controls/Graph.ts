@@ -1,16 +1,16 @@
-import * as edges from './elements/edges';
-import * as nodes from './elements/nodes';
-import * as layouts from './layouts';
-import Layout from './layouts/Layout';
-import Model from './elements/Model';
-import Options from './Options';
-import Palette from './Palette';
-import { Size, Point } from './elements/BaseElements';
-import { EventBus } from './EventBus';
-import { Editor, Drag, Select, Zoom } from './handlers';
-import { util } from './util';
+import * as edges from '../elements/edges';
+import * as nodes from '../elements/nodes';
+import * as layouts from '../layouts';
+import Layout from '../layouts/Layout';
+import Model from '../elements/Model';
+import Options from '../Options';
+import Palette from '../Palette';
+import { Size, Point } from '../elements/BaseElements';
+import { Editor, Drag, Select, Zoom } from '../handlers';
+import { util } from '../util';
+import Control from "../Control";
 
-export default class Graph {
+export default class Graph extends Control{
   root: HTMLElement;
   canvas: Element;
   model: Model;
@@ -20,20 +20,26 @@ export default class Graph {
   edgeFactory: Object;
   layoutFactory: Object;
 
-  constructor(json: Object, options: Options) {
-			json = json || {};
-	    this.options = options || {};
-			if(json["init"]) {
-				return;
-			}
-	    if(!this.options.origin) {
-	      this.options.origin =  new Point(150, 45);
-	    }
-	    this.initFactories();
-	    this.initCanvas();
-	    this.model = new Model(this);
-	    this.model.init(json);
-	    this.initFeatures(options.features);
+  constructor(json, options: Options) {
+    super(null, null);
+    if(typeof json ==="Bridge") {
+      this.owner = json;
+      json = options["data"];
+      options = options["options"];
+    }
+    json = json || {};
+    this.options = options || {};
+    if(json["init"]) {
+    return;
+    }
+    if(!this.options.origin) {
+      this.options.origin =  new Point(150, 45);
+    }
+    this.initFactories();
+    this.initCanvas();
+    this.model = new Model(this);
+    this.model.init(json);
+    this.initFeatures(options.features);
   }
 
   public addElement(type: string): boolean {
@@ -59,7 +65,7 @@ export default class Graph {
 		      let node = model.nodes[id];
 					let svg = node.getSVG();
 
-					EventBus.registerSVG(svg);
+					//FIXME EventBus.registerSVG(svg);
 		      canvas.appendChild(svg);
 		    }
 		  }
@@ -67,7 +73,7 @@ export default class Graph {
 		    for (let id in model.edges) {
 		      let edge = model.edges[id];
 					let svg = edge.getSVG();
-					EventBus.registerSVG(svg);
+                //FIXME EventBus.registerSVG(svg);
 		      canvas.appendChild(svg);
 		    }
 	  }
@@ -78,7 +84,7 @@ export default class Graph {
 	    canvas.removeChild(canvas.firstChild);
 	  }
 
-	  canvas.appendChild(this.createPattern());
+	  canvas.appendChild(Graph.createPattern());
 	  const background = util.createShape( {
 	    tag: 'rect',
 	    id: 'background',
@@ -93,7 +99,7 @@ export default class Graph {
 	  canvas.appendChild(background);
 	  canvas.appendChild(this.model.getSVG());
 	}
-	private createPattern(): Element {
+	private static createPattern(): Element {
 	  const defs = util.createShape({ tag: 'defs' });
 	  const pattern = util.createShape( {
 	    tag: 'pattern',
@@ -164,16 +170,16 @@ export default class Graph {
       if (features) {
           if (features.zoom) {
               let mousewheel = 'onwheel' in document.createElement('div') ? 'wheel' : document.onmousewheel !== undefined ? 'mousewheel' : 'DOMMouseScroll';
-              EventBus.subscribe(new Zoom(), mousewheel);
+              //FIXME EventBus.subscribe(new Zoom(), mousewheel);
           }
           if (features.editor) {
-              EventBus.subscribe(new Editor(this), 'dblclick', 'editor');
+              //FIXME EventBus.subscribe(new Editor(this), 'dblclick', 'editor');
           }
           if (features.drag) {
-              EventBus.subscribe(new Drag(), 'mousedown', 'mouseup', 'mousemove', 'mouseleave');
+              //FIXME EventBus.subscribe(new Drag(), 'mousedown', 'mouseup', 'mousemove', 'mouseleave');
           }
           if (features.select) {
-              EventBus.subscribe(new Select(this.model), 'click', 'drag');
+              //FIXME EventBus.subscribe(new Select(this.model), 'click', 'drag');
           }
           if (features.palette) {
               new Palette(this);

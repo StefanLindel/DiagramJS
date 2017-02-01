@@ -72,15 +72,44 @@ export default class Bridge {
         return "control" + (this.controlNo++);
     }
 
-    public load(json): Control {
+    public load(json): any {
         let className;
+        let id;
         if (typeof(json) === "object") {
             if (!json["id"]) {
                 json["id"] = this.getId();
             }
-            className = json["class"].toLowerCase();
+            if(json["class"]) {
+                className = json["class"].toLowerCase();
+            }
+            id = json["id"];
+            // Check For Control or Data
+            if(json["prop"] || json["upd"] || json["rem"]) {
+                // Its Data
+                let newData = !this.hasItem(id);
+                let item: Data = this.getItem(id);
+                if (className) {
+                    item.property = className;
+                }
+                if (newData) {
+                    for (let i in this.controls) {
+                        if (this.controls.hasOwnProperty(i) === false) {
+                            continue;
+                        }
+                        this.controls[i].addItem(this, item);
+                    }
+                }
+                Bridge.addProperties(json["prop"], item);
+                Bridge.addProperties(json["upd"], item);
+                for (let adapter in this.adapters) {
+                    this.adapters[adapter].update(JSON.stringify(json));
+                }
+                return item;
+            }
         } else {
-            let item = document.getElementById(json);
+            // Only a String
+            id = json;
+            let item = document.getElementById(id);
             if (item) {
                 className = item.getAttribute("class");
                 if (className) {
@@ -92,36 +121,22 @@ export default class Bridge {
                 className = json;
             }
         }
+
+        let control;
+        if(this.controls[id]) {
+            control = this.controls[id];
+            control.initControl(json);
+            return control;
+        }
+
         if (typeof(this.controlFactory[className]) === "object" || typeof(this.controlFactory[className]) === "function") {
             let obj = this.controlFactory[className];
-            let control = new obj(this, json);
+            control = new obj(this, json);
             this.controls[control.id] = control;
             return control;
         }
         return null;
         //bridge.load("{class:table, columns:[{id:'firstname'}, {id:'lastname'}]}");
-    }
-
-    public executeChange(change) {
-        let newData = !this.hasItem(change.id);
-        let item: Data = this.getItem(change.id);
-        if (change["class"]) {
-            item.property = change["class"];
-        }
-        if (newData) {
-            for (let i in this.controls) {
-                if (this.controls.hasOwnProperty(i) === false) {
-                    continue;
-                }
-                this.controls[i].addItem(this, item);
-            }
-        }
-        Bridge.addProperties(change["prop"], item);
-        Bridge.addProperties(change["upd"], item);
-
-        for (let adapter in this.adapters) {
-            this.adapters[adapter].update(JSON.stringify(change));
-        }
     }
 
     public static addProperties(prop: Object, item: Data) {
@@ -175,7 +190,7 @@ export default class Bridge {
         }
         let upd = {};
         upd[attribute] = value;
-        this.executeChange({'id': id, upd});
+        this.load({'id': id, upd});
     }
 
 
@@ -257,7 +272,7 @@ export default class Bridge {
         return adapter;
     }
 
-    public fireEvent(evt: Event) {
+    public fireEvent(evt: Event) : void {
         let handlers = this.adapters.get(null);
         if(handlers) {
             for(let i=0;i<handlers.length;i++) {
