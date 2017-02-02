@@ -1,14 +1,19 @@
 import { DiagramElement} from '../BaseElements';
 import { Edge } from '../edges';
+import {Control} from "../../Control";
 
 export class Node extends DiagramElement {
   edges: Edge[] = [];
   maxWidth: number = 250;
   protected counter:number;
   private status:string;
+  $LEFT:number=0;
+  $RIGHT:number=0;
+  $TOP:number=0;
+  $DOWN:number=0;
 
-  constructor(id?: string, type?: string) {
-    super(null);
+  constructor(parent:Control, id?: string, type?: string) {
+    super(parent);
     this.withSize(150,  70);
     this.property = type || 'Node';
     this.id = id;

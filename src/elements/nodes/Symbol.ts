@@ -2,12 +2,13 @@ import { Node } from './Node';
 import { SO } from './SO';
 import { DiagramElement, Point } from '../BaseElements';
 import { util } from '../../util';
+import {Control} from "../../Control";
 
 export class Symbol extends Node {
 	public $heightMax:number=0;
 	public $heightMin:number=0;
-	constructor(typ:string) {
-		super(typ,typ);
+	constructor(owner:Control, typ:string) {
+		super(owner,typ);
 	}
 	public draw(typ?:string):HTMLElement {
 		return SymbolLibary.draw(this);
@@ -33,7 +34,7 @@ export class SymbolLibary {
 			}
 			return SymbolLibary.createGroup(node, symbol);
 		} else if (node.property) {
-			symbol = new Symbol(node.property);
+			symbol = new Symbol(node, node.property);
             let pos = node.getPos();
             let size = node.getSize();
 			symbol.withPos(pos.x, pos.y);

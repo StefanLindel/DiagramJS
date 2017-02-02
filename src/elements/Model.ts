@@ -146,8 +146,8 @@ export default class Model extends DiagramElement {
     let id = this.getNewId(type);
 
     let newEdge = <Edge>this.getElement(type, id, edge);
-    let source = this.findNodeByLabel(<string>edge.source) || this.addNode(new Node().init({ label: edge.source }));
-    let target = this.findNodeByLabel(<string>edge.target) || this.addNode(new Node().init({ label: edge.target }));
+    let source = this.findNodeByLabel(<string>edge.source) || this.addNode(new Node(this).init({ label: edge.source }));
+    let target = this.findNodeByLabel(<string>edge.target) || this.addNode(new Node(this).init({ label: edge.target }));
     newEdge.withItem(source, target);
 
     return newEdge;
@@ -155,13 +155,13 @@ export default class Model extends DiagramElement {
 
   private getElement(type: string, id: string, data: Object): DiagramElement {
     if (this.$graph.nodeFactory[type]) {
-      let element: DiagramElement = new this.$graph.nodeFactory[type](id, type);
+      let element: DiagramElement = new this.$graph.nodeFactory[type](this, id, type);
       element.init(data);
       this.nodes[id] = element;
       return element;
     }
     if (this.$graph.edgeFactory[type]) {
-      let element: DiagramElement = new this.$graph.edgeFactory[type](id, type);
+      let element: DiagramElement = new this.$graph.edgeFactory[type](this, id, type);
       element.init(data);
       this.edges[id] = element;
       return element;

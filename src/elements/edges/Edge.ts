@@ -22,8 +22,8 @@ export class Edge extends DiagramElement {
 	$m:number;
 	$n:number;
 
-  constructor(id?: string, type?: string) {
-    super(null);
+  constructor(parent:Control, id?: string, type?: string) {
+    super(parent);
     this.property = type || 'Edge';
     this.id = id;
   }

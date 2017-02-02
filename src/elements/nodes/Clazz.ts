@@ -1,6 +1,7 @@
 import { Node } from './Node';
 //import { EventBus } from '../../EventBus';
 import { util } from '../../util';
+import {Control} from "../../Control";
 
 export class Clazz extends Node {
 
@@ -9,8 +10,8 @@ export class Clazz extends Node {
   private padding = 10;
 	private style:string;
 
-  constructor(id?: string, type?: string) {
-    super(id, type);
+  constructor(owner:Control, id?: string, type?: string) {
+    super(owner, id, type);
     this.getSize().y = this.labelHeight + this.padding * 2;
   };
 

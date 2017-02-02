@@ -114,7 +114,7 @@ export class Point {
     public static DOWN:string = "DOWN";
     x: number = 0;
     y: number = 0;
-    pos:string;
+    pos:string = "";
 
 
   constructor(x?: number, y?: number, pos?:string) {
