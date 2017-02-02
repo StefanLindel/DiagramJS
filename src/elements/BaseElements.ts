@@ -1,5 +1,5 @@
 import { util } from '../util';
-import Control from "../Control";
+import {Control} from "../Control";
 
 export interface Size {
   width: number;
@@ -7,6 +7,7 @@ export interface Size {
 }
 
 export abstract class DiagramElement extends Control {
+
   protected labelHeight = 25;
   protected labelFontSize = 14;
   protected attrHeight = 20;
@@ -17,7 +18,6 @@ export abstract class DiagramElement extends Control {
   public $view: Element;
   private pos:Point = new Point();
   private size:Point = new Point();
-  protected $parent: DiagramElement = null;
   protected isDraggable: boolean = true;
 
     //protected $lastProperty: string;
@@ -38,20 +38,33 @@ export abstract class DiagramElement extends Control {
     return this.size;
   }
   public getCenter(): Point {
-    var pos = this.getPos();
-    var size = this.getSize();
+    let pos = this.getPos();
+    let size = this.getSize();
     return new Point(pos.x + size.x / 2, pos.y + size.y / 2);
   }
-  abstract init(data: Object);
+  public getCenterPosition(p:string) :Point {
+      let pos = this.getPos();
+      let size = this.getSize();
+      let offset = this["$" + p];
+      let center = this.getCenter()
+      if (p === Point.DOWN) {
+            return new Point(Math.min(center.x + offset, center.x), pos.y + size.y, Point.DOWN);
+        }
+        if (p === Point.UP) {
+            return new Point(Math.min(center.x + offset, center.x), pos.y, Point.UP);
+        }
+        if (p === Point.LEFT) {
+            return new Point(pos.x, Math.min(center.y + offset, pos.y + size.y), Point.LEFT);
+        }
+        if (p === Point.RIGHT) {
+            return new Point(pos.x + size.x, Math.min(center.y + offset, pos.y + size.y), Point.RIGHT);
+        }
+    };
+
+
+    abstract init(data: Object);
 
   abstract getSVG();
-
-  public getRoot(): DiagramElement {
-    if (this.$parent) {
-      return this.$parent.getRoot();
-    }
-    return this;
-  }
 
   protected createShape(attrs): Element {
 		return util.createShape(attrs);
@@ -82,16 +95,32 @@ export abstract class DiagramElement extends Control {
     }
     return this;
   }
+    public getShowed():Control {
+        //FIXME if (this.status === "close") {
+        // if (!this.$owner.isClosed()) {
+        //        return this;
+        //    }
+        //}
+        return super.getShowed();
+    }
+
 }
 
 
 export class Point {
-  x: number = 0;
-  y: number = 0;
+    public static UP:string = "UP";
+    public static LEFT:string = "LEFT";
+    public static RIGHT:string = "RIGHT";
+    public static DOWN:string = "DOWN";
+    x: number = 0;
+    y: number = 0;
+    pos:string;
 
-  constructor(x?: number, y?: number) {
+
+  constructor(x?: number, y?: number, pos?:string) {
     this.x = Math.ceil(x || 0);
     this.y = Math.ceil(y || 0);
+    this.pos = pos;
   };
 
   public add(pos: Point) {
@@ -164,6 +193,7 @@ export class Point {
 		public target:Point;
 		public color:string;
 
+
 		public init(data: Object) {
 		}
 
@@ -172,13 +202,13 @@ export class Point {
 		}
 
 		public getPos() {
-			var pos = new Point();
+            let pos = new Point();
 			pos.center(this.source, this.target);
 			return pos;
 		};
 
 		public getSize() {
-			var pos = new Point();
+            let pos = new Point();
 			pos.size(this.source, this.target);
 			return pos;
 		}
@@ -192,7 +222,7 @@ export class Point {
 		}
 
 		public withPath(path: Array<Point>, close, angle?: any): Line {
-			var i: number, d: string = "M" + path[0].x + " " + path[0].y;
+			let i: number, d: string = "M" + path[0].x + " " + path[0].y;
 			this.line = Line.FORMAT.PATH; // It is a Path not a Line
 			for (i = 1; i < path.length; i += 1) {
 				d = d + "L " + path[i].x + " " + path[i].y;
@@ -222,7 +252,7 @@ export class Point {
 					"stroke-width": "1px"
 				});
 			}
-			var line = util.create({
+			let line = util.create({
 				tag: "line",
 				'x1': this.source.x,
 				'y1': this.source.y,

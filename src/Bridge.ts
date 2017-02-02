@@ -1,8 +1,8 @@
-import * as controls from "./controls";
+import * as controls from "./elements/nodes";
 import Data from "./Data";
-import Control from "./Control";
+import {Control} from "./Control";
 import {Adapter} from "./Adapter";
-
+import Graph from "./elements/Graph";
 
 export default class Bridge {
     //noinspection JSUnusedGlobalSymbols
@@ -23,6 +23,7 @@ export default class Bridge {
         for(i=0;i<keys.length;i++) {
             this.addControl(controls[keys[i]]);
         }
+        this.addControl(Graph);
 
         let that = this;
         window.addEventListener('load', function() {
@@ -139,6 +140,10 @@ export default class Bridge {
         //bridge.load("{class:table, columns:[{id:'firstname'}, {id:'lastname'}]}");
     }
 
+    public propertyChange(entity: Data, property: string, oldValue, newValue) {
+
+    }
+
     public static addProperties(prop: Object, item: Data) {
         if (!prop) {
             return;
@@ -168,7 +173,7 @@ export default class Bridge {
     }
 
 
-    public setValue(object: Object, attribute: string, value: Object) {
+    public setValue(object: Object, attribute: string, value: Object) :boolean{
         let obj: Object;
         let id: string;
         if (object instanceof String || typeof object === "string") {
@@ -182,7 +187,7 @@ export default class Bridge {
             id = object['id'];
         } else {
             console.log("object is neither Data nor String..");
-            return;
+            return false;
         }
         if (obj) {
             // Could be done here, but currently is done at this.execueChange..:
@@ -191,6 +196,7 @@ export default class Bridge {
         let upd = {};
         upd[attribute] = value;
         this.load({'id': id, upd});
+        return true;
     }
 
 
@@ -252,7 +258,7 @@ export default class Bridge {
         if(callBackfunction) {
             let adapter:DelegateAdapter = new DelegateAdapter();
             adapter.callBackfunction = callBackfunction;
-            adapter.id = control.id;
+            adapter.id = control.getId();
             this.addAdapter(adapter, eventType);
         }
         return control;

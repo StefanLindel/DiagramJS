@@ -1,9 +1,9 @@
-import Control from '../Control'
-import Bridge from '../Bridge'
-import Data from '../Data'
+import {Control} from '../../Control'
+import Bridge from '../../Bridge'
+import Data from '../../Data'
 
 export class Div extends Control {
-    private class: string;
+    private className: string;
     private $element: HTMLDivElement;
     private applyingChange: boolean = false;
 
@@ -15,7 +15,7 @@ export class Div extends Control {
             id = data;
         } else {
             id = data.id;
-            this.class = data.class;
+            this.className = data.class;
             this.property = data.property;
         }
         if (!id) {
@@ -50,14 +50,14 @@ export class Div extends Control {
         let objId = this.property.split(".")[0];
         let hasItem = this.$owner.hasItem(objId);
         if(hasItem){
-            var item = this.$owner.getItem(objId);
+            let item = this.$owner.getItem(objId);
             item.addListener(this);
             this.entity = item;
         }
     }
 
     private controlChanged(ev: Event) {
-        this.owner.setValue(this.entity, this.lastProperty, this.$element.innerHTML);
+        this.$owner.setValue(this.entity, this.lastProperty, this.$element.innerHTML);
     }
 
     propertyChange(entity: Data, property: string, oldValue, newValue) {
@@ -70,7 +70,7 @@ export class Div extends Control {
         this.entity = entity;
         // check for new Element in Bridge
         if (entity) {
-            if (!this.class || this.class === entity.property) {
+            if (!this.className || this.className === entity.property) {
                 if (entity.id == this.property.split(".")[0]) {
                     entity.addListener(this);
                 }

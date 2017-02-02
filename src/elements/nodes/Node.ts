@@ -1,4 +1,4 @@
-import { DiagramElement, Point } from '../BaseElements';
+import { DiagramElement} from '../BaseElements';
 import { Edge } from '../edges';
 
 export class Node extends DiagramElement {
@@ -8,9 +8,9 @@ export class Node extends DiagramElement {
   private status:string;
 
   constructor(id?: string, type?: string) {
-    super();
+    super(null);
     this.withSize(150,  70);
-    this.type = type || 'Node';
+    this.property = type || 'Node';
     this.id = id;
     this.edges = [];
   }
@@ -63,18 +63,6 @@ export class Node extends DiagramElement {
 
     return group;
   }
-
-	public getShowed():Node {
-//FIXME		if (this.status === "close") {
-//			if (!this.$parent.isClosed()) {
-//				return this;
-//			}
-//		}
-//		if (this.isClosed()) {
-//			return this.$parent.getShowed();
-//		}
-		return this;
-	}
 
   public redrawEdges() {
     for (let edge of this.edges) {

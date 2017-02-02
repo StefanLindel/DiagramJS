@@ -1,6 +1,6 @@
-import Control from "../Control";
-import Bridge from "../Bridge";
-import Data from "../Data";
+import {Control} from "../../Control";
+import Bridge from "../../Bridge";
+import Data from "../../Data";
 
 export class Input extends Control {
     private $element: HTMLInputElement;
@@ -8,7 +8,7 @@ export class Input extends Control {
     private applyingChange: boolean = false;
 
     constructor(owner, data) {
-        super(owner, data);
+        super(owner);
         this.initControl(data);
     }
     public initControl(data:any) {
@@ -72,9 +72,9 @@ export class Input extends Control {
         // check if object already exists
         if (this.property) {
             let objId = this.property.split(".")[0];
-            let hasItem = this.owner.hasItem(objId);
+            let hasItem = this.$owner.hasItem(objId);
             if (hasItem) {
-                let item = this.owner.getItem(objId);
+                let item = this.$owner.getItem(objId);
                 item.addListener(this);
                 this.entity = item;
             } else {
@@ -95,7 +95,7 @@ export class Input extends Control {
 
     private controlChanged(ev: Event) {
         if (this.$element.checkValidity()) {
-            this.owner.setValue(this.entity, this.lastProperty, this.$element.value);
+            this.$owner.setValue(this.entity, this.lastProperty, this.$element.value);
         } else {
             console.log("value does not match the pattern...");
         }

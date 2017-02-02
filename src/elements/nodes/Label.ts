@@ -1,13 +1,9 @@
-import Control from '../Control'
-import Data from '../Data'
+import {Control} from '../../Control'
 
 export class Label extends Control {
     constructor(owner, data) {
-        super(owner, data);
+        super(owner);
         this.createControl(document.getElementsByTagName("body")[0], data);
-    }
-
-    propertyChange(entity: Data, property: string, oldValue, newValue) {
     }
 
     protected createControl(parent: HTMLElement, data: JSON) {

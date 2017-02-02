@@ -25,17 +25,17 @@ export class Symbol extends Node {
 export class SymbolLibary {
 	public static draw(node:DiagramElement, parent?:Object) {
 		// Node is Symbol or simple Object
-		var symbol, fn = this[SymbolLibary.getName(node)];
+        let symbol, fn = this[SymbolLibary.getName(node)];
 		if (typeof fn === "function") {
 			symbol = fn.apply(this, [node]);
 			if (!parent) {
 				return SymbolLibary.createGroup(node, symbol);
 			}
 			return SymbolLibary.createGroup(node, symbol);
-		} else if (node.type) {
-			symbol = new Symbol(node.type);
-			var pos = node.getPos();
-			var size = node.getSize();
+		} else if (node.property) {
+			symbol = new Symbol(node.property);
+            let pos = node.getPos();
+            let size = node.getSize();
 			symbol.withPos(pos.x, pos.y);
 			symbol.withSize(size.x, size.y);
 			symbol["value"] = node["value"];
@@ -48,16 +48,16 @@ export class SymbolLibary {
 		return txt.charAt(0).toUpperCase() + txt.slice(1).toLowerCase();
 	}
 	public static isSymbolName(typ:string) : boolean {
-		var fn = SymbolLibary["draw"+SymbolLibary.upFirstChar(typ)];
+        let fn = SymbolLibary["draw"+SymbolLibary.upFirstChar(typ)];
 		return typeof fn === "function";
 	}
 	public static isSymbol(node:Symbol) {
-		var fn = SymbolLibary[SymbolLibary.getName(node)];
+        let fn = SymbolLibary[SymbolLibary.getName(node)];
 		return typeof fn === "function";
 	}
 	public static getName(node:DiagramElement) :string {
-		if (node.type) {
-			return "draw" + SymbolLibary.upFirstChar(node.type);
+		if (node.property) {
+			return "draw" + SymbolLibary.upFirstChar(node.property);
 		}
 		if (node["src"]) {
 			return "draw" + SymbolLibary.upFirstChar(node["src"]);
@@ -65,13 +65,13 @@ export class SymbolLibary {
 		return "drawNode";
 	}
 	public static createImage(node:Symbol, model) {
-		var n, img:HTMLElement;
+        let n, img:HTMLElement;
 		//node.model = node;
 		if (SymbolLibary.isSymbol(node)) {
 			return SymbolLibary.draw(null, node);
 		}
 		n = {tag: "img", model: node, src: node["src"]};
-		var size = node.getSize();
+        let size = node.getSize();
 		if (size.isEmpty() == false) {
 			n.width = size.x;
 			n.height = size.y;
@@ -86,9 +86,9 @@ export class SymbolLibary {
 		return img;
 	}
 	public static createGroup(node:DiagramElement, group) {
-		var func, y:number, yr:number, z:number, box, item, transform, i, offsetX = 0, offsetY = 0;
-		var svg:any;
-		if(node.type.toUpperCase() == "HTML") {
+		let func, y:number, yr:number, z:number, box, item, transform, i, offsetX = 0, offsetY = 0;
+        let svg:any;
+		if(node.property.toUpperCase() == "HTML") {
 			svg = util.create({tag: "svg", style: {left: group.x + node.getPos().x, top: group.y + node.getPos().y, position: "absolute"}});
 		} else {
 			svg = util.create({tag: "g"});
@@ -104,7 +104,7 @@ export class SymbolLibary {
 		for (i = 0; i < group.items.length; i += 1) {
 			svg.appendChild(util.create(group.items[i]));
 		}
-		var elements = node["elements"];
+        let elements = node["elements"];
 		util.setSize(svg, group.width+node.getSize().x, group.height+node.getSize().y);
 		node["$heightMin"] = node.getSize().y;
 		if (elements) {
@@ -175,7 +175,7 @@ export class SymbolLibary {
 		return svg;
 	};
 	public static addChild(parent, json) : void {
-		var item;
+        let item;
 		if (json.offsetLeft) {
 			item = json;
 		} else {
@@ -476,7 +476,7 @@ export class SymbolLibary {
   };
 
   public static drawClassicon(node:DiagramElement) : DiagramElement{
-    var btnX, btnY, btnWidth, btnHeight;
+      let btnX, btnY, btnWidth, btnHeight;
 
     btnX = node.getPos().x || 0;
     btnY = node.getPos().y || 0;
@@ -504,7 +504,7 @@ export class SymbolLibary {
   };
 
   public static drawEdgeicon(node:DiagramElement) : DiagramElement{
-    var btnX, btnY, btnWidth, btnHeight;
+      let btnX, btnY, btnWidth, btnHeight;
 
     btnX = node.getPos().x || 0;
     btnY = node.getPos().y || 0;

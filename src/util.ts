@@ -1,6 +1,6 @@
 import { CSS } from './CSS';
 import { Node } from './elements/nodes/Node';
-import { DiagramElement } from './elements/BaseElements';
+import {DiagramElement, Point} from './elements/BaseElements';
 
 export class util {
 	static getRandomInt(min, max): number {
@@ -126,6 +126,15 @@ export class util {
 		item.setAttribute("height", value);
 		item.style.height = Math.ceil(value);
 	}
+	static setPos(item, x:number, y:number) : void{
+		if (item.x && item.x.baseVal) {
+			item.style.left = x + "px";
+			item.style.top = y + "px";
+		} else {
+			item.x = x;
+			item.y = y;
+		}
+	}
 	static getValue(value:string):number {return parseInt(("0" + value).replace("px", ""), 10); }
 	static isIE():boolean {return document.all && !window["opera"]; }
 	static isFireFox():boolean {return navigator.userAgent.toLowerCase().indexOf('firefox') > -1; }
@@ -250,4 +259,86 @@ export class util {
 		}
 		return ref;
 	};
+
+	static Range(min:Point, max:Point, x:number, y:number) {
+		max.x = Math.max(max.x, x);
+		max.y = Math.max(max.y, y);
+		min.x = Math.min(min.x, x);
+		min.y = Math.min(min.y, y);
+	}
+	public static getPosition(m:number, n:number, entity:DiagramElement, refCenter:Point) {
+		let t, p = [], list, distance = [], min = 999999999, position, i, step = 15;
+		let pos:Point = entity.getPos();
+		let size:Point = entity.getSize();
+		list = [Point.LEFT, Point.RIGHT];
+		for (i = 0; i < 2; i += 1) {
+			t = this.getLRPosition(m, n, entity, list[i]);
+			if (t.y >= pos.y && t.y <= (pos.y + size.y + 1)) {
+				t.y += (entity["$" + list[i]] * step);
+				if (t.y > (pos.y + size.y)) {
+					// Alternative
+					t = util.getUDPosition(m, n, entity, Point.DOWN, step);
+				}
+				p.push(t);
+				distance.push(Math.sqrt((refCenter.x - t.x) * (refCenter.x - t.x) + (refCenter.y - t.y) * (refCenter.y - t.y)));
+			}
+		}
+		list = [Point.UP, Point.DOWN];
+		for (i = 0; i < 2; i += 1) {
+			t = util.getUDPosition(m, n, entity, list[i]);
+			if (t.x >= pos.x && t.x <= (pos.x + size.x + 1)) {
+				t.x += (entity["$" + list[i]] * step);
+				if (t.x > (pos.x + size.x)) {
+					// Alternative
+					t = this.getLRPosition(m, n, entity, Point.RIGHT, step);
+				}
+				p.push(t);
+				distance.push(Math.sqrt((refCenter.x - t.x) * (refCenter.x - t.x) + (refCenter.y - t.y) * (refCenter.y - t.y)));
+			}
+		}
+		for (i = 0; i < p.length; i += 1) {
+			if (distance[i] < min) {
+				min = distance[i];
+				position = p[i];
+			}
+		}
+		return position;
+	};
+	public static getUDPosition(m:number, n:number, e:DiagramElement, p:string, step?:number) {
+		let pos:Point = e.getPos();
+		let size:Point = e.getSize();
+		let x, y:number = pos.y;
+		if (p === Point.DOWN) {
+			y += size.y;
+		}
+		x = (y - n) / m;
+		if (step) {
+			x += e["$" + p] * step;
+			if (x < pos.x) {
+				x = pos.x;
+			} else if (x > (pos.x + size.x)) {
+				x = pos.x + size.x;
+			}
+		}
+		return new Point(x, y, p);
+	};
+	public static getLRPosition(m:number, n:number, e:DiagramElement, p:string, step?:number) {
+		let pos:Point = e.getPos();
+		let size:Point = e.getSize();
+		let y:number, x:number = pos.x;
+		if (p === Point.RIGHT) {
+			x += size.x;
+		}
+		y = m * x + n;
+		if (step) {
+			y += e["$" + p] * step;
+			if (y < pos.y) {
+				y = pos.y;
+			} else if (y > (pos.y + size.y)) {
+				y = pos.y + size.y;
+			}
+		}
+		return new Point(x, y, p);
+	}
+
 }

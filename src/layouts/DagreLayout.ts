@@ -1,8 +1,7 @@
-import { Edge } from '../elements/edges';
-import { Node } from '../elements/nodes';
-import { DiagramElement, Point } from '../elements/BaseElements';
-import Graph from '../Graph';
+import { DiagramElement } from '../elements/BaseElements';
 import Layout from './Layout';
+import Graph from '../elements/Graph';
+import {Edge} from "../elements/edges/Edge";
 export class LayoutGraph {
 		public nodes:Object = {};
 		public edges:Array<Object> = [];
@@ -34,8 +33,10 @@ export class DagreLayout implements Layout {
 	public static EDGE_KEY_DELIM = "\x01";
 	 public layout(graph: Graph,node:DiagramElement) {
 //	public layout(graph, node) {
-		var g, layoutNode, nodes, newEdge, edges;
-		var i, n, e, x, y, sId, tId, split = DagreLayout.EDGE_KEY_DELIM;
+		let g, layoutNode, nodes, newEdge, edges;
+		let i, n, x, y, sId, tId, split = DagreLayout.EDGE_KEY_DELIM;
+		let e:Edge;
+
 		nodes = node["nodes"];
 		edges = node["edges"];
 		g = new LayoutGraph();
@@ -55,12 +56,12 @@ export class DagreLayout implements Layout {
 			sId = this.getNodeId(e.$sNode);
 			tId = this.getNodeId(e.$tNode);
 			if (sId > tId) {
-				var tmp = tId;
+				let tmp = tId;
 				tId = sId;
 				sId = tmp;
 			}
-			var idAB = sId+split+tId+split;
-			var idBA = tId+split+sId+split;
+			let idAB = sId+split+tId+split;
+			let idBA = tId+split+sId+split;
 			if (sId != tId && g.edgesLabel.indexOf(idAB)<0 && g.edgesLabel.indexOf(idBA)<0) {
 				newEdge = {source:sId, target:tId, minlen:1, weight:1};
 				g.edges.push(newEdge);
@@ -97,7 +98,7 @@ export class DagreLayout implements Layout {
 				continue;
 			}
 			e = edges[i];
-			e.calc(graph)
+			e.calc(graph.root);
 		}
 		graph.draw();
 	}
@@ -119,7 +120,7 @@ export class DagreLayout implements Layout {
 		this.position(g);
 	}
 	public setSimpleOrder(g) {
-		var i,n;
+		let i,n;
 		for (i in g.nodes) {
 			n = g.nodes[i];
 			n.order = n.rank;
@@ -141,9 +142,9 @@ export class DagreLayout implements Layout {
 	 *       algorithm.
 	 */
 	public order(g) {
-		var layering= Array(g.maxRank+1);
-		var visited = {};
-		var node,n, order, i;
+		let layering= Array(g.maxRank+1);
+		let visited = {};
+		let node,n, order, i;
 		for(i=0;i<layering.length;i++){layering[i]=[];}
 		for(n in g.nodes) {
 			if (visited[n]) continue;
@@ -168,17 +169,17 @@ export class DagreLayout implements Layout {
 					if(layering[order].hasOwnProperty(n) === false) {
 						continue;
 					}
-					var name = layering[order][n];
-					var sum = 0;
-					var weight = 1;
-					var edges = g.dummyEdges[name];
+					let name = layering[order][n];
+					let sum = 0;
+					let weight = 1;
+					let edges = g.dummyEdges[name];
 					if(edges) {
 						for(i in edges) {
 							if(edges.hasOwnProperty(i) === false) {
 								continue;
 							}
-							var edge = edges[i];
-							var nodeU = g.node(edge.target);
+							let edge = edges[i];
+							let nodeU = g.node(edge.target);
 							sum = sum + (edge.weight * nodeU.order);
 							weight = weight + edge.weight;
 						}
@@ -188,7 +189,7 @@ export class DagreLayout implements Layout {
 				}
 			} else if(layering[order].length>0) {
 				for(n in layering[order]) {
-					var name = layering[order][n];
+					let name = layering[order][n];
 					g.node(name).barycenter = 1;
 					g.node(name).weight = 1;
 				}
@@ -199,7 +200,7 @@ export class DagreLayout implements Layout {
 				if(layering[order].hasOwnProperty(n) === false) {
 					continue;
 				}
-				var node = g.nodes[layering[order][n]];
+				let node = g.nodes[layering[order][n]];
 				node.order = parseInt(n) + node.barycenter * node.weight;
 				if(isNaN(node.order )) {
 					console.log("ERROR");
@@ -208,8 +209,8 @@ export class DagreLayout implements Layout {
 		}
 	};
 	public removeDummy(g) {
-		for(var z in g.dummyNodes) {
-			var node = g.dummyNodes[z];
+		for(let z in g.dummyNodes) {
+			let node = g.dummyNodes[z];
 			g.setNode(node.name, null);
 		}
 		g.dummyNodes = [];
@@ -232,21 +233,21 @@ export class DagreLayout implements Layout {
 	 *       the first dummy in each chain of dummy nodes produced.
 	 */
 	public normalizeEdge(g) {
-		var i=1;
-		for(var id in g.edges) {
-			var e = g.edges[id];
-			var v = e.source;
-			var vRank = g.node(v).rank;
-			var w = e.target;
-			var wRank = g.node(w).rank;
-			var name;
+		let i=1;
+		for(let id in g.edges) {
+			let e = g.edges[id];
+			let v = e.source;
+			let vRank = g.node(v).rank;
+			let w = e.target;
+			let wRank = g.node(w).rank;
+			let name;
 
 			if (wRank === vRank + 1) continue;
 
-			var dummy;
+			let dummy;
 			for (vRank = vRank+1; vRank < wRank; ++vRank) {
 				name = "_d"+e.source+e.target+(i++);
-				var newEdge = {source:v, target:name, minlen:1, weight:1};
+				let newEdge = {source:v, target:name, minlen:1, weight:1};
 				dummy = {width: 0, height: 0, edgeObj: e, rank: vRank, name:name};
 				// Dummy Edges
 				if(!g.dummyEdges[v]) {
@@ -282,7 +283,7 @@ export class DagreLayout implements Layout {
 	 *    1. Each node will be assign an (unnormalized) "rank" property.
 	 */
 	public longestPath(g) {
-		var i, n, visited = [];
+		let i, n, visited = [];
 		for (i in g.nodes) {
 			n = g.nodes[i];
 			visited.push(i);
@@ -291,10 +292,10 @@ export class DagreLayout implements Layout {
 		}
 	}
 	public findAllPaths(g, n, currentCost, path) {
-		var min:number = 0;
-		var id:string;
-		var z:number;
-		var target;
+		let min:number = 0;
+		let id:string;
+		let z:number;
+		let target;
 		if(g.outEdges[n.id]) {
 			for(z=0;z<g.outEdges[n.id].length;z++) {
 				id = g.outEdges[n.id][z].target;
@@ -316,13 +317,13 @@ export class DagreLayout implements Layout {
 	 * rank(v) >= 0 and at least one node w has rank(w) = 0.
 	 */
 	public normalizeRanks(g) {
-		var min = g.minRank;
-		var value;
+		let min = g.minRank;
+		let value;
 		g.maxRank = Number.NEGATIVE_INFINITY;
 		g.maxHeight = 0;
 		g.maxWidth = 0;
-		for(var i in g.nodes) {
-			var node = g.nodes[i];
+		for(let i in g.nodes) {
+			let node = g.nodes[i];
 			if (node.rank !== undefined) {
 				node.rank -= min;
 				value = Math.abs(node.rank);
@@ -336,9 +337,9 @@ export class DagreLayout implements Layout {
 	};
 	public position(g) {
 		this.positionY(g);
-		var list = this.positionX(g);
-		for(var i in list) {
-			for(var pos in list[i]) {
+		let list = this.positionX(g);
+		for(let i in list) {
+			for(let pos in list[i]) {
 				if(list[i].hasOwnProperty(pos) === false) {
 					continue;
 				}
@@ -350,16 +351,16 @@ export class DagreLayout implements Layout {
 		}
 	};
 	public positionY(g) {
-		var layering = this.buildLayerMatrix(g);
-		var rankSep = g.ranksep;
-		var prevY = 0;
-		for(var layer in layering) {
-			var maxHeight = g.maxHeight;
-			for(var v in layering[layer]) {
+		let layering = this.buildLayerMatrix(g);
+		let rankSep = g.ranksep;
+		let prevY = 0;
+		for(let layer in layering) {
+			let maxHeight = g.maxHeight;
+			for(let v in layering[layer]) {
 				if(layering[layer].hasOwnProperty(v) === false) {
 					continue;
 				}
-				var id = layering[layer][v];
+				let id = layering[layer][v];
 				g.nodes[id].y = prevY + maxHeight / 2;
 			}
 			prevY += maxHeight + rankSep;
@@ -370,10 +371,10 @@ export class DagreLayout implements Layout {
 	 * function will produce a matrix with the ids of each node.
 	 */
 	public buildLayerMatrix(g) {
-		var layering= Array(g.maxRank+1);
-		for(var i=0;i<layering.length;i++){layering[i]=[];}
-		for(var n in g.nodes) {
-			var node = g.nodes[n];
+		let layering= Array(g.maxRank+1);
+		for(let i=0;i<layering.length;i++){layering[i]=[];}
+		for(let n in g.nodes) {
+			let node = g.nodes[n];
 			if (node.rank !== undefined) {
 				layering[node.rank][node.order] = n;
 			}
@@ -381,7 +382,7 @@ export class DagreLayout implements Layout {
 		return layering;
 	};
 	public positionX(g) {
-		var layering = this.buildLayerMatrix(g);
+		let layering = this.buildLayerMatrix(g);
 		return layering;
 	};
 }

@@ -1,4 +1,4 @@
-import Graph from '../controls/Graph';
+import Graph from "./Graph";
 import { DiagramElement } from './BaseElements';
 import { Edge } from './edges';
 import { Node } from './nodes';
@@ -12,14 +12,13 @@ export default class Model extends DiagramElement {
   private counter = 0;
 
   constructor(graph: Graph) {
-    super();
-    this.$parent = null;
+    super(null);
     this.$graph = graph;
   }
 
   public init(data) {
     data = data || {};
-    this.type = data.type || 'classdiagram';
+    this.property = data.type || 'classdiagram';
     this.id = 'RootElement';
     if (data.nodes) {
       for (let node of data.nodes) {
@@ -119,7 +118,7 @@ export default class Model extends DiagramElement {
   }
 
   private addNode(node: Node): Node {
-    let type = node.type || 'Node';
+    let type = node.property || 'Node';
     type = util.toPascalCase(type);
     let id = this.getNewId(type);
     return <Node>this.getElement(type, id, node);

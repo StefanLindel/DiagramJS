@@ -1,7 +1,6 @@
-import { EventHandler } from '../EventBus';
 import { DiagramElement } from '../elements/BaseElements';
 
-export class Zoom implements EventHandler {
+export class Zoom {
 
   private svgRoot: SVGSVGElement;
 

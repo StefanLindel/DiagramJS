@@ -1,14 +1,15 @@
-import * as edges from '../elements/edges';
-import * as nodes from '../elements/nodes';
+import * as edges from './edges';
+import * as nodes from './nodes';
 import * as layouts from '../layouts';
 import Layout from '../layouts/Layout';
 import Model from '../elements/Model';
 import Options from '../Options';
 import Palette from '../Palette';
 import { Size, Point } from '../elements/BaseElements';
-import { Editor, Drag, Select, Zoom } from '../handlers';
 import { util } from '../util';
-import Control from "../Control";
+import {Control} from "../Control";
+import Data from "../Data";
+//import { Editor, Drag, Select, Zoom } from '../handlers';
 
 export default class Graph extends Control{
   root: HTMLElement;
@@ -21,16 +22,18 @@ export default class Graph extends Control{
   layoutFactory: Object;
 
   constructor(json, options: Options) {
-    super(null, null);
-    if(typeof json ==="Bridge") {
-      this.owner = json;
+    super(null);
+    let autoLayout:boolean;
+    if(typeof json ==="object" && json.constructor.name === "Bridge") {
+      this.$owner = json;
       json = options["data"];
       options = options["options"];
+      autoLayout = true;
     }
     json = json || {};
     this.options = options || {};
     if(json["init"]) {
-    return;
+        return;
     }
     if(!this.options.origin) {
       this.options.origin =  new Point(150, 45);
@@ -40,6 +43,13 @@ export default class Graph extends Control{
     this.model = new Model(this);
     this.model.init(json);
     this.initFeatures(options.features);
+    if(autoLayout) {
+        this.layout();
+    }
+  }
+
+  public propertyChange(entity: Data, property: string, oldValue, newValue) {
+
   }
 
   public addElement(type: string): boolean {
@@ -159,7 +169,8 @@ export default class Graph extends Control{
   private initCanvas() {
     if (this.options.canvas) {
       this.root = document.getElementById(this.options.canvas);
-    } else {
+    }
+    if(!this.root) {
       this.root = document.createElement('div');
       this.root.setAttribute('class', 'diagram');
       document.body.appendChild(this.root);

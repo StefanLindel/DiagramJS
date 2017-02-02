@@ -18,8 +18,8 @@ _callBack1 = new callback();
 
 console.log(bridge.load({"class":"input","id":"J1.N1","property":"number.value","value":0,"type":"number"}));
 console.log(bridge.load({"class":"input","value":"Fire Event","type":"button", "id":"J1.N2"}));
-bridge.registerListener("click", "J1.N2");
-bridge.addAdapter(new DelegateAdapter());
-bridge.registerListener("click", "J1.N2", "_callBack1.add");
+//bridge.registerListener("click", "J1.N1");
+//bridge.addAdapter(new DelegateAdapter());
+bridge.registerListener("CLICK", "J1.N2", "_callBack1.add");
 </script>
 </body></html>

@@ -3,7 +3,7 @@ import { DiagramElement, Point } from '../elements/BaseElements';
 import Model from '../elements/Model';
 import { Node } from '../elements/nodes';
 
-export class Drag implements EventHandler {
+export class Drag {
 
   private element: DiagramElement;
   private svgRoot: SVGSVGElement;

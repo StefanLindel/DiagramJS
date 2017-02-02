@@ -1,7 +1,7 @@
-import Control from '../Control'
-import BridgeElement from '../BridgeElement'
-import Data from '../Data'
-import {util} from '../util'
+import {Control} from '../../Control'
+import BridgeElement from '../../BridgeElement'
+import Data from '../../Data'
+import {util} from '../../util'
 
 //noinspection JSUnusedGlobalSymbols
 export class Table extends Control {
@@ -29,9 +29,10 @@ export class Table extends Control {
     private dragColumn:Column;
     private dragPos:number;
     private tableOption:HTMLTableHeaderCellElement;
+    protected items: Set<BridgeElement> = new Set<BridgeElement>();
 
     constructor(owner, data) {
-        super(owner, data);
+        super(owner);
         this.initControl(data);
     }
     public initControl(data:any) {
@@ -461,7 +462,7 @@ export class Table extends Control {
 
     public parsingData(row: HTMLTableRowElement) {
         let id = row.getAttribute("id");
-        let item: Data = this.owner.getItem(id);
+        let item: Data = this.$owner.getItem(id);
         for (let i in row.children) {
             if (row.children.hasOwnProperty(i) === false) {
                 continue;

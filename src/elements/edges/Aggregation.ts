@@ -1,7 +1,6 @@
 import { Direction, Edge } from './Edge';
 
 export class Aggregation extends Edge {
-
   public getSVG(): Element {
     let line = super.getSVG();
 
@@ -34,5 +33,4 @@ export class Aggregation extends Edge {
     group.appendChild(connector);
     return group;
   }
-
 }

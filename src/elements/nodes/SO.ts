@@ -4,16 +4,21 @@ export class SO extends DiagramElement {
   public draw(typ?:string):HTMLElement {return null;}
   public getEvent():string[] {return [];}
 
+  constructor(owner) {
+    super(owner);
+  }
+
   public init(data: Object) : SO {
-    this.type = "SO";
+    this.property = "SO";
     return this;
   }
   public getSVG() {
 
   }
+
   public withKeyValue(key:string, value:any) : SO {
     if(key === "typ") {
-      this.type = value;
+      this.property = value;
     }else  if(key==="x") {
       this.withPos(value, null);
     }else  if(key==="y") {
@@ -27,14 +32,11 @@ export class SO extends DiagramElement {
     }
     return this;
   }
-  public fireEvent(source:DiagramElement, typ:string, value:Object) {
-
-  }
   public event(source:DiagramElement, typ:string, value:Object):boolean {
     return true;
   }
   public static create(element:Object) {
-    var result:SO = new SO();
+    var result:SO = new SO(null);
     for(var key in element) {
       if(element.hasOwnProperty(key) === false) {
         continue;

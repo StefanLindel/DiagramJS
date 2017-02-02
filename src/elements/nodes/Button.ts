@@ -1,11 +1,11 @@
-import Control from '../Control'
-import Data from '../Data'
+import {Control} from '../../Control'
+import Data from '../../Data'
 
 export class Button extends Control {
     private $element:HTMLElement;
 
     constructor(owner, data) {
-        super(owner, data);
+        super(owner);
         this.createControl(document.getElementsByTagName("body")[0], data);
     }
 

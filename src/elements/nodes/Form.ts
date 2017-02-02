@@ -1,5 +1,4 @@
-import Control from "../Control";
-import Data from "../Data";
+import {Control} from "../../Control";
 
 //noinspection JSUnusedGlobalSymbols
 export class Form extends Control {
@@ -23,7 +22,7 @@ export class Form extends Control {
      * @param data
      */
     constructor(owner, data) {
-        super(owner, data);
+        super(owner);
         let id: string;
         // init form HTML
         if (typeof(data) === "string") {
@@ -71,9 +70,9 @@ export class Form extends Control {
 
         // check if object already exists
         let objId = this.property;
-        let hasItem = this.owner.hasItem(objId);
+        let hasItem = this.$owner.hasItem(objId);
         if (hasItem) {
-            let item = this.owner.getItem(objId);
+            let item = this.$owner.getItem(objId);
             item.addListener(this);
             this.entity = item;
         }
@@ -89,8 +88,8 @@ export class Form extends Control {
             if (!field.hasOwnProperty("class")) {
                 field['class'] = 'input';
             }
-            let control:Control = this.owner.load(field);
-            this.children.set(control.id, control);
+            let control:Control = this.$owner.load(field);
+            this.children.set(control.getId(), control);
         }
 
     }
@@ -111,7 +110,7 @@ export class Form extends Control {
         let id: string;
         if (!field.hasOwnProperty("id")) {
             // TODO: not the best solution for generating unique id's for forms...
-            id = this.owner.getId();
+            id = this.$owner.getId();
             field['id'] = id;
         }
         if (field.hasOwnProperty("property")) {
@@ -128,12 +127,8 @@ export class Form extends Control {
 
         this.$element.appendChild(input);
 
-        let newcontrol:Control = this.owner.load(field['id']);
-        this.children.set(newcontrol.id, newcontrol);
-    }
-
-
-    propertyChange(entity: Data, property: string, oldValue, newValue) {
+        let newcontrol:Control = this.$owner.load(field['id']);
+        this.children.set(newcontrol.getId(), newcontrol);
     }
 
     public setProperty(id: string): void {

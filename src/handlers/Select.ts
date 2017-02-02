@@ -1,11 +1,10 @@
-import { EventHandler } from '../EventBus';
 import { DiagramElement } from '../elements/BaseElements';
 import { Node } from '../elements/nodes';
 import { Edge } from '../elements/edges';
 import { util } from '../util';
 import Model from '../elements/Model';
 
-export class Select implements EventHandler {
+export class Select  {
 
   private svgRoot: SVGSVGElement;
   private editShape: SVGSVGElement;

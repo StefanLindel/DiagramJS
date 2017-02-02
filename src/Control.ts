@@ -4,15 +4,17 @@ import BridgeElement from "./BridgeElement";
 import EventListener from "./EventListener";
 import SimpleEvent from "./Event";
 
-export default class Control {
-    id: string;
+export abstract class Control {
+    public static EVENT_CREATED:string ="CREATED";
+    protected id: string;
     public $owner: Control;
     public property: string;
-    //protected items: Set<BridgeElement> = new Set<BridgeElement>();
     protected $lastProperty: string;
     protected entity: Data;
     protected eventListener: Set<EventListener>;
     protected eventsToListen: Set<string>;
+    protected closed:boolean = false;
+
 
     public createEventListener(): EventListener {
         return new EventListener();
@@ -29,22 +31,36 @@ export default class Control {
         return this.$lastProperty;
     }
 
-
     constructor(owner: Control) {
         this.$owner = owner;
     }
 
+    public getRoot(): Control {
+        if (this.$owner) {
+            return this.$owner.getRoot();
+        }
+        return this;
+    }
     public initControl(data:any) {
     }
 
-    public getItem(id: string): Data {
+    public getItem(id: string): Data{
         return null;
     }
-    public hasItem(id: string): boolean {
+
+    public hasItem(id: string) : boolean {
         return false;
     }
-
+    public setValue(object: Object, attribute: string, value: Object) :boolean {
+        return false;
+    }
     public propertyChange(entity: Data, property: string, oldValue, newValue) {
+
+    }
+    public getId(): string {
+        return this.id;
+    }
+    public load(json): any {
 
     }
 
@@ -123,7 +139,21 @@ export default class Control {
         };
          htmlElement.addEventListener(eventType, listener);
     }
+
+    // Normal Event HTML-Event
+    // Eventtype:string,
+    // id:string of Control
     public fireEvent(evt: Event) : void {
 
+    }
+    public isClosed() :boolean {
+        return this.closed;
+    }
+
+    public getShowed():Control {
+        if (this.isClosed()) {
+            return this.$owner.getShowed();
+        }
+        return this;
     }
 }

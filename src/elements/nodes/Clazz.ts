@@ -16,7 +16,7 @@ export class Clazz extends Node {
 
   public init(json) : Clazz {
 
-    this.label = json.name || json.label || ('New ' + this.type);
+    this.label = json.name || json.label || ('New ' + this.property);
 		this.style=json.style || "flat";
 
     if (json['attributes']) {
@@ -42,7 +42,7 @@ export class Clazz extends Node {
 		width = 0;
 		height = 10 + headerHeight;
 
-		if (this.type === "Object" || this.getRoot()["model"].getType().toLowerCase() === "objectdiagram") {
+		if (this.property === "Object" || this.getRoot()["model"].getType().toLowerCase() === "objectdiagram") {
 			id = this.id.charAt(0).toLowerCase() + this.id.slice(1);
 			item = "Object";
 		} else {
@@ -105,7 +105,7 @@ export class Clazz extends Node {
 			"width": size.width
 		});
 
-		if (this.type === "Object" || this.getRoot()["model"].type.toLowerCase() === "objectdiagram") {
+		if (this.property === "Object" || this.getRoot()["model"].type.toLowerCase() === "objectdiagram") {
 			item.setAttribute("text-decoration", "underline");
 		}
 		item.appendChild(document.createTextNode(id));
