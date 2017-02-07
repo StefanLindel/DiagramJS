@@ -121,8 +121,12 @@ export class Edge extends DiagramElement {
 				}
 			}
 			if (sourcePos && targetPos) {
-				this.calcInfoPos(sourcePos, startNode, this.sourceInfo);
-				this.calcInfoPos(targetPos, endNode, this.targetInfo);
+			    if(this.sourceInfo) {
+                    this.calcInfoPos(sourcePos, startNode, this.sourceInfo);
+                }
+                if(this.targetInfo) {
+                    this.calcInfoPos(targetPos, endNode, this.targetInfo);
+                }
 				startNode["$" + sourcePos.$id] += 1;
 				endNode["$" + targetPos.$id] += 1;
 				let line:Line = new Line(this, this.lineStyle);

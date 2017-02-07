@@ -101,8 +101,8 @@ export default class Model extends DiagramElement {
       tag: 'svg',
       id: 'root',
       width: this.$graph.canvasSize.width,
-      height: this.$graph.canvasSize.height,
-      viewBox: `${this.$graph.options.origin.x * -1} ${this.$graph.options.origin.y * -1} ${this.$graph.canvasSize.width} ${this.$graph.canvasSize.height}`
+      height: this.$graph.canvasSize.height
+      //FIXME,viewBox: `${this.$graph.options.origin.x * -1} ${this.$graph.options.origin.y * -1} ${this.$graph.canvasSize.width} ${this.$graph.canvasSize.height}`
     });
     this.$view = this.$graph.canvas;
     this.$graph.root.appendChild(this.$graph.canvas);
@@ -118,7 +118,7 @@ export default class Model extends DiagramElement {
   }
 
   private addNode(node: Node): Node {
-    let type = node.property || 'Node';
+    let type = node["type"] || node.property || 'Node';
     type = util.toPascalCase(type);
     let id = this.getNewId(type);
     return <Node>this.getElement(type, id, node);
