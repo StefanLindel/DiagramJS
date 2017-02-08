@@ -60,7 +60,7 @@
     document.getElementById("t2.talk").setAttribute("oncontextmenu", "alert('t2.talk');");
 
 
-    bridge.executeChange({
+    bridge.load({
         id: "t1",
         class: "talk",
         prop: {
@@ -78,9 +78,9 @@
             Explorer: "Explorer"
         }
     });
-    bridge.executeChange({id: "t1", upd: {talk: "01. Schulze"}});
-    bridge.executeChange({id: "r2", class: "room", prop: {name: "Heyl"}});
-    bridge.executeChange({
+    bridge.load({id: "t1", upd: {talk: "01. Schulze"}});
+    bridge.load({id: "r2", class: "room", prop: {name: "Heyl"}});
+    bridge.load({
         id: "t2",
         class: "talk",
         prop: {
@@ -98,7 +98,7 @@
             time: "20:15"
         }
     });
-    bridge.executeChange({
+    bridge.load({
         id: "t3",
         class: "talk",
         prop: {
