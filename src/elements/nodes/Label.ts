@@ -1,8 +1,8 @@
 import {Control} from '../../Control'
 
 export class Label extends Control {
-    constructor(owner, data) {
-        super(owner);
+    constructor(data) {
+        super();
         this.createControl(document.getElementsByTagName("body")[0], data);
     }
 

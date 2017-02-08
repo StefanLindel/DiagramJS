@@ -7,8 +7,8 @@ export class Input extends Control {
     private type: string;
     private applyingChange: boolean = false;
 
-    constructor(owner, data) {
-        super(owner);
+    constructor(data) {
+        super();
         this.initControl(data);
     }
     public initControl(data:any) {

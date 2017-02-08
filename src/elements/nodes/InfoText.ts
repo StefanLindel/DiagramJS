@@ -3,14 +3,14 @@ import {DiagramElement, Point} from "../BaseElements";
 import {util} from "../../util";
 import {Control} from "../../Control";
 import {Node} from "./Node";
+import {EventBus} from "../../EventBus";
 export class InfoText extends Node {
     custom:boolean;
     private cardinality:string;
     private $angle:number;
 
-    constructor(info:any, parent:DiagramElement, counter:number) {
-        super(info, "InfoText");
-        this.$owner = parent;
+    constructor(info:any, counter:number) {
+        super(info);
         if (typeof (info) === "string") {
             this.id = info;
         } else {
@@ -45,8 +45,8 @@ export class InfoText extends Node {
                 child.appendChild(document.createTextNode(items[i]));
                 group.appendChild(child);
             }
-            let newEvent:Event = new Event(Control.EVENT_CREATED);
-            newEvent["eventtype"] = Control.EVENT_CREATED;
+            let newEvent:Event = new Event(EventBus.ELEMENTCREATE);
+            newEvent["eventtype"] = EventBus.ELEMENTCREATE;
             newEvent["source"] = this;
             newEvent["entity"] = group;
             newEvent["id"] = group.getId();
@@ -66,8 +66,8 @@ export class InfoText extends Node {
             rotate: this.$angle,
             model: this
         });
-        let newEvent:Event = new Event(Control.EVENT_CREATED);
-        newEvent["eventtype"] = Control.EVENT_CREATED;
+        let newEvent:Event = new Event(EventBus.ELEMENTCREATE);
+        newEvent["eventtype"] = EventBus.ELEMENTCREATE;
         newEvent["source"] = this;
         newEvent["entity"] = group;
         newEvent["id"] = group.getId();
@@ -83,8 +83,8 @@ export class InfoText extends Node {
             info.style.msTransform = info.style.MozTransform = info.style.WebkitTransform = info.style.OTransform = "rotate(" + this.$angle + "deg)";
         }
         let pos:Point = this.getPos();
-        let newEvent:Event = new Event(Control.EVENT_CREATED);
-        newEvent["eventtype"] = Control.EVENT_CREATED;
+        let newEvent:Event = new Event(EventBus.ELEMENTCREATE);
+        newEvent["eventtype"] = EventBus.ELEMENTCREATE;
         newEvent["source"] = this;
         newEvent["entity"] = info;
         util.setPos(info, pos.x, pos.y);
@@ -110,8 +110,8 @@ export class InfoText extends Node {
                 infoTxt += "0..*";
             }
         }
-        if (this.counter > 0) {
-            infoTxt += " (" + this.counter + ")";
+        if (this["counter"] > 0) {
+            infoTxt += " (" + this["counter"] + ")";
         }
         return infoTxt;
     }

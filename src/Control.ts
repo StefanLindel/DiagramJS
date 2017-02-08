@@ -5,15 +5,17 @@ import EventListener from "./EventListener";
 import SimpleEvent from "./Event";
 
 export abstract class Control {
-    public static EVENT_CREATED:string ="CREATED";
     protected id: string;
     public $owner: Control;
     public property: string;
-    protected $lastProperty: string;
     protected entity: Data;
-    protected eventListener: Set<EventListener>;
-    protected eventsToListen: Set<string>;
-    protected closed:boolean = false;
+
+    public init(owner:Control, property?: string, id?: string) : Control {
+        this.$owner = owner;
+        this.property = property || this.constructor.name;
+        this.id = id;
+        return this;
+    }
 
 
     public createEventListener(): EventListener {
@@ -24,15 +26,8 @@ export abstract class Control {
         if (!this.property) {
             return "";
         }
-        if (!this.$lastProperty) {
-            let arr = this.property.split(".");
-            this.$lastProperty = arr[arr.length - 1];
-        }
-        return this.$lastProperty;
-    }
-
-    constructor(owner: Control) {
-        this.$owner = owner;
+        let arr:string[] = this.property.split(".");
+        return arr[arr.length - 1];
     }
 
     public getRoot(): Control {
@@ -84,7 +79,6 @@ export abstract class Control {
         let objId = property.split(".")[0];
         let object = this.$owner.getItem(objId);
         this.property = property;
-        this.$lastProperty = null;
 
         // remove listener on old object
         if (this.entity) {
@@ -100,30 +94,6 @@ export abstract class Control {
     }
 
     protected updateElement(value: string): void {
-    }
-
-    public addListener(eventListener: EventListener): void {
-        if (!this.eventListener) {
-            this.eventListener = new Set<EventListener>()
-        }
-        this.eventListener.add(eventListener);
-    }
-
-    public registerEvent(eventType: string) {
-        if (!this.eventsToListen) {
-            this.eventsToListen = new Set();
-        }
-        if (this.eventsToListen.has(eventType)) {
-            return true;
-        } else {
-            this.eventsToListen.add(eventType);
-
-            // register on HTMLElement
-
-            this.registerListenerOnHTMLObject(eventType);
-
-            return true;
-        }
     }
 
     public registerListenerOnHTMLObject(eventType: string): boolean {
@@ -147,7 +117,7 @@ export abstract class Control {
 
     }
     public isClosed() :boolean {
-        return this.closed;
+        return this["closed"];
     }
 
     public getShowed():Control {

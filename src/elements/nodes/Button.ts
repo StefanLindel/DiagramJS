@@ -4,8 +4,8 @@ import Data from '../../Data'
 export class Button extends Control {
     private $element:HTMLElement;
 
-    constructor(owner, data) {
-        super(owner);
+    constructor(data) {
+        super();
         this.createControl(document.getElementsByTagName("body")[0], data);
     }
 

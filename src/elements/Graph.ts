@@ -5,11 +5,12 @@ import Layout from '../layouts/Layout';
 import Model from '../elements/Model';
 import Options from '../Options';
 import Palette from '../Palette';
-import {Size, Point} from '../elements/BaseElements';
+import {Size, Point} from './BaseElements';
 import {util} from '../util';
 import {Control} from "../Control";
 import Data from "../Data";
-//import { Editor, Drag, Select, Zoom } from '../handlers';
+import {EventBus} from "../EventBus";
+import { Editor, Drag, Select, Zoom } from '../handlers';
 
 export default class Graph extends Control {
     root: HTMLElement;
@@ -21,15 +22,8 @@ export default class Graph extends Control {
     edgeFactory: Object;
     layoutFactory: Object;
 
-    constructor(json, options: Options) {
-        super(null);
-        let autoLayout: boolean;
-        if (typeof json === "object" && json.constructor.name === "Bridge") {
-            this.$owner = json;
-            json = options["data"];
-            options = options["options"];
-            autoLayout = true;
-        }
+    constructor(json:any, options:Options) {
+        super();
         json = json || {};
         this.options = options || {};
         if (json["init"]) {
@@ -40,12 +34,15 @@ export default class Graph extends Control {
         }
         this.initFactories();
         this.initCanvas();
-        this.model = new Model(this);
-        this.model.init(json);
-        this.initFeatures(options.features);
-        if (autoLayout) {
-            this.layout();
-        }
+        this.model = new Model(json);
+        this.model.init(this);
+        this.initFeatures(this.options.features);
+    }
+
+    public init(owner:Control, property?: string, id?: string) :Control{
+        super.init(owner, property, id);
+        this.layout();
+        return this;
     }
 
     public propertyChange(entity: Data, property: string, oldValue, newValue) {
@@ -75,8 +72,8 @@ export default class Graph extends Control {
         if (model.nodes) {
             for (let id in model.nodes) {
                 let node = model.nodes[id];
-                //FIXME EventBus.registerSVG(svg);
                 let svg = node.getSVG();
+                //FIXME EventBus.registerSVG(svg);
                 canvas.appendChild(svg);
 
                 let temp: number;
@@ -195,16 +192,16 @@ export default class Graph extends Control {
         if (features) {
             if (features.zoom) {
                 let mousewheel = 'onwheel' in document.createElement('div') ? 'wheel' : document.onmousewheel !== undefined ? 'mousewheel' : 'DOMMouseScroll';
-                //FIXME EventBus.subscribe(new Zoom(), mousewheel);
+                EventBus.subscribe(new Zoom(), mousewheel);
             }
             if (features.editor) {
-                //FIXME EventBus.subscribe(new Editor(this), 'dblclick', 'editor');
+                EventBus.subscribe(new Editor(this), 'dblclick', 'editor');
             }
             if (features.drag) {
-                //FIXME EventBus.subscribe(new Drag(), 'mousedown', 'mouseup', 'mousemove', 'mouseleave');
+                EventBus.subscribe(new Drag(), 'mousedown', 'mouseup', 'mousemove', 'mouseleave');
             }
             if (features.select) {
-                //FIXME EventBus.subscribe(new Select(this.model), 'click', 'drag');
+                 EventBus.subscribe(new Select(this.model), 'click', 'drag');
             }
             if (features.palette) {
                 new Palette(this);

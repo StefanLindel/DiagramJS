@@ -66,7 +66,9 @@ export default class Bridge {
     };
 
     public addControl(control) {
-        this.controlFactory[control.name.toLowerCase()] = control;
+        if(control && control.name) {
+            this.controlFactory[control.name.toLowerCase()] = control;
+        }
     }
 
     public getId(): string {
@@ -132,7 +134,10 @@ export default class Bridge {
 
         if (typeof(this.controlFactory[className]) === "object" || typeof(this.controlFactory[className]) === "function") {
             let obj = this.controlFactory[className];
-            control = new obj(this, json);
+            control = new obj(json);
+            if(typeof control.init === "function") {
+                control.init(this);
+            }
             this.controls[control.id] = control;
             return control;
         }

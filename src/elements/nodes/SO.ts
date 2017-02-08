@@ -4,14 +4,6 @@ export class SO extends DiagramElement {
   public draw(typ?:string):HTMLElement {return null;}
   public getEvent():string[] {return [];}
 
-  constructor(owner) {
-    super(owner);
-  }
-
-  public init(data: Object) : SO {
-    this.property = "SO";
-    return this;
-  }
   public getSVG() {
 
   }
@@ -36,7 +28,7 @@ export class SO extends DiagramElement {
     return true;
   }
   public static create(element:Object) {
-    var result:SO = new SO(null);
+    var result:SO = new SO();
     for(var key in element) {
       if(element.hasOwnProperty(key) === false) {
         continue;
