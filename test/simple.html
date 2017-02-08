@@ -5,6 +5,7 @@
 	<meta charset="utf-8" />
 	<title>Bridge - Simple Example</title>
 	<script language="Javascript" src="../build/output.js"></script>
+	<script language="Javascript" src="../demo/dagre.min.js"></script>
 	<link type="text/css" rel="stylesheet" href="../material.css" />
 	<link type="text/css" rel="stylesheet" href="../style.css" />
 </head>
@@ -24,6 +25,10 @@ bridge.addToolbar();
 bridge.load({id:table.id, columns:[{id:'slides'}]});
 
 
+
+
+
+
 var data = {
 	  type: 'clazzdiagram',
 	  nodes: [
@@ -37,7 +42,7 @@ var data = {
 	      type: 'clazz',
 	      name: 'Order',
 	      attributes: [ '+ status : string', '+ date : string', '- orderId : int'],
-	      methods: [ '+ place()', '+ cancel()', '+ refund()' ]
+	      methods: [ '+ place()', '+ cancel()', '+ refund()']
 	    },
 	    {
 	      type: 'clazz',
@@ -79,6 +84,34 @@ var data = {
 	};
 
 bridge.load({class:"Graph", data:data, options:options}); 
+
+
+Snowflower = function() {
+};
+
+Snowflower.prototype.getSVG = function(){
+	return document.create("rect", "svg/xml");
+}
+
+Snowflower.prototype.getEvents= function(){
+	return ["element.click", "element.move"];
+}
+
+Snowflower.prototype.fireEvent= function(eventType, data) {
+	var text = owner.fireEvent("openTextField");
+}
+
+Snowflower.prototype.onClick = function(){};
+
+bridge.addControl(new Snowflower());
+
+
+
+//elements.controls.Snowflower = function() {};
+//elements.controls.Snowflower.prototype.getSVG = function() {
+//	return document.create("rect", "svg/xml");
+//}
+
 
 //new Table()
 </script>

@@ -1,37 +1,35 @@
 import {Node} from './Node';
-//import { EventBus } from '../../EventBus';
+import { EventBus } from '../../EventBus';
 import {util} from '../../util';
 import {Control} from "../../Control";
 
 export class Clazz extends Node {
-
     private attributes: string[] = [];
     private methods: string[] = [];
-    private padding = 10;
     private style: string;
-
-    constructor(owner: Control, id?: string, type?: string) {
-        super(owner, id, type);
-        this.getSize().y = this.labelHeight + this.padding * 2;
-    };
+    protected labelHeight = 25;
+    protected labelFontSize = 14;
+    protected attrHeight = 20;
+    protected attrFontSize = 12;
 
     public init(json): Clazz {
-
+        let y = this.labelHeight;
         this.label = json.name || json.label || ('New ' + this.property);
         this.style = json.style || "flat";
 
         if (json['attributes']) {
             for (let attr of json['attributes']) {
                 this.attributes.push(attr);
-                this.getSize().y += this.attrHeight;
+                y += this.attrHeight;
             }
         }
         if (json['methods']) {
             for (let method of json['methods']) {
                 this.methods.push(method);
-                this.getSize().y += this.attrHeight;
+                y += this.attrHeight;
             }
         }
+        this.getSize().y = y;
         return this;
     }
 
@@ -49,8 +47,8 @@ export class Clazz extends Node {
         } else {
             id = this.id;
             item = "Clazz";
-            if (this.counter) {
-                id += " (" + this.counter + ")";
+            if (this["counter"]) {
+                id += " (" + this["counter"] + ")";
             }
         }
         g = util.create({tag: "g", model: this});
@@ -72,7 +70,7 @@ export class Clazz extends Node {
         }
         width += 20;
 
-        var pos = this.getPos();
+        let pos = this.getPos();
         y = pos.y;
         x = pos.x;
 
@@ -158,48 +156,47 @@ export class Clazz extends Node {
         return g;
     }
 
+    public getCanvas(): Element {
+        return null;
+    }
+
     public getSVG(): Element {
         const pos = this.getPos();
 
         if (this.style == "modern") {
             return this.getModernStyle();
         }
-        const attrNode = {
+        const nodeShape = this.createShape({
             tag: 'rect',
-            x: pos.x - this.getSize().x / 2,
-            y: pos.y - this.getSize().y / 2,
+            x: pos.x,
+            y: pos.y,
             height: this.getSize().y,
             width: this.getSize().x,
             rx: 1,
             ry: 1,
-            style: 'fill:white;stroke:black;stroke-width:2'
-        };
-        const nodeShape = this.createShape(attrNode);
-
-        const contentHeight = this.padding + this.attrHeight * this.attributes.length;
-        const attrContent = {
+            style: 'fill:white;stroke:red;stroke-width:2'
+        });
+        const contentShape = this.createShape({
             tag: 'rect',
-            x: pos.x - this.getSize().x / 2,
-            y: pos.y - this.getSize().y / 2 + this.labelHeight,
-            height: contentHeight,
+            x: pos.x,
+            y: pos.y + this.labelHeight,
+            height:  this.attrHeight * this.attributes.length,
             width: this.getSize().x,
             style: 'fill:white;stroke:black;stroke-width:2'
-        };
-        const contentShape = this.createShape(attrContent);
+        });
 
         // = = = LABEL = = =
-        const attrLabel = {
+        let label = this.createShape({
             tag: 'text',
             x: pos.x,
-            y: pos.y - this.getSize().y / 2 + this.labelHeight / 2,
+            y: pos.y + this.labelHeight / 2,
             'text-anchor': 'middle',
             'alignment-baseline': 'central',
             'font-family': 'Verdana',
             'font-size': this.labelFontSize,
             'font-weight': 'bold',
             fill: 'black'
-        };
-        let label = this.createShape(attrLabel);
+        });
         label.textContent = this.label;
 
         let group = this.createShape({tag: 'g', id: this.id, transform: 'translate(0 0)'});
@@ -209,11 +206,11 @@ export class Clazz extends Node {
 
         // = = = ATTRIBUTES = = =
         if (this.attributes.length > 0) {
-            let y = pos.y - this.getSize().y / 2 + this.labelHeight + this.attrHeight / 2 + this.padding / 2;
+            let y = pos.y - this.getSize().y / 2 + this.labelHeight + this.attrHeight / 2;
             for (let element of this.attributes) {
                 const attrText = {
                     tag: 'text',
-                    x: pos.x - this.getSize().x / 2 + this.padding / 2,
+                    x: pos.x - this.getSize().x / 2,
                     y: y,
                     'text-anchor': 'start',
                     'alignment-baseline': 'middle',
@@ -230,13 +227,13 @@ export class Clazz extends Node {
 
         // = = = METHODS = = =
         let height = this.attributes.length * this.attrHeight;
-        let y = pos.y - this.getSize().y / 2 + this.labelHeight + height + this.attrHeight / 2 + this.padding / 2;
+        let y = pos.y - this.getSize().y / 2 + this.labelHeight + height + this.attrHeight / 2;
         if (this.methods.length > 0) {
             y += this.attrHeight / 2;
             for (let element of this.methods) {
                 const attrText = {
                     tag: 'text',
-                    x: pos.x - this.getSize().x / 2 + this.padding / 2,
+                    x: pos.x - this.getSize().x / 2,
                     y: y,
                     'text-anchor': 'start',
                     'alignment-baseline': 'middle',
@@ -252,7 +249,7 @@ export class Clazz extends Node {
         }
 
         this.$view = group;
-        //FIXME EventBus.register(this, 'mousedown', 'mousemove', 'click', 'dblclick', 'editor', 'drag');
+        EventBus.register(this, 'mousedown', 'mousemove', 'click', 'dblclick', 'editor', 'drag');
         return group;
     }
 
@@ -294,7 +291,7 @@ export class Clazz extends Node {
 
         if (changed) {
             this[type] = newProperties;
-            this.getSize().y = this.labelHeight + this.padding * 2 + (this.attributes.length + this.methods.length) * this.attrHeight;
+            this.getSize().y = this.labelHeight + (this.attributes.length + this.methods.length) * this.attrHeight;
         }
         return changed;
     }

@@ -21,8 +21,8 @@ export class Form extends Control {
      * @param owner
      * @param data
      */
-    constructor(owner, data) {
-        super(owner);
+    constructor(data) {
+        super();
         let id: string;
         // init form HTML
         if (typeof(data) === "string") {

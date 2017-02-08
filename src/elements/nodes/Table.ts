@@ -31,8 +31,8 @@ export class Table extends Control {
     private tableOption:HTMLTableHeaderCellElement;
     protected items: Set<BridgeElement> = new Set<BridgeElement>();
 
-    constructor(owner, data) {
-        super(owner);
+    constructor(data) {
+        super();
         this.initControl(data);
     }
     public initControl(data:any) {

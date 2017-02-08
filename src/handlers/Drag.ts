@@ -2,6 +2,7 @@
 import { DiagramElement, Point } from '../elements/BaseElements';
 import Model from '../elements/Model';
 import { Node } from '../elements/nodes';
+import Graph from '../elements/Graph';
 
 export class Drag {
 
@@ -88,7 +89,7 @@ export class Drag {
       let model = <Model>this.element;
       const x = evt.clientX - this.mouseOffset.x;
       const y = evt.clientY - this.mouseOffset.y;
-      const newOrigin = model.$graph.options.origin.add(new Point(x, y));
+      const newOrigin = (<Graph>model.$owner).options.origin.add(new Point(x, y));
       let values = this.svgRoot.getAttribute('viewBox').split(' ');
       const newViewBox = `${newOrigin.x * -1} ${newOrigin.y * -1} ${values[2]} ${values[3]}`;
       this.svgRoot.setAttribute('viewBox', newViewBox);

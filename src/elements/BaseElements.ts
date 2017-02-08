@@ -6,30 +6,22 @@ export interface Size {
   height: number;
 }
 
-export abstract class DiagramElement extends Control {
+interface GraphElement {
+    getSize(): Point;
+    getPos(): Point;
+    getCenter(): Point;
+    getSVG();
+    getCanvas();
+    getEvents():string[];
+}
 
-  protected labelHeight = 25;
-  protected labelFontSize = 14;
-  protected attrHeight = 20;
-  protected attrFontSize = 12;
+
+export abstract class DiagramElement extends Control implements GraphElement{
   public id: string;
-  //public type: string; // Property
-  public label: string;
   public $view: Element;
   private pos:Point = new Point();
   private size:Point = new Point();
   protected isDraggable: boolean = true;
-
-    //protected $lastProperty: string;
-    //protected entity: Data;
-    //protected eventListener: Set<EventListener>;
-    //protected eventsToListen: Set<string>;
-
-  constructor(owner:Control, type?: string, id?: string) {
-      super(owner);
-      this.property = type;
-      this.id = id;
-  }
 
   public getPos():Point {
     return this.pos;
@@ -61,10 +53,16 @@ export abstract class DiagramElement extends Control {
         }
     };
 
+  public getSVG() {
 
-    abstract init(data: Object);
+  }
+  public getCanvas() {
 
-  abstract getSVG();
+  }
+
+  public getEvents():string[] {
+      return null;
+  }
 
   protected createShape(attrs): Element {
 		return util.createShape(attrs);
@@ -103,7 +101,6 @@ export abstract class DiagramElement extends Control {
         //}
         return super.getShowed();
     }
-
 }
 
 
@@ -114,19 +111,28 @@ export class Point {
     public static DOWN:string = "DOWN";
     x: number = 0;
     y: number = 0;
-    pos:string = "";
-
+//    pos:string = "";
 
   constructor(x?: number, y?: number, pos?:string) {
     this.x = Math.ceil(x || 0);
     this.y = Math.ceil(y || 0);
-    this.pos = pos;
+    if(pos) {
+        this["pos"] = pos;
+    }
+
   };
 
   public add(pos: Point) {
     this.x += pos.x;
     this.y += pos.y;
     return this;
+  }
+
+  public getPosition() {
+      if(!this["pos"]) {
+          return "";
+      }
+      return this["pos"];
   }
 
   public addNum(x: number, y: number) {
@@ -186,16 +192,17 @@ export class Point {
 	//				######################################################### Line #########################################################
 	export class Line extends DiagramElement {
 		public static FORMAT = {SOLID: "SOLID", DOTTED: "DOTTED", PATH: "PATH"};
-		private line: string;
 		private path: string;
 		private angle: Number;
         public source: Point;
 		public target:Point;
 		public color:string;
+		public lineType:string;
 
-
-		public init(data: Object) {
-		}
+		constructor(lineType:string) {
+		    super();
+		    this.lineType = lineType;
+        }
 
 		public getTyp(): string {
 			return "SVG";
@@ -223,7 +230,7 @@ export class Point {
 
 		public withPath(path: Array<Point>, close, angle?: any): Line {
 			let i: number, d: string = "M" + path[0].x + " " + path[0].y;
-			this.line = Line.FORMAT.PATH; // It is a Path not a Line
+			this.lineType = Line.FORMAT.PATH; // It is a Path not a Line
 			for (i = 1; i < path.length; i += 1) {
 				d = d + "L " + path[i].x + " " + path[i].y;
 			}
@@ -243,7 +250,7 @@ export class Point {
 			return this;
 		}
 		public getSVG(): HTMLElement {
-			if (this.line === "PATH") {
+			if (this.lineType === "PATH") {
 				return util.create({
 					tag: "path",
 					"d": this.path,
@@ -260,7 +267,7 @@ export class Point {
 				'y2': this.target.y,
 				"stroke": util.getColor(this.color)
 			});
-			if (this.line && this.line.toLowerCase() === "dotted") {
+			if (this.lineType && this.lineType.toLowerCase() === "dotted") {
 				line.setAttribute("stroke-miterlimit", "4");
 				line.setAttribute("stroke-dasharray", "1,1");
 			}

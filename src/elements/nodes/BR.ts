@@ -2,8 +2,8 @@ import {Control} from "../../Control";
 import Data from '../../Data'
 
 export class BR extends Control {
-    constructor(owner, data) {
-        super(owner);
+    constructor(data) {
+        super();
         this.createControl(document.getElementsByTagName("body")[0], data);
     }
 

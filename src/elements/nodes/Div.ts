@@ -7,8 +7,8 @@ export class Div extends Control {
     private $element: HTMLDivElement;
     private applyingChange: boolean = false;
 
-    constructor(owner, data) {
-        super(owner);
+    constructor(data) {
+        super();
         let id: string;
         // init form HTML
         if (typeof(data) === "string") {
