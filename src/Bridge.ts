@@ -3,6 +3,8 @@ import Data from "./Data";
 import {Control} from "./Control";
 import {Adapter} from "./Adapter";
 import Graph from "./elements/Graph";
+import {util} from "./util";
+import {Point} from "./elements/BaseElements";
 
 export default class Bridge {
     //noinspection JSUnusedGlobalSymbols
@@ -135,10 +137,28 @@ export default class Bridge {
         if (typeof(this.controlFactory[className]) === "object" || typeof(this.controlFactory[className]) === "function") {
             let obj = this.controlFactory[className];
             control = new obj(json);
-            if(typeof control.init === "function") {
-                control.init(this);
+            util.initControl(this,  control, className, id);
+
+            if(control.id) {
+                this.controls[control.id] = control;
+            } else {
+                this.controls[id] = control;
             }
-            this.controls[control.id] = control;
+            // Try to Show
+            if (typeof control.getSVG === "function" && typeof control.getSize === "function") {
+                let size:Point = control.getSize();
+
+                let svg = util.createShape({
+                    tag: 'svg',
+                    id: 'root',
+                    width: size.x,
+                    height: size.y
+                });
+
+                let view = control.getSVG();
+                svg.appendChild(view);
+                document.getElementsByTagName("body")[0].appendChild(svg);
+            }
             return control;
         }
         return null;

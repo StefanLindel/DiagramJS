@@ -45,8 +45,8 @@ export class InfoText extends Node {
                 child.appendChild(document.createTextNode(items[i]));
                 group.appendChild(child);
             }
-            let newEvent:Event = new Event(EventBus.ELEMENTCREATE);
-            newEvent["eventtype"] = EventBus.ELEMENTCREATE;
+            let newEvent:Event = new Event(EventBus.CREATE);
+            newEvent["eventtype"] = EventBus.CREATE;
             newEvent["source"] = this;
             newEvent["entity"] = group;
             newEvent["id"] = group.getId();
@@ -66,8 +66,8 @@ export class InfoText extends Node {
             rotate: this.$angle,
             model: this
         });
-        let newEvent:Event = new Event(EventBus.ELEMENTCREATE);
-        newEvent["eventtype"] = EventBus.ELEMENTCREATE;
+        let newEvent:Event = new Event(EventBus.CREATE);
+        newEvent["eventtype"] = EventBus.CREATE;
         newEvent["source"] = this;
         newEvent["entity"] = group;
         newEvent["id"] = group.getId();
@@ -83,8 +83,8 @@ export class InfoText extends Node {
             info.style.msTransform = info.style.MozTransform = info.style.WebkitTransform = info.style.OTransform = "rotate(" + this.$angle + "deg)";
         }
         let pos:Point = this.getPos();
-        let newEvent:Event = new Event(EventBus.ELEMENTCREATE);
-        newEvent["eventtype"] = EventBus.ELEMENTCREATE;
+        let newEvent:Event = new Event(EventBus.CREATE);
+        newEvent["eventtype"] = EventBus.CREATE;
         newEvent["source"] = this;
         newEvent["entity"] = info;
         util.setPos(info, pos.x, pos.y);

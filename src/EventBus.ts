@@ -7,25 +7,41 @@ export interface EventHandler {
 ;
 
 export class EventBus {
-    public static ELEMENTCREATE: string = "ELEMENT:Create";
+    public static CREATE: string = "Create";
+    public static EDITOR: string = "Editor";
     public static ELEMENTMOUSEDOWN: string = "ELEMENT:MOUSEDOWN";
     public static ELEMENTMOUSEUP: string = "ELEMENT:MOUSEUP";
     public static ELEMENTMOUSELEAVE: string = "ELEMENT:MOUSELEAVE";
     public static ELEMENTMOUSEMOVE: string = "ELEMENT:MOUSEMOVE";
     public static ELEMENTMOUSEWHEEL: string = "ELEMENT:MOUSEWHEEL";
     public static ELEMENTCLICK: string = "ELEMENT:CLICK";
+    public static ELEMENTDBLCLICK: string = "ELEMENT:DBLCLICK"
     public static ELEMENTDRAG: string = "ELEMENT:DRAG";
 
-    public static EVENTS: string[] = [EventBus.ELEMENTCREATE, EventBus.ELEMENTMOUSEDOWN, EventBus.ELEMENTMOUSEUP, EventBus.ELEMENTMOUSELEAVE, EventBus.ELEMENTMOUSEMOVE, EventBus.ELEMENTMOUSEWHEEL, EventBus.ELEMENTCLICK, EventBus.ELEMENTDRAG];
+    public static EVENTS: string[] = [EventBus.CREATE, EventBus.EDITOR, EventBus.ELEMENTMOUSEDOWN, EventBus.ELEMENTMOUSEUP, EventBus.ELEMENTMOUSELEAVE, EventBus.ELEMENTMOUSEMOVE, EventBus.ELEMENTMOUSEWHEEL, EventBus.ELEMENTCLICK, EventBus.ELEMENTDRAG, EventBus.ELEMENTDBLCLICK];
 
     private static handlers = new Map<string, EventHandler[]>();
 
-    static register(diagramElement: DiagramElement, ...eventTypes: string[]) {
-        for (let event of eventTypes) {
+    static register(control: DiagramElement, view:Element) {
+        let events:string[];
+        if(typeof control.getEvents === "function") {
+            events = control.getEvents();
+        }
+
+        if(!events || !view) {
+            return;
+        }
+        let pos:number;
+        for (let event of events) {
             if (EventBus.EVENTS.indexOf(event)<0){
                 console.log("event dont know: "+event);
             }
-            diagramElement.$view.addEventListener(event, EventBus.publish.bind(null, diagramElement));
+            pos = event.indexOf(":");
+            if(pos > 0) {
+                view.addEventListener(event.substr(pos + 1).toLowerCase(), EventBus.publish.bind(null, control));
+            }else {
+                view.addEventListener(event, EventBus.publish.bind(null, control));
+            }
         }
     }
 

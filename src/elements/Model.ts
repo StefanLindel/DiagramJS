@@ -4,6 +4,7 @@ import {Edge} from './edges';
 import {Node} from './nodes';
 import {Control} from '../Control';
 import {util} from '../util';
+import {EventBus} from '../EventBus'
 
 export default class Model extends DiagramElement {
 
@@ -11,8 +12,7 @@ export default class Model extends DiagramElement {
     edges: Object = {};
     private counter = 0;
 
-    constructor(data?: any) {
-        super();
+    public load(data?: any) {
         data = data || {};
         this.property = data.type || 'classdiagram';
         this.id = 'RootElement';
@@ -110,7 +110,11 @@ export default class Model extends DiagramElement {
         graph.root.appendChild(graph.canvas);
 
         let mousewheel = 'onwheel' in document.createElement('div') ? 'wheel' : document.onmousewheel !== undefined ? 'mousewheel' : 'DOMMouseScroll';
-        //FIXME EventBus.register(this, 'mousedown', 'mouseup', 'mouseleave', 'mousemove', mousewheel, 'click', 'drag');
+        EventBus.register(this, this.$view);
+    }
+
+    public getEvents() :string[] {
+        return [EventBus.ELEMENTMOUSEDOWN, EventBus.ELEMENTMOUSEUP, EventBus.ELEMENTMOUSELEAVE, EventBus.ELEMENTMOUSEMOVE, EventBus.ELEMENTMOUSEWHEEL, EventBus.ELEMENTCLICK, EventBus.ELEMENTDRAG];
     }
 
     private getNewId(prefix?: string): string {
@@ -122,7 +126,7 @@ export default class Model extends DiagramElement {
     private addNode(node: Node): Node {
         let type = node["type"] || node.property || 'Node';
         type = util.toPascalCase(type);
-        let id = this.getNewId(type);
+        let id = node["name"] || this.getNewId(type);
         return <Node>this.getElement(type, id, node);
     }
 
@@ -171,17 +175,13 @@ export default class Model extends DiagramElement {
         const graph = <Graph>this.$owner;
         if (graph.nodeFactory[type]) {
             let element: DiagramElement = new graph.nodeFactory[type](data);
-            if(typeof element.init ==="function") {
-                element.init(this, id, type);
-            }
+            util.initControl(this,  element, type, id);
             this.nodes[id] = element;
             return element;
         }
         if (graph.edgeFactory[type]) {
             let element: DiagramElement = new graph.edgeFactory[type](data);
-            if(typeof element.init ==="function") {
-                element.init(this, id, type);
-            }
+            util.initControl(this,  element, type, id);
             this.edges[id] = element;
             return element;
         }

@@ -1,7 +1,7 @@
 import {Node} from './Node';
 import { EventBus } from '../../EventBus';
 import {util} from '../../util';
-import {Control} from "../../Control";
+import {Point} from '../BaseElements';
 
 export class Clazz extends Node {
     private attributes: string[] = [];
@@ -12,7 +12,8 @@ export class Clazz extends Node {
     protected attrHeight = 20;
     protected attrFontSize = 12;
 
-    public init(json): Clazz {
+    constructor(json) {
+        super(json);
         let y = this.labelHeight;
         this.label = json.name || json.label || ('New ' + this.property);
         this.style = json.style || "flat";
@@ -28,8 +29,9 @@ export class Clazz extends Node {
                 this.methods.push(method);
                 y += this.attrHeight;
             }
+            y += this.attrHeight;
         }
-        this.getSize().y = y;
+        this.withSize(150, y);
         return this;
     }
 
@@ -161,34 +163,38 @@ export class Clazz extends Node {
     }
 
     public getSVG(): Element {
-        const pos = this.getPos();
-
         if (this.style == "modern") {
             return this.getModernStyle();
         }
+        const pos:Point = this.getPos();
+        const size:Point = this.getSize();
+
+        // Full Shape
         const nodeShape = this.createShape({
             tag: 'rect',
             x: pos.x,
             y: pos.y,
-            height: this.getSize().y,
-            width: this.getSize().x,
+            height: size.y,
+            width: size.x,
             rx: 1,
             ry: 1,
-            style: 'fill:white;stroke:red;stroke-width:2'
+            style: 'fill:white;stroke:black;stroke-width:2'
         });
+
+        //SHAPE between Attributes and Methods
         const contentShape = this.createShape({
             tag: 'rect',
             x: pos.x,
             y: pos.y + this.labelHeight,
             height:  this.attrHeight * this.attributes.length,
-            width: this.getSize().x,
+            width: size.x,
             style: 'fill:white;stroke:black;stroke-width:2'
         });
 
         // = = = LABEL = = =
         let label = this.createShape({
             tag: 'text',
-            x: pos.x,
+            x: pos.x + size.x / 2,
             y: pos.y + this.labelHeight / 2,
             'text-anchor': 'middle',
             'alignment-baseline': 'central',
@@ -206,11 +212,11 @@ export class Clazz extends Node {
 
         // = = = ATTRIBUTES = = =
         if (this.attributes.length > 0) {
-            let y = pos.y - this.getSize().y / 2 + this.labelHeight + this.attrHeight / 2;
+            let y = pos.y + this.labelHeight + this.attrHeight / 2;
             for (let element of this.attributes) {
                 const attrText = {
                     tag: 'text',
-                    x: pos.x - this.getSize().x / 2,
+                    x: pos.x + 10,
                     y: y,
                     'text-anchor': 'start',
                     'alignment-baseline': 'middle',
@@ -227,13 +233,13 @@ export class Clazz extends Node {
 
         // = = = METHODS = = =
         let height = this.attributes.length * this.attrHeight;
-        let y = pos.y - this.getSize().y / 2 + this.labelHeight + height + this.attrHeight / 2;
+        let y = pos.y + this.labelHeight + height + this.attrHeight / 2;
         if (this.methods.length > 0) {
             y += this.attrHeight / 2;
             for (let element of this.methods) {
                 const attrText = {
                     tag: 'text',
-                    x: pos.x - this.getSize().x / 2,
+                    x: pos.x + 10,
                     y: y,
                     'text-anchor': 'start',
                     'alignment-baseline': 'middle',
@@ -249,8 +255,11 @@ export class Clazz extends Node {
         }
 
         this.$view = group;
-        EventBus.register(this, 'mousedown', 'mousemove', 'click', 'dblclick', 'editor', 'drag');
         return group;
+    }
+
+    public getEvents() : string[] {
+        return [EventBus.ELEMENTMOUSEDOWN, EventBus.ELEMENTMOUSEMOVE, EventBus.ELEMENTCLICK, EventBus.ELEMENTDRAG, EventBus.ELEMENTDBLCLICK, EventBus.EDITOR];
     }
 
     public getPropertyAsString(type: string): string {

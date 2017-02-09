@@ -11,9 +11,15 @@ export abstract class Control {
     protected entity: Data;
 
     public init(owner:Control, property?: string, id?: string) : Control {
-        this.$owner = owner;
-        this.property = property || this.constructor.name;
-        this.id = id;
+        if(!this.$owner) {
+            this.$owner = owner;
+        }
+        if(!this.property) {
+            this.property = property || this.constructor.name;
+        }
+        if(!this.id) {
+            this.id = id;
+        }
         return this;
     }
 

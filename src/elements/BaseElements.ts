@@ -13,6 +13,7 @@ interface GraphElement {
     getSVG();
     getCanvas();
     getEvents():string[];
+    withPos(x: number, y: number);
 }
 
 

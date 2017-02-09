@@ -21,7 +21,7 @@ export class DagreLayout implements Layout {
         if (model.nodes) {
             for (let id in model.nodes) {
                 let node: Node = model.nodes[id];
-                g.setNode(id, {width: node.getSize().x, height: node.getSize().y + 20});
+                g.setNode(id, {width: node.getSize().x, height: node.getSize().y});
             }
         }
 
@@ -35,8 +35,9 @@ export class DagreLayout implements Layout {
         //dagre.layout(g);
 
         g.nodes().forEach(function (v) {
-            model.nodes[v].pos.x = g.node(v).x - g.node(v).width / 2;
-            model.nodes[v].pos.y = g.node(v).y - g.node(v).height / 2;
+            if(model.nodes[v]) {
+                model.nodes[v].withPos(g.node(v).x - g.node(v).width / 2, g.node(v).y - g.node(v).height / 2);
+            }
         });
         g.edges().forEach(function (e) {
             for (let id in model.edges) {

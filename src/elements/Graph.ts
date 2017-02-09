@@ -25,6 +25,11 @@ export default class Graph extends Control {
     constructor(json:any, options:Options) {
         super();
         json = json || {};
+        if (json["data"]) {
+            options = json["options"];
+            json = json["data"];
+            this.id = json["id"];
+        }
         this.options = options || {};
         if (json["init"]) {
             return;
@@ -34,8 +39,9 @@ export default class Graph extends Control {
         }
         this.initFactories();
         this.initCanvas();
-        this.model = new Model(json);
+        this.model = new Model();
         this.model.init(this);
+        this.model.load(json);
         this.initFeatures(this.options.features);
     }
 
@@ -73,7 +79,7 @@ export default class Graph extends Control {
             for (let id in model.nodes) {
                 let node = model.nodes[id];
                 let svg = node.getSVG();
-                //FIXME EventBus.registerSVG(svg);
+                EventBus.register(node, svg);
                 canvas.appendChild(svg);
 
                 let temp: number;
@@ -92,7 +98,7 @@ export default class Graph extends Control {
             for (let id in model.edges) {
                 let edge = model.edges[id];
                 let svg = edge.getSVG();
-                //FIXME EventBus.registerSVG(svg);
+                EventBus.register(edge, svg);
                 canvas.appendChild(svg);
             }
         }

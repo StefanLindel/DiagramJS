@@ -4,6 +4,7 @@ import {Node} from '../nodes';
 import {Control} from "../../Control";
 import {InfoText} from "../nodes/InfoText";
 import {util} from "../../util";
+import {EventBus} from "../../EventBus";
 
 export const enum Direction {
     Up, Down, Left, Right
@@ -39,7 +40,8 @@ export class Edge extends DiagramElement {
             path = 'M';
         }
         for (let i = 0; i < this.$points.length; i++) {
-            let point = new Point(this.$points[i].getPos().x, this.$points[i].getPos().y);
+            let point:Point = this.$points[i].target;
+            //let point = new Point(this.$points[i].getPos().x, this.$points[i].getPos().y);
             if (i > 0) {
                 path += 'L';
             }
@@ -58,8 +60,12 @@ export class Edge extends DiagramElement {
 
         this.$view = shape;
 
-        //FIXME EventBus.register(this, 'click', 'editor');
+        EventBus.register(this, this.$view);
         return shape;
+    }
+
+    public getEvents() : string[] {
+        return [EventBus.ELEMENTCLICK, EventBus.EDITOR];
     }
 
     public redraw() {
