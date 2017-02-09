@@ -15,75 +15,115 @@
 
 </body>
 <script>
-    let table = bridge.load({
-        id: "t1",
-        class: "table",
-        property: "talk",
-        columns: [{id: 'room'}, {id: 'day'}, {id: 'talk'}, {id: 'state'}, {id: 'time'}],
-        searchColumns: ["day", "talk"]
-    });
+    /*let table = bridge.load({
+     id: "t1",
+     class: "table",
+     property: "talk",
+     columns: [{id: 'room'}, {id: 'day'}, {id: 'talk'}, {id: 'state'}, {id: 'time'}],
+     searchColumns: ["day", "talk"]
+     });
+
+     bridge.load({
+     id: "t1",
+     class: "talk",
+     prop: {
+     room: "Heyl",
+     day: "Monday",
+     talk: "01. Meier",
+     state: "ok",
+     time: "18:15",
+     comment: "",
+     no: "",
+     slides: "",
+     html: "",
+     Author: "",
+     "Peer Info": "",
+     Explorer: "Explorer"
+     }
+     });
+     bridge.load({id: "t1", upd: {talk: "01. Schulze"}});
+     bridge.load({id: "r2", class: "room", prop: {name: "Heyl"}});
+     bridge.load({
+     id: "t2",
+     class: "talk",
+     prop: {
+     room: "Heyl",
+     day: "Monday",
+     talk: "02. Schmidt",
+     state: "ok",
+     comment: "",
+     no: "",
+     slides: "",
+     html: "",
+     Author: "",
+     "Peer Info": "",
+     Explorer: "Explorer",
+     time: "20:15"
+     }
+     });
+     bridge.load({
+     id: "t3",
+     class: "talk",
+     prop: {
+     room: "1603",
+     day: "Tuesday",
+     talk: "03. Peter",
+     state: "ok",
+     comment: "",
+     no: "",
+     slides: "",
+     html: "",
+     Author: "",
+     "Peer Info": "",
+     Explorer: "Explorer",
+     time: "20:15"
+     }
+     });
+
+     bridge.load({
+     id: table.getId(),
+     columns: [{id: 'Explorer'}]
+     });*/
+
+    bridge.load(
+        {
+            "class": "table",
+            "id": "J1.T9",
+            "columns": [
+                {
+                    "class": "de.uniks.networkparser.gui.Column",
+                    "id": "TestId",
+                    "label": "Test"
+                },
+                {
+                    "class": "de.uniks.networkparser.gui.Column",
+                    "id": "TestId2",
+                    "label": "Test"
+                }
+            ],
+            "searchColumns": []
+        }
+    );
 
     bridge.load({
-        id: "t1",
-        class: "talk",
-        prop: {
-            room: "Heyl",
-            day: "Monday",
-            talk: "01. Meier",
-            state: "ok",
-            time: "18:15",
-            comment: "",
-            no: "",
-            slides: "",
-            html: "",
-            Author: "",
-            "Peer Info": "",
-            Explorer: "Explorer"
+            id: "t3",
+            class: "talk",
+            prop: {
+                TestId: "1603",
+                TestId2: "Tuesday",
+                talk: "03. Peter",
+                state: "ok",
+                comment: "",
+                no: "",
+                slides: "",
+                html: "",
+                Author: "",
+                "Peer Info": "",
+                Explorer: "Explorer",
+                time: "20:15"
+            }
         }
-    });
-    bridge.load({id: "t1", upd: {talk: "01. Schulze"}});
-    bridge.load({id: "r2", class: "room", prop: {name: "Heyl"}});
-    bridge.load({
-        id: "t2",
-        class: "talk",
-        prop: {
-            room: "Heyl",
-            day: "Monday",
-            talk: "02. Schmidt",
-            state: "ok",
-            comment: "",
-            no: "",
-            slides: "",
-            html: "",
-            Author: "",
-            "Peer Info": "",
-            Explorer: "Explorer",
-            time: "20:15"
-        }
-    });
-    bridge.load({
-        id: "t3",
-        class: "talk",
-        prop: {
-            room: "1603",
-            day: "Tuesday",
-            talk: "03. Peter",
-            state: "ok",
-            comment: "",
-            no: "",
-            slides: "",
-            html: "",
-            Author: "",
-            "Peer Info": "",
-            Explorer: "Explorer",
-            time: "20:15"
-        }
-    });
-
-    bridge.load({
-        id: table.getId(),
-        columns: [{id: 'Explorer'}]
-    });
+    );
 
 </script>
 </html>
