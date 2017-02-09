@@ -1,6 +1,6 @@
-import Bridge from "./Bridge";
-import Data from "./Data";
-import EventListener from "./EventListener";
+import {Bridge} from './Bridge';
+import Data from './Data';
+import EventListener from './EventListener';
 
 export abstract class Control {
     protected id: string;

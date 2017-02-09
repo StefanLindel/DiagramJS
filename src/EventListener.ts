@@ -1,15 +1,14 @@
-import SimpleEvent from "./Event";
+import SimpleEvent from './Event';
 
 export default class EventListener {
-
-    private _onUpdate: Function;
+    private $onUpdate: Function;
 
     get onUpdate(): Function {
-        return this._onUpdate;
+        return this.$onUpdate;
     }
 
     set onUpdate(value: Function) {
-        this._onUpdate = value;
+        this.$onUpdate = value;
     }
 
     update(event: SimpleEvent) {

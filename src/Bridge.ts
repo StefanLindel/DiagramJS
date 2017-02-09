@@ -6,7 +6,7 @@ import Graph from "./elements/Graph";
 import {util} from "./util";
 import {Point} from "./elements/BaseElements";
 
-export default class Bridge {
+export class Bridge {
     //noinspection JSUnusedGlobalSymbols
     public static version: string = "0.42.01.1601007-1739";
     private listener: Array<Object> = [];

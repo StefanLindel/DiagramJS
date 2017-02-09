@@ -1,5 +1,5 @@
 import {Control} from "../../Control";
-import Bridge from "../../Bridge";
+import {Bridge} from "../../Bridge";
 import Data from "../../Data";
 
 export class Input extends Control {
