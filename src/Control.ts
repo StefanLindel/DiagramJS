@@ -13,7 +13,7 @@ export abstract class Control {
             this.$owner = owner;
         }
         if(!this.property) {
-            this.property = property || this.constructor.name;
+            this.property = property || this.constructor.prototype.name;
         }
         if(!this.id) {
             this.id = id;

@@ -29,7 +29,7 @@ export class Table extends Control {
     private dragColumn:Column;
     private dragPos:number;
     private tableOption:HTMLTableHeaderCellElement;
-    protected items: Set<BridgeElement> = new Set<BridgeElement>();
+    protected items: BridgeElement[] = [];
 
     constructor(data) {
         super();
@@ -240,7 +240,7 @@ export class Table extends Control {
 
         cell.appendChild(search);
         if(this.resultColumn) {
-            if(this.resultColumn.startsWith("#") == false) {
+            if(this.resultColumn.indexOf("#") != 0) {
                 this.countElement = document.createElement("div");
                 searchBar.appendChild(this.countElement);
             } else {
@@ -489,7 +489,7 @@ export class Table extends Control {
         let row:HTMLTableRowElement;
         if(!item) {
             item = new BridgeElement(entity);
-            this.items.add(item);
+            this.items.push(item);
             this.itemsIds[entity.id] = item;
         }
         row = this.cells[entity.id];
@@ -683,7 +683,7 @@ export class Table extends Control {
             this.showItem(item, this.searching(item));
         }
     }
-    public searchSet(root:Set<BridgeElement>) {
+    public searchSet(root:BridgeElement[]) {
         this.showedItems=[];
         // Search for Simple Context
         for (let item of root) {

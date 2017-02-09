@@ -15,12 +15,12 @@ export class EventBus {
     public static ELEMENTMOUSEMOVE: string = "ELEMENT:MOUSEMOVE";
     public static ELEMENTMOUSEWHEEL: string = "ELEMENT:MOUSEWHEEL";
     public static ELEMENTCLICK: string = "ELEMENT:CLICK";
-    public static ELEMENTDBLCLICK: string = "ELEMENT:DBLCLICK"
+    public static ELEMENTDBLCLICK: string = "ELEMENT:DBLCLICK";
     public static ELEMENTDRAG: string = "ELEMENT:DRAG";
 
     public static EVENTS: string[] = [EventBus.CREATE, EventBus.EDITOR, EventBus.ELEMENTMOUSEDOWN, EventBus.ELEMENTMOUSEUP, EventBus.ELEMENTMOUSELEAVE, EventBus.ELEMENTMOUSEMOVE, EventBus.ELEMENTMOUSEWHEEL, EventBus.ELEMENTCLICK, EventBus.ELEMENTDRAG, EventBus.ELEMENTDBLCLICK];
 
-    private static handlers = new Map<string, EventHandler[]>();
+    private static handlers = {};
 
     static register(control: DiagramElement, view:Element) {
         let events:string[];
@@ -55,7 +55,7 @@ export class EventBus {
     //}
 
     public static publish(element: DiagramElement, event: Event) {
-        let handlers = EventBus.handlers.get(event.type);
+        let handlers = EventBus.handlers[event.type];
         if (handlers) {
             for (let handler of handlers) {
                 handler.handle(event, element);
@@ -65,10 +65,10 @@ export class EventBus {
 
     public static subscribe(handler: EventHandler, ...eventTypes: string[]) {
         for (let event of eventTypes) {
-            let handlers = EventBus.handlers.get(event);
+            let handlers = EventBus.handlers[event];
             if (handlers === null || handlers === undefined) {
                 handlers = [];
-                EventBus.handlers.set(event, handlers);
+                EventBus.handlers[event] = handlers;
             }
             handlers.push(handler);
         }

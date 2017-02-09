@@ -12,7 +12,7 @@ export default class Bridge {
     private listener: Array<Object> = [];
     private controlFactory: Object = {};
     private controls: Object = {};
-    private adapters:Map<string, Adapter[]> = new Map<string, Adapter[]>();
+    private adapters:Object = {};
     private items: Object = {};
     private controlNo: number = 1;
     private online:boolean = true;
@@ -258,7 +258,7 @@ export default class Bridge {
         } else if (typeof res === "string") {
             // check whether res is a number
             let number = Number(res);
-            if (!Number.isNaN(number)) {
+            if (number || number == 0) {
                 return number;
             }
         }
@@ -293,18 +293,18 @@ export default class Bridge {
         if(!eventType) {
             eventType = null;
         }
-        let handlers = this.adapters.get(eventType);
+        let handlers = this.adapters[eventType];
 
         if (handlers === null || handlers === undefined) {
             handlers = [];
-            this.adapters.set(eventType, handlers);
+            this.adapters[eventType] = handlers;
         }
         handlers.push(adapter);
         return adapter;
     }
 
     public fireEvent(evt: Event) : void {
-        let handlers = this.adapters.get(null);
+        let handlers = this.adapters[null];
         if(handlers) {
             for(let i=0;i<handlers.length;i++) {
                 let adapter = handlers[i];
@@ -313,7 +313,7 @@ export default class Bridge {
                 }
             }
         }
-        handlers = this.adapters.get(evt["eventType"]);
+        handlers = this.adapters[evt["eventType"]];
         if(handlers) {
             for (let i = 0; i < handlers.length; i++) {
                 let adapter = handlers[i];

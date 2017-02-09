@@ -4,7 +4,7 @@ import {Control} from "../../Control";
 export class Form extends Control {
     private $element: HTMLFormElement;
     //private applyingChange: boolean = false;
-    private children: Map<string, Control> = new Map();
+    private children: Object  = {};
     // private property: string = "";
 
     /**
@@ -89,7 +89,7 @@ export class Form extends Control {
                 field['class'] = 'input';
             }
             let control:Control = this.$owner.load(field);
-            this.children.set(control.getId(), control);
+            this.children[control.getId()] = control;
         }
 
     }
@@ -128,15 +128,18 @@ export class Form extends Control {
         this.$element.appendChild(input);
 
         let newcontrol:Control = this.$owner.load(field['id']);
-        this.children.set(newcontrol.getId(), newcontrol);
+        this.children[newcontrol.getId()] = newcontrol;
     }
 
     public setProperty(id: string): void {
         this.property = id;
-        for (let [id, childControl] of this.children) {
+        let keys:string[] = Object.keys(this.children);
+        for(let key in keys) {
+        //for (let [id, childControl] of this.children) {
             if (this.children.hasOwnProperty(id) === false) {
                 continue;
             }
+            let childControl = this.children[key];
             // only set Property, if there is a Property defined before
             if (childControl.property) {
                 childControl.setProperty(this.property + "." + childControl.lastProperty);
