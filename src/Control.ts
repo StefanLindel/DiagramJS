@@ -1,8 +1,6 @@
 import Bridge from "./Bridge";
 import Data from "./Data";
-import BridgeElement from "./BridgeElement";
 import EventListener from "./EventListener";
-import SimpleEvent from "./Event";
 
 export abstract class Control {
     protected id: string;
@@ -22,7 +20,6 @@ export abstract class Control {
         }
         return this;
     }
-
 
     public createEventListener(): EventListener {
         return new EventListener();

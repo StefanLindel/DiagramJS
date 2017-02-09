@@ -175,13 +175,13 @@ export default class Model extends DiagramElement {
         const graph = <Graph>this.$owner;
         if (graph.nodeFactory[type]) {
             let element: DiagramElement = new graph.nodeFactory[type](data);
-            util.initControl(this,  element, type, id);
+            util.initControl(this,  element, type, id, data);
             this.nodes[id] = element;
             return element;
         }
         if (graph.edgeFactory[type]) {
             let element: DiagramElement = new graph.edgeFactory[type](data);
-            util.initControl(this,  element, type, id);
+            util.initControl(this,  element, type, id, data);
             this.edges[id] = element;
             return element;
         }

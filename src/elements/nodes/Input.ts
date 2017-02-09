@@ -7,11 +7,7 @@ export class Input extends Control {
     private type: string;
     private applyingChange: boolean = false;
 
-    constructor(data) {
-        super();
-        this.initControl(data);
-    }
-    public initControl(data:any) {
+    public load(data:any) {
         let id: string;
         // init form HTML
         if (typeof(data) === "string") {

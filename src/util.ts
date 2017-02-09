@@ -245,9 +245,12 @@ export class util {
         return util.copy(result, ref, false, false);
     }
 
-    public static initControl(parent, control, type, id) {
+    public static initControl(parent, control, type, id, json) {
         if (typeof control.init === "function") {
             control.init(parent, type, id);
+        }
+        if (typeof control.load === "function") {
+            control.load(json);
         }
     }
 

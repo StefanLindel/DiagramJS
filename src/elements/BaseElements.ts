@@ -14,6 +14,7 @@ interface GraphElement {
     getCanvas();
     getEvents():string[];
     withPos(x: number, y: number);
+    load(data:any);
 }
 
 

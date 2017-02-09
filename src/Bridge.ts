@@ -137,7 +137,7 @@ export default class Bridge {
         if (typeof(this.controlFactory[className]) === "object" || typeof(this.controlFactory[className]) === "function") {
             let obj = this.controlFactory[className];
             control = new obj(json);
-            util.initControl(this,  control, className, id);
+            util.initControl(this,  control, className, id, json);
 
             if(control.id) {
                 this.controls[control.id] = control;

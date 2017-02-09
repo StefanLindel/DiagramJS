@@ -11,6 +11,16 @@
 </head>
 <body>
 <script>
+//Snowflower.prototype.getEvents= function(){
+//	return ["element.click", "element.move"];
+//}
+
+//Snowflower.prototype.fireEvent= function(eventType, data) {
+//	var text = owner.fireEvent("openTextField");
+//}
+//Snowflower.prototype.onClick = function(){};
+
+
 //var bridge = new Bridge();
 var table = bridge.load({class:"table", property:"talk", columns:[{id:'room'}, {id:'day'}, {id:'talk'},  {id:'state'}], searchColumns:["day", "talk"]});
 console.log(table.id);
@@ -86,6 +96,8 @@ var data = {
 bridge.load({class:"Graph", data:data, options:options}); 
 
 
+
+
 Snowflower = function() {
 };
 
@@ -100,14 +112,6 @@ Snowflower.prototype.getSize = function(){
 	return new Point(290,290);
 }
 
-//Snowflower.prototype.getEvents= function(){
-//	return ["element.click", "element.move"];
-//}
-
-//Snowflower.prototype.fireEvent= function(eventType, data) {
-//	var text = owner.fireEvent("openTextField");
-//}
-//Snowflower.prototype.onClick = function(){};
 
 bridge.addControl(Snowflower);
 
