@@ -2,7 +2,7 @@ import * as controls from "./elements/nodes";
 import Data from "./Data";
 import {Control} from "./Control";
 import {Adapter} from "./Adapter";
-import Graph from "./elements/Graph";
+import {Graph} from "./elements/Graph";
 import {util} from "./util";
 import {Point} from "./elements/BaseElements";
 

@@ -1,4 +1,4 @@
-import Graph from "./elements/Graph";
+import {Graph} from "./elements/Graph";
 
 
 const buttons = {

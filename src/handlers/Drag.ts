@@ -1,8 +1,8 @@
 //import { EventHandler } from '../EventBus';
 import { DiagramElement, Point } from '../elements/BaseElements';
-import Model from '../elements/Model';
+import {Model} from '../elements/Model';
 import { Node } from '../elements/nodes';
-import Graph from '../elements/Graph';
+import {Graph} from '../elements/Graph';
 
 export class Drag {
 

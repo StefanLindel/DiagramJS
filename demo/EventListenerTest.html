@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <title>EventListener</title>
-    <script src="../build/output.js"></script>
+    <script src="../dist/diagram.js"></script>
 </head>
 <body>
 <input class="Input" id="number" property="number.value" type="number" value="0"/>
@@ -12,6 +12,7 @@
 <input id="echoButton" class="input" type="button" value="Show Value"/>
 
 <script type="text/javascript">
+    let bridge = new DiagramJS.Bridge();
     //    let eventListenerAdd = new EventListener();
     //    eventListenerAdd.onUpdate = function (event) {
     //        var value = bridge.getNumber("number", "value", 0);

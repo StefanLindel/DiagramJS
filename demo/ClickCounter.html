@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <title>ClickCounter</title>
-    <script src="../build/output.js"></script>
+    <script src="../dist/diagram.js"></script>
 </head>
 <body>
 <input class="Input" id="number" property="number.value" type="number" value="0"/>
@@ -12,6 +12,7 @@
 </body>
 
 <script type="text/javascript">
+    let bridge = new DiagramJS.Bridge();
     bridge.executeChange({"class": "number", "id": "number", "prop": {"value": 0}});
 
     var numberField = bridge.load("number");

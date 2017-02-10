@@ -1,6 +1,6 @@
 import { DiagramElement } from '../elements/BaseElements';
 import { Clazz } from '../elements/nodes';
-import Graph from '../elements/Graph';
+import {Graph} from '../elements/Graph';
 
 export class Editor {
   private editorElement: Element;

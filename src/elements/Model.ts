@@ -1,4 +1,4 @@
-import Graph from "./Graph";
+import {Graph} from "./Graph";
 import {DiagramElement} from './BaseElements';
 import {Edge} from './edges';
 import {Node} from './nodes';
@@ -6,7 +6,7 @@ import {Control} from '../Control';
 import {util} from '../util';
 import {EventBus} from '../EventBus'
 
-export default class Model extends DiagramElement {
+export class Model extends DiagramElement {
 
     nodes: Object = {};
     edges: Object = {};

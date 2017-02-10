@@ -1,8 +1,7 @@
 import {Edge} from '../elements/edges';
 import {Node} from '../elements/nodes';
-import Graph from '../elements/Graph';
+import {Graph} from '../elements/Graph';
 import Layout from './Layout';
-import * as dagre from "dagre";
 
 export class DagreLayout implements Layout {
 

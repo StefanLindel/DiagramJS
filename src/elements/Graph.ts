@@ -2,7 +2,7 @@ import * as edges from './edges';
 import * as nodes from './nodes';
 import * as layouts from '../layouts';
 import Layout from '../layouts/Layout';
-import Model from '../elements/Model';
+import {Model} from '../elements/Model';
 import Options from '../Options';
 import Palette from '../Palette';
 import {Size, Point} from './BaseElements';
@@ -12,7 +12,7 @@ import Data from "../Data";
 import {EventBus} from "../EventBus";
 import { Editor, Drag, Select, Zoom } from '../handlers';
 
-export default class Graph extends Control {
+export class Graph extends Control {
     root: HTMLElement;
     canvas: Element;
     model: Model;

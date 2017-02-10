@@ -10,7 +10,7 @@ class BridgeAdapter {
 	let bridgeloader = new BridgeAdapter();
 })();
 
-export * from "./elements";
-export * from "./handlers";
-export * from "./elements";
-export * from "./Bridge";
+export * from './elements';
+export * from './handlers';
+export * from './elements';
+export * from './Bridge';

@@ -2,7 +2,7 @@ import { DiagramElement } from '../elements/BaseElements';
 import { Node } from '../elements/nodes';
 import { Edge } from '../elements/edges';
 import { util } from '../util';
-import Model from '../elements/Model';
+import {Model} from '../elements/Model';
 
 export class Select  {
 

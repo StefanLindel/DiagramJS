@@ -1,6 +1,6 @@
 import {DiagramElement} from '../elements/BaseElements';
 import Layout from './Layout';
-import Graph from '../elements/Graph';
+import {Graph} from '../elements/Graph';
 import {Edge} from "../elements/edges/Edge";
 export class LayoutGraphMin {
     public nodes: Object = {};
