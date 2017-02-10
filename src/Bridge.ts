@@ -304,7 +304,7 @@ export class Bridge {
     }
 
     public fireEvent(evt: Event) : void {
-        let handlers = this.adapters[null];
+        let handlers = this.adapters[""];
         if(handlers) {
             for(let i=0;i<handlers.length;i++) {
                 let adapter = handlers[i];
