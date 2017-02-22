@@ -1,16 +1,19 @@
+export {Point} from './elements/BaseElements';
+export {Bridge} from './Bridge';
+export {Graph} from './elements/Graph';
+export * from './elements/nodes';
+export * from './elements/edges';
+import {Point} from './elements/BaseElements';
+import {Graph} from './elements/Graph';
 import {Bridge} from './Bridge';
+import {util} from './util';
+import * as nodes  from './elements/nodes';
+import * as edges from './elements/edges';
 
-class BridgeAdapter {
-  private bridge: Bridge;
-  constructor() {
-    this.bridge = new Bridge();
-  }
-}
-(function() {
-	let bridgeloader = new BridgeAdapter();
-})();
-
-export * from './elements';
-export * from './handlers';
-export * from './elements';
-export * from './Bridge';
+window['Point'] = Point;
+window['Graph'] = Graph;
+window['bridge'] = new Bridge();
+window['util'] = util;
+window['Clazz'] = nodes.Clazz;
+window['Edge'] = edges.Edge;
+window['SymbolLibary'] = nodes.SymbolLibary;

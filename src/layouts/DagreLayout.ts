@@ -4,15 +4,14 @@ import {Graph} from '../elements/Graph';
 import Layout from './Layout';
 
 export class DagreLayout implements Layout {
-
     public layout(graph: Graph) {
-        if(!window["dagre"]) {
+        if (!window['dagre']) {
             return;
         }
         let model = graph.model;
 
-        const g = new window["dagre"].graphlib.Graph();
-            //const g = new dagre.graphlib.Graph();
+        const g = new window['dagre'].graphlib.Graph();
+            // const g = new dagre.graphlib.Graph();
         g.setGraph({marginx: 20, marginy: 20}).setDefaultEdgeLabel(function () {
             return {};
         });
@@ -30,11 +29,11 @@ export class DagreLayout implements Layout {
                 g.setEdge(edge.$sNode.id, edge.$tNode.id);
             }
         }
-        window["dagre"].layout(g);
-        //dagre.layout(g);
+        window['dagre'].layout(g);
+        // dagre.layout(g);
 
         g.nodes().forEach(function (v) {
-            if(model.nodes[v]) {
+            if (model.nodes[v]) {
                 model.nodes[v].withPos(g.node(v).x - g.node(v).width / 2, g.node(v).y - g.node(v).height / 2);
             }
         });
@@ -43,18 +42,17 @@ export class DagreLayout implements Layout {
                 let edge: Edge = model.edges[id];
                 if (edge.$sNode.id === e.v && edge.$tNode.id === e.w) {
                     let size = g.edge(e).points.length;
-                    //let oldPoint;
+                    // let oldPoint;
                     for (let i = 0; i < size; i++) {
                         let point: SVGPoint = g.edge(e).points[i];
                         edge.addLine(point.x, point.y);
-                        //if(oldPoint) {
+                        // if(oldPoint) {
                         //  edge.addLine(oldPoint.x, oldPoint.y, point.x, point.y);
-                        //}
-                        //oldPoint = point;
+                        // }
+                        // oldPoint = point;
                     }
                 }
             }
         });
     }
-
 }

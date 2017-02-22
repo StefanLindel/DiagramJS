@@ -240,6 +240,16 @@ export class util {
         return "#000";
     }
 
+    public static showSVG(control:DiagramElement) {
+        let svg = util.create({tag: "svg", style: {left: control.getPos().x, top: control.getPos().y, position: "absolute"}});
+        let child = control.getSVG();
+        if(child) {
+            svg.appendChild(child);
+        }
+        util.setSize(svg, control.getSize().x, control.getSize().y);
+        document.body.appendChild(svg);
+    }
+
     public static toJson(ref): Object {
         let result = {};
         return util.copy(result, ref, false, false);

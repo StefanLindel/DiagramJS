@@ -55,11 +55,11 @@ export abstract class DiagramElement extends Control implements GraphElement{
         }
     };
 
-  public getSVG() {
-
+  public getSVG() : Element {
+    return null;
   }
-  public getCanvas() {
-
+  public getCanvas() : Element {
+      return null;
   }
 
   public getEvents():string[] {
@@ -121,7 +121,6 @@ export class Point {
     if(pos) {
         this["pos"] = pos;
     }
-
   };
 
   public add(pos: Point) {

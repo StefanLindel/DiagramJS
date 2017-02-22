@@ -4,10 +4,6 @@ export class SO extends DiagramElement {
   public draw(typ?:string):HTMLElement {return null;}
   public getEvent():string[] {return [];}
 
-  public getSVG() {
-
-  }
-
   public withKeyValue(key:string, value:any) : SO {
     if(key === "typ") {
       this.property = value;
