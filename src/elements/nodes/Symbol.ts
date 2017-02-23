@@ -28,6 +28,12 @@ export class SymbolLibary {
 		// Node is Symbol or simple Object
         let symbol, fn = this[SymbolLibary.getName(node)];
 		if (typeof fn === "function") {
+		    if(!(node instanceof DiagramElement)) {
+		        node = SO.create(node);
+		        if(!node.property) {
+		            node.property = "SVG";
+                }
+            }
 			symbol = fn.apply(this, [node]);
 			if (!parent) {
 				return SymbolLibary.createGroup(node, symbol);
@@ -59,10 +65,13 @@ export class SymbolLibary {
 	}
 	public static getName(node:DiagramElement) :string {
 		if (node.property) {
-			return "draw" + SymbolLibary.upFirstChar(node.property);
-		}
-		if (node["src"]) {
-			return "draw" + SymbolLibary.upFirstChar(node["src"]);
+            return "draw" + SymbolLibary.upFirstChar(node.property);
+        }
+        if (node['type']) {
+            return "draw" + SymbolLibary.upFirstChar(node['type']);
+        }
+		if (node['src']) {
+			return "draw" + SymbolLibary.upFirstChar(node['src']);
 		}
 		return "drawNode";
 	}

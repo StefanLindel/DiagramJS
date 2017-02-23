@@ -1,13 +1,13 @@
-import * as controls from "./elements/nodes";
-import Data from "./Data";
-import {Control} from "./Control";
-import {Adapter} from "./Adapter";
-import {Graph} from "./elements/Graph";
-import {util} from "./util";
-import {Point} from "./elements/BaseElements";
+import * as controls from './elements/nodes';
+import Data from './Data';
+import {Control} from './Control';
+import {Adapter} from './Adapter';
+import {Graph} from './elements/Graph';
+import {util} from './util';
+import {Point} from './elements/BaseElements';
 
 export class Bridge {
-    //noinspection JSUnusedGlobalSymbols
+    // noinspection JSUnusedGlobalSymbols
     public static version: string = "0.42.01.1601007-1739";
     private listener: Array<Object> = [];
     private controlFactory: Object = {};
@@ -65,7 +65,6 @@ export class Bridge {
         // Refresh Online Status
         this.setOnline(this.online);
     }
-
     //noinspection JSUnusedGlobalSymbols
     public addListener = function (listener) {
         this.listener.push(listener);
@@ -351,7 +350,9 @@ export class DelegateAdapter extends Adapter {
         let scopeSplit = string.split('.');
         for (let i = 0; i < scopeSplit.length - 1; i++) {
             scope = scope[scopeSplit[i]];
-            if (scope == undefined) return false;
+            if (scope == undefined) {
+				return false;
+			}
         }
         let fn: any = scope[scopeSplit[scopeSplit.length - 1]];
         if (typeof fn === 'function') {

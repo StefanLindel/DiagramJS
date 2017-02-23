@@ -1,0 +1,49 @@
+//				######################################################### Pattern #########################################################
+	typ.Pattern = function () {};
+	typ.Pattern.prototype = new typ.GraphNode();
+	typ.Pattern.prototype.drawSVG = function (drawer) {
+		var width, height, id, textWidth, x, y, rect, item, g = typ.util.create({tag: "g", model: this}, drawer);
+		width = 0;
+		height = 40;
+		id = this.id;
+		if (this.counter) {
+			id += " (" + this.counter + ")";
+		}
+		textWidth = typ.util.sizeOf(id, this).width;
+		width = Math.max(width, textWidth);
+		height += 20;
+		width += 20;
+
+		y = this.getY();
+		x = this.getX();
+
+		rect = {tag: "rect", "width": width, "height": height, "x": x, "y": y, "fill": "#fff", "class": "draggable"};
+		rect.fill = "lightblue";
+
+		rect.stroke = svgUtil.getColor(this.style);
+		g.appendChild(typ.util.create(rect, drawer));
+		item = typ.util.create({tag: "text", $font: true, "text-anchor": "right", "x": x + width / 2 - textWidth / 2, "y": y + 20, "width": textWidth}, drawer);
+		item.appendChild(document.createTextNode(id));
+		g.appendChild(item);
+		g.appendChild(typ.util.create({tag: "line", x1: x, y1: y + 30, x2: x + width, y2: y + 30, stroke: rect.stroke}, drawer));
+		y += 50;
+		return g;
+	};
+	typ.Pattern.prototype.drawHTML = function (drawer) {
+		var cell, item = typ.util.create({tag: "div", model: this}, drawer);
+		item.className = "patternElement";
+		typ.util.setPos(item, this.x, this.y);
+		this.getRoot().createdElement(item, "class", this);
+		item.appendChild(typ.util.create({tag: 'table', border: "0", style: {width: "100%", height: "100%"}}, drawer));
+		if (this.href) {
+			cell = typ.util.createCell(item, "th", this, "<a href=\"" + this.href + "\">" + this.id + "</a>", "id");
+		} else {
+			cell = typ.util.createCell(item, "th", this, this.id, "id");
+		}
+		cell = typ.util.createCell(item, "td", this, "&nbsp;");
+		cell.className = 'first';
+		this.getRoot().createdElement(cell, "empty", this);
+		item.node = this;
+		this.$gui = item;
+		return item;
+	};

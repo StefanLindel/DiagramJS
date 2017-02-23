@@ -14,6 +14,9 @@ export class Clazz extends Node {
 
     constructor(json) {
         super(json);
+        if(!json) {
+            json = {};
+        }
         let y = this.labelHeight;
         this.label = json.name || json.label || ('New ' + this.property);
         this.style = json.style || "flat";
