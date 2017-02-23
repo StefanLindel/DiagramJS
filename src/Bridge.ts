@@ -12,39 +12,42 @@ export class Bridge {
     private listener: Array<Object> = [];
     private controlFactory: Object = {};
     private controls: Object = {};
-    private adapters:Object = {};
+    private adapters: Array<Adapter> = [];
     private items: Object = {};
     private controlNo: number = 1;
-    private online:boolean = true;
-    private language:string = navigator.language.toUpperCase();
-    private toolBar:HTMLElement;
+    private online: boolean = true;
+    private language: string = navigator.language.toUpperCase();
+    private toolBar: HTMLElement;
 
     constructor() {
         let i;
-        let keys:string[] = Object.keys(controls);
-        for(i=0;i<keys.length;i++) {
+        let keys: string[] = Object.keys(controls);
+        for (i = 0; i < keys.length; i++) {
             this.addControl(controls[keys[i]]);
         }
         this.addControl(Graph);
 
-        let that = this;
-        window.addEventListener('load', function() {
-            let updateOnlineStatus = function updateOnlineStatus() {that.setOnline(navigator.onLine);};
-            window.addEventListener('online',  updateOnlineStatus);
+        var that = this;
+        window.addEventListener('load', function () {
+            let updateOnlineStatus = function updateOnlineStatus() {
+                that.setOnline(navigator.onLine);
+            };
+            window.addEventListener('online', updateOnlineStatus);
             window.addEventListener('offline', updateOnlineStatus);
         });
     }
 
     //noinspection JSUnusedGlobalSymbols
-    public setOnline(value:boolean) {
+    public setOnline(value: boolean) {
         this.online = value;
-        if(this.toolBar.children[0]) {
+        if (this.toolBar.children[0]) {
             this.toolBar.children[0].className = value ? "online" : "offline";
         }
     }
+
     //noinspection JSUnusedGlobalSymbols
-    public addToolbar() :boolean{
-        if(this.toolBar) {
+    public addToolbar(): boolean {
+        if (this.toolBar) {
             return false;
         }
         this.toolBar = document.createElement("div");
@@ -57,18 +60,19 @@ export class Bridge {
         child.innerHTML = this.language;
         this.toolBar.appendChild(child);
 
-        let body:HTMLElement = document.getElementsByTagName("body")[0];
+        let body: HTMLElement = document.getElementsByTagName("body")[0];
         body.insertBefore(this.toolBar, body.firstChild);
         // Refresh Online Status
         this.setOnline(this.online);
     }
+
     //noinspection JSUnusedGlobalSymbols
     public addListener = function (listener) {
         this.listener.push(listener);
     };
 
     public addControl(control) {
-        if(control && control.name) {
+        if (control && control.name) {
             this.controlFactory[control.name.toLowerCase()] = control;
         }
     }
@@ -84,12 +88,12 @@ export class Bridge {
             if (!json["id"]) {
                 json["id"] = this.getId();
             }
-            if(json["class"]) {
+            if (json["class"]) {
                 className = json["class"].toLowerCase();
             }
             id = json["id"];
             // Check For Control or Data
-            if(json["prop"] || json["upd"] || json["rem"]) {
+            if (json["prop"] || json["upd"] || json["rem"]) {
                 // Its Data
                 let newData = !this.hasItem(id);
                 let item: Data = this.getItem(id);
@@ -106,8 +110,12 @@ export class Bridge {
                 }
                 Bridge.addProperties(json["prop"], item);
                 Bridge.addProperties(json["upd"], item);
-                for (let adapter in this.adapters) {
-                    this.adapters[adapter].update(JSON.stringify(json));
+                if (this.adapters.length > 0) {
+                    let keys: string[] = Object.keys(this.adapters);
+                    let i;
+                    for (i = 0; i < keys.length; i++) {
+                        this.adapters[keys[i]].update(JSON.stringify(json));
+                    }
                 }
                 return item;
             }
@@ -128,7 +136,7 @@ export class Bridge {
         }
 
         let control;
-        if(this.controls[id]) {
+        if (this.controls[id]) {
             control = this.controls[id];
             control.initControl(json);
             return control;
@@ -137,16 +145,16 @@ export class Bridge {
         if (typeof(this.controlFactory[className]) === "object" || typeof(this.controlFactory[className]) === "function") {
             let obj = this.controlFactory[className];
             control = new obj(json);
-            util.initControl(this,  control, className, id, json);
+            util.initControl(this, control, className, id, json);
 
-            if(control.id) {
+            if (control.id) {
                 this.controls[control.id] = control;
             } else {
                 this.controls[id] = control;
             }
             // Try to Show
             if (typeof control.getSVG === "function" && typeof control.getSize === "function") {
-                let size:Point = control.getSize();
+                let size: Point = control.getSize();
 
                 let svg = util.createShape({
                     tag: 'svg',
@@ -198,7 +206,7 @@ export class Bridge {
     }
 
 
-    public setValue(object: Object, attribute: string, value: Object) :boolean{
+    public setValue(object: Object, attribute: string, value: Object): boolean {
         let obj: Object;
         let id: string;
         if (object instanceof String || typeof object === "string") {
@@ -269,19 +277,19 @@ export class Bridge {
         return this.controls[controlId];
     }
 
-    public registerListener(eventType: string, control: Control, callBackfunction:string): Control {
-        if(typeof control === "string") {
+    public registerListener(eventType: string, control: Control, callBackfunction: string): Control {
+        if (typeof control === "string") {
             control = this.getControl(control);
         }
-        if(!control) {
+        if (!control) {
             return null;
         }
-        if(eventType) {
+        if (eventType) {
             eventType = eventType.toLowerCase();
         }
         control.registerListenerOnHTMLObject(eventType);
-        if(callBackfunction) {
-            let adapter:DelegateAdapter = new DelegateAdapter();
+        if (callBackfunction) {
+            let adapter: DelegateAdapter = new DelegateAdapter();
             adapter.callBackfunction = callBackfunction;
             adapter.id = control.getId();
             this.addAdapter(adapter, eventType);
@@ -289,8 +297,8 @@ export class Bridge {
         return control;
     }
 
-    public addAdapter(adapter:Adapter, eventType:string) : Adapter {
-        if(!eventType) {
+    public addAdapter(adapter: Adapter, eventType: string): Adapter {
+        if (!eventType) {
             eventType = null;
         }
         let handlers = this.adapters[eventType];
@@ -303,18 +311,18 @@ export class Bridge {
         return adapter;
     }
 
-    public fireEvent(evt: Event) : void {
+    public fireEvent(evt: Event): void {
         let handlers = this.adapters[""];
-        if(handlers) {
-            for(let i=0;i<handlers.length;i++) {
+        if (handlers) {
+            for (let i = 0; i < handlers.length; i++) {
                 let adapter = handlers[i];
-                if(adapter.id == null || adapter.id === evt["id"]) {
+                if (adapter.id == null || adapter.id === evt["id"]) {
                     adapter.update(evt);
                 }
             }
         }
         handlers = this.adapters[evt["eventType"]];
-        if(handlers) {
+        if (handlers) {
             for (let i = 0; i < handlers.length; i++) {
                 let adapter = handlers[i];
                 if (adapter.id == null || adapter.id === evt["id"]) {
@@ -325,26 +333,28 @@ export class Bridge {
     }
 }
 export class DelegateAdapter extends Adapter {
-    adapter:Adapter;
-    callBackfunction:string;
+    adapter: Adapter;
+    callBackfunction: string;
+
     update(evt: Object): boolean {
-        if(this.adapter) {
+        if (this.adapter) {
             this.adapter.update(evt);
             return true;
-        } else if(this.callBackfunction) {
+        } else if (this.callBackfunction) {
             return this.executeFunction(this.callBackfunction);
         }
         return false;
     }
-    private executeFunction = function(string) : boolean{
+
+    private executeFunction = function (string): boolean {
         let scope = window;
         let scopeSplit = string.split('.');
         for (let i = 0; i < scopeSplit.length - 1; i++) {
             scope = scope[scopeSplit[i]];
             if (scope == undefined) return false;
         }
-        let fn:any = scope[scopeSplit[scopeSplit.length - 1]];
-        if(typeof fn === 'function') {
+        let fn: any = scope[scopeSplit[scopeSplit.length - 1]];
+        if (typeof fn === 'function') {
             fn.call(scope);
             return true;
         }
