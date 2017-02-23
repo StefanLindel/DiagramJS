@@ -12,7 +12,7 @@ export class Bridge {
     private listener: Array<Object> = [];
     private controlFactory: Object = {};
     private controls: Object = {};
-    private adapters: Object = {};
+    private adapters: Array<Adapter> = [];
     private items: Object = {};
     private controlNo: number = 1;
     private online: boolean = true;
@@ -78,7 +78,6 @@ export class Bridge {
         // Refresh Online Status
         this.setOnline(this.online);
     }
-
     // noinspection JSUnusedGlobalSymbols
     public addListener = function (listener) {
         this.listener.push(listener);
@@ -123,8 +122,12 @@ export class Bridge {
                 }
                 Bridge.addProperties(json['prop'], item);
                 Bridge.addProperties(json['upd'], item);
-                for (let adapter in this.adapters) {
-                    this.adapters[adapter].update(JSON.stringify(json));
+                if (this.adapters.length > 0) {
+                    let keys: string[] = Object.keys(this.adapters);
+                    let i;
+                    for (i = 0; i < keys.length; i++) {
+                        this.adapters[keys[i]].update(JSON.stringify(json));
+                    }
                 }
                 return item;
             }

@@ -158,19 +158,15 @@ export class Table extends Control {
                 if (row.tagName === 'THEAD') {
                     headerrow = row;
                     // Its a thead
-                    for (let r in row.children) {
-                        if (row.children.hasOwnProperty(r) === false) {
-                            continue;
-                        }
-                        this.parsingHeader(<HTMLTableRowElement>row.children[r]);
+                    let children = row.children;
+                    for (let i = 0; i < children.length; i++) {
+                        this.parsingHeader(<HTMLTableRowElement>row.children[i]);
                     }
                 } else {
                     // Its a tbody
-                    for (let r in row.children) {
-                        if (row.children.hasOwnProperty(r) === false) {
-                            continue;
-                        }
-                        this.parsingData(<HTMLTableRowElement>row.children[r]);
+                    let children = row.children;
+                    for (let i = 0; i < children.length; i++) {
+                        this.parsingData(<HTMLTableRowElement>row.children[i]);
                     }
                 }
             } else {

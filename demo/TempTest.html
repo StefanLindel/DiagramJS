@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+    <script language="Javascript" src="../dist/diagram.js"></script>
+    <link type="text/css" rel="stylesheet" href="../material.css"/>
+    <link type="text/css" rel="stylesheet" href="../style.css"/>
+</head>
+<body>
+
+</body>
+
+<script>
+    var bridge = new DiagramJS.Bridge();
+    bridge.addAdapter(new DiagramJS.DelegateAdapter());
+    bridge.load({"class":"number","prop":{"value":0}});
+    bridge.load({"class":"input","prop":{"property":"number.value","value":0,"type":"number"}});
+    bridge.load({"class":"input","id":"J1.N1","property":"number.value","value":0,"type":"number"});
+    bridge.registerListener("CHANGE", "J1.N1");
+    bridge.load({"class":"input","prop":{"value":"add","type":"button"}});
+    bridge.load({"class":"input","id":"J1.B2","value":"add","type":"button"});
+    bridge.registerListener("CLICK", "J1.B2","_callBack1.add");
+    bridge.load({"class":"input","prop":{"value":"subtract","type":"button"}});
+    bridge.load({"class":"input","id":"J1.B3","value":"subtract","type":"button"});
+    bridge.registerListener("CLICK", "J1.B3","_callBack1.subtract");
+    bridge.load({"class":"input","value":"Fire Event","type":"button"});
+    bridge.registerListener("CLICK", "control5");
+    bridge.load({"class":"input","prop":{"type":"password"}});
+    bridge.load({"class":"input","id":"J1.P4","type":"password"});
+    bridge.load({"class":"input","prop":{"type":"date"}});
+    bridge.load({"class":"input","id":"J1.D5","type":"date"});
+    bridge.load({"class":"input","prop":{"type":"time"}});
+    bridge.load({"class":"input","id":"J1.D6","type":"time"});
+    bridge.load({"class":"input","prop":{"type":"checkbox"}});
+    bridge.load({"class":"input","id":"J1.C7","type":"checkbox"});
+    bridge.load({"class":"input","prop":{"type":"radio"}});
+    bridge.load({"class":"input","id":"J1.C8","type":"radio"});
+    bridge.load({"class": "table","id": "J1.T9",property: "talk","columns": [{"class": "de.uniks.networkparser.gui.Column","id": "TestId","label": "Test"},{"class": "de.uniks.networkparser.gui.Column","id": "TestId2","label": "Test"}],"searchColumns": []});
+</script>
+</html>

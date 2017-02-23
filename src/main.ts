@@ -1,8 +1,9 @@
 export {Point} from './elements/BaseElements';
-export {Bridge} from './Bridge';
+export {Bridge, DelegateAdapter} from './Bridge';
 export {Graph} from './elements/Graph';
 export * from './elements/nodes';
 export * from './elements/edges';
+export * from './adapters';
 import {Point} from './elements/BaseElements';
 import {Graph} from './elements/Graph';
 import {Bridge} from './Bridge';
