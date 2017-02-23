@@ -1,6 +1,6 @@
-import {Control} from '../../Control'
-import {Bridge} from '../../Bridge'
-import Data from '../../Data'
+import {Control} from '../../Control';
+import {Bridge} from '../../Bridge';
+import Data from '../../Data';
 
 export class Div extends Control {
     private className: string;
@@ -11,7 +11,7 @@ export class Div extends Control {
         super();
         let id: string;
         // init form HTML
-        if (typeof(data) === "string") {
+        if (typeof(data) === 'string') {
             id = data;
         } else {
             id = data.id;
@@ -28,7 +28,7 @@ export class Div extends Control {
             // if(inputField){
             // TODO disuss how to decide, which property we should listen on...
             // this.property = id;
-            this.property = div.getAttribute("Property");
+            this.property = div.getAttribute('Property');
             // }
         }
 
@@ -36,10 +36,10 @@ export class Div extends Control {
             this.$element = div;
         } else {
             if (!div) {
-                this.$element = document.createElement("div");
-                this.$element.setAttribute("id", this.id);
-                this.$element.setAttribute("property", this.property);
-                document.getElementsByTagName("body")[0].appendChild(this.$element);
+                this.$element = document.createElement('div');
+                this.$element.setAttribute('id', this.id);
+                this.$element.setAttribute('property', this.property);
+                document.getElementsByTagName('body')[0].appendChild(this.$element);
             } else {
                 // the id is already taken by an object, that is not an input field...
                 return;
@@ -47,22 +47,12 @@ export class Div extends Control {
         }
 
         // check if object already exists
-        let objId = this.property.split(".")[0];
+        let objId = this.property.split('.')[0];
         let hasItem = this.$owner.hasItem(objId);
-        if(hasItem){
+        if (hasItem) {
             let item = this.$owner.getItem(objId);
             item.addListener(this);
             this.entity = item;
-        }
-    }
-
-    private controlChanged(ev: Event) {
-        this.$owner.setValue(this.entity, this.lastProperty, this.$element.innerHTML);
-    }
-
-    propertyChange(entity: Data, property: string, oldValue, newValue) {
-        if (!this.applyingChange && property == this.lastProperty) {
-            this.$element.innerHTML = newValue;
         }
     }
 
@@ -71,10 +61,20 @@ export class Div extends Control {
         // check for new Element in Bridge
         if (entity) {
             if (!this.className || this.className === entity.property) {
-                if (entity.id == this.property.split(".")[0]) {
+                if (entity.id === this.property.split('.')[0]) {
                     entity.addListener(this);
                 }
             }
         }
+    }
+
+    propertyChange(entity: Data, property: string, oldValue, newValue) {
+        if (!this.applyingChange && property === this.lastProperty) {
+            this.$element.innerHTML = newValue;
+        }
+    }
+
+    private controlChanged(ev: Event) {
+        this.$owner.setValue(this.entity, this.lastProperty, this.$element.innerHTML);
     }
 }

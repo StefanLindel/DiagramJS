@@ -1,9 +1,8 @@
 import {CSS} from './CSS';
 import {Node} from './elements/nodes/Node';
 import {DiagramElement, Point} from './elements/BaseElements';
-import {EventBus} from './EventBus';
 
-export class util {
+export class Util {
     static getRandomInt(min, max): number {
         return Math.floor(Math.random() * (max - min + 1)) + min;
     }
@@ -125,18 +124,18 @@ export class util {
 
     static setSize(item, width, height): void {
         let value: number;
-        value = util.getValue(width);
-        item.setAttribute("width", value);
+        value = Util.getValue(width);
+        item.setAttribute('width', value);
         item.style.width = Math.ceil(value);
-        value = util.getValue(height);
-        item.setAttribute("height", value);
+        value = Util.getValue(height);
+        item.setAttribute('height', value);
         item.style.height = Math.ceil(value);
     }
 
     static setPos(item, x: number, y: number): void {
         if (item.x && item.x.baseVal) {
-            item.style.left = x + "px";
-            item.style.top = y + "px";
+            item.style.left = x + 'px';
+            item.style.top = y + 'px';
         } else {
             item.x = x;
             item.y = y;
@@ -144,11 +143,11 @@ export class util {
     }
 
     static getValue(value: string): number {
-        return parseInt(("0" + value).replace("px", ""), 10);
+        return parseInt(('0' + value).replace('px', ''), 10);
     }
 
     static isIE(): boolean {
-        return document.all && !window["opera"];
+        return document.all && !window['opera'];
     }
 
     static isFireFox(): boolean {
@@ -156,36 +155,36 @@ export class util {
     }
 
     static isOpera(): boolean {
-        return navigator.userAgent.indexOf("Opera") > -1;
+        return navigator.userAgent.indexOf('Opera') > -1;
     }
 
     static getEventX(event): number {
-        return (this.isIE) ? window.event["clientX"] : event.pageX;
+        return (this.isIE) ? window.event['clientX'] : event.pageX;
     }
 
     static getEventY(event): number {
-        return (this.isIE) ? window.event["clientY"] : event.pageY;
+        return (this.isIE) ? window.event['clientY'] : event.pageY;
     }
 
     static getNumber(str: string): number {
-        return parseInt((str || "0").replace("px", ""), 10);
+        return parseInt((str || '0').replace('px', ''), 10);
     }
 
     static getStyle(styleProp): CSS {
-        let i, style, diff, current, ref, el = document.createElement("div"), css;
+        let i, style, diff, current, ref, el = document.createElement('div'), css;
         document.body.appendChild(el);
         css = new CSS(styleProp);
         ref = new CSS(styleProp, el).css;
         style = window.getComputedStyle(el, null);
         el.className = styleProp;
         current = new CSS(styleProp, el).css;
-        diff = util.getNumber(style.getPropertyValue("border-width"));
+        diff = Util.getNumber(style.getPropertyValue('border-width'));
         for (i in current) {
             if (!current.hasOwnProperty(i)) {
                 continue;
             }
-            if (i === "width" || i === "height") {
-                if (util.getNumber(current[i]) !== 0 && util.getNumber(current[i]) + diff * 2 !== util.getNumber(ref[i])) {
+            if (i === 'width' || i === 'height') {
+                if (Util.getNumber(current[i]) !== 0 && Util.getNumber(current[i]) + diff * 2 !== Util.getNumber(ref[i])) {
                     css.add(i, current[i]);
                 }
             } else if (current[i] !== ref[i]) {
@@ -197,16 +196,16 @@ export class util {
     }
 
     static sizeOf(item: any, model: Node, node?: Node) {
-        var board, rect, root;
+        let board, rect, root;
         if (!item) {
             return;
         }
         root = <DiagramElement>model.getRoot();
         board = root.$gui;
-        if (board.tagName === "svg") {
+        if (board.tagName === 'svg') {
             if (typeof item === 'string') {
-                item = util.create({tag: "text", $font: true, value: item});
-                item.setAttribute("width", "5px");
+                item = Util.create({tag: 'text', $font: true, value: item});
+                item.setAttribute('width', '5px');
             }
         } else if (typeof item === 'string') {
             item = document.createTextNode(item);
@@ -224,46 +223,48 @@ export class util {
 
     static getColor(style: string, defaultColor?: string) {
         if (style) {
-            if (style.toLowerCase() === "create") {
-                return "#008000";
+            if (style.toLowerCase() === 'create') {
+                return '#008000';
             }
-            if (style.toLowerCase() === "nac") {
-                return "#FE3E3E";
+            if (style.toLowerCase() === 'nac') {
+                return '#FE3E3E';
             }
-            if (style.indexOf("#") === 0) {
+            if (style.indexOf('#') === 0) {
                 return style;
             }
         }
         if (defaultColor) {
             return defaultColor;
         }
-        return "#000";
+        return '#000';
     }
 
-    public static showSVG(control:DiagramElement) {
-        let svg = util.create({tag: "svg", style: {left: control.getPos().x, top: control.getPos().y, position: "absolute"}});
+    public static showSVG(control: DiagramElement) {
+        let svg = Util.create({
+            tag: 'svg',
+            style: {left: control.getPos().x, top: control.getPos().y, position: 'absolute'}
+        });
         let child = control.getSVG();
-        if(child) {
+        if (child) {
             svg.appendChild(child);
         }
-        util.setSize(svg, control.getSize().x, control.getSize().y);
+        Util.setSize(svg, control.getSize().x, control.getSize().y);
         document.body.appendChild(svg);
     }
 
     public static toJson(ref): Object {
         let result = {};
-        return util.copy(result, ref, false, false);
+        return Util.copy(result, ref, false, false);
     }
 
     public static initControl(parent, control, type, id, json) {
-        if (typeof control.init === "function") {
+        if (typeof control.init === 'function') {
             control.init(parent, type, id);
         }
-        if (typeof control.load === "function") {
+        if (typeof control.load === 'function') {
             control.load(json);
         }
     }
-
 
     /**
      * copy One Json into another
@@ -279,16 +280,16 @@ export class util {
         if (src) {
             let i;
             for (i in src) {
-                if (!src.hasOwnProperty(i) || typeof (src[i]) === "function") {
+                if (!src.hasOwnProperty(i) || typeof (src[i]) === 'function') {
                     continue;
                 }
-                if (i.charAt(0) === "$") {
+                if (i.charAt(0) === '$') {
                     if (full) {
                         ref[i] = src[i];
                     }
                     continue;
                 }
-                if (typeof (src[i]) === "object") {
+                if (typeof (src[i]) === 'object') {
                     if (replace) {
                         ref[i] = src[i];
                         continue;
@@ -300,9 +301,9 @@ export class util {
                             ref[i] = {};
                         }
                     }
-                    util.copy(ref[i], src[i], full, false);
+                    Util.copy(ref[i], src[i], full, false);
                 } else {
-                    if (src[i] === "") {
+                    if (src[i] === '') {
                         continue;
                     }
                     ref[i] = src[i];
@@ -333,10 +334,10 @@ export class util {
         for (i = 0; i < 2; i += 1) {
             t = this.getLRPosition(m, n, entity, list[i]);
             if (t.y >= pos.y && t.y <= (pos.y + size.y + 1)) {
-                t.y += (entity["$" + list[i]] * step);
+                t.y += (entity['$' + list[i]] * step);
                 if (t.y > (pos.y + size.y)) {
                     // Alternative
-                    t = util.getUDPosition(m, n, entity, Point.DOWN, step);
+                    t = Util.getUDPosition(m, n, entity, Point.DOWN, step);
                 }
                 p.push(t);
                 distance.push(Math.sqrt((refCenter.x - t.x) * (refCenter.x - t.x) + (refCenter.y - t.y) * (refCenter.y - t.y)));
@@ -344,9 +345,9 @@ export class util {
         }
         list = [Point.UP, Point.DOWN];
         for (i = 0; i < 2; i += 1) {
-            t = util.getUDPosition(m, n, entity, list[i]);
+            t = Util.getUDPosition(m, n, entity, list[i]);
             if (t.x >= pos.x && t.x <= (pos.x + size.x + 1)) {
-                t.x += (entity["$" + list[i]] * step);
+                t.x += (entity['$' + list[i]] * step);
                 if (t.x > (pos.x + size.x)) {
                     // Alternative
                     t = this.getLRPosition(m, n, entity, Point.RIGHT, step);
@@ -373,7 +374,7 @@ export class util {
         }
         x = (y - n) / m;
         if (step) {
-            x += e["$" + p] * step;
+            x += e['$' + p] * step;
             if (x < pos.x) {
                 x = pos.x;
             } else if (x > (pos.x + size.x)) {
@@ -392,7 +393,7 @@ export class util {
         }
         y = m * x + n;
         if (step) {
-            y += e["$" + p] * step;
+            y += e['$' + p] * step;
             if (y < pos.y) {
                 y = pos.y;
             } else if (y > (pos.y + size.y)) {
@@ -401,5 +402,4 @@ export class util {
         }
         return new Point(x, y, p);
     }
-
 }

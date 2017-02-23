@@ -6,14 +6,14 @@ export * from './elements/edges';
 import {Point} from './elements/BaseElements';
 import {Graph} from './elements/Graph';
 import {Bridge} from './Bridge';
-import {util} from './util';
+import {Util} from './util';
 import * as nodes  from './elements/nodes';
 import * as edges from './elements/edges';
 
 window['Point'] = Point;
 window['Graph'] = Graph;
 window['bridge'] = new Bridge();
-window['util'] = util;
+window['Util'] = Util;
 window['Clazz'] = nodes.Clazz;
 window['Edge'] = edges.Edge;
 window['SymbolLibary'] = nodes.SymbolLibary;

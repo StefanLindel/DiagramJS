@@ -1,6 +1,6 @@
 //				######################################################### Info #########################################################
 import {DiagramElement, Point} from "../BaseElements";
-import {util} from "../../util";
+import {Util} from "../../util";
 import {Control} from "../../Control";
 import {Node} from "./Node";
 import {EventBus} from "../../EventBus";
@@ -31,10 +31,10 @@ export class InfoText extends Node {
             return null;
         }
         if (items.length > 1) {
-            group = util.create({tag: "g", "class": "draggable", rotate: this.$angle, model: this});
+            group = Util.create({tag: "g", "class": "draggable", rotate: this.$angle, model: this});
             for (i = 0; i < items.length; i += 1) {
                 let pos:Point = this.getPos();
-                child = util.create({
+                child = Util.create({
                     tag: "text",
                     $font: true,
                     "text-anchor": "left",
@@ -54,7 +54,7 @@ export class InfoText extends Node {
             return group;
         }
         let pos:Point = this.getPos();
-        group = util.create({
+        group = Util.create({
             tag: "text",
             "#$font": true,
             "text-anchor": "left",
@@ -77,7 +77,7 @@ export class InfoText extends Node {
 
     public drawHTML(draw?:boolean):HTMLElement {
         let text:string = this.getText(), info;
-        info = util.create({tag: "div", $font: true, model: this, "class": "EdgeInfo", value: text});
+        info = Util.create({tag: "div", $font: true, model: this, "class": "EdgeInfo", value: text});
         if (this.$angle !== 0) {
             info.style.transform = "rotate(" + this.$angle + "deg)";
             info.style.msTransform = info.style.MozTransform = info.style.WebkitTransform = info.style.OTransform = "rotate(" + this.$angle + "deg)";
@@ -87,7 +87,7 @@ export class InfoText extends Node {
         newEvent["eventtype"] = EventBus.CREATE;
         newEvent["source"] = this;
         newEvent["entity"] = info;
-        util.setPos(info, pos.x, pos.y);
+        Util.setPos(info, pos.x, pos.y);
         this.fireEvent(newEvent);
         return info;
     }
@@ -123,7 +123,7 @@ export class InfoText extends Node {
         }
         let infoTxt:string = this.getText();
         if (infoTxt.length > 0) {
-            util.sizeOf(infoTxt, root, this);
+            Util.sizeOf(infoTxt, root, this);
         }
         return infoTxt;
     }

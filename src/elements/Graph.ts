@@ -6,11 +6,11 @@ import {Model} from '../elements/Model';
 import Options from '../Options';
 import Palette from '../Palette';
 import {Size, Point} from './BaseElements';
-import {util} from '../util';
-import {Control} from "../Control";
-import Data from "../Data";
-import {EventBus} from "../EventBus";
-import { Editor, Drag, Select, Zoom } from '../handlers';
+import {Util} from '../util';
+import {Control} from '../Control';
+import Data from '../Data';
+import {EventBus} from '../EventBus';
+import {Editor, Drag, Select, Zoom} from '../handlers';
 
 export class Graph extends Control {
     root: HTMLElement;
@@ -22,16 +22,16 @@ export class Graph extends Control {
     edgeFactory: Object;
     layoutFactory: Object;
 
-    constructor(json:any, options:Options) {
+    constructor(json: any, options: Options) {
         super();
         json = json || {};
-        if (json["data"]) {
-            options = json["options"];
-            json = json["data"];
-            this.id = json["id"];
+        if (json['data']) {
+            options = json['options'];
+            json = json['data'];
+            this.id = json['id'];
         }
         this.options = options || {};
-        if (json["init"]) {
+        if (json['init']) {
             return;
         }
         if (!this.options.origin) {
@@ -45,7 +45,29 @@ export class Graph extends Control {
         this.initFeatures(this.options.features);
     }
 
-    public init(owner:Control, property?: string, id?: string) :Control{
+    private static createPattern(): Element {
+        const defs = Util.createShape({tag: 'defs'});
+        const pattern = Util.createShape({
+            tag: 'pattern',
+            id: 'raster',
+            patternUnits: 'userSpaceOnUse',
+            width: 40,
+            height: 40
+        });
+        const path = 'M0 4 L0 0 L4 0 M36 0 L40 0 L40 4 M40 36 L40 40 L36 40 M4 40 L0 40 L0 36';
+        const cross = Util.createShape({
+            tag: 'path',
+            d: path,
+            stroke: '#DDD',
+            'stroke-width': 1,
+            fill: 'none'
+        });
+        pattern.appendChild(cross);
+        defs.appendChild(pattern);
+        return defs;
+    }
+
+    public init(owner: Control, property?: string, id?: string): Control {
         super.init(owner, property, id);
         this.layout();
         return this;
@@ -74,7 +96,6 @@ export class Graph extends Control {
         const canvas = this.canvas;
         let max: Point = new Point();
 
-
         if (model.nodes) {
             for (let id in model.nodes) {
                 let node = model.nodes[id];
@@ -93,7 +114,7 @@ export class Graph extends Control {
                 }
             }
         }
-        util.setSize(this.canvas, max.x, max.y);
+        Util.setSize(this.canvas, max.x, max.y);
         if (model.edges) {
             for (let id in model.edges) {
                 let edge = model.edges[id];
@@ -111,7 +132,7 @@ export class Graph extends Control {
         }
 
         canvas.appendChild(Graph.createPattern());
-        const background = util.createShape({
+        const background = Util.createShape({
             tag: 'rect',
             id: 'background',
             width: 5000,
@@ -124,28 +145,6 @@ export class Graph extends Control {
         });
         canvas.appendChild(background);
         canvas.appendChild(this.model.getSVG());
-    }
-
-    private static createPattern(): Element {
-        const defs = util.createShape({tag: 'defs'});
-        const pattern = util.createShape({
-            tag: 'pattern',
-            id: 'raster',
-            patternUnits: 'userSpaceOnUse',
-            width: 40,
-            height: 40
-        });
-        const path = 'M0 4 L0 0 L4 0 M36 0 L40 0 L40 4 M40 36 L40 40 L36 40 M4 40 L0 40 L0 36';
-        const cross = util.createShape({
-            tag: 'path',
-            d: path,
-            stroke: '#DDD',
-            'stroke-width': 1,
-            fill: 'none'
-        });
-        pattern.appendChild(cross);
-        defs.appendChild(pattern);
-        return defs;
     }
 
     private getLayout(): Layout {
@@ -207,7 +206,7 @@ export class Graph extends Control {
                 EventBus.subscribe(new Drag(), 'mousedown', 'mouseup', 'mousemove', 'mouseleave');
             }
             if (features.select) {
-                 EventBus.subscribe(new Select(this.model), 'click', 'drag');
+                EventBus.subscribe(new Select(this.model), 'click', 'drag');
             }
             if (features.palette) {
                 new Palette(this);

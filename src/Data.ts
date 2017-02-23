@@ -1,10 +1,10 @@
-import {Control} from './Control'
+import {Control} from './Control';
 
 export default class Data {
+    public values = {};
     id: string;
     $listener: Control[] = [];
     property: string;
-    public values = {};
 
     public getValue(attribute) {
         return this.values[attribute];

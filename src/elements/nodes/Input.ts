@@ -1,23 +1,23 @@
-import {Control} from "../../Control";
-import {Bridge} from "../../Bridge";
-import Data from "../../Data";
+import {Control} from '../../Control';
+import {Bridge} from '../../Bridge';
+import Data from '../../Data';
 
 export class Input extends Control {
     private $element: HTMLInputElement;
     private type: string;
     private applyingChange: boolean = false;
 
-    public load(data:any) {
+    public load(data: any) {
         let id: string;
         // init form HTML
-        if (typeof(data) === "string") {
+        if (typeof(data) === 'string') {
             id = data;
         } else {
             id = data.id;
             if (data.type) {
                 this.type = data['type'];
             } else {
-                this.type = 'text'
+                this.type = 'text';
             }
             this.property = data['property'];
         }
@@ -31,8 +31,8 @@ export class Input extends Control {
             if (inputField) {
                 // TODO disuss how to decide, which property we should listen on...
                 // this.property = id;
-                if (inputField.hasAttribute("Property")) {
-                    this.property = inputField.getAttribute("Property");
+                if (inputField.hasAttribute('Property')) {
+                    this.property = inputField.getAttribute('Property');
                 }
             }
         }
@@ -42,23 +42,25 @@ export class Input extends Control {
             this.type = inputField.type;
         } else {
             if (!inputField) {
-                this.$element = document.createElement("input");
-                if (typeof(data) !== "string") {
+                this.$element = document.createElement('input');
+                if (typeof(data) !== 'string') {
                     for (let attr in data) {
-                        if(data.hasOwnProperty(attr) == false) {
+                        if (data.hasOwnProperty(attr) === false) {
                             continue;
                         }
                         this.$element.setAttribute(attr, data[attr]);
                     }
                 } else {
-                    if (this.type)
-                        this.$element.setAttribute("type", this.type);
-                    if (data.hasOwnProperty("class"))
-                        this.$element.setAttribute("class", data['class']);
-                    this.$element.setAttribute("id", this.id);
-                    this.$element.setAttribute("property", this.property);
+                    if (this.type) {
+                        this.$element.setAttribute('type', this.type);
+                    }
+                    if (data.hasOwnProperty('class')) {
+                        this.$element.setAttribute('class', data['class']);
+                    }
+                    this.$element.setAttribute('id', this.id);
+                    this.$element.setAttribute('property', this.property);
                 }
-                document.getElementsByTagName("body")[0].appendChild(this.$element);
+                document.getElementsByTagName('body')[0].appendChild(this.$element);
             } else {
                 // the id is already taken by an object, that is not an input field...
                 return;
@@ -67,7 +69,7 @@ export class Input extends Control {
 
         // check if object already exists
         if (this.property) {
-            let objId = this.property.split(".")[0];
+            let objId = this.property.split('.')[0];
             let hasItem = this.$owner.hasItem(objId);
             if (hasItem) {
                 let item = this.$owner.getItem(objId);
@@ -89,16 +91,8 @@ export class Input extends Control {
         }
     }
 
-    private controlChanged(ev: Event) {
-        if (this.$element.checkValidity()) {
-            this.$owner.setValue(this.entity, this.lastProperty, this.$element.value);
-        } else {
-            console.log("value does not match the pattern...");
-        }
-    }
-
     propertyChange(entity: Data, property: string, oldValue, newValue) {
-        if (this.property && !this.applyingChange && property == this.lastProperty) {
+        if (this.property && !this.applyingChange && property === this.lastProperty) {
             this.$element.value = newValue;
         }
     }
@@ -106,19 +100,27 @@ export class Input extends Control {
     public addItem(source: Bridge, entity: Data) {
         // check for new Element in Bridge
         if (this.property && entity) {
-            if (entity.id == this.property.split(".")[0]) {
+            if (entity.id === this.property.split('.')[0]) {
                 this.entity = entity;
                 entity.addListener(this);
             }
         }
     }
 
+    public registerListenerOnHTMLObject(eventType: string): boolean {
+        this.registerListener(eventType, this.$element);
+        return true;
+    }
+
     protected updateElement(value: string) {
         this.$element.value = value;
     }
 
-    public registerListenerOnHTMLObject(eventType: string): boolean {
-        this.registerListener(eventType, this.$element);
-        return true;
+    private controlChanged(ev: Event) {
+        if (this.$element.checkValidity()) {
+            this.$owner.setValue(this.entity, this.lastProperty, this.$element.value);
+        } else {
+            console.log('value does not match the pattern...');
+        }
     }
 }

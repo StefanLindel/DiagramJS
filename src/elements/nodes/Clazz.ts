@@ -1,25 +1,25 @@
 import {Node} from './Node';
-import { EventBus } from '../../EventBus';
-import {util} from '../../util';
+import {EventBus} from '../../EventBus';
+import {Util} from '../../util';
 import {Point} from '../BaseElements';
 
 export class Clazz extends Node {
-    private attributes: string[] = [];
-    private methods: string[] = [];
-    private style: string;
     protected labelHeight = 25;
     protected labelFontSize = 14;
     protected attrHeight = 20;
     protected attrFontSize = 12;
+    private attributes: string[] = [];
+    private methods: string[] = [];
+    private style: string;
 
     constructor(json) {
         super(json);
-        if(!json) {
+        if (!json) {
             json = {};
         }
         let y = this.labelHeight;
         this.label = json.name || json.label || ('New ' + this.property);
-        this.style = json.style || "flat";
+        this.style = json.style || 'flat';
 
         if (json['attributes']) {
             for (let attr of json['attributes']) {
@@ -38,139 +38,12 @@ export class Clazz extends Node {
         return this;
     }
 
-    private getModernStyle(): Element {
-        let width, height, id, size, z, item, rect, g, board, styleHeader, headerHeight, x, y;
-        board = this.getRoot()["board"];
-        styleHeader = util.getStyle("ClazzHeader");
-        headerHeight = styleHeader.getNumber("height");
-        width = 0;
-        height = 10 + headerHeight;
-
-        if (this.property === "Object" || this.getRoot()["model"].getType().toLowerCase() === "objectdiagram") {
-            id = this.id.charAt(0).toLowerCase() + this.id.slice(1);
-            item = "Object";
-        } else {
-            id = this.id;
-            item = "Clazz";
-            if (this["counter"]) {
-                id += " (" + this["counter"] + ")";
-            }
-        }
-        g = util.create({tag: "g", model: this});
-        size = util.sizeOf(id, this);
-        width = Math.max(width, size.width);
-        if (this.attributes && this.attributes.length > 0) {
-            height = height + this.attributes.length * 25;
-            for (z = 0; z < this.attributes.length; z += 1) {
-                width = Math.max(width, util.sizeOf(this.attributes[z], this).width);
-            }
-        } else {
-            height += 20;
-        }
-        if (this.methods && this.methods.length > 0) {
-            height = height + this.methods.length * 25;
-            for (z = 0; z < this.methods.length; z += 1) {
-                width = Math.max(width, util.sizeOf(this.methods[z], this).width);
-            }
-        }
-        width += 20;
-
-        let pos = this.getPos();
-        y = pos.y;
-        x = pos.x;
-
-        rect = {
-            tag: "rect",
-            "width": width,
-            "height": height,
-            "x": x,
-            "y": y,
-            "class": item + " draggable",
-            "fill": "none"
-        };
-        g.appendChild(util.create(rect));
-        g.appendChild(util.create({
-            tag: "rect",
-            rx: 0,
-            "x": x,
-            "y": y,
-            height: headerHeight,
-            "width": width,
-            "class": "ClazzHeader"
-        }));
-
-        item = util.create({
-            tag: "text",
-            $font: true,
-            "class": "InfoText",
-            "text-anchor": "right",
-            "x": x + width / 2 - size.width / 2,
-            "y": y + (headerHeight / 2) + (size.height / 2),
-            "width": size.width
-        });
-
-        if (this.property === "Object" || this.getRoot()["model"].type.toLowerCase() === "objectdiagram") {
-            item.setAttribute("text-decoration", "underline");
-        }
-        item.appendChild(document.createTextNode(id));
-
-        g.appendChild(item);
-        g.appendChild(util.create({
-            tag: "line",
-            x1: x,
-            y1: y + headerHeight,
-            x2: x + width,
-            y2: y + headerHeight,
-            stroke: "#000"
-        }));
-        y += headerHeight + 20;
-
-        if (this.attributes) {
-            for (z = 0; z < this.attributes.length; z += 1) {
-                g.appendChild(util.create({
-                    tag: "text",
-                    $font: true,
-                    "text-anchor": "left",
-                    "width": width,
-                    "x": (x + 10),
-                    "y": y,
-                    value: this.attributes[z]
-                }));
-                y += 20;
-            }
-            if (this.attributes.length > 0) {
-                y -= 10;
-            }
-        }
-        if (this.methods && this.methods.length > 0) {
-            g.appendChild(util.create({tag: "line", x1: x, y1: y, x2: x + width, y2: y, stroke: "#000"}));
-            y += 20;
-            for (z = 0; z < this.methods.length; z += 1) {
-                g.appendChild(util.create({
-                    tag: "text",
-                    $font: true,
-                    "text-anchor": "left",
-                    "width": width,
-                    "x": x + 10,
-                    "y": y,
-                    value: this.methods[z]
-                }));
-                y += 20;
-            }
-        }
-        return g;
-    }
-
-    public getCanvas(): Element {
-        return null;
-    }
-
     public getSVG(): Element {
-        if (this.style == "modern") {
+        if (this.style === 'modern') {
             return this.getModernStyle();
         }
-        const pos:Point = this.getPos();
-        const size:Point = this.getSize();
+        const pos: Point = this.getPos();
+        const size: Point = this.getSize();
 
         // Full Shape
         const nodeShape = this.createShape({
@@ -184,12 +57,12 @@ export class Clazz extends Node {
             style: 'fill:white;stroke:black;stroke-width:2'
         });
 
-        //SHAPE between Attributes and Methods
+        // SHAPE between Attributes and Methods
         const contentShape = this.createShape({
             tag: 'rect',
             x: pos.x,
             y: pos.y + this.labelHeight,
-            height:  this.attrHeight * this.attributes.length,
+            height: this.attrHeight * this.attributes.length,
             width: size.x,
             style: 'fill:white;stroke:black;stroke-width:2'
         });
@@ -261,7 +134,7 @@ export class Clazz extends Node {
         return group;
     }
 
-    public getEvents() : string[] {
+    public getEvents(): string[] {
         return [EventBus.ELEMENTMOUSEDOWN, EventBus.ELEMENTMOUSEMOVE, EventBus.ELEMENTCLICK, EventBus.ELEMENTDRAG, EventBus.ELEMENTDBLCLICK, EventBus.EDITOR];
     }
 
@@ -308,4 +181,126 @@ export class Clazz extends Node {
         return changed;
     }
 
+    private getModernStyle(): Element {
+        let width, height, id, size, z, item, rect, g, board, styleHeader, headerHeight, x, y;
+        board = this.getRoot()['board'];
+        styleHeader = Util.getStyle('ClazzHeader');
+        headerHeight = styleHeader.getNumber('height');
+        width = 0;
+        height = 10 + headerHeight;
+
+        if (this.property === 'Object' || this.getRoot()['model'].getType().toLowerCase() === 'objectdiagram') {
+            id = this.id.charAt(0).toLowerCase() + this.id.slice(1);
+            item = 'Object';
+        } else {
+            id = this.id;
+            item = 'Clazz';
+            if (this['counter']) {
+                id += ' (' + this['counter'] + ')';
+            }
+        }
+        g = Util.create({tag: 'g', model: this});
+        size = Util.sizeOf(id, this);
+        width = Math.max(width, size.width);
+        if (this.attributes && this.attributes.length > 0) {
+            height = height + this.attributes.length * 25;
+            for (z = 0; z < this.attributes.length; z += 1) {
+                width = Math.max(width, Util.sizeOf(this.attributes[z], this).width);
+            }
+        } else {
+            height += 20;
+        }
+        if (this.methods && this.methods.length > 0) {
+            height = height + this.methods.length * 25;
+            for (z = 0; z < this.methods.length; z += 1) {
+                width = Math.max(width, Util.sizeOf(this.methods[z], this).width);
+            }
+        }
+        width += 20;
+
+        let pos = this.getPos();
+        y = pos.y;
+        x = pos.x;
+
+        rect = {
+            tag: 'rect',
+            'width': width,
+            'height': height,
+            'x': x,
+            'y': y,
+            'class': item + ' draggable',
+            'fill': 'none'
+        };
+        g.appendChild(Util.create(rect));
+        g.appendChild(Util.create({
+            tag: 'rect',
+            rx: 0,
+            'x': x,
+            'y': y,
+            height: headerHeight,
+            'width': width,
+            'class': 'ClazzHeader'
+        }));
+
+        item = Util.create({
+            tag: 'text',
+            $font: true,
+            'class': 'InfoText',
+            'text-anchor': 'right',
+            'x': x + width / 2 - size.width / 2,
+            'y': y + (headerHeight / 2) + (size.height / 2),
+            'width': size.width
+        });
+
+        if (this.property === 'Object' || this.getRoot()['model'].type.toLowerCase() === 'objectdiagram') {
+            item.setAttribute('text-decoration', 'underline');
+        }
+        item.appendChild(document.createTextNode(id));
+
+        g.appendChild(item);
+        g.appendChild(Util.create({
+            tag: 'line',
+            x1: x,
+            y1: y + headerHeight,
+            x2: x + width,
+            y2: y + headerHeight,
+            stroke: '#000'
+        }));
+        y += headerHeight + 20;
+
+        if (this.attributes) {
+            for (z = 0; z < this.attributes.length; z += 1) {
+                g.appendChild(Util.create({
+                    tag: 'text',
+                    $font: true,
+                    'text-anchor': 'left',
+                    'width': width,
+                    'x': (x + 10),
+                    'y': y,
+                    value: this.attributes[z]
+                }));
+                y += 20;
+            }
+            if (this.attributes.length > 0) {
+                y -= 10;
+            }
+        }
+        if (this.methods && this.methods.length > 0) {
+            g.appendChild(Util.create({tag: 'line', x1: x, y1: y, x2: x + width, y2: y, stroke: '#000'}));
+            y += 20;
+            for (z = 0; z < this.methods.length; z += 1) {
+                g.appendChild(Util.create({
+                    tag: 'text',
+                    $font: true,
+                    'text-anchor': 'left',
+                    'width': width,
+                    'x': x + 10,
+                    'y': y,
+                    value: this.methods[z]
+                }));
+                y += 20;
+            }
+        }
+        return g;
+    }
 }

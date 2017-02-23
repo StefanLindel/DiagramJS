@@ -1,10 +1,8 @@
 import {DiagramElement, Point, Line} from '../BaseElements';
-//import { EventBus } from '../../EventBus';
 import {Node} from '../nodes';
-import {Control} from "../../Control";
-import {InfoText} from "../nodes/InfoText";
-import {util} from "../../util";
-import {EventBus} from "../../EventBus";
+import {InfoText} from '../nodes/InfoText';
+import {Util} from '../../util';
+import {EventBus} from '../../EventBus';
 
 export const enum Direction {
     Up, Down, Left, Right
@@ -23,7 +21,6 @@ export class Edge extends DiagramElement {
     $m: number;
     $n: number;
 
-
     public withItem(source: Node, target: Node): Edge {
         source.edges.push(this);
         target.edges.push(this);
@@ -35,13 +32,12 @@ export class Edge extends DiagramElement {
     };
 
     public getSVG(): Element {
-        let path = "";
+        let path = '';
         if (this.$points.length > 0) {
             path = 'M';
         }
         for (let i = 0; i < this.$points.length; i++) {
-            let point:Point = this.$points[i].target;
-            //let point = new Point(this.$points[i].getPos().x, this.$points[i].getPos().y);
+            let point: Point = this.$points[i].target;
             if (i > 0) {
                 path += 'L';
             }
@@ -64,7 +60,7 @@ export class Edge extends DiagramElement {
         return shape;
     }
 
-    public getEvents() : string[] {
+    public getEvents(): string[] {
         return [EventBus.ELEMENTCLICK, EventBus.EDITOR];
     }
 
@@ -72,7 +68,7 @@ export class Edge extends DiagramElement {
         let a = this.getShortestPathIntersection(this.$sNode, this.$tNode.getPos());
         let b = this.getShortestPathIntersection(this.$tNode, this.$sNode.getPos());
         this.$view.setAttribute('d', `M${a.x} ${a.y} L${b.x} ${b.y}`);
-        //FIXME  this.$points = [ a, b ];
+        // FIXME  this.$points = [ a, b ];
     }
 
 // many Edges SOME DOWN AND SOME RIGHT OR LEFT
@@ -85,8 +81,6 @@ export class Edge extends DiagramElement {
 
         divisor = (endNode.getCenter().x - startNode.getCenter().x);
         this.$points = [];
-        //startNode = startNode.getTarget(startNode);
-        //endNode = endNode.getTarget(endNode);
         if (divisor === 0) {
             if (startNode === endNode) {
                 /* OwnAssoc */
@@ -103,19 +97,19 @@ export class Edge extends DiagramElement {
             }
         } else {
             // add switch from option or model
-            options = this.$owner["options"];
+            options = this.$owner['options'];
             if (options) {
                 linetyp = options.linetyp;
             }
             result = false;
-            if (linetyp === "square") {
+            if (linetyp === 'square') {
                 result = this.calcSquareLine();
             }
             if (!result) {
                 this.$m = (endNode.getCenter().y - startNode.getCenter().y) / divisor;
                 this.$n = startNode.getCenter().y - (startNode.getCenter().x * this.$m);
-                sourcePos = util.getPosition(this.$m, this.$n, startNode, endNode.getCenter());
-                targetPos = util.getPosition(this.$m, this.$n, endNode, sourcePos);
+                sourcePos = Util.getPosition(this.$m, this.$n, startNode, endNode.getCenter());
+                targetPos = Util.getPosition(this.$m, this.$n, endNode, sourcePos);
             }
         }
         if (sourcePos && targetPos) {
@@ -125,16 +119,16 @@ export class Edge extends DiagramElement {
             if (this.targetInfo) {
                 this.calcInfoPos(targetPos, endNode, this.targetInfo);
             }
-            startNode["$" + sourcePos.$id] += 1;
-            endNode["$" + targetPos.$id] += 1;
+            startNode['$' + sourcePos.$id] += 1;
+            endNode['$' + targetPos.$id] += 1;
 
-            const line:Line = new Line(this.lineStyle);
+            const line: Line = new Line(this.lineStyle);
             line.init(this);
             line.source = sourcePos;
             line.target = targetPos;
             this.$points.push(line);
             if (this.info) {
-                this.info.withPos((sourcePos.x + targetPos.x) / 2, (sourcePos.y + targetPos.y) / 2)
+                this.info.withPos((sourcePos.x + targetPos.x) / 2, (sourcePos.y + targetPos.y) / 2);
             }
         }
         return true;
@@ -159,13 +153,13 @@ export class Edge extends DiagramElement {
         line.source = start;
         line.target = end;
         this.$points.push(line);
-        //this.$points.push(new Line(start, end, this.$lineStyle, this.style));
+        // this.$points.push(new Line(start, end, this.$lineStyle, this.style));
     };
 
     public addLine(x1: number, y1: number, x2?: number, y2?: number) {
         let start: Point, end: Point;
         if (!x2 && !y2) {
-            if(this.$points.length > 0) {
+            if (this.$points.length > 0) {
                 start = this.$points[this.$points.length - 1].target;
                 end = new Point(x1, y1);
             } else {
@@ -221,14 +215,14 @@ export class Edge extends DiagramElement {
     };
 
     public calcSquareLine() {
-        //	1. Case		/------\
-        //				|...T...|
-        //				\-------/
-        //			|---------|
-        //			|
-        //		/-------\
-        //		|...S...|
-        //		\-------/
+        // 1. Case		/------\
+        // 			|...T...|
+        // 			\-------/
+        // 		|---------|
+        // 		|
+        // 	/-------\
+        // 	|...S...|
+        // 	\-------/
         let startPos: Point = this.$sNode.getPos();
         let startSize: Point = this.$sNode.getSize();
         let endPos: Point = this.$tNode.getPos();
@@ -240,26 +234,26 @@ export class Edge extends DiagramElement {
             return true;
         }
         if (endPos.y - 40 > startPos.y + startSize.y) { // oberseite von source and unterseite von target
-            // fall 1 nur andersherum
+            // Case 1 the other way round
             this.addLineTo(startPos.x + startSize.x / 2, startPos.y + startSize.y, 0, +20);
             this.addLine(endPos.x + endSize.x / 2, endPos.y - 20);
             this.addLineTo(0, 20);
             return true;
         }
-        //3. fall ,falls s (source) komplett unter t (target) ist
+        // 3. Case ,falls s (source) komplett unter t (target) ist
         // beide oberseiten
-        //	3. Case
-        //			 |--------
-        //			/---\	 |
-        //			| T |	/---\
-        //			\---/	| S |
-        //					-----
+        // 3. Case
+        // 		 |--------
+        // 		/---\	 |
+        // 		| T |	/---\
+        // 		\---/	| S |
+        // 				-----
         // or
-        //			-------|
-        //			|	 /---\
-        //		/----\	 | T |
-        //		| S	 |	 \---/
-        //		------
+        // 		-------|
+        // 		|	 /---\
+        // 	/----\	 | T |
+        // 	| S	 |	 \---/
+        // 	------
         //
         this.addLineTo(startPos.x + startSize.x / 2, startPos.y, 0, -20);
         this.addLine(endPos.x + endSize.x / 2, endPos.y - 20);
@@ -268,12 +262,14 @@ export class Edge extends DiagramElement {
     };
 
     public calcOffset() {
-        var i, z, min = new Point(999999999, 999999999), max = new Point(0, 0), item, svg, value, x, y;
+        let i: number, z: number, x: number, y: number;
+        let min: Point = new Point(999999999, 999999999), max: Point = new Point(0, 0);
+        let item, svg, value;
         for (i = 0; i < this.$points.length; i += 1) {
             item = this.$points[i];
-            if (item.typ == Line.FORMAT.PATH) {
+            if (item.typ === Line.FORMAT.PATH) {
                 value = document.createElement('div');
-                svg = util.create({tag: "svg"});
+                svg = Util.create({tag: 'svg'});
                 svg.appendChild(item.draw());
                 value = svg.childNodes[0];
                 x = y = 0;
@@ -298,11 +294,11 @@ export class Edge extends DiagramElement {
                             y = y + item.y;
                             break;
                     }
-                    util.Range(min, max, x, y);
+                    Util.Range(min, max, x, y);
                 }
             } else {
-                util.Range(min, max, item.source.x, item.source.y);
-                util.Range(min, max, item.target.x, item.target.y);
+                Util.Range(min, max, item.source.x, item.source.y);
+                Util.Range(min, max, item.target.x, item.target.y);
             }
         }
         return {x: min.x, y: min.y, width: max.x - min.x, height: max.y - min.y};

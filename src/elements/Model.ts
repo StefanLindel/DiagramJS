@@ -1,13 +1,12 @@
-import {Graph} from "./Graph";
+import {Graph} from './Graph';
 import {DiagramElement} from './BaseElements';
 import {Edge} from './edges';
 import {Node} from './nodes';
 import {Control} from '../Control';
-import {util} from '../util';
-import {EventBus} from '../EventBus'
+import {Util} from '../util';
+import {EventBus} from '../EventBus';
 
 export class Model extends DiagramElement {
-
     nodes: Object = {};
     edges: Object = {};
     private counter = 0;
@@ -28,14 +27,14 @@ export class Model extends DiagramElement {
         }
     }
 
-    public init(owner:Control, property?: string, id?: string) : Control {
+    public init(owner: Control, property?: string, id?: string): Control {
         super.init(owner, property, id);
         this.initCanvas();
         return this;
     }
 
     public addElement(type: string): boolean {
-        type = util.toPascalCase(type);
+        type = Util.toPascalCase(type);
         let id = this.getNewId(type);
         let element = <DiagramElement>this.getElement(type, id, {});
         if (element) {
@@ -96,25 +95,24 @@ export class Model extends DiagramElement {
         return group;
     }
 
+    public getEvents(): string[] {
+        return [EventBus.ELEMENTMOUSEDOWN, EventBus.ELEMENTMOUSEUP, EventBus.ELEMENTMOUSELEAVE, EventBus.ELEMENTMOUSEMOVE, EventBus.ELEMENTMOUSEWHEEL, EventBus.ELEMENTCLICK, EventBus.ELEMENTDRAG];
+    }
     private initCanvas() {
         const graph = <Graph>this.$owner;
         graph.canvasSize = {width: graph.root.clientWidth, height: graph.root.clientHeight};
-        graph.canvas = util.createShape({
+        graph.canvas = Util.createShape({
             tag: 'svg',
             id: 'root',
             width: graph.canvasSize.width,
             height: graph.canvasSize.height
-            //FIXME,viewBox: `${this.$graph.options.origin.x * -1} ${this.$graph.options.origin.y * -1} ${this.$graph.canvasSize.width} ${this.$graph.canvasSize.height}`
+            // FIXME,viewBox: `${this.$graph.options.origin.x * -1} ${this.$graph.options.origin.y * -1} ${this.$graph.canvasSize.width} ${this.$graph.canvasSize.height}`
         });
         this.$view = graph.canvas;
         graph.root.appendChild(graph.canvas);
 
         let mousewheel = 'onwheel' in document.createElement('div') ? 'wheel' : document.onmousewheel !== undefined ? 'mousewheel' : 'DOMMouseScroll';
         EventBus.register(this, this.$view);
-    }
-
-    public getEvents() :string[] {
-        return [EventBus.ELEMENTMOUSEDOWN, EventBus.ELEMENTMOUSEUP, EventBus.ELEMENTMOUSELEAVE, EventBus.ELEMENTMOUSEMOVE, EventBus.ELEMENTMOUSEWHEEL, EventBus.ELEMENTCLICK, EventBus.ELEMENTDRAG];
     }
 
     private getNewId(prefix?: string): string {
@@ -124,9 +122,9 @@ export class Model extends DiagramElement {
     }
 
     private addNode(node: Node): Node {
-        let type = node["type"] || node.property || 'Node';
-        type = util.toPascalCase(type);
-        let id = node["name"] || this.getNewId(type);
+        let type = node['type'] || node.property || 'Node';
+        type = Util.toPascalCase(type);
+        let id = node['name'] || this.getNewId(type);
         return <Node>this.getElement(type, id, node);
     }
 
@@ -148,20 +146,18 @@ export class Model extends DiagramElement {
 
     private addEdge(edge) {
         let type = edge.type || 'Edge';
-        type = util.toPascalCase(type);
+        type = Util.toPascalCase(type);
         let id = this.getNewId(type);
 
         let newEdge = <Edge>this.getElement(type, id, edge);
-
-
-        let source:Node = this.findNodeByLabel(edge.source);
-        if(!source) {
+        let source: Node = this.findNodeByLabel(edge.source);
+        if (!source) {
             source = new Node({label: edge.source});
             source.init(this);
             this.addNode(source);
         }
-        let target:Node = this.findNodeByLabel(edge.target);
-        if(!target) {
+        let target: Node = this.findNodeByLabel(edge.target);
+        if (!target) {
             target = new Node({label: edge.target});
             target.init(this);
             this.addNode(target);
@@ -175,13 +171,13 @@ export class Model extends DiagramElement {
         const graph = <Graph>this.$owner;
         if (graph.nodeFactory[type]) {
             let element: DiagramElement = new graph.nodeFactory[type](data);
-            util.initControl(this,  element, type, id, data);
+            Util.initControl(this, element, type, id, data);
             this.nodes[id] = element;
             return element;
         }
         if (graph.edgeFactory[type]) {
             let element: DiagramElement = new graph.edgeFactory[type](data);
-            util.initControl(this,  element, type, id, data);
+            Util.initControl(this, element, type, id, data);
             this.edges[id] = element;
             return element;
         }

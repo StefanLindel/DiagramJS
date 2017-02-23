@@ -1,10 +1,10 @@
-import {Control} from "../../Control";
+import {Control} from '../../Control';
 
-//noinspection JSUnusedGlobalSymbols
+// noinspection JSUnusedGlobalSymbols
 export class Form extends Control {
     private $element: HTMLFormElement;
-    //private applyingChange: boolean = false;
-    private children: Object  = {};
+    // private applyingChange: boolean = false;
+    private children: Object = {};
     // private property: string = "";
 
     /**
@@ -25,7 +25,7 @@ export class Form extends Control {
         super();
         let id: string;
         // init form HTML
-        if (typeof(data) === "string") {
+        if (typeof(data) === 'string') {
             id = data;
         } else {
             id = data.id;
@@ -38,15 +38,15 @@ export class Form extends Control {
 
         if (form instanceof HTMLFormElement) {
             this.$element = form;
-            if (this.$element.hasAttribute("property")) {
-                this.property = this.$element.getAttribute("property");
+            if (this.$element.hasAttribute('property')) {
+                this.property = this.$element.getAttribute('property');
             }
         } else {
             if (!form) {
-                this.$element = document.createElement("form");
-                this.$element.setAttribute("id", this.id);
+                this.$element = document.createElement('form');
+                this.$element.setAttribute('id', this.id);
 
-                if (data.hasOwnProperty("property")) {
+                if (data.hasOwnProperty('property')) {
                     this.property = data['property'];
                 }
 
@@ -55,13 +55,13 @@ export class Form extends Control {
                     if (data.hasOwnProperty(attr) === false) {
                         continue;
                     }
-                    if (attr == "elements") {
+                    if (attr === 'elements') {
                         continue;
                     }
                     this.$element.setAttribute(attr, data[attr]);
                 }
 
-                document.getElementsByTagName("body")[0].appendChild(this.$element);
+                document.getElementsByTagName('body')[0].appendChild(this.$element);
             } else {
                 // the id is already taken by an object, that is not an input field...
                 return;
@@ -80,18 +80,33 @@ export class Form extends Control {
         // now create all the sub input controls
         for (let field of data.elements) {
             // this.createField(field);
-            if (field.hasOwnProperty("property")) {
-                let property = field["property"];
+            if (field.hasOwnProperty('property')) {
+                let property = field['property'];
                 property = this.property + '.' + property;
                 field['property'] = property;
             }
-            if (!field.hasOwnProperty("class")) {
+            if (!field.hasOwnProperty('class')) {
                 field['class'] = 'input';
             }
-            let control:Control = this.$owner.load(field);
+            let control: Control = this.$owner.load(field);
             this.children[control.getId()] = control;
         }
 
+    }
+
+    public setProperty(id: string): void {
+        this.property = id;
+        let keys: string[] = Object.keys(this.children);
+        for (let key in keys) {
+            if (this.children.hasOwnProperty(id) === false) {
+                continue;
+            }
+            let childControl = this.children[key];
+            // only set Property, if there is a Property defined before
+            if (childControl.property) {
+                childControl.setProperty(this.property + '.' + childControl.lastProperty);
+            }
+        }
     }
 
     /**
@@ -101,25 +116,25 @@ export class Form extends Control {
      * @param field
      */
     private createField(field: Object) {
-        let control = "input";
-        if (field.hasOwnProperty("class")) {
+        let control = 'input';
+        if (field.hasOwnProperty('class')) {
             control = field['class'];
         }
         let input = document.createElement(control);
-        input.setAttribute("class", control);
+        input.setAttribute('class', control);
         let id: string;
-        if (!field.hasOwnProperty("id")) {
+        if (!field.hasOwnProperty('id')) {
             // TODO: not the best solution for generating unique id's for forms...
             id = this.$owner.getId();
             field['id'] = id;
         }
-        if (field.hasOwnProperty("property")) {
-            let property = field["property"];
+        if (field.hasOwnProperty('property')) {
+            let property = field['property'];
             property = this.id + '.' + property;
-            input.setAttribute("property", property);
+            input.setAttribute('property', property);
         }
         for (let attr in field) {
-            if (attr == "property" || attr == "class" || !field.hasOwnProperty(attr)) {
+            if (attr === 'property' || attr === 'class' || !field.hasOwnProperty(attr)) {
                 continue;
             }
             input.setAttribute(attr, field[attr]);
@@ -127,23 +142,7 @@ export class Form extends Control {
 
         this.$element.appendChild(input);
 
-        let newcontrol:Control = this.$owner.load(field['id']);
+        let newcontrol: Control = this.$owner.load(field['id']);
         this.children[newcontrol.getId()] = newcontrol;
-    }
-
-    public setProperty(id: string): void {
-        this.property = id;
-        let keys:string[] = Object.keys(this.children);
-        for(let key in keys) {
-        //for (let [id, childControl] of this.children) {
-            if (this.children.hasOwnProperty(id) === false) {
-                continue;
-            }
-            let childControl = this.children[key];
-            // only set Property, if there is a Property defined before
-            if (childControl.property) {
-                childControl.setProperty(this.property + "." + childControl.lastProperty);
-            }
-        }
     }
 }

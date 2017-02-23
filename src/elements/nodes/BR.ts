@@ -1,17 +1,13 @@
-import {Control} from "../../Control";
-import Data from '../../Data'
+import {Control} from '../../Control';
 
 export class BR extends Control {
     constructor(data) {
         super();
-        this.createControl(document.getElementsByTagName("body")[0], data);
-    }
-
-    propertyChange(entity: Data, property: string, oldValue, newValue) {
+        this.createControl(document.getElementsByTagName('body')[0], data);
     }
 
     protected createControl(parent: HTMLElement, data: JSON) {
-        let label = document.createElement("br");
+        let label = document.createElement('br');
         for (let attr in data) {
             if (!data.hasOwnProperty(attr)) {
                 continue;
@@ -19,9 +15,5 @@ export class BR extends Control {
             label.setAttribute(attr, data[attr]);
         }
         parent.appendChild(label);
-    }
-
-
-    public setProperty(property: string): void {
     }
 }
