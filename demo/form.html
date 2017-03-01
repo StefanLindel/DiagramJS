@@ -35,7 +35,7 @@
     };
     var t1formId = bridge.load(json);
 
-    bridge.executeChange({
+    bridge.load({
         id: "t1",
         class: "talk",
         prop: {
@@ -54,12 +54,12 @@
             Explorer: "Explorer"
         }
     });
-    bridge.executeChange({
+    bridge.load({
         id: "t2",
         class: "talk",
         prop: {
             room: "Heyl",
-            day: "Monday",
+            day: "Tuesday",
             mail: "test2@host.de",
             talk: "02. Schmidt",
             state: "ok",
@@ -70,14 +70,16 @@
             Author: "",
             "Peer Info": "",
             Explorer: "Explorer",
-            time: "20:15"
+            time: "21:15"
         }
     });
 
-    var t1control = bridge.controls[t1formId];
-    t1control.setProperty("t1");
+//    var t1control = bridge.controls[t1formId];
+//    t1control.setProperty("t1");
 
-    var test = bridge.getItem("t1");
-    var x = test;
+    t1formId.setProperty("t2");
+
+//    var test = bridge.getItem("t1");
+//    var x = test;
 </script>
 </html>
