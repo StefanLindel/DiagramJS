@@ -81,7 +81,7 @@ export class Table extends Control {
             // Must be an Update
             if (data['columns']) {
                 // It is a json must add all things and generate HTML
-                for (let i in data['columns']) {
+                for (var i in data['columns']) {
                     if (data['columns'].hasOwnProperty(i) === false) {
                         continue;
                     }
@@ -101,7 +101,7 @@ export class Table extends Control {
                     this.columns.push(col);
                     this.tableOption.parentElement.insertBefore(col.$element, this.tableOption);
                 }
-                for (let i in this.showedItems) {
+                for (var i in this.showedItems) {
                     let item: BridgeElement = this.showedItems[i];
                     let cell;
                     // Now Add some Children
@@ -148,11 +148,8 @@ export class Table extends Control {
         this.id = id;
         table.id = id;
         table.setAttribute('type', this.constructor['name'].toLowerCase());
-        let i = 0;
-        for (let c in table.children) {
-            if (table.children.hasOwnProperty(c) === false) {
-                continue;
-            }
+        let counter = 0;
+        for (let c = 0; c < table.children.length; c++) {
             let row: HTMLTableRowElement = <HTMLTableRowElement>table.children[c];
             if (row instanceof HTMLTableSectionElement) {
                 if (row.tagName === 'THEAD') {
@@ -171,14 +168,14 @@ export class Table extends Control {
                 }
             } else {
                 // fallback, if there are no thead and tbody...
-                if (i === 0) {
+                if (counter === 0) {
                     headerrow = row;
                     this.parsingHeader(row);
                 } else {
                     this.parsingData(row);
                 }
             }
-            i++;
+            counter++;
         }
         if (!headerrow || !this.$headersection) {
             if (!this.$headersection) {
@@ -200,7 +197,7 @@ export class Table extends Control {
 
         if (data['columns']) {
             // It is a json must add all things and generate HTML
-            for (let i in data['columns']) {
+            for (var i in data['columns']) {
                 if (data['columns'].hasOwnProperty(i) === false) {
                     continue;
                 }
@@ -315,14 +312,14 @@ export class Table extends Control {
     }
 
     public parsingHeader(row: HTMLTableRowElement) {
-        for (let i in row.children) {
+        for (var i in row.children) {
             if (row.children.hasOwnProperty(i) === false) {
                 continue;
             }
             let column: HTMLTableHeaderCellElement = <HTMLTableHeaderCellElement>row.children[i];
             let id = column.innerHTML.trim();
             let col: Column = null;
-            for (let c in this.columns) {
+            for (var c in this.columns) {
                 if (this.columns.hasOwnProperty(i) === false) {
                     continue;
                 }
@@ -346,7 +343,7 @@ export class Table extends Control {
     public parsingData(row: HTMLTableRowElement) {
         let id = row.getAttribute('id');
         let item: Data = this.$owner.getItem(id);
-        for (let i in row.children) {
+        for (var i in row.children) {
             if (row.children.hasOwnProperty(i) === false) {
                 continue;
             }
