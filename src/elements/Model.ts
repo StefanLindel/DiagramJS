@@ -108,11 +108,11 @@ export class Model extends DiagramElement {
             height: graph.canvasSize.height
             // FIXME,viewBox: `${this.$graph.options.origin.x * -1} ${this.$graph.options.origin.y * -1} ${this.$graph.canvasSize.width} ${this.$graph.canvasSize.height}`
         });
-        this.$view = graph.canvas;
+        this.$viewElement = graph.canvas;
         graph.root.appendChild(graph.canvas);
 
         let mousewheel = 'onwheel' in document.createElement('div') ? 'wheel' : document.onmousewheel !== undefined ? 'mousewheel' : 'DOMMouseScroll';
-        EventBus.register(this, this.$view);
+        EventBus.register(this, this.$viewElement);
     }
 
     private getNewId(prefix?: string): string {

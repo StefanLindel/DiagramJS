@@ -8,7 +8,6 @@ export class Table extends Control {
     protected items: BridgeElement[] = [];
     private columns: Column[] = [];
     private cells: Object = {};
-    private $element: HTMLElement;
     private $bodysection: HTMLTableSectionElement;
     private $headersection: HTMLTableSectionElement;
     private showedItems: Array<BridgeElement> = [];
@@ -33,7 +32,6 @@ export class Table extends Control {
 
     constructor(data) {
         super();
-        this.initControl(data);
     }
 
     private static indexOfChild(item: BridgeElement) {
@@ -45,7 +43,7 @@ export class Table extends Control {
         return i;
     }
 
-    public initControl(data: any) {
+    public load(data: any) {
         let id: string;
         // init form HTML
         if (typeof(data) === 'string') {
@@ -77,7 +75,7 @@ export class Table extends Control {
         if (!id) {
             return;
         }
-        if (this.$element) {
+        if (this.$view) {
             // Must be an Update
             if (data['columns']) {
                 // It is a json must add all things and generate HTML
@@ -123,34 +121,34 @@ export class Table extends Control {
             }
             return;
         }
-        let table: HTMLElement = document.getElementById(id);
+
+        this.$view = document.getElementById(id);
         let headerrow: HTMLTableRowElement;
-        if (table) {
+        if (this.$view) {
             if (!this.property) {
-                this.property = table.getAttribute('property');
+                this.property = this.$view.getAttribute('property');
             }
         } else {
-            table = document.createElement('table');
-            document.getElementsByTagName('body')[0].appendChild(table);
+            this.$view = document.createElement('table');
+            this.$owner.appendChild(this);
         }
-        this.$element = table;
         if (!this.$bodysection) {
             // add tbody element if missing
             this.$bodysection = document.createElement('tbody');
-            table.appendChild(this.$bodysection);
+            this.$view.appendChild(this.$bodysection);
         }
         if (data['classname']) {
-            table.className = data['classname'];
+            this.$view.className = data['classname'];
         } else {
-            table.className = 'mdl-data-table mdl-js-data-table mdl-data-table--selectable mdl-shadow--2dp';
+            this.$view.className = 'mdl-data-table mdl-js-data-table mdl-data-table--selectable mdl-shadow--2dp';
         }
 
         this.id = id;
-        table.id = id;
-        table.setAttribute('type', this.constructor['name'].toLowerCase());
+        this.$view.id = id;
+        this.$view.setAttribute('type', this.constructor['name'].toLowerCase());
         let counter = 0;
-        for (let c = 0; c < table.children.length; c++) {
-            let row: HTMLTableRowElement = <HTMLTableRowElement>table.children[c];
+        for (let c = 0; c < this.$view.children.length; c++) {
+            let row: HTMLTableRowElement = <HTMLTableRowElement>this.$view.children[c];
             if (row instanceof HTMLTableSectionElement) {
                 if (row.tagName === 'THEAD') {
                     headerrow = row;
@@ -180,10 +178,10 @@ export class Table extends Control {
         if (!headerrow || !this.$headersection) {
             if (!this.$headersection) {
                 // find eventually existing thead
-                let header = table.getElementsByTagName('thead');
+                let header = this.$view.getElementsByTagName('thead');
                 if (header.length === 0) {
                     this.$headersection = document.createElement('thead');
-                    table.appendChild(this.$headersection);
+                    this.$view.appendChild(this.$headersection);
                 } else {
                     // take first thead element
                     this.$headersection = header.item(0);
@@ -743,7 +741,7 @@ export class Table extends Control {
     private registerEvents(events: string[]) {
         let that = this;
         for (let i = 0; i < events.length; i++) {
-            this.$element.addEventListener(events[i], function (evt) {
+            this.$view.addEventListener(events[i], function (evt) {
                 return that.tableEvent(events[i], evt);
             });
         }

@@ -19,7 +19,7 @@ interface GraphElement {
 
 export abstract class DiagramElement extends Control implements GraphElement {
     public id: string;
-    public $view: Element;
+    public $viewElement: Element;
     protected isDraggable: boolean = true;
     private pos: Point = new Point();
     private size: Point = new Point();

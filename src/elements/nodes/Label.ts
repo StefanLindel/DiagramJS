@@ -1,23 +1,27 @@
-import {Control} from '../../Control';
+import {Control} from "../../Control";
 
 export class Label extends Control {
     constructor(data) {
         super();
-        this.createControl(document.getElementsByTagName('body')[0], data);
     }
 
-    protected createControl(parent: HTMLElement, data: JSON) {
-        let label = document.createElement('label');
+
+    public load(data): any {
+        this.createControl(this.$owner, data);
+    }
+
+    protected createControl(parent: Control, data: JSON) {
+        this.$view = document.createElement('label');
         for (let attr in data) {
             if (!data.hasOwnProperty(attr)) {
                 continue;
             }
             if (attr === 'textContent') {
-                label.textContent = data['textContent'];
+                this.$view.textContent = data['textContent'];
             } else {
-                label.setAttribute(attr, data[attr]);
+                this.$view.setAttribute(attr, data[attr]);
             }
         }
-        parent.appendChild(label);
+        parent.appendChild(this);
     }
 }

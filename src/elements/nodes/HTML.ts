@@ -4,8 +4,6 @@
 import {Control} from '../../Control';
 
 export class HTML extends Control {
-    private $element: HTMLElement;
-
     constructor(data) {
         super();
 
@@ -21,18 +19,18 @@ export class HTML extends Control {
         }
         if (id) {
             this.id = id;
-            this.$element = document.getElementById(id);
+            this.$view = document.getElementById(id);
         }
-        if (!this.$element) {
+        if (!this.$view) {
             tag = data['tag'] || 'div';
-            this.$element = document.createElement(tag);
+            this.$view = document.createElement(tag);
             let parent = document.getElementsByTagName('body')[0];
-            parent.appendChild(this.$element);
+            parent.appendChild(this.$view);
         }
         if (!parent) {
             return;
         }
-        this.writeAttribute(data, this.$element);
+        this.writeAttribute(data, this.$view);
     }
 
     private writeAttribute(properties, entity?) {

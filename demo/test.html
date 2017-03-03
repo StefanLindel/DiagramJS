@@ -31,6 +31,7 @@
     let bridge = new DiagramJS.Bridge();
     //var bridge = new Bridge();
     bridge.load({
+        id: "t1table",
         class: "table",
         property: "talk",
         columns: [{id: 'room'}, {id: 'day'}, {id: 'talk'}, {id: 'state'}, {id: 'time'}],
@@ -121,14 +122,13 @@
     // change property of input field:
     //    var t1talk = document.getElementById("t1talk");
     //    t1talk.setAttribute("property", "t2.room");
-    var t1control = bridge.controls[t1controlid];
-    t1control.setProperty("t1.talk");
+    //var t1control = bridge.controls[t1controlid];
+    //t1control.setProperty("t1.talk");
 
     var divContainer = document.getElementById("divContainer");
     divContainer.innerHTML = "01. Test";
 
-    bridge.load({id:"label", class: "label", textContent: "Testitest"});
-
+    bridge.load({id: "label", class: "label", textContent: "Testitest"});
 </script>
 </body>
 

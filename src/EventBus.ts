@@ -49,7 +49,7 @@ export class EventBus {
     //       console.log(type);
     //    }
     // for (let event of eventTypes) {
-    //  diagramElement.$view.addListener(event, EventBus.publish.bind(null, diagramElement));
+    //  diagramElement.$viewElement.addListener(event, EventBus.publish.bind(null, diagramElement));
     // }
     // }
 

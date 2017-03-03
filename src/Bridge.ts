@@ -1,12 +1,12 @@
-import * as controls from './elements/nodes';
-import Data from './Data';
-import {Control} from './Control';
-import {Adapter} from './Adapter';
-import {Graph} from './elements/Graph';
-import {Util} from './util';
-import {Point} from './elements/BaseElements';
+import * as controls from "./elements/nodes";
+import Data from "./Data";
+import {Control} from "./Control";
+import {Adapter} from "./Adapter";
+import {Graph} from "./elements/Graph";
+import {Util} from "./util";
+import {Point} from "./elements/BaseElements";
 
-export class Bridge {
+export class Bridge extends Control {
     // noinspection JSUnusedGlobalSymbols
     public static version: string = '0.42.01.1601007-1739';
     private listener: Array<Object> = [];
@@ -20,6 +20,7 @@ export class Bridge {
     private toolBar: HTMLElement;
 
     constructor() {
+        super();
         let i;
         let keys: string[] = Object.keys(controls);
         for (i = 0; i < keys.length; i++) {
@@ -36,6 +37,7 @@ export class Bridge {
             window.addEventListener('offline', updateOnlineStatus);
         });
     }
+
     public static addProperties(prop: Object, item: Data) {
         if (!prop) {
             return;
@@ -78,6 +80,7 @@ export class Bridge {
         // Refresh Online Status
         this.setOnline(this.online);
     }
+
     // noinspection JSUnusedGlobalSymbols
     public addListener = function (listener) {
         this.listener.push(listener);

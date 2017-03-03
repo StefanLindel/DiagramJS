@@ -2,7 +2,6 @@ import {Control} from '../../Control';
 
 // noinspection JSUnusedGlobalSymbols
 export class Form extends Control {
-    private $element: HTMLFormElement;
     // private applyingChange: boolean = false;
     private children: Object = {};
     // private property: string = "";
@@ -39,14 +38,14 @@ export class Form extends Control {
         let form: HTMLElement = document.getElementById(id);
 
         if (form instanceof HTMLFormElement) {
-            this.$element = form;
-            if (this.$element.hasAttribute('property')) {
-                this.property = this.$element.getAttribute('property');
+            this.$view = form;
+            if (this.$view.hasAttribute('property')) {
+                this.property = this.$view.getAttribute('property');
             }
         } else {
             if (!form) {
-                this.$element = document.createElement('form');
-                this.$element.setAttribute('id', this.id);
+                this.$view = document.createElement('form');
+                this.$view.setAttribute('id', this.id);
 
                 if (data.hasOwnProperty('property')) {
                     this.property = data['property'];
@@ -60,10 +59,9 @@ export class Form extends Control {
                     if (attr === 'elements') {
                         continue;
                     }
-                    this.$element.setAttribute(attr, data[attr]);
+                    this.$view.setAttribute(attr, data[attr]);
                 }
-
-                document.getElementsByTagName('body')[0].appendChild(this.$element);
+                this.$owner.appendChild(this);
             } else {
                 // the id is already taken by an object, that is not an input field...
                 return;
@@ -115,7 +113,7 @@ export class Form extends Control {
      * the owner to the form instead of the body..
      * @param field
      */
-    private createField(field: Object) {
+    /*private createField(field: Object) {
         let control = 'input';
         if (field.hasOwnProperty('class')) {
             control = field['class'];
@@ -140,9 +138,9 @@ export class Form extends Control {
             input.setAttribute(attr, field[attr]);
         }
 
-        this.$element.appendChild(input);
+        this.$viewElement.appendChild(input);
 
         let newcontrol: Control = this.$owner.load(field['id']);
         this.children[newcontrol.getId()] = newcontrol;
-    }
+    }*/
 }

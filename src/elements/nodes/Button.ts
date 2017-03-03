@@ -1,12 +1,13 @@
-import {Control} from '../../Control';
-import Data from '../../Data';
+import {Control} from "../../Control";
+import Data from "../../Data";
 
 export class Button extends Control {
-    private $element: HTMLElement;
-
     constructor(data) {
         super();
-        this.createControl(document.getElementsByTagName('body')[0], data);
+    }
+
+    public load(json): any {
+        this.createControl(this.$owner, json);
     }
 
     public setProperty(property: string): void {
@@ -15,21 +16,21 @@ export class Button extends Control {
     propertyChange(entity: Data, property: string, oldValue, newValue) {
     }
 
-    protected createControl(parent: HTMLElement, data: JSON) {
+    protected createControl(parent: Control, data: JSON) {
         if (typeof(data) === 'string') {
             this.id = data;
         } else {
             this.id = data['id'];
         }
-        this.$element = document.createElement('button');
+        this.$view = document.createElement('button');
         if (data instanceof Object) {
             for (let attr in data) {
                 if (!data.hasOwnProperty(attr)) {
                     continue;
                 }
-                this.$element.setAttribute(attr, data[attr]);
+                this.$view.setAttribute(attr, data[attr]);
             }
         }
-        parent.appendChild(this.$element);
+        parent.appendChild(this);
     }
 }

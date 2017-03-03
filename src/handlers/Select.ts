@@ -84,7 +84,7 @@ export class Select {
 
             let editorEvent = new Event('editor');
             this.editShape.setAttributeNS(null, 'transform', `rotate(-45, ${x + 20}, ${y + 20}) translate(${x} ${y})`);
-            this.editShape.onclick = e => element.$view.dispatchEvent(editorEvent);
+            this.editShape.onclick = e => element.$viewElement.dispatchEvent(editorEvent);
 
             this.deleteShape.setAttributeNS(null, 'transform', `translate(${x} ${y + 34 + this.padding})`);
             this.deleteShape.onclick = e => this.model.removeElement(element.id);

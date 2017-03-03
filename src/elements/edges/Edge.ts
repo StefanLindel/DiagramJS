@@ -54,9 +54,9 @@ export class Edge extends DiagramElement {
         };
         let shape = this.createShape(attr);
 
-        this.$view = shape;
+        this.$viewElement = shape;
 
-        EventBus.register(this, this.$view);
+        EventBus.register(this, this.$viewElement);
         return shape;
     }
 
@@ -67,7 +67,7 @@ export class Edge extends DiagramElement {
     public redraw() {
         let a = this.getShortestPathIntersection(this.$sNode, this.$tNode.getPos());
         let b = this.getShortestPathIntersection(this.$tNode, this.$sNode.getPos());
-        this.$view.setAttribute('d', `M${a.x} ${a.y} L${b.x} ${b.y}`);
+        this.$viewElement.setAttribute('d', `M${a.x} ${a.y} L${b.x} ${b.y}`);
         // FIXME  this.$points = [ a, b ];
     }
 

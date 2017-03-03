@@ -23,7 +23,7 @@ export class Drag {
             case 'mousedown':
                 if ((!this.dragging) || (element.id !== 'RootElement')) {
                     this.element = element;
-                    this.svgElement = <SVGSVGElement>element.$view;
+                    this.svgElement = <SVGSVGElement>element.$viewElement;
                     this.start(event, element);
                 }
                 break;
@@ -82,7 +82,7 @@ export class Drag {
             this.reinsert = false;
 
             let dragEvent = new Event('drag');
-            element.$view.dispatchEvent(dragEvent);
+            element.$viewElement.dispatchEvent(dragEvent);
         }
         if (element.id === 'RootElement') {
             if (element.id !== this.element.id) {

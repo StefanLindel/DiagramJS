@@ -4,11 +4,14 @@ import Data from '../../Data';
 
 export class Div extends Control {
     private className: string;
-    private $element: HTMLDivElement;
     private applyingChange: boolean = false;
 
     constructor(data) {
         super();
+    }
+
+
+    public load(data): any {
         let id: string;
         // init form HTML
         if (typeof(data) === 'string') {
@@ -33,13 +36,13 @@ export class Div extends Control {
         }
 
         if (div instanceof HTMLDivElement) {
-            this.$element = div;
+            this.$view = div;
         } else {
             if (!div) {
-                this.$element = document.createElement('div');
-                this.$element.setAttribute('id', this.id);
-                this.$element.setAttribute('property', this.property);
-                document.getElementsByTagName('body')[0].appendChild(this.$element);
+                this.$view = document.createElement('div');
+                this.$view.setAttribute('id', this.id);
+                this.$view.setAttribute('property', this.property);
+                this.$owner.appendChild(this);
             } else {
                 // the id is already taken by an object, that is not an input field...
                 return;
@@ -69,12 +72,18 @@ export class Div extends Control {
     }
 
     propertyChange(entity: Data, property: string, oldValue, newValue) {
+        if (!(this.$view instanceof HTMLDivElement)){
+            return;
+        }
         if (!this.applyingChange && property === this.lastProperty) {
-            this.$element.innerHTML = newValue;
+            this.$view.innerHTML = newValue;
         }
     }
 
     private controlChanged(ev: Event) {
-        this.$owner.setValue(this.entity, this.lastProperty, this.$element.innerHTML);
+        if (!(this.$view instanceof HTMLDivElement)){
+            return;
+        }
+        this.$owner.setValue(this.entity, this.lastProperty, this.$view.innerHTML);
     }
 }

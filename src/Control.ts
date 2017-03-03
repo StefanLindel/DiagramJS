@@ -5,6 +5,7 @@ import EventListener from './EventListener';
 export abstract class Control {
     public $owner: Control;
     public property: string;
+    protected $view: HTMLElement;
     protected entity: Data;
     protected id: string;
 
@@ -69,6 +70,14 @@ export abstract class Control {
         }
     }
 
+    public appendChild(child:Control) {
+        if(this.$view) {
+            this.$view.appendChild(child.$view);
+        } else {
+            document.getElementsByTagName('body')[0].appendChild(child.$view);
+        }
+    }
+
     /*
      Property looks like: 't1.talk'
      */
@@ -118,7 +127,7 @@ export abstract class Control {
     protected updateElement(value: string): void {
     }
 
-    protected registerListener(eventType: string, htmlElement: HTMLElement) {
+    protected registerEventListener(eventType: string, htmlElement: HTMLElement) {
         let control = this;
         let listener = (t) => {
             t.eventType = eventType;

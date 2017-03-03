@@ -3,7 +3,6 @@ import {Bridge} from '../../Bridge';
 import Data from '../../Data';
 
 export class Input extends Control {
-    private $element: HTMLInputElement;
     private type: string;
     private applyingChange: boolean = false;
 
@@ -38,29 +37,29 @@ export class Input extends Control {
         }
 
         if (inputField instanceof HTMLInputElement) {
-            this.$element = inputField;
+            this.$view = inputField;
             this.type = inputField.type;
         } else {
             if (!inputField) {
-                this.$element = document.createElement('input');
+                this.$view = document.createElement('input');
                 if (typeof(data) !== 'string') {
                     for (let attr in data) {
                         if (data.hasOwnProperty(attr) === false) {
                             continue;
                         }
-                        this.$element.setAttribute(attr, data[attr]);
+                        this.$view.setAttribute(attr, data[attr]);
                     }
                 } else {
                     if (this.type) {
-                        this.$element.setAttribute('type', this.type);
+                        this.$view.setAttribute('type', this.type);
                     }
                     if (data.hasOwnProperty('class')) {
-                        this.$element.setAttribute('class', data['class']);
+                        this.$view.setAttribute('class', data['class']);
                     }
-                    this.$element.setAttribute('id', this.id);
-                    this.$element.setAttribute('property', this.property);
+                    this.$view.setAttribute('id', this.id);
+                    this.$view.setAttribute('property', this.property);
                 }
-                document.getElementsByTagName('body')[0].appendChild(this.$element);
+                this.$owner.appendChild(this);
             } else {
                 // the id is already taken by an object, that is not an input field...
                 return;
@@ -80,7 +79,7 @@ export class Input extends Control {
             }
 
             // Add listener to Input field:
-            this.$element.onchange = ((ev: Event) => {
+            this.$view.onchange = ((ev: Event) => {
                     // this.applyingChange = true;
                     this.controlChanged(ev);
                     // this.applyingChange = false;
@@ -93,7 +92,7 @@ export class Input extends Control {
 
     propertyChange(entity: Data, property: string, oldValue, newValue) {
         if (this.property && !this.applyingChange && property === this.lastProperty) {
-            this.$element.value = newValue;
+            this.updateElement(newValue);
         }
     }
 
@@ -108,17 +107,24 @@ export class Input extends Control {
     }
 
     public registerListenerOnHTMLObject(eventType: string): boolean {
-        this.registerListener(eventType, this.$element);
+        this.registerEventListener(eventType, this.$view);
         return true;
     }
 
     protected updateElement(value: string) {
-        this.$element.value = value;
+        if(this.$view instanceof HTMLInputElement) {
+            (<HTMLInputElement>this.$view).value = value;
+        }
+
     }
 
     private controlChanged(ev: Event) {
-        if (this.$element.checkValidity()) {
-            this.$owner.setValue(this.entity, this.lastProperty, this.$element.value);
+        if(this.$view instanceof HTMLInputElement == false) {
+            return;
+        }
+        let element = (<HTMLInputElement>this.$view);
+        if (element.checkValidity()) {
+            this.$owner.setValue(this.entity, this.lastProperty, element.value);
         } else {
             console.log('value does not match the pattern...');
         }
