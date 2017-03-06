@@ -453,8 +453,8 @@ export class Table extends Control {
 
     public sorting(a: BridgeElement, b: BridgeElement): number {
         let path: string[] = this.sortColumn.attribute.split('.');
-        let itemA = a.model.values;
-        let itemB = b.model.values;
+        let itemA = a.model.prop;
+        let itemB = b.model.prop;
         let check = this.sortColumn.attribute;
         for (let p = 0; p < path.length; p++) {
             check = path[p];

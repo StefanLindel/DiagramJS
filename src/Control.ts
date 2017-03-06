@@ -98,7 +98,7 @@ export abstract class Control {
         if (object) {
             object.addListener(this);
             this.entity = object;
-            this.updateElement(object.values[this.lastProperty]);
+            this.updateElement(object.prop[this.lastProperty]);
         }
     }
 

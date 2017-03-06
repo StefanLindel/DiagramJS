@@ -9,13 +9,19 @@ import {Clazz} from "./elements/nodes/Clazz";
 //    id: string;
 //    $listener: Control[] = [];
 //    property: string;
-namespace  UML{
+export namespace UML{
     export class Clazz extends Data {
-        public static NAME:string = 'NAME';
-        public static ATTRIBUTES:string = 'ATTRIBUTES';
+        public static NAME:string = 'name';
+        public static ATTRIBUTES:string = 'attributes';
+        public static METHODS:string = 'methods';
+
+        constructor() {
+            super();
+            this.property = "Clazz";
+        }
 
         public getName() {
-            return this.values[Clazz.NAME];
+            return this.prop[Clazz.NAME];
         }
 
         public setName(newValue) {
@@ -23,7 +29,7 @@ namespace  UML{
         }
 
         public getAttributes() {
-            return this.values[Clazz.ATTRIBUTES];
+            return this.prop[Clazz.ATTRIBUTES];
         }
 
         public addToAttributes(newValue) {
@@ -35,10 +41,22 @@ namespace  UML{
 
 
     }
-    export class GraphAttribute extends Data {
+    export class Attribute extends Data {
+        constructor() {
+            super();
+            this.property = "Attribute";
+        }
+        public getName() {
+            return this.prop[Clazz.NAME];
+        }
 
+        public setName(newValue) {
+            this.setValue(Clazz.NAME, newValue);
+        }
     }
-    export class GraphMethods extends Data {
+    export class Methods extends Data {
 
     }
 }
+
+window['UML'] = UML;

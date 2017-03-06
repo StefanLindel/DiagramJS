@@ -309,12 +309,6 @@ export class Util {
                     ref[i] = src[i];
                 }
             }
-            if (src.width) {
-                ref.$startWidth = src.width;
-            }
-            if (src.height) {
-                ref.$startHeight = src.height;
-            }
         }
         return ref;
     };

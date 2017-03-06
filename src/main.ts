@@ -4,6 +4,7 @@ export {Graph} from './elements/Graph';
 export * from './elements/nodes';
 export * from './elements/edges';
 export * from './adapters';
+export * from './UML';
 import {Point} from './elements/BaseElements';
 import {Graph} from './elements/Graph';
 import {Bridge} from './Bridge';
