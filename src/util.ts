@@ -311,7 +311,61 @@ export class Util {
             }
         }
         return ref;
-    };
+    }
+
+    public static xmlstringify(text:string) : string {
+        text = text.replace("<", "&lt;");
+        text = text.replace(">", "&gt;");
+        return text;
+    }
+
+    public static toXML(ref, src, full: boolean, doc) : Node{
+        let name;
+        if(!ref) {
+            name = src.constructor.name;
+            doc = document.implementation.createDocument(null, name, null);
+            ref = doc.childNodes[0];
+        }
+        if (src) {
+            let i;
+            for (i in src) {
+                if (!src.hasOwnProperty(i) || typeof (src[i]) === 'function') {
+                    continue;
+                }
+                if (i.charAt(0) === '$') {
+                    if (full) {
+                        ref[i] = src[i];
+                    }
+                    continue;
+                }
+                if (typeof (src[i]) === 'object') {
+                    if (!ref.getAttribute(i)) {
+                        if (src[i] instanceof Array) {
+                            for (let c in src[i]) {
+                                name = src[i][c].constructor.name;
+                                let child = doc.createElement(name);
+                                ref.appendChild(child);
+                                Util.toXML(child, src[i][c], full, doc);
+                            }
+                        } else {
+                            name = src[i].constructor.name;
+                            let child = doc.createElement(name);
+                            ref.appendChild(child);
+                            Util.toXML(child, src[i], full, doc);
+                        }
+                    } else {
+                        Util.toXML(ref.getAttribute(i), src[i], full, doc);
+                    }
+                } else {
+                    if (src[i] === '') {
+                        continue;
+                    }
+                    ref.setAttribute(i, src[i]);
+                }
+            }
+        }
+        return ref;
+    }
 
     static Range(min: Point, max: Point, x: number, y: number) {
         max.x = Math.max(max.x, x);

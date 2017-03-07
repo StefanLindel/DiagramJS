@@ -17,4 +17,11 @@ clazz.addToAttributes(myName);
 document.write(JSON.stringify(Util.copy({}, json)));
 document.write("<br/>");
 document.write(JSON.stringify(Util.copy({}, clazz)));
+
+var serializer = new XMLSerializer();
+
+document.write("<br/>");
+var xml = serializer.serializeToString(Util.toXML(null, clazz));
+document.write(Util.xmlstringify(xml));
+document.write("<br/>");
 </script></body></html>
