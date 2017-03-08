@@ -5,7 +5,7 @@
 	<meta charset="utf-8" />
 	<title>Bridge - Simple Example</title>
 	<script language="Javascript" src="../dist/diagram.js"></script>
-	<script language="Javascript" src="../demo/dagre.min.js"></script>
+	<!--<script language="Javascript" src="../demo/dagre.min.js"></script>-->
 	<link type="text/css" rel="stylesheet" href="../material.css" />
 	<link type="text/css" rel="stylesheet" href="../style.css" />
 </head>
@@ -21,9 +21,9 @@
 //}
 //Snowflower.prototype.onClick = function(){};
 
+var table = bridge.load({class:"table", property:"talk", columns:[{id:'room'}, {id:'day'}, {id:'talk'},  {id:'state'}], searchColumns:["day", "talk"]});
 
 //var bridge = new Bridge();
-var table = bridge.load({class:"table", property:"talk", columns:[{id:'room'}, {id:'day'}, {id:'talk'},  {id:'state'}], searchColumns:["day", "talk"]});
 console.log(table.id);
 //bridge.load("persons");
 

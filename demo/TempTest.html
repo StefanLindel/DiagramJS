@@ -14,28 +14,10 @@
 <script>
     var bridge = new DiagramJS.Bridge();
     bridge.addAdapter(new DiagramJS.DelegateAdapter());
-    bridge.load({"class":"number","prop":{"value":0}});
-    bridge.load({"class":"input","prop":{"property":"number.value","value":0,"type":"number"}});
-    bridge.load({"class":"input","id":"N1488359165195","timestamp":"1488359165195","property":"number.value","value":0,"type":"number"});
-    bridge.registerListener("CHANGE", "N1488359165195");
-    bridge.load({"class":"input","prop":{"value":"add","type":"button"}});
-    bridge.load({"class":"input","id":"B1488359165211","timestamp":"1488359165211","value":"add","type":"button"});
-    bridge.registerListener("CLICK", "B1488359165211","_callBack1.add");
-    bridge.load({"class":"input","prop":{"value":"subtract","type":"button"}});
-    bridge.load({"class":"input","id":"B1488359165215","timestamp":"1488359165215","value":"subtract","type":"button"});
-    bridge.registerListener("CLICK", "B1488359165215","_callBack1.subtract");
-    bridge.load({"class":"input","value":"Fire Event","type":"button"});
-    bridge.registerListener("CLICK", "control5");
-    bridge.load({"class":"input","prop":{"type":"password"}});
-    bridge.load({"class":"input","id":"P1488359165224","timestamp":"1488359165224","type":"password"});
-    bridge.load({"class":"input","prop":{"type":"date"}});
-    bridge.load({"class":"input","id":"D1488359165228","timestamp":"1488359165228","type":"date"});
-    bridge.load({"class":"input","prop":{"type":"time"}});
-    bridge.load({"class":"input","id":"D1488359165234","timestamp":"1488359165234","type":"time"});
-    bridge.load({"class":"input","prop":{"type":"checkbox"}});
-    bridge.load({"class":"input","id":"C1488359165240","timestamp":"1488359165240","type":"checkbox"});
-    bridge.load({"class":"input","prop":{"type":"radio"}});
-    bridge.load({"class":"input","id":"C1488359165246","timestamp":"1488359165246","type":"radio"});
-    bridge.load({"class": "table","id": "J1.T9",property: "talk","columns": [{"class": "de.uniks.networkparser.gui.Column","id": "TestId","label": "Test"},{"class": "de.uniks.networkparser.gui.Column","id": "TestId2","label": "Test"}],"searchColumns": []});
+   // bridge.load({"class":"table","prop":{"columns":[{"class":"de.uniks.networkparser.gui.Column"}],"searchColumns":[]}});
+
+    bridge.load({id: "number", "class":"number","prop":{"value":0}});
+    bridge.load({"class":"table","id":"T1488811730270","columns":[{"id":"value","label":"Test"}],"searchColumns":[], property:"number"});
+
 </script>
 </html>

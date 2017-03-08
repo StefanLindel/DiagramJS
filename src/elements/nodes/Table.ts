@@ -1,7 +1,7 @@
-import {Control} from '../../Control';
-import BridgeElement from '../../BridgeElement';
-import Data from '../../Data';
-import {Util} from '../../util';
+import {Control} from "../../Control";
+import BridgeElement from "../../BridgeElement";
+import Data from "../../Data";
+import {Util} from "../../util";
 
 // noinspection JSUnusedGlobalSymbols
 export class Table extends Control {
@@ -11,6 +11,7 @@ export class Table extends Control {
     private $bodysection: HTMLTableSectionElement;
     private $headersection: HTMLTableSectionElement;
     private showedItems: Array<BridgeElement> = [];
+    // BridgeElements:
     private itemsIds: Object = {};
     private countElement: HTMLElement;
     private countColumn: HTMLElement;
@@ -32,15 +33,6 @@ export class Table extends Control {
 
     constructor(data) {
         super();
-    }
-
-    private static indexOfChild(item: BridgeElement) {
-        let i: number = 0;
-        let child: Node = item.gui;
-        while ((child = child.previousSibling) !== null) {
-            i++;
-        }
-        return i;
     }
 
     public load(data: any) {
@@ -256,6 +248,10 @@ export class Table extends Control {
         }
         let first = this.$headersection.children.item(0);
         this.$headersection.insertBefore(searchBar, first);
+
+        this.updateElement(this.property);
+
+        // now update those elements, that were not loaded currently
     }
 
     public tableEvent(type: string, e: Event) {
@@ -360,7 +356,7 @@ export class Table extends Control {
                 return;
             }
         }
-        if (!entity.id) {
+        if (entity.id === undefined) {
             return;
         }
         let item: BridgeElement = <BridgeElement>this.itemsIds[entity.id];
@@ -622,6 +618,66 @@ export class Table extends Control {
         return this.columns;
     }
 
+
+    protected updateElement(value: string): void {
+        // first clear all elements inside the table:
+        for (let item of this.items) {
+            if (item instanceof BridgeElement) {
+                (<BridgeElement>item).model.removeListener(this);
+            }
+        }
+
+        this.items = [];
+        this.itemsIds = new Object();
+
+        // load all entitys that match the property
+        if (this.property !== undefined) {
+            let items = this.$owner.getItems();
+            for (var j in items) {
+                if (items.hasOwnProperty(j)) {
+                    let item = items[j];
+                    if (item instanceof Data) {
+                        if (value == item.property) {
+                            let i = new BridgeElement(<Data>item);
+                            this.items.push(i);
+                            this.itemsIds[item.id] = i;
+                        }
+                    }
+                }
+            }
+            this.redrawAllElements();
+        }
+    }
+
+    protected redrawAllElements() {
+        let children: HTMLCollection = this.$bodysection.children;
+        // remove old children
+        for (let i = 0; i < children.length; i++) {
+            let child = children.item(i);
+            // remove child
+            this.$bodysection.removeChild(child);
+        }
+
+        // load new children
+        for (let obj of this.items) {
+            // register listeners
+            obj.model.addListener(this);
+            // create tr
+            this.$bodysection.appendChild(this.createRow(obj));
+        }
+    }
+
+    private createRow(data: BridgeElement): HTMLTableRowElement {
+        let tr: HTMLTableRowElement = document.createElement("tr");
+
+        for (var id of this.columns) {
+            let td: HTMLTableDataCellElement = document.createElement("td");
+            tr.appendChild(td);
+            td.innerHTML = data.model.values[id.attribute];
+        }
+        return tr;
+    }
+
     private addHeaderInfo(col: Column) {
         let element: HTMLTableCellElement = col.$element;
         let that = this;
@@ -632,6 +688,16 @@ export class Table extends Control {
             },
             false);
     }
+
+    private static indexOfChild(item: BridgeElement) {
+        let i: number = 0;
+        let child: Node = item.gui;
+        while ((child = child.previousSibling) !== null) {
+            i++;
+        }
+        return i;
+    }
+
     private columnDragEvent(type: string, e: DragEvent) {
         if (type === 'dragstart') {
             // Target (this) element is the source node.

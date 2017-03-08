@@ -30,7 +30,7 @@
 <script>
     let bridge = new DiagramJS.Bridge();
     //var bridge = new Bridge();
-    bridge.load({
+    let tablePersons = bridge.load({
         id: "t1table",
         class: "table",
         property: "talk",
@@ -80,6 +80,27 @@
             Explorer: "Explorer"
         }
     });
+
+    bridge.load({
+        id: "s1",
+        class: "speech",
+        prop: {
+            room: "Heyl",
+            day: "Monday",
+            talk: "01. Meier",
+            state: "ok",
+            time: "18:15",
+            comment: "",
+            no: "",
+            slides: "",
+            html: "",
+            Author: "",
+            "Peer Info": "",
+            Explorer: "Explorer"
+        }
+    });
+
+
     bridge.load({id: "t1", upd: {talk: "01. Schulze"}});
     bridge.load({id: "r2", class: "room", prop: {name: "Heyl"}});
     bridge.load({
@@ -124,6 +145,7 @@
     //    t1talk.setAttribute("property", "t2.room");
     //var t1control = bridge.controls[t1controlid];
     //t1control.setProperty("t1.talk");
+
 
     var divContainer = document.getElementById("divContainer");
     divContainer.innerHTML = "01. Test";

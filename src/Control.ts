@@ -44,6 +44,10 @@ export abstract class Control {
         return false;
     }
 
+    public getItems() :Object{
+        return new Object();
+    }
+
     public setValue(object: Object, attribute: string, value: Object): boolean {
         return false;
     }

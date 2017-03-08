@@ -189,7 +189,11 @@ export class Bridge extends Control {
     }
 
     public hasItem(id: string): boolean {
-        return (this.items[id] !== null);
+        return (this.items[id] !== undefined);
+    }
+
+    public getItems() :Object{
+        return this.items;
     }
 
     public getItem(id: string): Data {
@@ -274,7 +278,7 @@ export class Bridge extends Control {
 
     public registerListener(eventType: string, control: Control, callBackfunction: string): Control {
         if (typeof control === 'string') {
-            control = this.getControl(control);
+            control = this.getControl(<string>control);
         }
         if (!control) {
             return null;

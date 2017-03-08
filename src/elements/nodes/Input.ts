@@ -1,6 +1,6 @@
-import {Control} from '../../Control';
-import {Bridge} from '../../Bridge';
-import Data from '../../Data';
+import {Control} from "../../Control";
+import {Bridge} from "../../Bridge";
+import Data from "../../Data";
 
 export class Input extends Control {
     private type: string;
@@ -8,9 +8,12 @@ export class Input extends Control {
 
     public load(data: any) {
         let id: string;
+        let inputField: HTMLElement;
+        let useData: boolean;
         // init form HTML
         if (typeof(data) === 'string') {
             id = data;
+            useData = true;
         } else {
             id = data.id;
             if (data.type) {
@@ -18,15 +21,19 @@ export class Input extends Control {
             } else {
                 this.type = 'text';
             }
-            this.property = data['property'];
+            if (data.hasOwnProperty('property')) {
+                this.property = data['property'];
+            }
+            useData = true;
         }
         if (!id) {
             return;
         }
         this.id = id;
-        let inputField: HTMLElement = document.getElementById(id);
 
-        if (!this.property) {
+        inputField = document.getElementById(id);
+        
+        if (useData) {
             if (inputField) {
                 // TODO disuss how to decide, which property we should listen on...
                 // this.property = id;
@@ -112,14 +119,14 @@ export class Input extends Control {
     }
 
     protected updateElement(value: string) {
-        if(this.$view instanceof HTMLInputElement) {
+        if (this.$view instanceof HTMLInputElement) {
             (<HTMLInputElement>this.$view).value = value;
         }
 
     }
 
     private controlChanged(ev: Event) {
-        if(this.$view instanceof HTMLInputElement == false) {
+        if (this.$view instanceof HTMLInputElement == false) {
             return;
         }
         let element = (<HTMLInputElement>this.$view);
