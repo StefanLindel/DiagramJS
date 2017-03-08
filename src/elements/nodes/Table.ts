@@ -673,7 +673,7 @@ export class Table extends Control {
         for (var id of this.columns) {
             let td: HTMLTableDataCellElement = document.createElement("td");
             tr.appendChild(td);
-            td.innerHTML = data.model.values[id.attribute];
+            td.innerHTML = data.model.getValue(id.attribute);
         }
         return tr;
     }
