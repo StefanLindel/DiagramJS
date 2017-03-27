@@ -1,13 +1,15 @@
+'use strict';
 import {CSS} from './CSS';
 import {Node} from './elements/nodes/Node';
 import {DiagramElement, Point} from './elements/BaseElements';
+import {Control} from "./Control";
 
 export class Util {
-    static getRandomInt(min, max): number {
+    static getRandomInt(min:number, max:number): number {
         return Math.floor(Math.random() * (max - min + 1)) + min;
     }
 
-    static createShape(attrs): SVGSVGElement {
+    static createShape(attrs:any): SVGSVGElement {
         let xmlns = attrs.xmlns || 'http://www.w3.org/2000/svg';
         let shape = document.createElementNS(xmlns, attrs.tag);
         for (let attr in attrs) {
@@ -122,7 +124,7 @@ export class Util {
         return item;
     }
 
-    static setSize(item, width, height): void {
+    static setSize(item:any, width:number|string, height:number|string): void {
         let value: number;
         value = Util.getValue(width);
         item.setAttribute('width', value);
@@ -132,7 +134,7 @@ export class Util {
         item.style.height = Math.ceil(value);
     }
 
-    static setPos(item, x: number, y: number): void {
+    static setPos(item:any, x: number, y: number): void {
         if (item.x && item.x.baseVal) {
             item.style.left = x + 'px';
             item.style.top = y + 'px';
@@ -142,7 +144,7 @@ export class Util {
         }
     }
 
-    static getValue(value: string): number {
+    static getValue(value: string|number): number {
         return parseInt(('0' + value).replace('px', ''), 10);
     }
 
@@ -158,11 +160,11 @@ export class Util {
         return navigator.userAgent.indexOf('Opera') > -1;
     }
 
-    static getEventX(event): number {
+    static getEventX(event:Event|any): number {
         return (this.isIE) ? window.event['clientX'] : event.pageX;
     }
 
-    static getEventY(event): number {
+    static getEventY(event:Event|any): number {
         return (this.isIE) ? window.event['clientY'] : event.pageY;
     }
 
@@ -170,7 +172,7 @@ export class Util {
         return parseInt((str || '0').replace('px', ''), 10);
     }
 
-    static getStyle(styleProp): CSS {
+    static getStyle(styleProp:string): CSS {
         let i, style, diff, current, ref, el = document.createElement('div'), css;
         document.body.appendChild(el);
         css = new CSS(styleProp);
@@ -252,12 +254,12 @@ export class Util {
         document.body.appendChild(svg);
     }
 
-    public static toJson(ref): Object {
+    public static toJson(ref:JSON|Object): Object {
         let result = {};
         return Util.copy(result, ref, false, false);
     }
 
-    public static initControl(parent, control, type, id, json) {
+    public static initControl(parent:Control, control:Control, type:string, id:string, json:JSON) {
         if (typeof control.init === 'function') {
             control.init(parent, type, id);
         }
@@ -276,7 +278,7 @@ export class Util {
      * @returns ref
      * @name copy
      */
-    public static copy(ref, src, full: boolean, replace: boolean) {
+    public static copy(ref:JSON|Object, src:JSON|Object, full: boolean, replace: boolean) {
         if (src) {
             let i;
             for (i in src) {
@@ -319,7 +321,7 @@ export class Util {
         return text;
     }
 
-    public static toXML(ref, src, full: boolean, doc) : Node{
+    public static toXML(ref:JSON|Object|any, src:JSON|Object|any, full: boolean, doc:Document) : Node{
         let name;
         if(!ref) {
             name = src.constructor.name;

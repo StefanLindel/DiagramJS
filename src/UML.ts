@@ -24,7 +24,7 @@ export namespace UML{
             return this.prop[Clazz.NAME];
         }
 
-        public setName(newValue) {
+        public setName(newValue:string) {
             this.setValue(Clazz.NAME, newValue);
         }
 
@@ -32,10 +32,10 @@ export namespace UML{
             return this.prop[Clazz.ATTRIBUTES];
         }
 
-        public addToAttributes(newValue) {
+        public addToAttributes(newValue:string) {
             this.addTo(Clazz.ATTRIBUTES, newValue);
         }
-        public removeFromAttributes(newValue) {
+        public removeFromAttributes(newValue:string) {
             this.removeFrom(Clazz.ATTRIBUTES, newValue);
         }
 
@@ -50,7 +50,7 @@ export namespace UML{
             return this.prop[Clazz.NAME];
         }
 
-        public setName(newValue) {
+        public setName(newValue:string) {
             this.setValue(Clazz.NAME, newValue);
         }
     }

@@ -8,7 +8,7 @@ export class Zoom {
         this.svgRoot = <SVGSVGElement><any>document.getElementById('root');
     }
 
-    public handle(e, element: DiagramElement): boolean {
+    public handle(e:any, element: DiagramElement): boolean {
         let delta = e.deltaY || e.wheelDeltaY || -e.wheelDelta;
         let d = 1 + (delta / 1000);
 

@@ -2,10 +2,10 @@ import {Util} from './util';
 
 // 				######################################################### CSS #########################################################
 export class CSS {
-    public css;
+    public css:Object;
     private name: string;
 
-    constructor(name, item?: any) {
+    constructor(name:string, item?: any) {
         let i, value, border: string, prop, el;
         this.name = name;
         this.css = {};
@@ -80,8 +80,8 @@ export class CSS {
         return '';
     }
 
-    public static addStyle(board, styleName) {
-        let defs, style, css;
+    public static addStyle(board:SVGElement, styleName:any) {
+        let defs, style:any, css;
         if (styleName.baseVal || styleName.baseVal === '') {
             styleName = styleName.baseVal;
         }
@@ -103,11 +103,11 @@ export class CSS {
         }
     }
 
-    public static addStyles(board, item) {
+    public static addStyles(board:SVGElement, item:any) {
         if (!item) {
             return;
         }
-        let items, i, className = item.className;
+        let items, i, className:any = item.className;
 
         if (className) {
             if (className.baseVal || className.baseVal === '') {
@@ -124,7 +124,7 @@ export class CSS {
             this.addStyles(board, item.childNodes[i]);
         }
     }
-    public static getDefs(board) {
+    public static getDefs(board:SVGElement) {
         let defs;
         if (board.getElementsByTagName('defs').length < 1) {
             defs = Util.create({tag: 'defs'});
@@ -135,7 +135,7 @@ export class CSS {
         return defs;
     }
 
-    public add(key: string, value) {
+    public add(key: string, value:string) {
         this.css[key] = value;
     }
 
@@ -149,11 +149,11 @@ export class CSS {
         return null;
     }
 
-    public getNumber(key) {
+    public getNumber(key:string) {
         return parseInt((this.get(key) || '0').replace('px', ''), 10);
     }
 
-    public getSVGString(board) {
+    public getSVGString(board:SVGElement) {
         let str, pos, style, defs, value, filter, z;
         str = '{';
         for (style in this.css) {

@@ -3,6 +3,8 @@ import {Node} from '../nodes';
 import {InfoText} from '../nodes/InfoText';
 import {Util} from '../../util';
 import {EventBus} from '../../EventBus';
+import {Control} from "../../Control";
+import {UML} from "../../UML";
 
 export const enum Direction {
     Up, Down, Left, Right
@@ -75,7 +77,7 @@ export class Edge extends DiagramElement {
 // INFOTEXT DONT SHOW IF NO PLACE
 // INFOTEXT CALCULATE POSITION
     public calc(board: Element): boolean {
-        let result, options, linetyp, sourcePos, targetPos, divisor, startNode: Node, endNode: Node;
+        let result, options, linetyp, sourcePos:Point, targetPos:Point, divisor, startNode: Node, endNode: Node;
         startNode = <Node>this.$sNode.getShowed();
         endNode = <Node>this.$tNode.getShowed();
 
@@ -119,8 +121,8 @@ export class Edge extends DiagramElement {
             if (this.targetInfo) {
                 this.calcInfoPos(targetPos, endNode, this.targetInfo);
             }
-            startNode['$' + sourcePos.$id] += 1;
-            endNode['$' + targetPos.$id] += 1;
+            startNode['$' + sourcePos.getPosition()] += 1;
+            endNode['$' + targetPos.getPosition()] += 1;
 
             const line: Line = new Line(this.lineStyle);
             line.init(this);
@@ -177,7 +179,7 @@ export class Edge extends DiagramElement {
         this.$points.push(line);
     };
 
-    public calcInfoPos(linePos, item, info: InfoText) {
+    public calcInfoPos(linePos:Point, item:DiagramElement, info: InfoText) {
         // Manuell move the InfoTag
         let newY: number, newX: number, spaceA: number = 20, spaceB: number = 0, step: number = 15;
         if (item.$parent.options && !item.$parent.options.rotatetext) {
@@ -190,22 +192,22 @@ export class Edge extends DiagramElement {
         newY = linePos.y;
         newX = linePos.x;
         let size: Point = info.getSize();
-        if (linePos.$id === Point.UP) {
+        if (linePos.getPosition() === Point.UP) {
             newY = newY - size.y - spaceA;
             if (this.$m !== 0) {
                 newX = (newY - this.$n) / this.$m + spaceB + (item.$UP * step);
             }
-        } else if (linePos.$id === Point.DOWN) {
+        } else if (linePos.getPosition() === Point.DOWN) {
             newY = newY + spaceA;
             if (this.$m !== 0) {
                 newX = (newY - this.$n) / this.$m + spaceB + (item.$DOWN * step);
             }
-        } else if (linePos.$id === Point.LEFT) {
+        } else if (linePos.getPosition() === Point.LEFT) {
             newX = newX - size.x - (item.$LEFT * step) - spaceA;
             if (this.$m !== 0) {
                 newY = (this.$m * newX) + this.$n;
             }
-        } else if (linePos.$id === Point.RIGHT) {
+        } else if (linePos.getPosition() === Point.RIGHT) {
             newX += (item.$RIGHT * step) + spaceA;
             if (this.$m !== 0) {
                 newY = (this.$m * newX) + this.$n;

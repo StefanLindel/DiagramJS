@@ -135,17 +135,18 @@ export class Model extends DiagramElement {
         return false;
     }
 
-    private findNodeByLabel(label: string): Node {
+    private findNodeByLabel(label: string): Node|null {
         for (let index in this.nodes) {
             let node = this.nodes[index];
             if (node.label === label) {
                 return node;
             }
         }
+        return null;
     }
 
-    private addEdge(edge) {
-        let type = edge.type || 'Edge';
+    private addEdge(edge:Edge ) {
+        let type = edge.property || 'Edge';
         type = Util.toPascalCase(type);
         let id = this.getNewId(type);
 
@@ -181,5 +182,6 @@ export class Model extends DiagramElement {
             this.edges[id] = element;
             return element;
         }
+        return null;
     }
 }

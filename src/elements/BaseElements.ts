@@ -10,11 +10,11 @@ interface GraphElement {
     getSize(): Point;
     getPos(): Point;
     getCenter(): Point;
-    getSVG();
-    getCanvas();
+    getSVG() : Element ;
+    getCanvas() : Element;
     getEvents(): string[];
-    withPos(x: number, y: number);
-    load(data: any);
+    withPos(x: number, y: number) : GraphElement;
+    load(data: any) : any;
 }
 
 export abstract class DiagramElement extends Control implements GraphElement {
@@ -55,6 +55,7 @@ export abstract class DiagramElement extends Control implements GraphElement {
         if (p === Point.RIGHT) {
             return new Point(pos.x + size.x, Math.min(center.y + offset, pos.y + size.y), Point.RIGHT);
         }
+        return new Point();
     };
 
     public getSVG(): Element {
@@ -106,7 +107,7 @@ export abstract class DiagramElement extends Control implements GraphElement {
         return super.getShowed();
     }
 
-    protected createShape(attrs): Element {
+    protected createShape(attrs:any): Element {
         return Util.createShape(attrs);
     }
 }
@@ -134,7 +135,7 @@ export class Point {
         return this;
     }
 
-    public getPosition() {
+    public getPosition() : string{
         if (!this['pos']) {
             return '';
         }
@@ -237,7 +238,7 @@ export class Line extends DiagramElement {
         return this;
     }
 
-    public withPath(path: Array<Point>, close, angle?: any): Line {
+    public withPath(path: Array<Point>, close:boolean, angle?: any): Line {
         let i: number, d: string = 'M' + path[0].x + ' ' + path[0].y;
         this.lineType = Line.FORMAT.PATH; // It is a Path not a Line
         for (i = 1; i < path.length; i += 1) {

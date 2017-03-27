@@ -10,7 +10,7 @@ export default class Data {
         return this.prop[attribute];
     }
 
-    public setValue(attribute: string, newValue) {
+    public setValue(attribute: string, newValue:any) {
         let oldValue = this.prop[attribute];
         this.prop[attribute] = newValue;
         for (let i in this.$listener) {
@@ -21,7 +21,7 @@ export default class Data {
         }
     }
 
-    public addTo(attribute: string, newValue): boolean {
+    public addTo(attribute: string, newValue:any): boolean {
         let add: boolean;
         if (this.prop[attribute]) {
             if (this.prop[attribute].contains(newValue) === false) {
@@ -43,7 +43,7 @@ export default class Data {
         return add;
     }
 
-    public removeFrom(attribute: string, newValue): boolean {
+    public removeFrom(attribute: string, newValue:any): boolean {
         if (!this.prop[attribute]) {
             return true;
         }

@@ -52,7 +52,7 @@ export abstract class Control {
         return false;
     }
 
-    public propertyChange(entity: Data, property: string, oldValue, newValue) {
+    public propertyChange(entity: Data, property: string, oldValue:any, newValue:any) {
 
     }
 
@@ -60,7 +60,7 @@ export abstract class Control {
         return this.id;
     }
 
-    public load(json): any {
+    public load(json:JSON|Object): any {
 
     }
 
@@ -133,7 +133,7 @@ export abstract class Control {
 
     protected registerEventListener(eventType: string, htmlElement: HTMLElement) {
         let control = this;
-        let listener = (t) => {
+        let listener = (t:any) => {
             t.eventType = eventType;
             t.id = control.id;
             control.$owner.fireEvent(t);

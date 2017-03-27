@@ -1,3 +1,5 @@
+'use strict';
+
 import * as controls from "./elements/nodes";
 import Data from "./Data";
 import {Control} from "./Control";
@@ -79,14 +81,15 @@ export class Bridge extends Control {
         body.insertBefore(this.toolBar, body.firstChild);
         // Refresh Online Status
         this.setOnline(this.online);
+        return true;
     }
 
     // noinspection JSUnusedGlobalSymbols
-    public addListener = function (listener) {
+    public addListener = function (listener:any) {
         this.listener.push(listener);
     };
 
-    public addControl(control) {
+    public addControl(control:any) {
         if (control && control.name) {
             this.controlFactory[control.name.toLowerCase()] = control;
         }
@@ -96,7 +99,7 @@ export class Bridge extends Control {
         return 'control' + (this.controlNo++);
     }
 
-    public load(json): any {
+    public load(json:JSON|Object): any {
         let className;
         let id;
         if (typeof(json) === 'object') {
@@ -345,7 +348,7 @@ export class DelegateAdapter extends Adapter {
         return false;
     }
 
-    private executeFunction(strValue): boolean {
+    private executeFunction(strValue:string): boolean {
         let scope = window;
         let scopeSplit = strValue.split('.');
         for (let i = 0; i < scopeSplit.length - 1; i++) {

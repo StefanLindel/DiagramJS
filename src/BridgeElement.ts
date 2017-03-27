@@ -1,3 +1,4 @@
+'use strict';
 import Data from './Data';
 
 export default class BridgeElement {

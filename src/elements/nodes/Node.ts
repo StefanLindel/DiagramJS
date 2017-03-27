@@ -12,7 +12,7 @@ export class Node extends DiagramElement {
     $TOP: number = 0;
     $DOWN: number = 0;
 
-    constructor(data) {
+    constructor(data:JSON|string|Object|any) {
         super();
         if (data) {
             if (data['x'] && data['y']) {

@@ -12,7 +12,7 @@ export class Clazz extends Node {
     private methods: string[] = [];
     private style: string;
 
-    constructor(json) {
+    constructor(json:JSON|string|Object|any) {
         super(json);
         if (!json) {
             json = {};

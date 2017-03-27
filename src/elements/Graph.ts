@@ -3,7 +3,6 @@ import * as nodes from './nodes';
 import * as layouts from '../layouts';
 import Layout from '../layouts/Layout';
 import {Model} from '../elements/Model';
-import Options from '../Options';
 import Palette from '../Palette';
 import {Size, Point} from './BaseElements';
 import {Util} from '../util';
@@ -11,6 +10,7 @@ import {Control} from '../Control';
 import Data from '../Data';
 import {EventBus} from '../EventBus';
 import {Editor, Drag, Select, Zoom} from '../handlers';
+import Options from "../Options";
 
 export class Graph extends Control {
     root: HTMLElement;
@@ -73,7 +73,7 @@ export class Graph extends Control {
         return this;
     }
 
-    public propertyChange(entity: Data, property: string, oldValue, newValue) {
+    public propertyChange(entity: Data, property: string, oldValue:any, newValue:any) {
 
     }
 
@@ -193,7 +193,7 @@ export class Graph extends Control {
         }
     }
 
-    private initFeatures(features) {
+    private initFeatures(features:any) {
         if (features) {
             if (features.zoom) {
                 let mousewheel = 'onwheel' in document.createElement('div') ? 'wheel' : document.onmousewheel !== undefined ? 'mousewheel' : 'DOMMouseScroll';

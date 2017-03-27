@@ -1,6 +1,8 @@
 {
   "compileOnSave": true,
   "compilerOptions": {
+	"noImplicitReturns": true,
+	"noImplicitAny": true,
     "outDir": "dist/",
     "sourceRoot": "src/",
     "module": "commonjs",
