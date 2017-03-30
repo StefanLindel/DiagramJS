@@ -86,7 +86,7 @@ export class Input extends Control {
             }
 
             // Add listener to Input field:
-            this.$view.onchange = ((ev: Event) => {
+            this.$view['onchange'] = ((ev: Event) => {
                     // this.applyingChange = true;
                     this.controlChanged(ev);
                     // this.applyingChange = false;
@@ -97,9 +97,9 @@ export class Input extends Control {
         }
     }
 
-    propertyChange(entity: Data, property: string, oldValue, newValue) {
+    propertyChange(entity: Data, property: string, oldValue:Object, newValue:Object) {
         if (this.property && !this.applyingChange && property === this.lastProperty) {
-            this.updateElement(newValue);
+            this.updateElement(<string>newValue);
         }
     }
 
@@ -114,7 +114,7 @@ export class Input extends Control {
     }
 
     public registerListenerOnHTMLObject(eventType: string): boolean {
-        this.registerEventListener(eventType, this.$view);
+        this.registerEventListener(eventType,<HTMLElement> this.$view);
         return true;
     }
 

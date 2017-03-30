@@ -130,7 +130,7 @@ export class Clazz extends Node {
             }
         }
 
-        this.$viewElement = group;
+        this.$view = group;
         return group;
     }
 

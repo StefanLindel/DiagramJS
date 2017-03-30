@@ -36,7 +36,7 @@ export class Util {
         return false;
     }
 
-    static create(node: any): HTMLElement {
+    static create(node: any): Element {
         let style, item, xmlns, key, tag, k;
         if (document.createElementNS && (this.isSVG(node.tag) || node.xmlns)) {
             if (node.xmlns) {
@@ -203,7 +203,7 @@ export class Util {
             return;
         }
         root = <DiagramElement>model.getRoot();
-        board = root.$gui;
+        board = root.$view;
         if (board.tagName === 'svg') {
             if (typeof item === 'string') {
                 item = Util.create({tag: 'text', $font: true, value: item});
@@ -259,7 +259,7 @@ export class Util {
         return Util.copy(result, ref, false, false);
     }
 
-    public static initControl(parent:Control, control:Control, type:string, id:string, json:JSON) {
+    public static initControl(parent:Control, control:Control, type:string, id:string, json:JSON|Object) {
         if (typeof control.init === 'function') {
             control.init(parent, type, id);
         }

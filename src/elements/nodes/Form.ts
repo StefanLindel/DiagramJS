@@ -6,7 +6,7 @@ export class Form extends Control {
     private children: Object = {};
     // private property: string = "";
 
-    constructor(data){
+    constructor(data:JSON){
         super();
     }
 

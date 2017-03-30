@@ -6,12 +6,12 @@ export class Div extends Control {
     private className: string;
     private applyingChange: boolean = false;
 
-    constructor(data) {
+    constructor(data:JSON) {
         super();
     }
 
 
-    public load(data): any {
+    public load(data:JSON|any): any {
         let id: string;
         // init form HTML
         if (typeof(data) === 'string') {
@@ -71,12 +71,12 @@ export class Div extends Control {
         }
     }
 
-    propertyChange(entity: Data, property: string, oldValue, newValue) {
+    propertyChange(entity: Data, property: string, oldValue:Object, newValue:Object) {
         if (!(this.$view instanceof HTMLDivElement)){
             return;
         }
         if (!this.applyingChange && property === this.lastProperty) {
-            this.$view.innerHTML = newValue;
+            this.$view.innerHTML = <string>newValue;
         }
     }
 

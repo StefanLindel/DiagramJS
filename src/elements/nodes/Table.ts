@@ -21,7 +21,7 @@ export class Table extends Control {
     private searchColumns: Array<string> = [];
     private searchText: Array<string> = [];
     private sortColumn: Column;
-    private direction;
+    private direction:number;
     private moveElement: Column = null;
     private isDrag: boolean = false;
     private moveTimeStamp: number;
@@ -31,7 +31,7 @@ export class Table extends Control {
     private dragPos: number;
     private tableOption: HTMLTableHeaderCellElement;
 
-    constructor(data) {
+    constructor(data:JSON) {
         super();
     }
 
@@ -349,7 +349,7 @@ export class Table extends Control {
         }
     }
 
-    public propertyChange(entity: Data, property: string, oldValue, newValue) {
+    public propertyChange(entity: Data, property: string, oldValue:Object, newValue:Object) {
         if (entity) {
             // Check for Show
             if (this.property && this.property !== entity.property) {
@@ -391,7 +391,7 @@ export class Table extends Control {
             let name = this.columns[c].attribute;
             if (name === property) {
                 cell = row.children[c];
-                cell.innerHTML = newValue;
+                cell.innerHTML = <string>newValue;
             }
         }
         if (showItem) {
@@ -420,7 +420,7 @@ export class Table extends Control {
             this.direction = 1;
         }
         let that = this;
-        let sort = function (a, b) {
+        let sort = function (a:BridgeElement, b:BridgeElement) {
             return that.sorting(a, b);
         };
         this.showedItems.sort(sort);
@@ -476,13 +476,13 @@ export class Table extends Control {
     }
 
     // Searching
-    public search(origSearchText: String) {
+    public search(origSearchText: string) : void{
         if (!origSearchText) {
             origSearchText = '';
         }
         let searchText: string = origSearchText.trim().toLowerCase();
         if (searchText === this.lastSearchText && searchText !== '') {
-            return 0; // <==== nothing to be done
+            return; // <==== nothing to be done
         }
         let oldSearch: string = this.lastSearchText;
         this.lastSearchText = searchText;

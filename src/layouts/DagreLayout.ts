@@ -32,12 +32,12 @@ export class DagreLayout implements Layout {
         window['dagre'].layout(g);
         // dagre.layout(g);
 
-        g.nodes().forEach(function (v) {
+        g.nodes().forEach(function (v:string) {
             if (model.nodes[v]) {
                 model.nodes[v].withPos(g.node(v).x - g.node(v).width / 2, g.node(v).y - g.node(v).height / 2);
             }
         });
-        g.edges().forEach(function (e) {
+        g.edges().forEach(function (e:any) {
             for (let id in model.edges) {
                 let edge: Edge = model.edges[id];
                 if (edge.$sNode.id === e.v && edge.$tNode.id === e.w) {

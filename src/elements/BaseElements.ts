@@ -19,7 +19,7 @@ interface GraphElement {
 
 export abstract class DiagramElement extends Control implements GraphElement {
     public id: string;
-    public $viewElement: Element;
+
     protected isDraggable: boolean = true;
     private pos: Point = new Point();
     private size: Point = new Point();
@@ -260,9 +260,9 @@ export class Line extends DiagramElement {
         return this;
     }
 
-    public getSVG(): HTMLElement {
+    public getSVG(): SVGGElement {
         if (this.lineType === 'PATH') {
-            return Util.create({
+            return <SVGGElement>Util.create({
                 tag: 'path',
                 'd': this.path,
                 'fill': this.color,
@@ -270,7 +270,7 @@ export class Line extends DiagramElement {
                 'stroke-width': '1px'
             });
         }
-        let line = Util.create({
+        let line:SVGGElement = <SVGGElement>Util.create({
             tag: 'line',
             'x1': this.source.x,
             'y1': this.source.y,

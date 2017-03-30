@@ -15,7 +15,7 @@ export class Editor {
         return true;
     }
 
-    public handle(event, element: DiagramElement): boolean {
+    public handle(event:Event, element: DiagramElement): boolean {
         if (element instanceof Clazz) {
             const clazz = element;
             const attributes = clazz.getPropertyAsString('attributes');

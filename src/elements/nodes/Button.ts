@@ -2,18 +2,18 @@ import {Control} from "../../Control";
 import Data from "../../Data";
 
 export class Button extends Control {
-    constructor(data) {
+    constructor(data:JSON) {
         super();
     }
 
-    public load(json): any {
+    public load(json:JSON): any {
         this.createControl(this.$owner, json);
     }
 
     public setProperty(property: string): void {
     }
 
-    propertyChange(entity: Data, property: string, oldValue, newValue) {
+    propertyChange(entity: Data, property: string, oldValue:Object, newValue:Object) {
     }
 
     protected createControl(parent: Control, data: JSON) {

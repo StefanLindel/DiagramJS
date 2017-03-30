@@ -4,7 +4,7 @@
 import {Control} from '../../Control';
 
 export class HTML extends Control {
-    constructor(data) {
+    constructor(data:JSON|Object|any) {
         super();
 
         let id: string;
@@ -33,7 +33,7 @@ export class HTML extends Control {
         this.writeAttribute(data, this.$view);
     }
 
-    private writeAttribute(properties, entity?) {
+    private writeAttribute(properties:Object, entity?:any) {
         let lowKey;
         if (!entity) {
             lowKey = properties['tag'] || 'div';

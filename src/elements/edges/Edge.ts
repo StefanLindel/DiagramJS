@@ -56,9 +56,9 @@ export class Edge extends DiagramElement {
         };
         let shape = this.createShape(attr);
 
-        this.$viewElement = shape;
+        this.$view = shape;
 
-        EventBus.register(this, this.$viewElement);
+        EventBus.register(this, this.$view);
         return shape;
     }
 
@@ -69,7 +69,7 @@ export class Edge extends DiagramElement {
     public redraw() {
         let a = this.getShortestPathIntersection(this.$sNode, this.$tNode.getPos());
         let b = this.getShortestPathIntersection(this.$tNode, this.$sNode.getPos());
-        this.$viewElement.setAttribute('d', `M${a.x} ${a.y} L${b.x} ${b.y}`);
+        this.$view.setAttribute('d', `M${a.x} ${a.y} L${b.x} ${b.y}`);
         // FIXME  this.$points = [ a, b ];
     }
 
@@ -179,10 +179,11 @@ export class Edge extends DiagramElement {
         this.$points.push(line);
     };
 
-    public calcInfoPos(linePos:Point, item:DiagramElement, info: InfoText) {
+    public calcInfoPos(linePos:Point, item:Node, info: InfoText) {
         // Manuell move the InfoTag
         let newY: number, newX: number, spaceA: number = 20, spaceB: number = 0, step: number = 15;
-        if (item.$parent.options && !item.$parent.options.rotatetext) {
+        let owner:any = item.$owner;
+        if (owner.options && !owner.options.rotatetext) {
             spaceA = 20;
             spaceB = 10;
         }
@@ -195,7 +196,7 @@ export class Edge extends DiagramElement {
         if (linePos.getPosition() === Point.UP) {
             newY = newY - size.y - spaceA;
             if (this.$m !== 0) {
-                newX = (newY - this.$n) / this.$m + spaceB + (item.$UP * step);
+                newX = (newY - this.$n) / this.$m + spaceB + (item.$TOP * step);
             }
         } else if (linePos.getPosition() === Point.DOWN) {
             newY = newY + spaceA;
@@ -266,34 +267,34 @@ export class Edge extends DiagramElement {
     public calcOffset() {
         let i: number, z: number, x: number, y: number;
         let min: Point = new Point(999999999, 999999999), max: Point = new Point(0, 0);
-        let item, svg, value;
+        let item:Line, svg, value:any;
         for (i = 0; i < this.$points.length; i += 1) {
             item = this.$points[i];
-            if (item.typ === Line.FORMAT.PATH) {
+            if (item.lineType === Line.FORMAT.PATH) {
                 value = document.createElement('div');
                 svg = Util.create({tag: 'svg'});
-                svg.appendChild(item.draw());
+                svg.appendChild(item.getSVG());
                 value = svg.childNodes[0];
                 x = y = 0;
                 if (!value.pathSegList) {
                     continue;
                 }
                 for (z = 0; z < value.pathSegList.length; z += 1) {
-                    item = value.pathSegList[z];
-                    switch (item.pathSegType) {
+                    let child:any = value.pathSegList[z];
+                    switch (child.pathSegType) {
                         case SVGPathSeg.PATHSEG_MOVETO_ABS:
                         case SVGPathSeg.PATHSEG_LINETO_ABS:
                         case SVGPathSeg.PATHSEG_ARC_ABS:
                         case SVGPathSeg.PATHSEG_CURVETO_CUBIC_ABS:
-                            x = item.x;
-                            y = item.y;
+                            x = child.x;
+                            y = child.y;
                             break;
                         case SVGPathSeg.PATHSEG_MOVETO_REL:
                         case SVGPathSeg.PATHSEG_LINETO_REL:
                         case SVGPathSeg.PATHSEG_CURVETO_CUBIC_REL:
                         case SVGPathSeg.PATHSEG_ARC_REL:
-                            x = x + item.x;
-                            y = y + item.y;
+                            x = x + child.x;
+                            y = y + child.y;
                             break;
                     }
                     Util.Range(min, max, x, y);
@@ -319,6 +320,7 @@ export class Edge extends DiagramElement {
         if (b.y > a.y) {
             return Direction.Down;
         }
+        return Direction.Down;
     }
 
     private getShortestPathIntersection(node: Node, point: Point): Point {
@@ -361,5 +363,6 @@ export class Edge extends DiagramElement {
                 return new Point(maxYx, maxY);
             }
         }
+        return new Point();
     }
 }

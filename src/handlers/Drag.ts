@@ -3,6 +3,7 @@ import {DiagramElement, Point} from '../elements/BaseElements';
 import {Model} from '../elements/Model';
 import {Node} from '../elements/nodes';
 import {Graph} from '../elements/Graph';
+import {Control} from "../Control";
 
 export class Drag {
 
@@ -23,7 +24,7 @@ export class Drag {
             case 'mousedown':
                 if ((!this.dragging) || (element.id !== 'RootElement')) {
                     this.element = element;
-                    this.svgElement = <SVGSVGElement>element.$viewElement;
+                    this.svgElement = <SVGSVGElement>element.$view;
                     this.start(event, element);
                 }
                 break;
@@ -58,7 +59,7 @@ export class Drag {
         this.svgRoot.style.cursor = 'default';
     }
 
-    private start(evt, element) {
+    private start(evt:Event|any, element:Control) {
         this.dragging = true;
         this.mouseOffset.x = evt.clientX;
         this.mouseOffset.y = evt.clientY;
@@ -74,7 +75,7 @@ export class Drag {
         }
     }
 
-    private drag(evt, element: DiagramElement) {
+    private drag(evt:Event|any, element: DiagramElement) {
         if (this.reinsert) {
             if (this.element.id !== 'RootElement') {
                 this.svgRoot.appendChild(this.svgElement);
@@ -82,7 +83,7 @@ export class Drag {
             this.reinsert = false;
 
             let dragEvent = new Event('drag');
-            element.$viewElement.dispatchEvent(dragEvent);
+            element.$view.dispatchEvent(dragEvent);
         }
         if (element.id === 'RootElement') {
             if (element.id !== this.element.id) {

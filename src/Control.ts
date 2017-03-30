@@ -5,9 +5,9 @@ import EventListener from './EventListener';
 export abstract class Control {
     public $owner: Control;
     public property: string;
-    protected $view: HTMLElement;
+    public $view: Element;
     protected entity: Data;
-    protected id: string;
+    public id: string;
 
     public init(owner: Control, property?: string, id?: string): Control {
         if (!this.$owner) {

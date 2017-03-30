@@ -26,7 +26,7 @@ export class InfoText extends Node {
     }
 
     public getSVG(draw ?:boolean):HTMLElement {
-        let text:string = this.getText(), child, group, i:number, items:Array<string> = text.split("\n");
+        let text:string = this.getText(), child, group:Element, i:number, items:Array<string> = text.split("\n");
         if (text.length < 1) {
             return null;
         }
@@ -49,9 +49,11 @@ export class InfoText extends Node {
             newEvent["eventtype"] = EventBus.CREATE;
             newEvent["source"] = this;
             newEvent["entity"] = group;
-            newEvent["id"] = group.getId();
+            if(group != null) {
+                newEvent["id"] = (<any>group).getId();
+            }
             this.fireEvent(newEvent);
-            return group;
+            return <HTMLElement>group;
         }
         let pos:Point = this.getPos();
         group = Util.create({
@@ -70,17 +72,20 @@ export class InfoText extends Node {
         newEvent["eventtype"] = EventBus.CREATE;
         newEvent["source"] = this;
         newEvent["entity"] = group;
-        newEvent["id"] = group.getId();
+        if(group != null) {
+            newEvent["id"] = (<any>group).getId();
+        }
         this.fireEvent(newEvent);
-        return group;
+        return <HTMLElement>group;
     };
 
     public drawHTML(draw?:boolean):HTMLElement {
-        let text:string = this.getText(), info;
-        info = Util.create({tag: "div", $font: true, model: this, "class": "EdgeInfo", value: text});
+        let text:string = this.getText(), info:HTMLElement;
+        info = <HTMLElement>Util.create({tag: "div", $font: true, model: this, "class": "EdgeInfo", value: text});
         if (this.$angle !== 0) {
-            info.style.transform = "rotate(" + this.$angle + "deg)";
-            info.style.msTransform = info.style.MozTransform = info.style.WebkitTransform = info.style.OTransform = "rotate(" + this.$angle + "deg)";
+            let style:any = info.style;
+            style.transform = "rotate(" + this.$angle + "deg)";
+            style.msTransform = style.MozTransform = style.WebkitTransform = style.OTransform = "rotate(" + this.$angle + "deg)";
         }
         let pos:Point = this.getPos();
         let newEvent:Event = new Event(EventBus.CREATE);

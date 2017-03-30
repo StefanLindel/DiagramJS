@@ -11,7 +11,7 @@ export class Symbol extends Node {
         super(typ);
     }
 
-    public draw(typ?: string): HTMLElement {
+    public draw(typ?: string): SVGElement {
         return SymbolLibary.draw(this);
     }
 }
@@ -25,7 +25,7 @@ export class Symbol extends Node {
 // {tag: 'image', height: 30, width: 50, content$src: hallo}
 // {tag: 'text', 'text-anchor': 'left', x: '10'}
 export class SymbolLibary {
-    public static draw(node: DiagramElement, parent?: Object) {
+    public static draw(node: DiagramElement, parent?: Object) : SVGElement {
         // Node is Symbol or simple Object
         let symbol, fn = this[SymbolLibary.getName(node)];
         if (typeof fn === 'function') {
@@ -81,7 +81,7 @@ export class SymbolLibary {
         return 'drawNode';
     }
 
-    public static createImage(node: Symbol, model) {
+ /*FIXME   public static createImage(node: Symbol, model:Node) {
         let n, img: HTMLElement;
         // node.model = node;
         if (SymbolLibary.isSymbol(node)) {
@@ -90,10 +90,10 @@ export class SymbolLibary {
         n = {tag: 'img', model: node, src: node['src']};
         let size = node.getSize();
         if (size.isEmpty() === false) {
-            n.width = size.x;
-            n.height = size.y;
+            n['width'] = size.x;
+            n['height'] = size.y;
         } else {
-            n.xmlns = 'http://www.w3.org/1999/xhtml';
+            n['xmlns'] = 'http://www.w3.org/1999/xhtml';
         }
         img = Util.create(n);
         if (size.isEmpty()) {
@@ -101,10 +101,10 @@ export class SymbolLibary {
             return null;
         }
         return img;
-    }
+    }*/
 
-    public static createGroup(node: DiagramElement, group) {
-        let func, y: number, yr: number, z: number, box, item, transform, i, offsetX = 0, offsetY = 0;
+    public static createGroup(node: DiagramElement, group:any) {
+        let func, y: number, yr: number, z: number, box, item:Element, transform, i, offsetX = 0, offsetY = 0;
         let svg: any;
         if (node.property.toUpperCase() === 'HTML') {
             svg = Util.create({
@@ -164,8 +164,8 @@ export class SymbolLibary {
             y = offsetY + 46;
             yr = offsetY + 28;
 
-            func = function (event) {
-                svg.activ.textContent = event.currentTarget.value;
+            func = function (event:Event) {
+                svg.activ.textContent = (<any>event.currentTarget).value;
             };
             for (z = 0; z < elements.length; z += 1) {
                 box.appendChild(Util.create({
@@ -187,11 +187,11 @@ export class SymbolLibary {
                     stroke: 'none',
                     'class': 'SVGChoice'
                 }));
-                item.value = elements[z];
+                item['value'] = elements[z];
                 if (node['action']) {
-                    item.onclick = node['action'];
+                    item['onclick'] = node['action'];
                 } else {
-                    item.onclick = func;
+                    item['onclick'] = func;
                 }
                 y += 26;
                 yr += 26;
@@ -231,10 +231,10 @@ export class SymbolLibary {
         return svg;
     };
 
-    public static addChild(parent, json): void {
-        let item;
-        if (json.offsetLeft) {
-            item = json;
+    public static addChild(parent:SVGElement, json:JSON|Element): void {
+        let item:Element;
+        if ((<any>json).offsetLeft) {
+            item = <Element>json;
         } else {
             item = Util.create(json);
         }
@@ -242,7 +242,7 @@ export class SymbolLibary {
         parent.appendChild(item);
     };
 
-    public static all(node): void {
+    public static all(node:any): void {
         SymbolLibary.drawSmiley(node);
         SymbolLibary.drawDatabase(node);
         SymbolLibary.drawLetter(node);
