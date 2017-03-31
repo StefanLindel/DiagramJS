@@ -1,6 +1,7 @@
 'use strict';
 
 import * as controls from "./elements/nodes";
+import * as adapters from "./adapters";
 import Data from "./Data";
 import {Control} from "./Control";
 import {Adapter} from "./Adapter";
@@ -13,6 +14,7 @@ export class Bridge extends Control {
     public static version: string = '0.42.01.1601007-1739';
     private listener: Array<Object> = [];
     private controlFactory: Object = {};
+    private adapterFactory: Object = {};
     private controls: Object = {};
     private adapters: Array<Adapter> = [];
     private items: Object = {};
@@ -24,7 +26,17 @@ export class Bridge extends Control {
     constructor() {
         super();
         let i;
-        let keys: string[] = Object.keys(controls);
+
+        let keys: string[] = Object.keys(adapters);
+        for (i = 0; i < keys.length; i++) {
+            let child = adapters[keys[i]]
+            if (child && child.id) {
+                this.adapterFactory[child.id.toLowerCase()] = child;
+            }
+        }
+
+
+        keys = Object.keys(controls);
         for (i = 0; i < keys.length; i++) {
             this.addControl(controls[keys[i]]);
         }
@@ -299,9 +311,16 @@ export class Bridge extends Control {
         return control;
     }
 
-    public addAdapter(adapter: Adapter, eventType: string): Adapter {
+    public addAdapter(adapter: Adapter|string, eventType: string): Adapter {
         if (!eventType) {
-            eventType = null;
+            eventType = '';
+        }
+        let result:Adapter;
+        if(adapter instanceof String) {
+            let obj = this.adapterFactory[adapter.toLowerCase()];
+            result = new obj();
+        } else {
+            result = adapter;
         }
         let handlers = this.adapters[eventType];
 
@@ -309,8 +328,8 @@ export class Bridge extends Control {
             handlers = [];
             this.adapters[eventType] = handlers;
         }
-        handlers.push(adapter);
-        return adapter;
+        handlers.push(result);
+        return result;
     }
 
     public fireEvent(evt: Event): void {
@@ -323,7 +342,9 @@ export class Bridge extends Control {
                 }
             }
         }
+        alert("eventtype:" +evt['eventType']);
         handlers = this.adapters[evt['eventType']];
+        alert("handler mit type:" +handlers);
         if (handlers) {
             for (let i = 0; i < handlers.length; i++) {
                 let adapter = handlers[i];
@@ -338,17 +359,25 @@ export class DelegateAdapter extends Adapter {
     adapter: Adapter;
     callBackfunction: string;
 
-    update(evt: Object): boolean {
+    update(evt: Event): boolean {
+        alert("EVENT: "+evt);
         if (this.adapter) {
+            alert("ADAPTER: "+this.adapter);
             this.adapter.update(evt);
             return true;
         } else if (this.callBackfunction) {
-            return this.executeFunction(this.callBackfunction);
+            alert("CALLBACKFUNCTION: "+this.callBackfunction);
+            return this.executeFunction(this.callBackfunction, evt);
         }
         return false;
     }
 
-    private executeFunction(strValue:string): boolean {
+    public setAdapter(adapter:Adapter) :boolean{
+        this.adapter = adapter;
+        return true;
+    }
+
+    private executeFunction(strValue:string, evt:Event): boolean {
         let scope = window;
         let scopeSplit = strValue.split('.');
         for (let i = 0; i < scopeSplit.length - 1; i++) {
@@ -361,6 +390,9 @@ export class DelegateAdapter extends Adapter {
         if (typeof fn === 'function') {
             fn.call(scope);
             return true;
+        } else {
+            window['callBack1'].update(evt);
+
         }
         return false;
     }
