@@ -177,7 +177,8 @@ export class SymbolLibary {
                     'y': y,
                     value: elements[z]
                 }));
-                item = box.appendChild(Util.create({
+
+                item = Util.create({
                     tag: 'rect',
                     rx: 0,
                     x: offsetX,
@@ -186,7 +187,8 @@ export class SymbolLibary {
                     height: 24,
                     stroke: 'none',
                     'class': 'SVGChoice'
-                }));
+                });
+                box.appendChild(item);
                 item['value'] = elements[z];
                 if (node['action']) {
                     item['onclick'] = node['action'];
