@@ -27,7 +27,7 @@ export class Node extends DiagramElement {
         }
     }
 
-    public getSVG(): Element {
+    public getSVG() : Element {
         const pos = this.getPos();
         const size = this.getSize();
 
