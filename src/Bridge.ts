@@ -16,7 +16,7 @@ export class Bridge extends Control {
     private controlFactory: Object = {};
     private adapterFactory: Object = {};
     private controls: Object = {};
-    private adapters: Array<Adapter> = [];
+    private adapters: Object = {};
     private items: Object = {};
     private controlNo: number = 1;
     private online: boolean = true;
@@ -29,7 +29,7 @@ export class Bridge extends Control {
 
         let keys: string[] = Object.keys(adapters);
         for (i = 0; i < keys.length; i++) {
-            let child = adapters[keys[i]]
+            let child = adapters[keys[i]];
             if (child && child.id) {
                 this.adapterFactory[child.id.toLowerCase()] = child;
             }
@@ -97,11 +97,11 @@ export class Bridge extends Control {
     }
 
     // noinspection JSUnusedGlobalSymbols
-    public addListener = function (listener:any) {
+    public addListener = function (listener: any) {
         this.listener.push(listener);
     };
 
-    public addControl(control:any) {
+    public addControl(control: any) {
         if (control && control.name) {
             this.controlFactory[control.name.toLowerCase()] = control;
         }
@@ -111,58 +111,76 @@ export class Bridge extends Control {
         return 'control' + (this.controlNo++);
     }
 
-    public load(json:JSON|Object): any {
-        let className;
-        let id;
-        if (typeof(json) === 'object') {
-            if (!json['id']) {
-                json['id'] = this.getId();
-            }
-            if (json['class']) {
-                className = json['class'].toLowerCase();
-            }
-            id = json['id'];
-            // Check For Control or Data
-            if (json['prop'] || json['upd'] || json['rem']) {
-                // Its Data
-                let newData = !this.hasItem(id);
-                let item: Data = this.getItem(id);
-                if (className) {
-                    item.property = className;
-                }
-                if (newData) {
-                    for (let i in this.controls) {
-                        if (this.controls.hasOwnProperty(i) === false) {
-                            continue;
-                        }
-                        this.controls[i].addItem(this, item);
-                    }
-                }
-                Bridge.addProperties(json['prop'], item);
-                Bridge.addProperties(json['upd'], item);
-                if (this.adapters.length > 0) {
-                    let keys: string[] = Object.keys(this.adapters);
-                    let i;
-                    for (i = 0; i < keys.length; i++) {
-                        this.adapters[keys[i]].update(JSON.stringify(json));
-                    }
-                }
-                return item;
-            }
-        } else {
+    public load(json: JSON|Object): any {
+        let config = {}, className: string, id: string;
+        if (typeof(json) === 'string') {
             // Only a String
-            id = json;
-            let item = document.getElementById(id);
+            config['id'] = "" + json;
+            let item = document.getElementById(config['id']);
+            let className: string;
             if (item) {
                 className = item.getAttribute('class');
-                if (className) {
-                    className = className.toLowerCase();
-                } else {
-                    className = '';
+                if (!className) {
+                    className = item.getAttribute('classname') || '';
+                }
+                // Found Element and now config Data element
+                if (item.getAttribute("property")) {
+                    if (this.hasItem(item.getAttribute("property"))) {
+                        let data = this.getItem(item.getAttribute("property"));
+                        for (let key in data.prop) {
+                            if (item.getAttribute(key)) {
+                                data.setValue(key, item.getAttribute(key));
+                            }
+                        }
+                        if (item.getAttribute("property")) {
+                            data.property = item.getAttribute("property");
+                        }
+                    }
                 }
             } else {
-                className = json;
+                className = "" + json;
             }
+            className = className.toLowerCase();
+            config['className'] = className;
+        } else {
+            config = <JSON>json;
+        }
+
+        // Config validate
+        if (!config['id']) {
+            config['id'] = this.getId();
+        }
+        className = config['className'] || config['class'];
+        id = config['id'];
+
+        // Check For Control or Data
+        if ((config['prop'] || config['upd'] || config['rem']) && this.controls[id] == null) {
+            // Its Data
+            let newData = !this.hasItem(config['id']);
+            let item: Data = this.getItem(config['id']);
+            if (id && className && !item.property) {
+                item.property = className;
+            }
+            if (newData) {
+                for (let i in this.controls) {
+                    if (this.controls.hasOwnProperty(i) === false) {
+                        continue;
+                    }
+                    this.controls[i].addItem(this, item);
+                }
+            }
+            Bridge.addProperties(config['prop'], item);
+            Bridge.addProperties(config['upd'], item);
+            if (this.adapters.length > 0) {
+                let keys: string[] = Object.keys(this.adapters);
+                let i;
+                for (i = 0; i < keys.length; i++) {
+                    alert(keys[i]);
+                    alert(JSON.stringify(json));
+                    this.adapters[keys[i]].update(JSON.stringify(json));
+                }
+            }
+            return item;
         }
 
         let control;
@@ -175,13 +193,23 @@ export class Bridge extends Control {
         if (typeof(this.controlFactory[className]) === 'object' || typeof(this.controlFactory[className]) === 'function') {
             let obj = this.controlFactory[className];
             control = new obj(json);
-            Util.initControl(this, control, className, id, json);
+            if (json.hasOwnProperty("parent")) {
+                Util.initControl(json["parent"], control, className, id, json);
+            } else {
+                Util.initControl(this, control, className, id, json);
+            }
 
             if (control.id) {
                 this.controls[control.id] = control;
             } else {
                 this.controls[id] = control;
             }
+
+            // create DataObject and register this control as listener to it
+            // let obj = {id:id};
+            // let data: Data = this.load(obj);
+            // data.addListener(this);
+
             // Try to Show
             if (typeof control.getSVG === 'function' && typeof control.getSize === 'function') {
                 let size: Point = control.getSize();
@@ -204,24 +232,33 @@ export class Bridge extends Control {
     }
 
     public hasItem(id: string): boolean {
+
+        if (this.items[id] !== undefined) {
+            return true;
+        }
+        id = id.split('.')[0];
         return (this.items[id] !== undefined);
     }
 
-    public getItems() :Object{
+    public getItems(): Object {
         return this.items;
     }
 
     public getItem(id: string): Data {
         let item = this.items[id];
         if (!item) {
-            item = new Data();
-            item.id = id;
-            this.items[id] = item;
+            id = id.split('.')[0];
+            item = this.items[id];
+            if (!item) {
+                item = new Data();
+                item.id = id;
+                this.items[id] = item;
+            }
         }
         return item;
     }
 
-    public setValue(object: Object, attribute: string, value: Object): boolean {
+    public    setValue(object: Object, attribute: string, value: Object): boolean {
         let obj: Object;
         let id: string;
         if (object instanceof String || typeof object === 'string') {
@@ -229,6 +266,9 @@ export class Bridge extends Control {
             id = object.toString();
             obj = this.getItem(id);
 
+        } else if (object instanceof Data) {
+            obj = object;
+            id = object.id;
         } else if (object.hasOwnProperty('id')) {
             // object is the real Object, we want to change
             obj = object;
@@ -247,7 +287,7 @@ export class Bridge extends Control {
         return true;
     }
 
-    public getValue(object: Object, attribute: string): any {
+    public    getValue(object: Object, attribute: string): any {
         let obj: Object;
         let id: string;
         if (object instanceof String || typeof object === 'string') {
@@ -311,16 +351,16 @@ export class Bridge extends Control {
         return control;
     }
 
-    public addAdapter(adapter: Adapter|string, eventType: string): Adapter {
+    public addAdapter(adapter: Adapter | string, eventType: string): Adapter {
         if (!eventType) {
             eventType = '';
         }
-        let result:Adapter;
-        if(adapter instanceof String) {
+        let result: Adapter;
+        if (adapter instanceof String) {
             let obj = this.adapterFactory[adapter.toLowerCase()];
             result = new obj();
         } else {
-            result = adapter;
+            result = <Adapter>adapter;
         }
         let handlers = this.adapters[eventType];
 
@@ -342,9 +382,9 @@ export class Bridge extends Control {
                 }
             }
         }
-        alert("eventtype:" +evt['eventType']);
+        alert("eventtype:" + evt['eventType']);
         handlers = this.adapters[evt['eventType']];
-        alert("handler mit type:" +handlers);
+        alert("handler mit type:" + handlers);
         if (handlers) {
             for (let i = 0; i < handlers.length; i++) {
                 let adapter = handlers[i];
@@ -355,29 +395,30 @@ export class Bridge extends Control {
         }
     }
 }
+
 export class DelegateAdapter extends Adapter {
     adapter: Adapter;
     callBackfunction: string;
 
     update(evt: Event): boolean {
-        alert("EVENT: "+evt);
+        alert("EVENT: " + evt);
         if (this.adapter) {
-            alert("ADAPTER: "+this.adapter);
+            alert("ADAPTER: " + this.adapter);
             this.adapter.update(evt);
             return true;
         } else if (this.callBackfunction) {
-            alert("CALLBACKFUNCTION: "+this.callBackfunction);
+            alert("CALLBACKFUNCTION: " + this.callBackfunction);
             return this.executeFunction(this.callBackfunction, evt);
         }
         return false;
     }
 
-    public setAdapter(adapter:Adapter) :boolean{
+    public setAdapter(adapter: Adapter): boolean {
         this.adapter = adapter;
         return true;
     }
 
-    private executeFunction(strValue:string, evt:Event): boolean {
+    private executeFunction(strValue: string, evt: Event): boolean {
         let scope = window;
         let scopeSplit = strValue.split('.');
         for (let i = 0; i < scopeSplit.length - 1; i++) {

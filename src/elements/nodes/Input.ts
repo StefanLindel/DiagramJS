@@ -75,15 +75,11 @@ export class Input extends Control {
 
         // check if object already exists
         if (this.property) {
-            let objId = this.property.split('.')[0];
-            let hasItem = this.$owner.hasItem(objId);
-            if (hasItem) {
-                let item = this.$owner.getItem(objId);
-                item.addListener(this);
-                this.entity = item;
-            } else {
-                this.entity = new Data();
-            }
+            this.entity = this.getRoot().getItem(this.property);
+
+            this.entity.prop[this.lastProperty] = this.$view.getAttribute(this.lastProperty) || this.entity.prop[this.lastProperty];
+            this.entity.property = this.property;
+            this.entity.addListener(this);
 
             // Add listener to Input field:
             this.$view['onchange'] = ((ev: Event) => {
@@ -131,7 +127,7 @@ export class Input extends Control {
         }
         let element = (<HTMLInputElement>this.$view);
         if (element.checkValidity()) {
-            this.$owner.setValue(this.entity, this.lastProperty, element.value);
+            this.getRoot().setValue(this.entity, this.lastProperty, element.value);
         } else {
             console.log('value does not match the pattern...');
         }

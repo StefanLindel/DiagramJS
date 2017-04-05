@@ -18,7 +18,7 @@ export class Button extends Control {
 
     protected createControl(parent: Control, data: JSON) {
         if (typeof(data) === 'string') {
-            this.id = data;
+            this.id = <string>data;
         } else {
             this.id = data['id'];
         }

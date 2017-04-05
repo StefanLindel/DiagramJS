@@ -321,7 +321,7 @@ export class Util {
         return text;
     }
 
-    public static toXML(ref:JSON|Object|any, src:JSON|Object|any, full: boolean, doc:Document) : Node{
+    public static toXML(ref:JSON|Object|any, src:JSON|Object|any, full: boolean, doc:Document) : any {
         let name;
         if(!ref) {
             name = src.constructor.name;

@@ -21,7 +21,7 @@ export class Table extends Control {
     private searchColumns: Array<string> = [];
     private searchText: Array<string> = [];
     private sortColumn: Column;
-    private direction:number;
+    private direction: number;
     private moveElement: Column = null;
     private isDrag: boolean = false;
     private moveTimeStamp: number;
@@ -31,7 +31,7 @@ export class Table extends Control {
     private dragPos: number;
     private tableOption: HTMLTableHeaderCellElement;
 
-    constructor(data:JSON) {
+    constructor(data: JSON) {
         super();
     }
 
@@ -349,7 +349,7 @@ export class Table extends Control {
         }
     }
 
-    public propertyChange(entity: Data, property: string, oldValue:Object, newValue:Object) {
+    public propertyChange(entity: Data, property: string, oldValue: Object, newValue: Object) {
         if (entity) {
             // Check for Show
             if (this.property && this.property !== entity.property) {
@@ -420,7 +420,7 @@ export class Table extends Control {
             this.direction = 1;
         }
         let that = this;
-        let sort = function (a:BridgeElement, b:BridgeElement) {
+        let sort = function (a: BridgeElement, b: BridgeElement) {
             return that.sorting(a, b);
         };
         this.showedItems.sort(sort);
@@ -476,7 +476,7 @@ export class Table extends Control {
     }
 
     // Searching
-    public search(origSearchText: string) : void{
+    public search(origSearchText: string): void {
         if (!origSearchText) {
             origSearchText = '';
         }
@@ -811,6 +811,14 @@ export class Table extends Control {
                 return that.tableEvent(events[i], evt);
             });
         }
+    }
+
+
+    public setValue(object: Object, attribute: string, value: Object): boolean {
+        if (this.$owner != null) {
+            return this.getRoot().setValue(object, attribute, value);
+        }
+        return super.setValue(object, attribute, value);
     }
 }
 class Column {

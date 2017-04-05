@@ -15,7 +15,7 @@ export class Div extends Control {
         let id: string;
         // init form HTML
         if (typeof(data) === 'string') {
-            id = data;
+            id = <string>data;
         } else {
             id = data.id;
             this.className = data.class;
@@ -84,6 +84,6 @@ export class Div extends Control {
         if (!(this.$view instanceof HTMLDivElement)){
             return;
         }
-        this.$owner.setValue(this.entity, this.lastProperty, this.$view.innerHTML);
+        this.getRoot().setValue(this.entity, this.lastProperty, this.$view.innerHTML);
     }
 }

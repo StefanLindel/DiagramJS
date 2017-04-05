@@ -12,6 +12,6 @@ export default class EventListener {
     }
 
     update(event: SimpleEvent) {
-        this.onUpdate(event);
+        this.$onUpdate(event);
     }
 }

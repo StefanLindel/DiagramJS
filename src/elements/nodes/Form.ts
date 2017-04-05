@@ -1,4 +1,4 @@
-import {Control} from '../../Control';
+import {Control} from "../../Control";
 
 // noinspection JSUnusedGlobalSymbols
 export class Form extends Control {
@@ -6,7 +6,7 @@ export class Form extends Control {
     private children: Object = {};
     // private property: string = "";
 
-    constructor(data:JSON){
+    constructor(data: JSON) {
         super();
     }
 
@@ -88,7 +88,12 @@ export class Form extends Control {
             if (!field.hasOwnProperty('class')) {
                 field['class'] = 'input';
             }
+            // set parent to this
+            field["parent"] = this;
+            // let the Bridge load the subControl
             let control: Control = this.$owner.load(field);
+
+            // add subControl to children
             this.children[control.getId()] = control;
         }
 
@@ -107,6 +112,14 @@ export class Form extends Control {
         }
     }
 
+
+    public setValue(object: Object, attribute: string, value: Object): boolean {
+        if (this.$owner != null) {
+            return this.$owner.setValue(object, attribute, value);
+        }
+        return super.setValue(object, attribute, value);
+    }
+
     /**
      * Here we create the form elements and put all the attributes to them in order for the Control only having to load
      * the data were appending here. Alternative would be loading with the bridge and afterwards setting
@@ -114,33 +127,33 @@ export class Form extends Control {
      * @param field
      */
     /*private createField(field: Object) {
-        let control = 'input';
-        if (field.hasOwnProperty('class')) {
-            control = field['class'];
-        }
-        let input = document.createElement(control);
-        input.setAttribute('class', control);
-        let id: string;
-        if (!field.hasOwnProperty('id')) {
-            // TODO: not the best solution for generating unique id's for forms...
-            id = this.$owner.getId();
-            field['id'] = id;
-        }
-        if (field.hasOwnProperty('property')) {
-            let property = field['property'];
-            property = this.id + '.' + property;
-            input.setAttribute('property', property);
-        }
-        for (let attr in field) {
-            if (attr === 'property' || attr === 'class' || !field.hasOwnProperty(attr)) {
-                continue;
-            }
-            input.setAttribute(attr, field[attr]);
-        }
+     let control = 'input';
+     if (field.hasOwnProperty('class')) {
+     control = field['class'];
+     }
+     let input = document.createElement(control);
+     input.setAttribute('class', control);
+     let id: string;
+     if (!field.hasOwnProperty('id')) {
+     // TODO: not the best solution for generating unique id's for forms...
+     id = this.$owner.getId();
+     field['id'] = id;
+     }
+     if (field.hasOwnProperty('property')) {
+     let property = field['property'];
+     property = this.id + '.' + property;
+     input.setAttribute('property', property);
+     }
+     for (let attr in field) {
+     if (attr === 'property' || attr === 'class' || !field.hasOwnProperty(attr)) {
+     continue;
+     }
+     input.setAttribute(attr, field[attr]);
+     }
 
-        this.$viewElement.appendChild(input);
+     this.$viewElement.appendChild(input);
 
-        let newcontrol: Control = this.$owner.load(field['id']);
-        this.children[newcontrol.getId()] = newcontrol;
-    }*/
+     let newcontrol: Control = this.$owner.load(field['id']);
+     this.children[newcontrol.getId()] = newcontrol;
+     }*/
 }

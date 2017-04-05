@@ -1,6 +1,6 @@
-import {Bridge} from './Bridge';
-import Data from './Data';
-import EventListener from './EventListener';
+import {Bridge} from "./Bridge";
+import Data from "./Data";
+import EventListener from "./EventListener";
 
 export abstract class Control {
     public $owner: Control;
@@ -34,6 +34,33 @@ export abstract class Control {
     }
 
     public initControl(data: any) {
+        if(this.$view == null){
+            return;
+        }
+        if(data.hasOwnProperty("rem")){
+            for (let obj in data.rem) {
+                this.$view.removeAttribute(obj);
+                if(this.entity){
+                    this.entity.setValue(obj, null);
+                }
+            }
+        }
+        if(data.hasOwnProperty("prop")){
+            for (let obj in data.prop) {
+                this.$view.setAttribute(obj, data.prop[obj]);
+                if(this.entity){
+                    this.entity.setValue(obj, data.prop[obj]);
+                }
+            }
+        }
+        if(data.hasOwnProperty("upd")){
+            for (let obj in data.upd) {
+                this.$view.setAttribute(obj, data.upd[obj]);
+                if(this.entity){
+                    this.entity.setValue(obj, data.upd[obj]);
+                }
+            }
+        }
     }
 
     public getItem(id: string): Data {
@@ -44,7 +71,7 @@ export abstract class Control {
         return false;
     }
 
-    public getItems() :Object{
+    public getItems(): Object {
         return new Object();
     }
 
@@ -52,7 +79,14 @@ export abstract class Control {
         return false;
     }
 
-    public propertyChange(entity: Data, property: string, oldValue:any, newValue:any) {
+    /**
+     * Is called when a object, that the Control is listening to, changes its value.
+     * @param entity
+     * @param property
+     * @param oldValue
+     * @param newValue
+     */
+    public propertyChange(entity: Data, property: string, oldValue: any, newValue: any) {
 
     }
 
@@ -60,7 +94,7 @@ export abstract class Control {
         return this.id;
     }
 
-    public load(json:JSON|Object): any {
+    public load(json: JSON|Object): any {
 
     }
 
@@ -74,8 +108,8 @@ export abstract class Control {
         }
     }
 
-    public appendChild(child:Control) {
-        if(this.$view) {
+    public appendChild(child: Control) {
+        if (this.$view) {
             this.$view.appendChild(child.$view);
         } else {
             document.getElementsByTagName('body')[0].appendChild(child.$view);
@@ -133,7 +167,7 @@ export abstract class Control {
 
     protected registerEventListener(eventType: string, htmlElement: HTMLElement) {
         let control = this;
-        let listener = (t:any) => {
+        let listener = (t: any) => {
             t.eventType = eventType;
             t.id = control.id;
             control.$owner.fireEvent(t);

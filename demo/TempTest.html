@@ -11,13 +11,31 @@
 
 </body>
 
+<!--<input id="button" type="button" value="show value" onclick="let field = document.getElementById('numberField');field.setAttribute('value', 10);" />-->
+<input id="numberField" type="number" value="5" class="input" property="number.value"/>
+
 <script>
-    var bridge = new DiagramJS.Bridge();
-    bridge.addAdapter(new DiagramJS.DelegateAdapter());
-   // bridge.load({"class":"table","prop":{"columns":[{"class":"de.uniks.networkparser.gui.Column"}],"searchColumns":[]}});
+    //bridge.load({"class":"number", id:"number", "prop":{"value":0}});
+//    bridge.load('number');
+//    bridge.load({"class":"input", id: "N440757442490662", "prop":{"property":"number.value","value":0,"type":"number"}});
+    //bridge.load({"class":"input","id":"N440757442490662","timestamp":"440757442490662","property":"number.value","value":0,"type":"number"});
+    //bridge.load({"class":"de.uniks.networkparser.gui.controls.NumberField","id":"N440757442490662","rem":{"value":0},"upd":{"value":"25"}});
 
-    bridge.load({id: "number", "class":"number","prop":{"value":0}});
-    bridge.load({"class":"table","id":"T1488811730270","columns":[{"id":"value","label":"Test"}],"searchColumns":[], property:"number"});
 
+
+    //bridge.load({"class":"number","id":"number","prop":{"value":0}});
+//    bridge.load('number');
+//    bridge.load({"class":"input","id":"wurst","property":"number.value","value":0,"type":"number"});
+//    bridge.load({"class":"de.uniks.networkparser.gui.controls.NumberField","id":"wurst","rem":{"value":0},"upd":{"value":53}});
+//    bridge.load({"class":"de.uniks.networkparser.gui.controls.NumberField","id":"wurst","rem":{"value":53},"upd":{"value":"42"}});
+    bridge.load({"class":"input","id":"wurst","property":"number.value","value":0,"type":"number"});
+bridge.load("numberField");
+
+//    let field = document.getElementById("numberField");
+//
+//    field.addEventListener("change", (evt)=>{
+//        alert(evt);
+//        //alert(evt);
+//    });
 </script>
 </html>
