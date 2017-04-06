@@ -23,13 +23,20 @@
 
 
 
-    //bridge.load({"class":"number","id":"number","prop":{"value":0}});
-//    bridge.load('number');
+//    bridge.load({"class":"number","id":"number","prop":{"value":0}});
+////    bridge.load('number');
 //    bridge.load({"class":"input","id":"wurst","property":"number.value","value":0,"type":"number"});
 //    bridge.load({"class":"de.uniks.networkparser.gui.controls.NumberField","id":"wurst","rem":{"value":0},"upd":{"value":53}});
 //    bridge.load({"class":"de.uniks.networkparser.gui.controls.NumberField","id":"wurst","rem":{"value":53},"upd":{"value":"42"}});
-    bridge.load({"class":"input","id":"wurst","property":"number.value","value":0,"type":"number"});
-bridge.load("numberField");
+////    bridge.load({"class":"input","id":"wurst","property":"number.value","value":0,"type":"number"});
+////    bridge.load("numberField");
+
+
+    let adapter = bridge.addAdapter(new DiagramJS.DelegateAdapter());
+    adapter.adapter = {update(){alert("yay")}};
+    bridge.load({"class":"input","id":"wurst","property":"number.value","type":"number","defaultValue":0});
+    bridge.load({"class":"de.uniks.networkparser.gui.controls.NumberField","id":"wurst","upd":{"value":92}});
+    bridge.load({"class":"de.uniks.networkparser.gui.controls.NumberField","id":"wurst","upd":{"value":95}});
 
 //    let field = document.getElementById("numberField");
 //

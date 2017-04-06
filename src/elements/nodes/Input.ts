@@ -118,7 +118,6 @@ export class Input extends Control {
         if (this.$view instanceof HTMLInputElement) {
             (<HTMLInputElement>this.$view).value = value;
         }
-
     }
 
     private controlChanged(ev: Event) {

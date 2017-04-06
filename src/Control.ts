@@ -34,31 +34,32 @@ export abstract class Control {
     }
 
     public initControl(data: any) {
-        if(this.$view == null){
+        if (this.$view == null) {
             return;
         }
-        if(data.hasOwnProperty("rem")){
-            for (let obj in data.rem) {
-                this.$view.removeAttribute(obj);
-                if(this.entity){
-                    this.entity.setValue(obj, null);
-                }
+        // let object = {
+        //     'id' = this.entity.id,
+        //     rem: data[rem],
+        //     upd: data.upd,
+        //     prop: data.prop
+        // };
+        // this.getRoot().load(object);
+        if (data.hasOwnProperty("rem")) {
+            for (let key in data.rem) {
+                this.$view.removeAttribute(key);
+                this.getRoot().setValue(this.entity, key, null);
             }
         }
-        if(data.hasOwnProperty("prop")){
-            for (let obj in data.prop) {
-                this.$view.setAttribute(obj, data.prop[obj]);
-                if(this.entity){
-                    this.entity.setValue(obj, data.prop[obj]);
-                }
+        if (data.hasOwnProperty("prop")) {
+            for (let key in data.prop) {
+                this.$view.setAttribute(key, data.prop[key]);
+                this.getRoot().setValue(this.entity, key, data.prop[key]);
             }
         }
-        if(data.hasOwnProperty("upd")){
-            for (let obj in data.upd) {
-                this.$view.setAttribute(obj, data.upd[obj]);
-                if(this.entity){
-                    this.entity.setValue(obj, data.upd[obj]);
-                }
+        if (data.hasOwnProperty("upd")) {
+            for (let key in data.upd) {
+                this.$view.setAttribute(key, data.upd[key]);
+                this.getRoot().setValue(this.entity, key, data.upd[key]);
             }
         }
     }
@@ -75,7 +76,7 @@ export abstract class Control {
         return new Object();
     }
 
-    public setValue(object: Object, attribute: string, value: Object): boolean {
+    public setValue(object: Object, attribute: string, oldValue: Object): boolean {//, newValue: Object
         return false;
     }
 
@@ -94,7 +95,7 @@ export abstract class Control {
         return this.id;
     }
 
-    public load(json: JSON|Object): any {
+    public load(json: JSON|Object, owner?: Control): any {
 
     }
 

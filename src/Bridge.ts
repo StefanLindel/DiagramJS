@@ -111,7 +111,7 @@ export class Bridge extends Control {
         return 'control' + (this.controlNo++);
     }
 
-    public load(json: JSON|Object): any {
+    public load(json: JSON|Object, owner?:Control): any {
         let config = {}, className: string, id: string;
         if (typeof(json) === 'string') {
             // Only a String
@@ -145,7 +145,6 @@ export class Bridge extends Control {
         } else {
             config = <JSON>json;
         }
-
         // Config validate
         if (!config['id']) {
             config['id'] = this.getId();
@@ -171,13 +170,22 @@ export class Bridge extends Control {
             }
             Bridge.addProperties(config['prop'], item);
             Bridge.addProperties(config['upd'], item);
-            if (this.adapters.length > 0) {
-                let keys: string[] = Object.keys(this.adapters);
+            let keys: string[] = Object.keys(this.adapters);
+            if (keys.length > 0) {
                 let i;
                 for (i = 0; i < keys.length; i++) {
-                    alert(keys[i]);
-                    alert(JSON.stringify(json));
-                    this.adapters[keys[i]].update(JSON.stringify(json));
+                    try{
+                        let adapterList = this.adapters[keys[i]];
+                        if(adapterList instanceof Adapter){
+                            adapterList.update(JSON.stringify(config));
+                        }else{
+                            for (let adapter of adapterList) {
+                                adapter.update(JSON.stringify(config));
+                            }
+                        }
+                    }catch(err){
+                        alert("error: " + err.message+ "("+i+'#'+keys[i]+")");
+                    }
                 }
             }
             return item;
@@ -193,11 +201,7 @@ export class Bridge extends Control {
         if (typeof(this.controlFactory[className]) === 'object' || typeof(this.controlFactory[className]) === 'function') {
             let obj = this.controlFactory[className];
             control = new obj(json);
-            if (json.hasOwnProperty("parent")) {
-                Util.initControl(json["parent"], control, className, id, json);
-            } else {
-                Util.initControl(this, control, className, id, json);
-            }
+            Util.initControl(owner || this, control, className, id, json);
 
             if (control.id) {
                 this.controls[control.id] = control;
@@ -258,7 +262,15 @@ export class Bridge extends Control {
         return item;
     }
 
-    public    setValue(object: Object, attribute: string, value: Object): boolean {
+    /**
+     * Method for executing user input -> Event
+     * @param object
+     * @param attribute
+     * @param oldValue
+     * @param newValue
+     * @returns {boolean}
+     */
+    public setValue(object: Object, attribute: string, newValue: Object): boolean {//, oldValue: Object
         let obj: Object;
         let id: string;
         if (object instanceof String || typeof object === 'string') {
@@ -282,12 +294,12 @@ export class Bridge extends Control {
             // obj[attribute] = value;
         }
         let upd = {};
-        upd[attribute] = value;
+        upd[attribute] = newValue;
         this.load({'id': id, upd});
         return true;
     }
 
-    public    getValue(object: Object, attribute: string): any {
+    public getValue(object: Object, attribute: string): any {
         let obj: Object;
         let id: string;
         if (object instanceof String || typeof object === 'string') {
@@ -382,9 +394,7 @@ export class Bridge extends Control {
                 }
             }
         }
-        alert("eventtype:" + evt['eventType']);
         handlers = this.adapters[evt['eventType']];
-        alert("handler mit type:" + handlers);
         if (handlers) {
             for (let i = 0; i < handlers.length; i++) {
                 let adapter = handlers[i];
@@ -401,13 +411,10 @@ export class DelegateAdapter extends Adapter {
     callBackfunction: string;
 
     update(evt: Event): boolean {
-        alert("EVENT: " + evt);
         if (this.adapter) {
-            alert("ADAPTER: " + this.adapter);
             this.adapter.update(evt);
             return true;
         } else if (this.callBackfunction) {
-            alert("CALLBACKFUNCTION: " + this.callBackfunction);
             return this.executeFunction(this.callBackfunction, evt);
         }
         return false;

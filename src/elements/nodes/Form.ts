@@ -88,10 +88,9 @@ export class Form extends Control {
             if (!field.hasOwnProperty('class')) {
                 field['class'] = 'input';
             }
-            // set parent to this
-            field["parent"] = this;
+
             // let the Bridge load the subControl
-            let control: Control = this.$owner.load(field);
+            let control: Control = this.$owner.load(field, this);
 
             // add subControl to children
             this.children[control.getId()] = control;
@@ -115,7 +114,7 @@ export class Form extends Control {
 
     public setValue(object: Object, attribute: string, value: Object): boolean {
         if (this.$owner != null) {
-            return this.$owner.setValue(object, attribute, value);
+            return this.getRoot().setValue(object, attribute, value);
         }
         return super.setValue(object, attribute, value);
     }

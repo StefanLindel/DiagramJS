@@ -12,6 +12,9 @@ export default class Data {
 
     public setValue(attribute: string, newValue:any) {
         let oldValue = this.prop[attribute];
+        if(oldValue == newValue){
+            return;
+        }
         this.prop[attribute] = newValue;
         for (let i in this.$listener) {
             if (this.$listener.hasOwnProperty(i) === false) {
