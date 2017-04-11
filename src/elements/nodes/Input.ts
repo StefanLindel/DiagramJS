@@ -78,8 +78,10 @@ export class Input extends Control {
             this.entity = this.getRoot().getItem(this.property);
 
             this.entity.prop[this.lastProperty] = this.$view.getAttribute(this.lastProperty) || this.entity.prop[this.lastProperty];
-            this.entity.property = this.property;
+            this.entity.property = this.lastProperty;
             this.entity.addListener(this);
+
+            this.refreshControl();
 
             // Add listener to Input field:
             this.$view['onchange'] = ((ev: Event) => {
@@ -90,6 +92,15 @@ export class Input extends Control {
             );
         } else {
             this.entity = new Data();
+        }
+    }
+
+
+    public refreshControl(): any {
+        super.refreshControl();
+        // set Value of field to Value of Entity
+        if(this.entity.getValue(this.lastProperty) != null && this.$view){
+            this.$view.setAttribute("value", this.entity.getValue(this.lastProperty));
         }
     }
 

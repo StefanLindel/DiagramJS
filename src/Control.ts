@@ -44,24 +44,42 @@ export abstract class Control {
         //     prop: data.prop
         // };
         // this.getRoot().load(object);
-        if (data.hasOwnProperty("rem")) {
-            for (let key in data.rem) {
-                this.$view.removeAttribute(key);
-                this.getRoot().setValue(this.entity, key, null);
-            }
-        }
         if (data.hasOwnProperty("prop")) {
             for (let key in data.prop) {
                 this.$view.setAttribute(key, data.prop[key]);
                 this.getRoot().setValue(this.entity, key, data.prop[key]);
             }
+            return;
         }
+        let hasRem = data.hasOwnProperty("rem");
         if (data.hasOwnProperty("upd")) {
             for (let key in data.upd) {
                 this.$view.setAttribute(key, data.upd[key]);
-                this.getRoot().setValue(this.entity, key, data.upd[key]);
+                let oldValue;
+                if(hasRem && data.rem.hasOwnProperty(key)){
+                    oldValue = data.rem[key];
+                    delete data.rem[key];
+                }
+                this.getRoot().setValue(this.entity, key, data.upd[key], oldValue);
             }
         }
+        if (hasRem) {
+            for (let key in data.rem) {
+                this.$view.removeAttribute(key);
+                this.getRoot().setValue(this.entity, key, null, data.rem[key]);
+            }
+        }
+    }
+
+    /**
+     * refreshes the $view with the corresponding data
+     */
+    public refreshControl() {
+        // e.g. for InputField:
+        // set Value of field to Value of Entity
+        // if(this.entity.getValue(this.lastProperty) != null && this.$view){
+        //     this.$view.setAttribute("value", this.entity.getValue(this.lastProperty));
+        // }
     }
 
     public getItem(id: string): Data {
@@ -76,7 +94,7 @@ export abstract class Control {
         return new Object();
     }
 
-    public setValue(object: Object, attribute: string, oldValue: Object): boolean {//, newValue: Object
+    public setValue(object: Object, attribute: string, newValue: Object, oldValue?: Object): boolean {//
         return false;
     }
 

@@ -52,16 +52,37 @@ export class Bridge extends Control {
         });
     }
 
-    public static addProperties(prop: Object, item: Data) {
-        if (!prop) {
+    public static addProperties(values: Object, item: Data) {
+        if (!values) {
             return;
         }
-        for (let property in prop) {
-            if (prop.hasOwnProperty(property) === false) {
-                continue;
+        if(values['prop']) {
+            let prop = values['prop'];
+            for (let property in prop) {
+                if (prop.hasOwnProperty(property) === false) {
+                    continue;
+                }
+                if (prop[property] !== null && '' !== prop[property]) {
+                    item.setValue(property, prop[property]);
+                }
             }
-            if (prop[property] !== null && '' !== prop[property]) {
-                item.setValue(property, prop[property]);
+        } else {
+            let upd = values['upd'];
+            let rem = values['rem'];
+
+            for (let property in upd) {
+                if (upd.hasOwnProperty(property) === false) {
+                    continue;
+                }
+                if (rem.hasOwnProperty(property) === false) {
+                    if (upd[property] !== null && '' !== upd[property]) {
+                        item.setValue(property, upd[property]);
+                    }
+                }else {
+                    if(item.getValue(property) === rem[property]) {
+                        item.setValue(property, upd[property]);
+                    }
+                }
             }
         }
     }
@@ -168,8 +189,8 @@ export class Bridge extends Control {
                     this.controls[i].addItem(this, item);
                 }
             }
-            Bridge.addProperties(config['prop'], item);
-            Bridge.addProperties(config['upd'], item);
+            Bridge.addProperties(config, item);
+            //Bridge.addProperties(config['upd'], item);
             let keys: string[] = Object.keys(this.adapters);
             if (keys.length > 0) {
                 let i;
@@ -177,14 +198,16 @@ export class Bridge extends Control {
                     try{
                         let adapterList = this.adapters[keys[i]];
                         if(adapterList instanceof Adapter){
+                            alert("config: " + JSON.stringify(config));
                             adapterList.update(JSON.stringify(config));
                         }else{
                             for (let adapter of adapterList) {
+                                alert("config2: " + JSON.stringify(config));
                                 adapter.update(JSON.stringify(config));
                             }
                         }
                     }catch(err){
-                        alert("error: " + err.message+ "("+i+'#'+keys[i]+")");
+                        alert("error: " + err.name + ", " + err.message+ "("+i+'#'+keys[i]+")");
                     }
                 }
             }
@@ -270,7 +293,7 @@ export class Bridge extends Control {
      * @param newValue
      * @returns {boolean}
      */
-    public setValue(object: Object, attribute: string, newValue: Object): boolean {//, oldValue: Object
+    public setValue(object: Object, attribute: string, newValue: Object, oldValue?: Object): boolean {
         let obj: Object;
         let id: string;
         if (object instanceof String || typeof object === 'string') {
@@ -293,9 +316,19 @@ export class Bridge extends Control {
             // Could be done here, but currently is done at this.execueChange..:
             // obj[attribute] = value;
         }
-        let upd = {};
-        upd[attribute] = newValue;
-        this.load({'id': id, upd});
+
+        let tmp = {'id': id};
+        if(typeof(newValue) !== 'undefined'){
+            let upd = {};
+            upd[attribute] = newValue;
+            tmp['upd'] = upd;
+        }
+        if(typeof(oldValue) !== 'undefined'){
+            let rem = {};
+            rem[attribute] = oldValue;
+            tmp['rem'] = rem;
+        }
+        this.load(tmp);
         return true;
     }
 

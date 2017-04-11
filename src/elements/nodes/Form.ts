@@ -112,11 +112,11 @@ export class Form extends Control {
     }
 
 
-    public setValue(object: Object, attribute: string, value: Object): boolean {
+    public setValue(object: Object, attribute: string, newValue: Object,  oldValue?: Object): boolean {
         if (this.$owner != null) {
-            return this.getRoot().setValue(object, attribute, value);
+            return this.getRoot().setValue(object, attribute, newValue, oldValue);
         }
-        return super.setValue(object, attribute, value);
+        return super.setValue(object, attribute, newValue, oldValue);
     }
 
     /**
