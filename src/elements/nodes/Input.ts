@@ -77,8 +77,8 @@ export class Input extends Control {
         if (this.property) {
             this.entity = this.getRoot().getItem(this.property);
 
-            this.entity.prop[this.lastProperty] = this.$view.getAttribute(this.lastProperty) || this.entity.prop[this.lastProperty];
-            this.entity.property = this.lastProperty;
+            this.entity.setValue(this.lastProperty, this.$view.getAttribute(this.lastProperty) || this.entity.getValue(this.lastProperty));
+            this.entity.property = this.property.split('.')[0];
             this.entity.addListener(this);
 
             this.refreshControl();
