@@ -67,18 +67,17 @@ export class Bridge extends Control {
                 }
             }
         } else {
-            let upd = values['upd'];
-            let rem = values['rem'];
+            let upd = values['upd'] || {};
+            let rem = values['rem'] || {};
 
             for (let property in upd) {
                 if (upd.hasOwnProperty(property) === false) {
                     continue;
                 }
                 if (rem.hasOwnProperty(property) === false) {
-                    if (upd[property] !== null && '' !== upd[property]) {
-                        item.setValue(property, upd[property]);
-                    }
+                    item.setValue(property, upd[property]);
                 } else {
+                    // if we have a rem, we wan't to check, if its a valid change (teh old value is the value in rem)
                     if (item.getValue(property) === rem[property]) {
                         item.setValue(property, upd[property]);
                     }

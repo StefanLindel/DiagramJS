@@ -663,7 +663,9 @@ export class Table extends Control {
             // register listeners
             obj.model.addListener(this);
             // create tr
-            this.$bodysection.appendChild(this.createRow(obj));
+            let row = this.createRow(obj);
+            this.$bodysection.appendChild(row);
+            this.cells[obj.id] = row;
         }
     }
 
