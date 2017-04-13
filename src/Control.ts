@@ -9,15 +9,31 @@ export abstract class Control {
     protected entity: Data;
     public id: string;
 
+    protected getStandardProperty(): string {
+        return "value";
+    }
+
+    protected generateID(property?: string, id?: string): string {
+        if (property) {
+            return property;
+        }
+        if (id) {
+            // will generate a data Object suitable for the Control..
+            // must be overridden, if the changeEvent shouldn't listen on value...
+            return id + '.' + this.getStandardProperty();//+ "_data"
+        }
+        return null;
+    }
+
     public init(owner: Control, property?: string, id?: string): Control {
         if (!this.$owner) {
             this.$owner = owner;
         }
-        if (!this.property) {
-            this.property = property || this.constructor.prototype.name;
-        }
         if (!this.id) {
             this.id = id;
+        }
+        if (!this.property) {
+            this.property = this.generateID(property, id);
         }
         return this;
     }
@@ -46,7 +62,7 @@ export abstract class Control {
         // this.getRoot().load(object);
         if (data.hasOwnProperty("prop")) {
             for (let key in data.prop) {
-                this.$view.setAttribute(key, data.prop[key]);
+                this.$view[key] = data.prop[key];
                 this.getRoot().setValue(this.entity, key, data.prop[key]);
             }
             return;
@@ -54,18 +70,30 @@ export abstract class Control {
         let hasRem = data.hasOwnProperty("rem");
         if (data.hasOwnProperty("upd")) {
             for (let key in data.upd) {
-                this.$view.setAttribute(key, data.upd[key]);
                 let oldValue;
-                if(hasRem && data.rem.hasOwnProperty(key)){
+                if (hasRem && data.rem.hasOwnProperty(key)) {
+                    // if there's a rem, the oldValue from rem will be used and expected to be right..
                     oldValue = data.rem[key];
                     delete data.rem[key];
+                } else {
+                    // try to get the oldValue directly from the entity...
+                    oldValue = this.entity.getValue(key);
                 }
+                if (data.upd[key] == oldValue || this.$view[key] == data.upd[key]) {
+                    continue;
+                }
+                this.$view[key] = data.upd[key];
                 this.getRoot().setValue(this.entity, key, data.upd[key], oldValue);
             }
         }
         if (hasRem) {
             for (let key in data.rem) {
-                this.$view.removeAttribute(key);
+                let oldValue = this.$view[key];
+                delete this.$view[key];
+                if (oldValue != data.rem[key]) { //todo: !oldValue oder oldValue == newVAlue...
+                    continue;
+                }
+                // this.$view.removeAttribute(key);
                 this.getRoot().setValue(this.entity, key, null, data.rem[key]);
             }
         }

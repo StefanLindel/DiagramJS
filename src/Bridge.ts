@@ -211,13 +211,27 @@ export class Bridge extends Control {
         if (this.controls[id]) {
             control = this.controls[id];
             control.initControl(json);
+            let keys: string[] = Object.keys(this.adapters);
+            if (keys.length > 0) {
+                let i;
+                for (i = 0; i < keys.length; i++) {
+                    let adapterList = this.adapters[keys[i]];
+                    if (adapterList instanceof Adapter) {
+                        adapterList.update(JSON.stringify(config));
+                    } else {
+                        for (let adapter of adapterList) {
+                            adapter.update(JSON.stringify(config));
+                        }
+                    }
+                }
+            }
             return control;
         }
 
         if (typeof(this.controlFactory[className]) === 'object' || typeof(this.controlFactory[className]) === 'function') {
             let obj = this.controlFactory[className];
             control = new obj(json);
-            Util.initControl(owner || this, control, className, id, json);
+            Util.initControl(owner || this, control, config['property'], id, json);
 
             if (control.id) {
                 this.controls[control.id] = control;
@@ -311,12 +325,12 @@ export class Bridge extends Control {
         }
 
         let tmp = {'id': id};
-        if (typeof(newValue) !== 'undefined') {
+        if (typeof(newValue) !== 'undefined' && newValue != null) {
             let upd = {};
             upd[attribute] = newValue;
             tmp['upd'] = upd;
         }
-        if (typeof(oldValue) !== 'undefined') {
+        if (typeof(oldValue) !== 'undefined' && oldValue != null) {
             let rem = {};
             rem[attribute] = oldValue;
             tmp['rem'] = rem;
