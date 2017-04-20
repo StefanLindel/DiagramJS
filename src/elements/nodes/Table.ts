@@ -176,7 +176,7 @@ export class Table extends Control {
                     this.$view.appendChild(this.$headersection);
                 } else {
                     // take first thead element
-                    this.$headersection = header.item(0);
+                    this.$headersection = <HTMLTableSectionElement>header.item(0);
                 }
             }
             if (!headerrow) {
@@ -249,7 +249,7 @@ export class Table extends Control {
         let first = this.$headersection.children.item(0);
         this.$headersection.insertBefore(searchBar, first);
 
-        this.updateElement(this.property);
+        this.updateElement(this.property, null);
 
         // now update those elements, that were not loaded currently
     }
@@ -352,7 +352,7 @@ export class Table extends Control {
     public propertyChange(entity: Data, property: string, oldValue: Object, newValue: Object) {
         if (entity) {
             // Check for Show
-            if (this.property && this.property !== entity.property) {
+            if (this.property && this.property !== entity.id) {
                 return;
             }
         }
@@ -397,6 +397,7 @@ export class Table extends Control {
         if (showItem) {
             this.showItem(item, true);
         }
+        // super.propertyChange(entity, property, newValue, oldValue);
     }
 
     public sort(column: Column) {
@@ -619,7 +620,7 @@ export class Table extends Control {
     }
 
 
-    protected updateElement(value: string): void {
+    protected updateElement(property: string, value: string): void {
         // first clear all elements inside the table:
         for (let item of this.items) {
             if (item instanceof BridgeElement) {
@@ -637,7 +638,8 @@ export class Table extends Control {
                 if (items.hasOwnProperty(j)) {
                     let item = items[j];
                     if (item instanceof Data) {
-                        if (value == item.property) {
+                        if(property == j){
+                        // if (property == item.property) {
                             let i = new BridgeElement(<Data>item);
                             this.items.push(i);
                             this.itemsIds[item.id] = i;

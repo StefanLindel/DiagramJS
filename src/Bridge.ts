@@ -131,6 +131,23 @@ export class Bridge extends Control {
         return 'control' + (this.controlNo++);
     }
 
+    public adapterUpdate(message:string){
+        let keys: string[] = Object.keys(this.adapters);
+        if (keys.length > 0) {
+            let i;
+            for (i = 0; i < keys.length; i++) {
+                let adapterList = this.adapters[keys[i]];
+                if (adapterList instanceof Adapter) {
+                    adapterList.update(message);
+                } else {
+                    for (let adapter of adapterList) {
+                        adapter.update(message);
+                    }
+                }
+            }
+        }
+    }
+
     public load(json: JSON|Object, owner?: Control): any {
         let config = {}, className: string, id: string;
         if (typeof(json) === 'string') {
@@ -177,9 +194,9 @@ export class Bridge extends Control {
             // Its Data
             let newData = !this.hasItem(config['id']);
             let item: Data = this.getItem(config['id']);
-            if (id && className && !item.property) {
-                item.property = className;
-            }
+            // if (id && className && !item.hasProperty()) {
+            //     item.property = className;
+            // }
             if (newData) {
                 for (let i in this.controls) {
                     if (this.controls.hasOwnProperty(i) === false) {
@@ -190,20 +207,7 @@ export class Bridge extends Control {
             }
             Bridge.addProperties(config, item);
             //Bridge.addProperties(config['upd'], item);
-            let keys: string[] = Object.keys(this.adapters);
-            if (keys.length > 0) {
-                let i;
-                for (i = 0; i < keys.length; i++) {
-                    let adapterList = this.adapters[keys[i]];
-                    if (adapterList instanceof Adapter) {
-                        adapterList.update(JSON.stringify(config));
-                    } else {
-                        for (let adapter of adapterList) {
-                            adapter.update(JSON.stringify(config));
-                        }
-                    }
-                }
-            }
+           this.adapterUpdate(JSON.stringify(config));
             return item;
         }
 
@@ -211,20 +215,7 @@ export class Bridge extends Control {
         if (this.controls[id]) {
             control = this.controls[id];
             control.initControl(json);
-            let keys: string[] = Object.keys(this.adapters);
-            if (keys.length > 0) {
-                let i;
-                for (i = 0; i < keys.length; i++) {
-                    let adapterList = this.adapters[keys[i]];
-                    if (adapterList instanceof Adapter) {
-                        adapterList.update(JSON.stringify(config));
-                    } else {
-                        for (let adapter of adapterList) {
-                            adapter.update(JSON.stringify(config));
-                        }
-                    }
-                }
-            }
+            this.adapterUpdate(JSON.stringify(config));
             return control;
         }
 
@@ -325,12 +316,12 @@ export class Bridge extends Control {
         }
 
         let tmp = {'id': id};
-        if (typeof(newValue) !== 'undefined' && newValue != null) {
+        if (typeof(newValue) !== 'undefined' && newValue !== null) {
             let upd = {};
             upd[attribute] = newValue;
             tmp['upd'] = upd;
         }
-        if (typeof(oldValue) !== 'undefined' && oldValue != null) {
+        if (typeof(oldValue) !== 'undefined' && oldValue !== null) {
             let rem = {};
             rem[attribute] = oldValue;
             tmp['rem'] = rem;

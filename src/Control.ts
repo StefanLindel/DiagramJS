@@ -53,17 +53,11 @@ export abstract class Control {
         if (this.$view == null) {
             return;
         }
-        // let object = {
-        //     'id' = this.entity.id,
-        //     rem: data[rem],
-        //     upd: data.upd,
-        //     prop: data.prop
-        // };
-        // this.getRoot().load(object);
         if (data.hasOwnProperty("prop")) {
             for (let key in data.prop) {
+                let oldValue = this.$view[key];
                 this.$view[key] = data.prop[key];
-                this.getRoot().setValue(this.entity, key, data.prop[key]);
+                this.getRoot().setValue(this, key, data.prop[key], oldValue);
             }
             return;
         }
@@ -71,43 +65,76 @@ export abstract class Control {
         if (data.hasOwnProperty("upd")) {
             for (let key in data.upd) {
                 let oldValue;
+                let newValue = data.upd[key];
+                let entity;
+                if (newValue == this.$view[key]) {
+                    // new Value equals old value, so we don't need to change anything..
+                    delete data.rem[key];
+                    continue;
+                }
                 if (hasRem && data.rem.hasOwnProperty(key)) {
                     // if there's a rem, the oldValue from rem will be used and expected to be right..
                     oldValue = data.rem[key];
+                    if(this.entity && this.entity.getValue(key) == oldValue){
+                        entity = this.entity;
+                    }else if(oldValue == this.$view[key]){
+                        entity = this;
+                    }
                     delete data.rem[key];
-                } else {
-                    // try to get the oldValue directly from the entity...
-                    oldValue = this.entity.getValue(key);
+
+                    if(entity === null){
+                        continue;
+                    }
+                }else{
                 }
-                if (data.upd[key] == oldValue || this.$view[key] == data.upd[key]) {
+
+                if(entity){
+                    if(!hasRem){
+                        if(entity == this.entity){
+                            oldValue = this.entity.getValue(key);
+                        }else{
+                            oldValue = this.$view[key];
+                        }
+                    }
+                }else{
+                    if (this.entity) {
+                        // try to get the oldValue directly from the entity...
+                        oldValue = this.entity.getValue(key);
+                        entity = this.entity;
+                    }
+                    if (oldValue === null) {
+                        // if there was no data in the entity, we try to get oldValue from the $view
+                        oldValue = this.$view[key];
+                        entity = this;
+                    }
+                }
+
+                //  || oldValue !== this.$view[key]
+                if (newValue == oldValue) {
+                    // no match, so update should be wrong...
                     continue;
                 }
-                this.$view[key] = data.upd[key];
-                this.getRoot().setValue(this.entity, key, data.upd[key], oldValue);
+                if(entity == this){
+                    this.$view[key] = newValue;
+                }else{
+                    this.updateElement(key, newValue);
+                }
+                this.getRoot().setValue(entity, key, newValue, oldValue);
             }
         }
         if (hasRem) {
             for (let key in data.rem) {
                 let oldValue = this.$view[key];
-                delete this.$view[key];
-                if (oldValue != data.rem[key]) { //todo: !oldValue oder oldValue == newVAlue...
+                if (oldValue != data.rem[key] || data.upd[key] == oldValue || this.$view[key] == data.upd[key]) {
+                    // if rem is invalid, or if the change is already applied, don't do anything..
                     continue;
                 }
+                //delete this.$view[key];
+                this.updateElement(key, null);
                 // this.$view.removeAttribute(key);
-                this.getRoot().setValue(this.entity, key, null, data.rem[key]);
+                this.getRoot().setValue(this, key, null, data.rem[key]);
             }
         }
-    }
-
-    /**
-     * refreshes the $view with the corresponding data
-     */
-    public refreshControl() {
-        // e.g. for InputField:
-        // set Value of field to Value of Entity
-        // if(this.entity.getValue(this.lastProperty) != null && this.$view){
-        //     this.$view.setAttribute("value", this.entity.getValue(this.lastProperty));
-        // }
     }
 
     public getItem(id: string): Data {
@@ -134,21 +161,21 @@ export abstract class Control {
      * @param newValue
      */
     public propertyChange(entity: Data, property: string, oldValue: any, newValue: any) {
-
+        this.getRoot().setValue(this, property, newValue, oldValue);
     }
 
     public getId(): string {
         return this.id;
     }
 
-    public load(json: JSON|Object, owner?: Control): any {
+    public load(json: JSON | Object, owner?: Control): any {
 
     }
 
     public addItem(source: Bridge, entity: Data) {
         // check for new Element in Bridge
         if (entity) {
-            if (!this.property || this.property === entity.property) {
+            if (!this.property || entity.hasProperty(this.property)) {
                 entity.addListener(this);
                 this.entity = entity;
             }
@@ -177,13 +204,14 @@ export abstract class Control {
         // remove listener on old object
         if (this.entity) {
             this.entity.removeListener(this);
+            this.entity.removeListener(this, this.lastProperty);
         }
 
         // add listener to object..
         if (object) {
             object.addListener(this);
             this.entity = object;
-            this.updateElement(object.prop[this.lastProperty]);
+            this.updateElement(this.lastProperty, object.prop[this.lastProperty]);
         }
     }
 
@@ -209,7 +237,7 @@ export abstract class Control {
         return this;
     }
 
-    protected updateElement(value: string): void {
+    protected updateElement(property: string, value: string): void {
     }
 
     protected registerEventListener(eventType: string, htmlElement: HTMLElement) {
