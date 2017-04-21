@@ -254,6 +254,10 @@ export class Table extends Control {
         // now update those elements, that were not loaded currently
     }
 
+    get lastProperty(): string {
+        return this.property.split('.')[0];
+    }
+
     public tableEvent(type: string, e: Event) {
         let button: number = 0;
         let eventX: number = 0;
@@ -638,8 +642,8 @@ export class Table extends Control {
                 if (items.hasOwnProperty(j)) {
                     let item = items[j];
                     if (item instanceof Data) {
-                        if(property == j){
-                        // if (property == item.property) {
+                        if (property == j) {
+                            // if (property == item.property) {
                             let i = new BridgeElement(<Data>item);
                             this.items.push(i);
                             this.itemsIds[item.id] = i;

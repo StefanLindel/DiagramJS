@@ -6,11 +6,50 @@ export abstract class Control {
     public $owner: Control;
     public property: string;
     public $view: Element;
+    public viewData: Data;
     protected entity: Data;
     public id: string;
 
     protected getStandardProperty(): string {
         return "value";
+    }
+
+    protected getViewData(){
+        if(!this.viewData){
+            // create new
+            this.viewData = this.getRoot().getItem(this.getControlDataID());
+            this.saveViewInData();
+        }
+        return this.viewData;
+    }
+
+    /**
+     * Save all properties of the view element in the data object of the control
+     */
+    protected saveViewInData(){
+        if(this.$view){
+            let data = this.getViewData();
+            let keys = Object.keys(this.$view);
+            keys.push("value");
+            for (let i = 0; i < keys.length; i++) {
+                let attr = keys[i];
+                if(!this.$view.hasOwnProperty(attr)){
+                    continue;
+                }
+                if(!data.hasProperty(attr)){
+                    data.addListener(this, attr);
+                }
+                data.setValue(attr, this.$view[attr]);
+            }
+        }
+    }
+
+    /**
+     * the id of the Data object, that contains the properties of the view
+     * @returns {string}
+     */
+    protected getControlDataID(){
+        return this.id + "_data";
     }
 
     protected generateID(property?: string, id?: string): string {
@@ -55,21 +94,23 @@ export abstract class Control {
         }
         if (data.hasOwnProperty("prop")) {
             for (let key in data.prop) {
-                let oldValue = this.$view[key];
-                this.$view[key] = data.prop[key];
+                let oldValue = this.getViewData().getValue(key);
+                this.getViewData().setValue(key, data.prop[key]);
                 this.getRoot().setValue(this, key, data.prop[key], oldValue);
             }
             return;
         }
         let hasRem = data.hasOwnProperty("rem");
+        let removed = [];
         if (data.hasOwnProperty("upd")) {
             for (let key in data.upd) {
                 let oldValue;
                 let newValue = data.upd[key];
                 let entity;
-                if (newValue == this.$view[key]) {
+                if (newValue == this.getViewData().getValue(key)) {
                     // new Value equals old value, so we don't need to change anything..
-                    delete data.rem[key];
+                    // delete data.rem[key];
+                    removed.push(data.rem[key]);
                     continue;
                 }
                 if (hasRem && data.rem.hasOwnProperty(key)) {
@@ -77,7 +118,7 @@ export abstract class Control {
                     oldValue = data.rem[key];
                     if(this.entity && this.entity.getValue(key) == oldValue){
                         entity = this.entity;
-                    }else if(oldValue == this.$view[key]){
+                    }else if(oldValue == this.getViewData().getValue(key)){
                         entity = this;
                     }
                     delete data.rem[key];
@@ -93,7 +134,7 @@ export abstract class Control {
                         if(entity == this.entity){
                             oldValue = this.entity.getValue(key);
                         }else{
-                            oldValue = this.$view[key];
+                            oldValue = this.getViewData().getValue(key);
                         }
                     }
                 }else{
@@ -104,18 +145,18 @@ export abstract class Control {
                     }
                     if (oldValue === null) {
                         // if there was no data in the entity, we try to get oldValue from the $view
-                        oldValue = this.$view[key];
+                        oldValue = this.getViewData().getValue(key);
                         entity = this;
                     }
                 }
 
-                //  || oldValue !== this.$view[key]
+                //  || oldValue !== this.viewData.getValue(key)
                 if (newValue == oldValue) {
                     // no match, so update should be wrong...
                     continue;
                 }
                 if(entity == this){
-                    this.$view[key] = newValue;
+                    this.getViewData().setValue(key, newValue);
                 }else{
                     this.updateElement(key, newValue);
                 }
@@ -124,17 +165,21 @@ export abstract class Control {
         }
         if (hasRem) {
             for (let key in data.rem) {
-                let oldValue = this.$view[key];
-                if (oldValue != data.rem[key] || data.upd[key] == oldValue || this.$view[key] == data.upd[key]) {
+                if(removed.hasOwnProperty(key)){
+                    continue;
+                }
+                let oldValue = this.getViewData().getValue(key);
+                if (oldValue != data.rem[key] || data.upd !== undefined && (data.upd[key] == oldValue || this.getViewData().getValue(key) == data.upd[key])) {
                     // if rem is invalid, or if the change is already applied, don't do anything..
                     continue;
                 }
-                //delete this.$view[key];
+                //delete this.viewData.getValue(key);
                 this.updateElement(key, null);
                 // this.$view.removeAttribute(key);
-                this.getRoot().setValue(this, key, null, data.rem[key]);
+                this.getRoot().setValue(this, key, this.getViewData().getValue(key), oldValue);
             }
         }
+        this.saveViewInData();
     }
 
     public getItem(id: string): Data {
@@ -198,18 +243,21 @@ export abstract class Control {
             return;
         }
         let objId = property.split('.')[0];
-        let object = this.$owner.getItem(objId);
-        this.property = property;
+        let object = null;
+        if(this.$owner.hasItem(objId)){
+            object = this.$owner.getItem(objId);
+        }
 
         // remove listener on old object
         if (this.entity) {
-            this.entity.removeListener(this);
+            // this.entity.removeListener(this);
             this.entity.removeListener(this, this.lastProperty);
         }
+        this.property = property;
 
         // add listener to object..
         if (object) {
-            object.addListener(this);
+            object.addListener(this, this.lastProperty);
             this.entity = object;
             this.updateElement(this.lastProperty, object.prop[this.lastProperty]);
         }

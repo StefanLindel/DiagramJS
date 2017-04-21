@@ -70,7 +70,7 @@ export class Input extends Control {
                         if (data.hasOwnProperty(attr) === false) {
                             continue;
                         }
-                        this.$view[attr] =  data[attr];
+                        this.$view[attr] = data[attr];
                     }
                 } else {
                     if (this.type) {
@@ -91,16 +91,17 @@ export class Input extends Control {
 
         // check if object already exists
         if (this.property) {
-            this.entity = this.getRoot().getItem(this.property);
+            if(this.getRoot().hasItem(this.property)){
+                this.entity = this.getRoot().getItem(this.property);
 
-            if(!useData){
-                // only if we have a inputField before with a value...
-                this.entity.setValue(this.lastProperty, this.$view[this.lastProperty]);
+                if (!useData) {
+                    // only if we have a inputField before with a value...
+                    this.entity.setValue(this.lastProperty, this.$view[this.lastProperty]);
+                }
+                // this.entity.property = this.lastProperty;
+                this.entity.addListener(this, this.lastProperty);//,this.lastProperty
+                this.updateElement(this.lastProperty, this.entity.getValue(this.lastProperty));
             }
-            // this.entity.property = this.lastProperty;
-            this.entity.addListener(this);//,this.lastProperty
-
-            this.updateElement(this.lastProperty, this.entity.getValue(this.lastProperty));
 
             // Add listener to Input field:
             this.$view['onchange'] = ((ev: Event) => {
@@ -108,7 +109,7 @@ export class Input extends Control {
                 }
             );
         } else {
-            this.entity = new Data();
+            // this.entity = new Data();
         }
     }
 
@@ -117,22 +118,17 @@ export class Input extends Control {
         if (this.property && entity) {
             if (entity.id === this.property.split('.')[0]) {
                 this.entity = entity;
-                entity.addListener(this);
+                entity.addListener(this, this.lastProperty);
             }
         }
     }
 
-    public registerListenerOnHTMLObject(eventType: string): boolean {
-        this.registerEventListener(eventType, <HTMLElement> this.$view);
-        return true;
-    }
-
     protected updateElement(property: string, value: string) {
-        if (this.$view instanceof HTMLInputElement){
-            if(value != null){
+        if (this.$view instanceof HTMLInputElement) {
+            if (value != null) {
                 // this.getRoot().setValue(this, property, value, (<HTMLInputElement>this.$view)[property]);
                 (<HTMLInputElement>this.$view)[property] = value;
-            }else{
+            } else {
                 delete (<HTMLInputElement>this.$view)[property];
             }
         }
@@ -152,7 +148,18 @@ export class Input extends Control {
                 }
             } else {
             }
-            this.getRoot().setValue(this.entity, this.lastProperty, newVal, this.entity.getValue(this.lastProperty));
+            let entity;
+            let value;
+            if (this.entity) {
+                entity = this.entity;
+                value = this.entity.getValue(this.lastProperty);
+            } else {
+                entity = this;
+                if (this.$view) {
+                    value = this.$view[this.lastProperty];
+                }
+            }
+            this.getRoot().setValue(entity, this.lastProperty, newVal, value);
         } else {
             console.log('value does not match the pattern...');
         }

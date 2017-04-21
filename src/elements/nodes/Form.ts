@@ -112,6 +112,10 @@ export class Form extends Control {
     }
 
 
+    get lastProperty(): string {
+        return this.property.split('.')[0];
+    }
+
     public setValue(object: Object, attribute: string, newValue: Object,  oldValue?: Object): boolean {
         if (this.$owner != null) {
             return this.getRoot().setValue(object, attribute, newValue, oldValue);
