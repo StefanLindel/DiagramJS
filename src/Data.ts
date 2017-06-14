@@ -7,6 +7,40 @@ export default class Data {
     $listener: Object = {};
     property: string;
 
+    public addProperties(values: Object) {
+        if (!values) {
+            return;
+        }
+        if (values['prop']) {
+            let prop = values['prop'];
+            for (let property in prop) {
+                if (prop.hasOwnProperty(property) === false) {
+                    continue;
+                }
+                if (prop[property] !== null && '' !== prop[property]) {
+                    this.setValue(property, prop[property]);
+                }
+            }
+        } else {
+            let upd = values['upd'] || {};
+            let rem = values['rem'] || {};
+
+            for (let property in upd) {
+                if (upd.hasOwnProperty(property) === false) {
+                    continue;
+                }
+                if (rem.hasOwnProperty(property) === false) {
+                    this.setValue(property, upd[property]);
+                } else {
+                    // if we have a rem, we wan't to check, if its a valid change (teh old value is the value in rem)
+                    if (this.getValue(property) === rem[property]) {
+                        this.setValue(property, upd[property]);
+                    }
+                }
+            }
+        }
+    }
+
     private nullCheck(property: string): string {
         if (property === undefined || property == null) {
             property = "";

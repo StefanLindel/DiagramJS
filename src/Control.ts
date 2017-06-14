@@ -186,6 +186,7 @@ export abstract class Control {
         return null;
     }
 
+
     public hasItem(id: string): boolean {
         return false;
     }
@@ -206,7 +207,10 @@ export abstract class Control {
      * @param newValue
      */
     public propertyChange(entity: Data, property: string, oldValue: any, newValue: any) {
-        this.getRoot().setValue(this, property, newValue, oldValue);
+        //FIXME this.getRoot().setValue(this, property, newValue, oldValue);
+        if(property == this.lastProperty) {
+            this.updateElement(property, newValue);
+        }
     }
 
     public getId(): string {
@@ -220,7 +224,7 @@ export abstract class Control {
     public addItem(source: Bridge, entity: Data) {
         // check for new Element in Bridge
         if (entity) {
-            if (!this.property || entity.hasProperty(this.property)) {
+            if (!this.property || entity.property == this.property) {
                 entity.addListener(this);
                 this.entity = entity;
             }

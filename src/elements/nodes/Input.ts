@@ -6,7 +6,6 @@ export class Input extends Control {
     private type: string;
     private applyingChange: boolean = false;
 
-
     protected getStandardProperty(): string {
         if ("checkbox" === this.type || "radio" === this.type) {
             return "checked";
@@ -91,6 +90,13 @@ export class Input extends Control {
 
         // check if object already exists
         if (this.property) {
+            // Add listener to Input field:
+            this.$view['onchange'] = ((ev: Event) => {
+                    this.controlChanged(ev);
+                }
+            );
+        }
+      /*  if (this.property) {
             if(this.getRoot().hasItem(this.property)){
                 this.entity = this.getRoot().getItem(this.property);
 
@@ -110,7 +116,7 @@ export class Input extends Control {
             );
         } else {
             // this.entity = new Data();
-        }
+        }*/
     }
 
     public addItem(source: Bridge, entity: Data) {
@@ -126,8 +132,12 @@ export class Input extends Control {
     protected updateElement(property: string, value: string) {
         if (this.$view instanceof HTMLInputElement) {
             if (value != null) {
-                // this.getRoot().setValue(this, property, value, (<HTMLInputElement>this.$view)[property]);
-                (<HTMLInputElement>this.$view)[property] = value;
+                if(property == this.lastProperty) {
+                    (<HTMLInputElement>this.$view)[this.getStandardProperty()] = value;
+                } else {
+                    // this.getRoot().setValue(this, property, value, (<HTMLInputElement>this.$view)[property]);
+                    (<HTMLInputElement>this.$view)[property] = value;
+                }
             } else {
                 delete (<HTMLInputElement>this.$view)[property];
             }
@@ -140,7 +150,7 @@ export class Input extends Control {
         }
         let element = (<HTMLInputElement>this.$view);
         if (element.checkValidity()) {
-            let newVal = element[this.lastProperty];
+            let newVal = element[this.getStandardProperty()];
             if (this.isKeyOnly()) {
                 // we expect, element[this.lastProperty] to be boolean:
                 if (!newVal) {
@@ -148,9 +158,9 @@ export class Input extends Control {
                 }
             } else {
             }
-            let entity;
-            let value;
-            if (this.entity) {
+            //let entity;
+            //let value;
+            /*if (this.entity) {
                 entity = this.entity;
                 value = this.entity.getValue(this.lastProperty);
             } else {
@@ -158,8 +168,10 @@ export class Input extends Control {
                 if (this.$view) {
                     value = this.$view[this.lastProperty];
                 }
-            }
-            this.getRoot().setValue(entity, this.lastProperty, newVal, value);
+            }*/
+            this.entity.setValue(this.lastProperty, newVal);
+            //this.propertyChange(this.entity,this.lastProperty, this.entity.getValue(this.lastProperty), newVal);
+            //this.getRoot().setValue(entity, this.lastProperty, newVal, value);
         } else {
             console.log('value does not match the pattern...');
         }
