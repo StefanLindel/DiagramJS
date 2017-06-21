@@ -14,10 +14,7 @@ export class Input extends Control {
     }
 
     protected isKeyOnly(): boolean {
-        if ("checkbox" === this.type || "radio" === this.type) {
-            return true;
-        }
-        return false;
+        return ("checkbox" === this.type || "radio" === this.type);
     }
 
     public load(data: any) {
@@ -60,7 +57,7 @@ export class Input extends Control {
         if (inputField instanceof HTMLInputElement) {
             this.$view = inputField;
             this.type = inputField.type;
-            useData = false;
+            //useData = false;
         } else {
             if (!inputField) {
                 this.$view = document.createElement('input');

@@ -268,7 +268,7 @@ export abstract class Control {
     }
 
     public registerListenerOnHTMLObject(eventType: string): boolean {
-        return false;
+        return this.registerEventListener(eventType, <HTMLElement>this.$view);
     }
 
     // Normal Event HTML-Event
@@ -292,7 +292,13 @@ export abstract class Control {
     protected updateElement(property: string, value: string): void {
     }
 
-    protected registerEventListener(eventType: string, htmlElement: HTMLElement) {
+    protected registerEventListener(eventType: string, htmlElement: HTMLElement) :boolean{
+        if(!htmlElement) {
+            return false;
+        }
+        if(htmlElement instanceof HTMLElement == false) {
+            return false;
+        }
         let control = this;
         let listener = (t: any) => {
             t.eventType = eventType;
@@ -300,6 +306,7 @@ export abstract class Control {
             control.$owner.fireEvent(t);
         };
         htmlElement.addEventListener(eventType, listener);
+        return true;
     }
 
     get lastProperty(): string {

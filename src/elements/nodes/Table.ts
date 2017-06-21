@@ -35,7 +35,7 @@ export class Table extends Control {
         super();
     }
 
-    public load(data: any) {
+    public load(data: any) :void {
         let id: string;
         // init form HTML
         if (typeof(data) === 'string') {
@@ -75,18 +75,7 @@ export class Table extends Control {
                     if (data['columns'].hasOwnProperty(i) === false) {
                         continue;
                     }
-                    let col = new Column();
-                    let column = data['columns'][i];
-                    col.label = column.id;
-                    col.attribute = col['attribute'] || column.id;
-                    col.$element = document.createElement('th');
-                    col.$element.innerHTML = col.label;
-                    col.$element.draggable = true;
-
-                    // resize Header
-                    col.$resize = document.createElement('div');
-                    col.$resize.classList.add('resize');
-                    col.$element.appendChild(col.$resize);
+                    let col = this.parseData(data['columns'][i]);
                     this.addHeaderInfo(col);
                     this.columns.push(col);
                     this.tableOption.parentElement.insertBefore(col.$element, this.tableOption);
@@ -191,18 +180,7 @@ export class Table extends Control {
                 if (data['columns'].hasOwnProperty(i) === false) {
                     continue;
                 }
-                let col = new Column();
-                let column = data['columns'][i];
-                col.label = column.id;
-                col.attribute = col['attribute'] || column.id;
-                col.$element = document.createElement('th');
-                col.$element.innerHTML = col.label;
-                col.$element.draggable = true;
-
-                // resize Header
-                col.$resize = document.createElement('div');
-                col.$resize.classList.add('resize');
-                col.$element.appendChild(col.$resize);
+                let col = this.parseData(data['columns'][i]);
                 this.addHeaderInfo(col);
                 this.columns.push(col);
                 headerrow.appendChild(col.$element);
@@ -252,6 +230,22 @@ export class Table extends Control {
         this.updateElement(this.property, null);
 
         // now update those elements, that were not loaded currently
+    }
+
+    private parseData(column:any) : Column{
+        let col = new Column();
+        col.label = column.label || column.id;
+        col.attribute = column.attribute || column.label || column.id;
+        col.$element = document.createElement('th');
+        col.$element.innerHTML = col.label;
+        col.$element.draggable = true;
+
+        // resize Header
+        col.$resize = document.createElement('div');
+        col.$resize.classList.add('resize');
+        col.$element.appendChild(col.$resize);
+
+        return col;
     }
 
     get lastProperty(): string {

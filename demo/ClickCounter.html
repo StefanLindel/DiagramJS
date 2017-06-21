@@ -17,7 +17,9 @@
 
     var numberField = bridge.load("number");
 	
-	bridge.load({"class":"input", type:"button", value:"blub"});
+	var btn = bridge.load({"class":"input", type:"button", value:"blub"});
+	
+	bridge.registerListener("click", btn.id);
 //	var button = bridge.load("button");
 //	button.$element.innerHTML ="WELT";
 
