@@ -6,7 +6,7 @@ export class Button extends Control {
         super();
     }
 
-    public load(json:JSON): any {
+    public load(json: JSON, owner?: Control): any {
         this.createControl(this.$owner, json);
     }
 
