@@ -12,22 +12,59 @@
     float: left;
     position: relative;
 	border-color: #ceced2;
-    background-color: #f3f3f4;
 	border-radius:5px;
 	list-style-type:none;
-    background-image: none,linear-gradient(to bottom,rgba(255,255,255,.45) 0,rgba(255,255,255,0) 100%)
+    
+	
+	background-color:#f3f3f4;
+	background-image:none, linear-gradient(rgba(255, 255, 255, 0.45) 0px, rgba(255, 255, 255, 0) 100%);
+}
+
+.selectedItem:hover {
+background-color:#bebec3;
 }
 .selectedItem:after{
-content: "x";
-margin-left:10px;
-font-weight:bolder;
-cursor:pointer;
+	content: "x";
+	margin-left:10px;
+	font-weight:bolder;
+	cursor:pointer;
 }
 			</style>
 		</head>
 		<body>
 		</body>
+		
+		<input type="email" list="emails" multiple>
+<datalist id="emails">
+    <option value="first@example.com">
+    <option value="second@example.com">
+    <option value="third@example.com">
+    <option value="last@example.com">
+</datalist>
 
+<input type="text" list="texts" multiple>
+<datalist id="texts">
+    <option value="black">
+    <option value="gold">
+    <option value="grey">
+    <option value="pink">
+    <option value="turquoise">
+    <option value="red">
+    <option value="white">
+</datalist>
+		
+<input type="email" name="movies" list="movies" multiple/>
+  <datalist id="movies">
+
+  <label> or select one from the list:
+  <select name="movies" multi-select="true">
+   <option value="Star Wars">
+   <option value="The Godfather">
+   <option value="Goodfellas">
+  </select>
+   </label>
+
+  </datalist>
 		<script type="text/javascript">
     let bridge = new DiagramJS.Bridge();
     //bridge.load({"class": "autocomplete", "id": "number", "prop": {"value": 0}});
