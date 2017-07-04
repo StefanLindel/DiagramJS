@@ -153,6 +153,7 @@ export class Bridge extends Control {
             config['id'] = this.getId();
         }
         className = config['className'] || config['class'];
+        className = className.toLocaleLowerCase();
         id = config['id'];
 
         // Check For Control or Data

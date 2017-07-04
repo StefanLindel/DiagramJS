@@ -52,8 +52,6 @@ export class Clazz extends Node {
             y: pos.y,
             height: size.y,
             width: size.x,
-            rx: 1,
-            ry: 1,
             style: 'fill:white;stroke:black;stroke-width:2'
         });
 
