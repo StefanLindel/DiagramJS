@@ -57,7 +57,7 @@ export default class Data {
         return this.prop[attribute];
     }
 
-    public setValue(attribute: string, newValue: any) {
+    public setValue(attribute: string, newValue: any):void {
         let oldValue = this.prop[attribute];
         if (oldValue == newValue) {
             return;
@@ -68,6 +68,7 @@ export default class Data {
 
     protected firePropertyChange(attribute: string, oldValue: Object, newValue: Object) {
         attribute = this.nullCheck(attribute);
+        // at first fire for the given property
         let listeners: Control[] = this.getListeners(attribute);
         if (listeners) {
             for (let i in listeners) {

@@ -6,11 +6,21 @@ export class Input extends Control {
     private type: string;
     private applyingChange: boolean = false;
 
+    constructor() {
+        super();
+        this.viewListener = ((ev: Event) => {
+            this.controlChanged(ev);
+        });
+        this.properties.push("type");
+        this.properties.push("value");
+        this.properties.push("checked");
+    }
+
     protected getStandardProperty(): string {
         if ("checkbox" === this.type || "radio" === this.type) {
             return "checked";
         }
-        return super.getStandardProperty();
+//FIXME        return super.getStandardProperty();
     }
 
     protected isKeyOnly(): boolean {
@@ -35,7 +45,7 @@ export class Input extends Control {
             if (data.hasOwnProperty('property')) {
                 this.setProperty(data['property']);
             }
-            useData = true;
+            useData = false;
         }
         if (!id) {
             return;
@@ -55,12 +65,12 @@ export class Input extends Control {
         }
 
         if (inputField instanceof HTMLInputElement) {
-            this.$view = inputField;
+            this.setView(inputField);
             this.type = inputField.type;
             //useData = false;
         } else {
             if (!inputField) {
-                this.$view = document.createElement('input');
+                this.setView(document.createElement('input'));
                 if (typeof(data) !== 'string') {
                     for (let attr in data) {
                         if (data.hasOwnProperty(attr) === false) {
@@ -93,8 +103,7 @@ export class Input extends Control {
                 }
             );
         }
-      /*  if (this.property) {
-            if(this.getRoot().hasItem(this.property)){
+/*
                 this.entity = this.getRoot().getItem(this.property);
 
                 if (!useData) {
@@ -107,10 +116,10 @@ export class Input extends Control {
             }
 
             // Add listener to Input field:
-            this.$view['onchange'] = ((ev: Event) => {
-                    this.controlChanged(ev);
-                }
-            );
+            // this.$view['onchange'] = ((ev: Event) => {
+            //         this.controlChanged(ev);
+            //     }
+            // );
         } else {
             // this.entity = new Data();
         }*/
@@ -127,6 +136,7 @@ export class Input extends Control {
     }
 
     protected updateElement(property: string, value: string) {
+        alert("updateElement: property: " + property + ", value: " + value);
         if (this.$view instanceof HTMLInputElement) {
             if (value != null) {
                 if(property == this.lastProperty) {
@@ -147,6 +157,7 @@ export class Input extends Control {
         }
         let element = (<HTMLInputElement>this.$view);
         if (element.checkValidity()) {
+//<<<<<<< HEAD
             let newVal = element[this.getStandardProperty()];
             if (this.isKeyOnly()) {
                 // we expect, element[this.lastProperty] to be boolean:
@@ -169,6 +180,31 @@ export class Input extends Control {
             this.entity.setValue(this.lastProperty, newVal);
             //this.propertyChange(this.entity,this.lastProperty, this.entity.getValue(this.lastProperty), newVal);
             //this.getRoot().setValue(entity, this.lastProperty, newVal, value);
+//=======
+            // let newVal = element[this.lastProperty];
+            // if (this.isKeyOnly()) {
+            //     // we expect, element[this.lastProperty] to be boolean:
+            //     if (!newVal) {
+            //         newVal = null;
+            //     }
+            // } else {
+            // }
+            // let entity;
+            // let value;
+
+            // entity = this.getViewData();
+            // if (this.entity) {
+            //     entity = this.entity;
+            //     value = this.entity.getValue(this.lastProperty);
+            // } else {
+            //     entity = this;
+            //     if (this.$view) {
+            //         value = this.$view[this.lastProperty];
+            //     }
+            // }
+            // this.getRoot().setValue(entity, this.lastProperty, newVal, value);
+//            this.saveViewInData();
+//>>>>>>> addOldFunctions
         } else {
             console.log('value does not match the pattern...');
         }
@@ -179,7 +215,17 @@ export class Input extends Control {
         if (oldValue === type) {
             return;
         }
+        let oldStandardProperty = this.getStandardProperty();
         this.type = type;
+        let standardProperty = this.getStandardProperty();
+        if (oldStandardProperty) {
+            let index = this.properties.indexOf(oldStandardProperty, 0);
+            if (index > -1) {
+                this.properties.slice(index, 1);
+            }
+        }
+        this.properties.push(standardProperty);
+
         if (this.property && this.property.indexOf(this.id) == 0) {
             // property starts with id of control, hence we have a Data, that is only for the control
             // now we need to change property, if we change the type...

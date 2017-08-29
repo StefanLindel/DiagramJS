@@ -97,7 +97,7 @@ export class Bridge extends Control {
         return 'control' + (this.controlNo++);
     }
 
-    public adapterUpdate(message:string){
+    public adapterUpdate(message: string) {
         let keys: string[] = Object.keys(this.adapters);
         if (keys.length > 0) {
             let i;
@@ -114,7 +114,7 @@ export class Bridge extends Control {
         }
     }
 
-    public load(json: JSON|Object, owner?: Control): any {
+    public load(json: JSON | Object, owner?: Control): any {
         let config = {}, className: string, id: string;
         if (typeof(json) === 'string') {
             // Only a String
@@ -177,8 +177,7 @@ export class Bridge extends Control {
             //Bridge.addProperties(config['prop'], item);
             //Bridge.addProperties(config['upd'], item);
             //Bridge.addProperties(config['upd'], item);
-
-           this.adapterUpdate(JSON.stringify(config));
+            this.adapterUpdate(JSON.stringify(config));
             return item;
         }
 
@@ -263,6 +262,7 @@ export class Bridge extends Control {
      * @returns {boolean}
      */
     public setValue(object: Object, attribute: string, newValue: Object, oldValue?: Object): boolean {
+        alert("Bridge.setValue: oldVal:" + oldValue + ", newVal: " +  + newValue + ", attribute: " + attribute + ", object: " + JSON.stringify(object));
         let obj: Data;
         let id: string;
         if (object instanceof String || typeof object === 'string') {
