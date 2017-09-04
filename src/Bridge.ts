@@ -23,9 +23,13 @@ export class Bridge extends Control {
     private language: string = navigator.language.toUpperCase();
     private toolBar: HTMLElement;
 
-    constructor() {
+    constructor(viewRoot?: HTMLElement) {
         super();
         let i;
+
+        if(viewRoot){
+            this.$view = viewRoot;
+        }
 
         let keys: string[] = Object.keys(adapters);
         for (i = 0; i < keys.length; i++) {

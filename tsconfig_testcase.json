@@ -1,0 +1,25 @@
+{
+  "compileOnSave": true,
+  "compilerOptions": {
+    "noImplicitReturns": true,
+    "noImplicitAny": true,
+    "outDir": "dist/test",
+    "sourceRoot": "test/",
+    "module": "commonjs",
+    "moduleResolution": "node",
+    "preserveConstEnums": true,
+    "removeComments": true,
+    "suppressImplicitAnyIndexErrors": true,
+    "sourceMap": true,
+    "target": "es6",
+    "pretty": true
+  },
+  "include": [
+    "test/**/*.ts"
+  ],
+  "exclude": [
+    "dist",
+    "node_modules",
+    "demo"
+  ]
+}

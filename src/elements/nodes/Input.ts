@@ -137,7 +137,6 @@ export class Input extends Control {
     }
 
     protected updateElement(property: string, value: string) {
-        alert("updateElement: property: " + property + ", value: " + value);
         if (this.$view instanceof HTMLInputElement) {
             if (value != null) {
                 if(property == this.lastProperty) {
