@@ -122,13 +122,14 @@ export abstract class Control {
             return;
         }
         let hasRem = data.hasOwnProperty("rem");
-        let removed = [];
+        let removed: any[] = [];
         if (data.hasOwnProperty("upd")) {
             for (let key in data.upd) {
                 let oldValue;
                 let newValue = data.upd[key];
                 let entity;
-                if (false) {
+                const temp = false;
+                if (temp) {
 //                if (newValue == this.getViewData().getValue(key)) {
                     // new Value equals old value, so we don't need to change anything..
                     // delete data.rem[key];

@@ -21,6 +21,7 @@ export class Input extends Control {
             return "checked";
         }
 //FIXME        return super.getStandardProperty();
+        return "value";
     }
 
     protected isKeyOnly(): boolean {
