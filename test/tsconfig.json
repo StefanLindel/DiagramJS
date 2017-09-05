@@ -3,8 +3,8 @@
   "compilerOptions": {
     "noImplicitReturns": true,
     "noImplicitAny": true,
-    "outDir": "dist/test",
-    "sourceRoot": "test/",
+    "outDir": "../dist/test",
+    "sourceRoot": "./",
     "module": "commonjs",
     "moduleResolution": "node",
     "preserveConstEnums": true,
@@ -15,11 +15,11 @@
     "pretty": true
   },
   "include": [
-    "test/**/*.ts"
+    "../test/**/*.ts"
   ],
   "exclude": [
-    "dist",
-    "node_modules",
-    "demo"
+    "../dist",
+    "../node_modules",
+    "../demo"
   ]
 }

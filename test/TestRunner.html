@@ -13,8 +13,10 @@
 <body>
 <div class="testarea"></div>
 <div class="result">
-    valid: <span class="valid"></span><br />
+    valid: <span class="valid"></span><br/>
     failed: <span class="failing"></span>
+    <div class="errors">
+    </div>
 </div>
 <script type="text/javascript">
     let testarea = document.getElementsByClassName("testarea")[0];
@@ -26,7 +28,18 @@
     const testFramework = new DiagramJSTest.default(testarea);
     testFramework.run();
     const report = testFramework.report();
-//    console.log(JSON.stringify(report));
+    //    console.log(JSON.stringify(report));
+
+    const errors = testFramework.getErrors();
+    let errorarea = document.getElementsByClassName("errors")[0];
+
+    for (let [testCase, error] of errors.entries()) {
+        const element = document.createElement("p");
+        // escape the newlines:
+        const stackTrace = error.stack.replace(/[\n\r]/g, "\\n");
+        element.innerHTML = `<b onclick="console.log('${stackTrace}');" >${testCase.constructor.name}</b>: ${error}`;
+        errorarea.appendChild(element);
+    }
 
     valid.innerHTML = report.valid.length;
     failing.innerHTML = report.failing.length;

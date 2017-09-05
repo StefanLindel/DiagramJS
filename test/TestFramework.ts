@@ -6,6 +6,7 @@ export default class TestFramework {
     public runningCases: Promise<boolean>[] = [];
     public valid: TestCase[] = [];
     public failing: TestCase[] = [];
+    public errors: Map<TestCase, Error> = new Map();
     private root: HTMLElement;
 
     constructor(root: HTMLElement) {
@@ -24,12 +25,28 @@ export default class TestFramework {
         for (let testCase of this.cases) {
             const caseInstance = new testCase(this.root);
             caseInstance.init();
-            const promise = caseInstance.execute();
-            this.executeAndWait(promise, caseInstance);
-            this.runningCases.push(promise);
+            try {
+                const promise = caseInstance.execute();
+                // this.executeAndWait(promise, caseInstance);
+                if (promise === true) {
+                    this.valid.push(caseInstance);
+                } else {
+                    this.failing.push(caseInstance);
+                }
+                // this.runningCases.push(promise);
+            } catch (e) {
+                this.failing.push(caseInstance);
+                this.errors.set(caseInstance, e);
+                // console.log(e);
+            }
+            caseInstance.cleanup();
         }
         // }
         // );
+    }
+
+    public getErrors(){
+        return this.errors;
     }
 
     private executeAndWait(promise: boolean, caseInstance: any) {

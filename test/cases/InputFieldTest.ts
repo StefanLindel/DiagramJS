@@ -2,27 +2,27 @@ import {TestCase} from '../TestCase';
 
 export default class InputFieldTest extends TestCase {
     // execute(): Promise<boolean> {
-    execute(): boolean {
+    run() {
         // return <Promise<boolean>> Promise.resolve(()=> {
         this.loadModel();
         this.loadTextInput();
-        return this.control.children.length === 2;
+        this.assertEquals(2, this.control.children.length);
         // });
     }
 
     private loadTextInput() {
         this.bridge.load({
-            "class": "input",
-            "id": "J1.N1",
-            "property": "t3.room",
-            "type": "number"
+            'class': 'input',
+            'id': 'J1.N1',
+            'property': 't3.room',
+            'type': 'number'
         });
 
         this.bridge.load({
-            "class": "input",
-            "id": "J1.N2",
-            "property": "t1.room",
-            "type": "number"
+            'class': 'input',
+            'id': 'J1.N2',
+            'property': 't1.room',
+            'type': 'number'
         });
     }
 

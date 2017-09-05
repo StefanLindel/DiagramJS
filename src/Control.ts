@@ -131,7 +131,7 @@ export abstract class Control {
                 const temp = false;
                 if (temp) {
 //                if (newValue == this.getViewData().getValue(key)) {
-                    // new Value equals old value, so we don't need to change anything..
+                    // new Value assertEquals old value, so we don't need to change anything..
                     // delete data.rem[key];
                     if (hasRem && data.rem.hasOwnProperty(key)) {
                         removed.push(data.rem[key]);
