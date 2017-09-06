@@ -12,7 +12,7 @@ export default class TestFramework {
     constructor(root: HTMLElement) {
         this.root = root;
         this.cases = [];
-        const caseNames = Object.keys(cases);
+        const caseNames: string[] = Object.keys(cases);
         for (var i = 0; i < caseNames.length; i++) {
             const testCase = cases[caseNames[i]];
             this.cases.push(testCase);

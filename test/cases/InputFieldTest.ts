@@ -1,6 +1,6 @@
 import {TestCase} from '../TestCase';
 
-export default class InputFieldTest extends TestCase {
+export class InputFieldTest extends TestCase {
     // execute(): Promise<boolean> {
     run() {
         // return <Promise<boolean>> Promise.resolve(()=> {
