@@ -81,13 +81,13 @@ export class SymbolLibary {
         return 'drawNode';
     }
 
- /*FIXME   public static createImage(node: Symbol, model:Node) {
+ /*FIXME   public static createImage(node: Symbol, $graphModel:Node) {
         let n, img: HTMLElement;
-        // node.model = node;
+        // node.$graphModel = node;
         if (SymbolLibary.isSymbol(node)) {
             return SymbolLibary.draw(null, node);
         }
-        n = {tag: 'img', model: node, src: node['src']};
+        n = {tag: 'img', $graphModel: node, src: node['src']};
         let size = node.getSize();
         if (size.isEmpty() === false) {
             n['width'] = size.x;
@@ -97,7 +97,7 @@ export class SymbolLibary {
         }
         img = Util.create(n);
         if (size.isEmpty()) {
-            model.appendImage(img);
+            $graphModel.appendImage(img);
             return null;
         }
         return img;

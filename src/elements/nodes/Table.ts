@@ -350,7 +350,7 @@ export class Table extends Control {
     public propertyChange(entity: Data, property: string, oldValue: Object, newValue: Object) {
         if (entity) {
             // Check for Show
-            if (this.property && this.property !== entity.property) {
+            if (this.property && !entity.hasProperty(property)) {
                 return;
             }
         }

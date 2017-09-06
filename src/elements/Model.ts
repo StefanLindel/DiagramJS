@@ -6,7 +6,7 @@ import {Control} from '../Control';
 import {Util} from '../util';
 import {EventBus} from '../EventBus';
 
-export class Model extends DiagramElement {
+export class GraphModel extends DiagramElement {
     nodes: Object = {};
     edges: Object = {};
     private counter = 0;

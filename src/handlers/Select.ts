@@ -2,17 +2,17 @@ import {DiagramElement} from '../elements/BaseElements';
 import {Node} from '../elements/nodes';
 import {Edge} from '../elements/edges';
 import {Util} from '../util';
-import {Model} from '../elements/Model';
+import {GraphModel} from '../elements/Model';
 
 export class Select {
 
     private svgRoot: SVGSVGElement;
     private editShape: SVGSVGElement;
     private deleteShape: SVGSVGElement;
-    private model: Model;
+    private model: GraphModel;
     private padding = 5;
 
-    constructor(model: Model) {
+    constructor(model: GraphModel) {
         this.model = model;
         this.svgRoot = <SVGSVGElement><any>document.getElementById('root');
 

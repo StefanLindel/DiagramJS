@@ -5,7 +5,10 @@ export default class Data {
     id: string;
     //$listener: Control[] = [];
     $listener: Object = {};
-    property: string;
+
+    public getKeys() : string[] {
+        return Object.keys(this.prop);
+    }
 
     public addProperties(values: Object) {
         if (!values) {
@@ -140,5 +143,22 @@ export default class Data {
 
     public hasProperty(property: string): boolean {
         return this.prop.hasOwnProperty(property);
+    }
+
+    public addFrom(attribute: string, oldData: Data) : void{
+        if(oldData) {
+            this.addTo(attribute, oldData.getValue(attribute));
+        }else {
+            this.addTo(attribute, null);
+        }
+    }
+
+    public removeKey(key: string) : any{
+        if(this.hasProperty(key)) {
+            const oldValue = this.prop[key];
+            delete this.prop[key];
+            return oldValue;
+        }
+        return null;
     }
 }

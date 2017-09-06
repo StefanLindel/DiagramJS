@@ -74,7 +74,7 @@ export class Form extends Control {
         if (hasItem) {
             let item = this.$owner.getItem(objId);
             item.addListener(this);
-            this.entity = item;
+            this.$model = item;
         }
 
         // now create all the sub input controls

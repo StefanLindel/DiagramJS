@@ -8,7 +8,7 @@ export class DagreLayout implements Layout {
         if (!window['dagre']) {
             return;
         }
-        let model = graph.model;
+        let model = graph.$graphModel;
 
         const g = new window['dagre'].graphlib.Graph();
             // const g = new dagre.graphlib.Graph();

@@ -7,7 +7,7 @@ export class Random implements Layout {
 
   public layout(graph: Graph) {
 
-    let model = graph.model;
+    let model = graph.$graphModel;
 
     if (model.nodes) {
       for (let id in model.nodes) {

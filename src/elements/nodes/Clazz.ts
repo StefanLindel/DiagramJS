@@ -187,7 +187,7 @@ export class Clazz extends Node {
         width = 0;
         height = 10 + headerHeight;
 
-        if (this.property === 'Object' || this.getRoot()['model'].getType().toLowerCase() === 'objectdiagram') {
+        if (this.property === 'Object' || this.getRoot()['$graphModel'].getType().toLowerCase() === 'objectdiagram') {
             id = this.id.charAt(0).toLowerCase() + this.id.slice(1);
             item = 'Object';
         } else {
@@ -250,7 +250,7 @@ export class Clazz extends Node {
             'width': size.width
         });
 
-        if (this.property === 'Object' || this.getRoot()['model'].type.toLowerCase() === 'objectdiagram') {
+        if (this.property === 'Object' || this.getRoot()['$graphModel'].type.toLowerCase() === 'objectdiagram') {
             item.setAttribute('text-decoration', 'underline');
         }
         item.appendChild(document.createTextNode(id));
