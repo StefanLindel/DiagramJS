@@ -140,7 +140,8 @@ export class Bridge extends Control {
                             }
                         }
                         if (item.getAttribute("property")) {
-                            data.property = item.getAttribute("property");
+                            // TODO: FIXME!!!
+                            // data.property = item.getAttribute("property");
                         }
                     }
                 }
@@ -165,9 +166,10 @@ export class Bridge extends Control {
             // Its Data
             let newData = !this.hasItem(config['id']);
             let item: Data = this.getItem(config['id']);
-            if (id && className && !item.property) {
-                 item.property = className;
-            }
+            // TODO: FIXME!!!
+            // if (id && className && !item.property) {
+            //      item.property = className;
+            // }
             if (newData) {
                 for (let i in this.controls) {
                     if (this.controls.hasOwnProperty(i) === false) {

@@ -36,7 +36,11 @@
     for (let [testCase, error] of errors.entries()) {
         const element = document.createElement("p");
         // escape the newlines:
-        const stackTrace = error.stack.replace(/[\n\r]/g, "\\n");
+        let stackTrace = error.stack.replace(/[\n\r]/g, "\\n");
+        stackTrace = stackTrace.replace(/[\']/g, "\\'");
+        stackTrace = stackTrace.replace(/[\"]/g, "\\");
+        stackTrace = stackTrace.replace(/dist\//g, "");
+//        stackTrace = stackTrace.replace(/http:\/\/localhost:\d*\//g, "./../../");
         element.innerHTML = `<b onclick="console.log('${stackTrace}');" >${testCase.constructor.name}</b>: ${error}`;
         errorarea.appendChild(element);
     }

@@ -618,7 +618,7 @@ export class Table extends Control {
     }
 
 
-    protected updateElement(property: string, value: string): void {
+    public updateElement(property: string, value: string): void {
         // first clear all elements inside the table:
         for (let item of this.items) {
             if (item instanceof BridgeElement) {

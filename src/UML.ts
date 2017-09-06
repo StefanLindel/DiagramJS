@@ -14,6 +14,7 @@ export namespace UML{
         public static NAME:string = 'name';
         public static ATTRIBUTES:string = 'attributes';
         public static METHODS:string = 'methods';
+        private property: string;
 
         constructor() {
             super();
@@ -42,6 +43,7 @@ export namespace UML{
 
     }
     export class Attribute extends Data {
+        private property: string;
         constructor() {
             super();
             this.property = "Attribute";

@@ -152,21 +152,22 @@ export class Input extends Control {
     //     }
     // }
 
-    private controlChanged(ev: Event) {
+    public controlChanged(ev: Event) {
         if (this.$view instanceof HTMLInputElement == false) {
             return;
         }
         let element = (<HTMLInputElement>this.$view);
         if (element.checkValidity()) {
+        }
 //<<<<<<< HEAD
-            let newVal = element[this.getStandardProperty()];
-            if (this.isKeyOnly()) {
-                // we expect, element[this.lastProperty] to be boolean:
-                if (!newVal) {
-                    newVal = null;
-                }
-            } else {
-            }
+//             let newVal = element[this.getStandardProperty()];
+//             if (this.isKeyOnly()) {
+//                 // we expect, element[this.lastProperty] to be boolean:
+//                 if (!newVal) {
+//                     newVal = null;
+//                 }
+//             } else {
+//             }
             //let $graphModel;
             //let value;
             /*if (this.$graphModel) {
@@ -178,7 +179,7 @@ export class Input extends Control {
                     value = this.$view[this.lastProperty];
                 }
             }*/
-            this.$model.setValue(this.lastProperty, newVal);
+            // this.$model.setValue(this.lastProperty, newVal);
             //this.propertyChange(this.$graphModel,this.lastProperty, this.$graphModel.getValue(this.lastProperty), newVal);
             //this.getRoot().setValue($graphModel, this.lastProperty, newVal, value);
 //=======
@@ -206,9 +207,9 @@ export class Input extends Control {
             // this.getRoot().setValue($graphModel, this.lastProperty, newVal, value);
 //            this.saveViewInData();
 //>>>>>>> addOldFunctions
-        } else {
-            console.log('value does not match the pattern...');
-        }
+//         } else {
+//             console.log('value does not match the pattern...');
+//         }
     }
 
     public setType(type: string): void {

@@ -63,9 +63,9 @@ export class Div extends Control {
         this.$model = entity;
         // check for new Element in Bridge
         if (entity) {
-            if (!this.className || this.className === entity.property) {
+            if (!this.className || entity.hasProperty(this.className)) {
                 if (entity.id === this.property.split('.')[0]) {
-                    entity.addListener(this);
+                    entity.addListener(this, this.className);
                 }
             }
         }
@@ -80,7 +80,7 @@ export class Div extends Control {
         }
     }
 
-    private controlChanged(ev: Event) {
+    public controlChanged(ev: Event) {
         if (!(this.$view instanceof HTMLDivElement)){
             return;
         }

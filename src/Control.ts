@@ -1,6 +1,6 @@
-import {Bridge} from "./Bridge";
-import Data from "./Data";
-import EventListener from "./EventListener";
+import {Bridge} from './Bridge';
+import Data from './Data';
+import EventListener from './EventListener';
 
 export abstract class Control {
     public $owner: Control;
@@ -30,29 +30,29 @@ export abstract class Control {
         this.viewData = this.initViewDataProperties(this.viewData);
     }
 
-    public initViewDataProperties(oldData?:Data): Data {
-        const data:Data = new Data();
-        if(oldData) {
+    public initViewDataProperties(oldData?: Data): Data {
+        const data: Data = new Data();
+        if (oldData) {
             oldData.removeListener(this);
-            const keys:string[] = oldData.getKeys();
+            const keys: string[] = oldData.getKeys();
             for (let i = 0; i < keys.length; i++) {
                 let attr = keys[i];
-                if(this.$view) {
+                if (this.$view) {
                     if (this.$view[attr] === null) {
                         continue;
                     }
                     data.setValue(attr, this.$view[attr]);
-                }else {
+                } else {
                     data.setValue(attr, null);
                 }
             }
         }
-        this.viewData.addListener(this);
+        data.addListener(this);
         return data;
     }
 
 
-        /**
+    /**
      *  Set the new HTMLElement and attach listener to it.
      *  Also remove Listeners from old one and return the old one, if present.
      * @param element
@@ -63,13 +63,13 @@ export abstract class Control {
         if (this.$view) {
             oldElement = this.$view;
             if (this.$viewListener) {
-                oldElement.removeEventListener("change", this.$viewListener);
+                oldElement.removeEventListener('change', this.$viewListener);
             }
         }
         this.$view = element;
 
         if (this.$viewListener) {
-            element.addEventListener("change", this.$viewListener);
+            element.addEventListener('change', this.$viewListener);
         }
         this.viewData = this.initViewDataProperties(this.viewData);
         return element;
@@ -80,7 +80,7 @@ export abstract class Control {
      * @returns {string}
      */
     protected getControlDataID() {
-        return this.id + "_data";
+        return this.id + '_data';
     }
 
     protected generateID(property ?: string, id ?: string): string {
@@ -91,7 +91,7 @@ export abstract class Control {
             // will generate a data Object suitable for the Control..
             // must be overridden, if the changeEvent shouldn't listen on value...
 //            return id + '.' + this.getStandardProperty();//+ "_data"
-            return id + '.' + "_data"
+            return id + '.' + '_data'
         }
         return null;
     }
@@ -124,18 +124,18 @@ export abstract class Control {
         if (this.$view == null) {
             return;
         }
-        if (data.hasOwnProperty("prop")) {
+        if (data.hasOwnProperty('prop')) {
             for (let key in data.prop) {
                 let oldValue = this.viewData.getValue(key);
-                if(this.$view){
-                    this.updateElement(key, oldValue , data.prop[key]);
+                if (this.$view) {
+                    this.updateElement(key, oldValue, data.prop[key]);
                 }
             }
             return;
         }
-        let hasRem = data.hasOwnProperty("rem");
+        let hasRem = data.hasOwnProperty('rem');
         let removed: any[] = [];
-        if (data.hasOwnProperty("upd")) {
+        if (data.hasOwnProperty('upd')) {
             for (let key in data.upd) {
                 let oldValue;
                 let newValue = data.upd[key];
@@ -196,7 +196,7 @@ export abstract class Control {
                 if (entity == this.viewData) {
 
                     // this.getViewData().setValue(key, newValue);
-                    if(this.$view){
+                    if (this.$view) {
                         this.updateElement(key, viewDataOldValue, newValue);
                     }
                 } else {
@@ -204,7 +204,7 @@ export abstract class Control {
                 }
                 this.getRoot().setValue(entity, key, newValue, oldValue);
             }
-           // this.saveViewInData();
+            // this.saveViewInData();
         }
         if (hasRem) {
             for (let key in data.rem) {
@@ -214,9 +214,9 @@ export abstract class Control {
                 let oldValue;
 //                    this.getViewData().getValue(key);
 //                if (oldValue != data.rem[key] || data.upd !== undefined && (data.upd[key] == oldValue || this.getViewData().getValue(key) == data.upd[key])) {
-                    // if rem is invalid, or if the change is already applied, don't do anything..
-  //                  continue;
-    //            }
+                // if rem is invalid, or if the change is already applied, don't do anything..
+                //                  continue;
+                //            }
                 //delete this.viewData.getValue(key);
                 // this.saveViewInData();
                 this.updateElement(key, null, null);
@@ -237,13 +237,11 @@ export abstract class Control {
     }
 
 
-
-
     protected updateViewData() {
-        if(!this.$view) {
+        if (!this.$view) {
             return;
         }
-        const keys:string[] = this.viewData.getKeys();
+        const keys: string[] = this.viewData.getKeys();
         for (let i = 0; i < keys.length; i++) {
             let attr = keys[i];
             if (this.$view[attr] === null) {
@@ -278,8 +276,8 @@ export abstract class Control {
      * @param newValue
      */
     public propertyChange(entity: Data, property: string, oldValue: any, newValue: any) {
-        this.viewData.setValue(property, newValue);
-        this.$model.setValue(property, newValue);
+        if (this.viewData) this.viewData.setValue(property, newValue);
+        if (this.$model) this.$model.setValue(property, newValue);
         this.updateElement(property, oldValue, newValue);
     }
 
@@ -289,6 +287,10 @@ export abstract class Control {
         }
         let element = (<HTMLInputElement>this.$view);
         if (element.checkValidity()) {
+
+        }
+    }
+
 //<<<<<<< HEAD
 
     /**
@@ -298,7 +300,7 @@ export abstract class Control {
      * @param newValue
      */
     public updateElement(property: string, oldValue: any, newValue: any) {
-        if(this.$view && this.$view.hasAttribute(property)) {
+        if (this.$view && this.$view.hasAttribute(property)) {
             this.$view.setAttribute(property, newValue);
         }
     }
@@ -393,7 +395,7 @@ export abstract class Control {
     }
 
     public registerListenerOnHTMLObject(eventType: string): boolean {
-       return this.registerEventListener(eventType, <HTMLElement>this.$view);
+        return this.registerEventListener(eventType, <HTMLElement>this.$view);
     }
 
     // Normal Event HTML-Event
@@ -413,11 +415,11 @@ export abstract class Control {
         return this;
     }
 
-    protected registerEventListener(eventType: string, htmlElement: HTMLElement) :boolean{
-        if(!htmlElement) {
+    protected registerEventListener(eventType: string, htmlElement: HTMLElement): boolean {
+        if (!htmlElement) {
             return false;
         }
-        if(htmlElement instanceof HTMLElement == false) {
+        if (htmlElement instanceof HTMLElement == false) {
             return false;
         }
         let control = this;
