@@ -6,7 +6,7 @@ import {Point} from '../BaseElements';
 export class Clazz extends Node {
     protected labelHeight = 25;
     protected labelFontSize = 14;
-    protected attrHeight = 20;
+    protected attrHeight = 25;
     protected attrFontSize = 12;
     private attributes: string[] = [];
     private methods: string[] = [];
@@ -54,7 +54,8 @@ export class Clazz extends Node {
             width: size.x,
             rx: 1,
             ry: 1,
-            style: 'fill:white;stroke:black;stroke-width:2'
+            style: 'fill:white;stroke-width:2',
+            stroke: 'black'
         });
 
         // SHAPE between Attributes and Methods
@@ -64,7 +65,8 @@ export class Clazz extends Node {
             y: pos.y + this.labelHeight,
             height: this.attrHeight * this.attributes.length,
             width: size.x,
-            style: 'fill:white;stroke:black;stroke-width:2'
+            style: 'fill:white;stroke-width:2',
+            stroke: 'black'
         });
 
         // = = = LABEL = = =

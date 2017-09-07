@@ -21,6 +21,7 @@ export class Graph extends Control {
     nodeFactory: Object;
     edgeFactory: Object;
     layoutFactory: Object;
+    private currentlayout : Layout;
 
     constructor(json: any, options: Options) {
         super();
@@ -90,6 +91,11 @@ export class Graph extends Control {
         this.draw();
     }
 
+    public reLayout():void{
+        this.getLayout().layout(this, this.model);
+        console.log("ReLayout");
+    }
+
     public draw() {
         this.clearCanvas();
         const model = this.model;
@@ -148,11 +154,17 @@ export class Graph extends Control {
     }
 
     private getLayout(): Layout {
+        if(this.currentlayout) return this.currentlayout;
+
         let layout = this.options.layout || '';
         if (this.layoutFactory[layout]) {
-            return new this.layoutFactory[layout]();
+            this.currentlayout = new this.layoutFactory[layout]();
         }
-        return new layouts.DagreLayout();
+        else{
+            this.currentlayout = new layouts.DagreLayout();
+        }
+
+        return this.currentlayout;
     }
 
     private initFactories() {
@@ -203,7 +215,7 @@ export class Graph extends Control {
                 EventBus.subscribe(new Editor(this), 'dblclick', 'editor');
             }
             if (features.drag) {
-                EventBus.subscribe(new Drag(), 'mousedown', 'mouseup', 'mousemove', 'mouseleave');
+                EventBus.subscribe(new Drag(this), 'mousedown', 'mouseup', 'mousemove', 'mouseleave');
             }
             if (features.select) {
                 EventBus.subscribe(new Select(this.model), 'click', 'drag');

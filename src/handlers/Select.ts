@@ -12,6 +12,9 @@ export class Select {
     private model: Model;
     private padding = 5;
 
+    private lastSelectedInnerRect : Element;
+    private lastSelectedOuterRect : Element;
+
     constructor(model: Model) {
         this.model = model;
         this.svgRoot = <SVGSVGElement><any>document.getElementById('root');
@@ -62,11 +65,41 @@ export class Select {
 
     public handle(event:Event, element: DiagramElement): boolean {
         event.stopPropagation();
-        if (event.type === 'drag' || event.srcElement.id === 'background' || element === this.model) {
+        if (event.type === 'drag') {
             this.editShape.setAttributeNS(null, 'visibility', 'hidden');
             this.deleteShape.setAttributeNS(null, 'visibility', 'hidden');
+
+            // reset the last one
+            if(this.lastSelectedOuterRect !== <Element>element.$view.childNodes[0] && this.lastSelectedOuterRect){
+                this.lastSelectedOuterRect.setAttributeNS(null, 'stroke', 'black');
+            }
+
+            if(this.lastSelectedInnerRect !== <Element>element.$view.childNodes[1]  && this.lastSelectedInnerRect)
+                this.lastSelectedInnerRect.setAttributeNS(null, 'stroke', 'black');
+
+
+            // mark the border with blue
+            this.lastSelectedOuterRect = <Element>element.$view.childNodes[0];
+            this.lastSelectedInnerRect = <Element>element.$view.childNodes[1];
+
+            this.lastSelectedOuterRect.setAttributeNS(null, 'stroke', 'blue');
+            this.lastSelectedInnerRect.setAttributeNS(null, 'stroke', 'blue');
         }
-        else if (element instanceof Node) {
+
+        if(event.srcElement.id === 'background' || element === this.model){
+            if(this.lastSelectedOuterRect)
+                this.lastSelectedOuterRect.setAttributeNS(null, 'stroke', 'black');
+
+            if(this.lastSelectedInnerRect)
+                this.lastSelectedInnerRect.setAttributeNS(null, 'stroke', 'black');
+
+            this.editShape.setAttributeNS(null, 'visibility', 'hidden');
+            this.deleteShape.setAttributeNS(null, 'visibility', 'hidden');
+
+            return true;
+        }
+
+        if (element instanceof Node && event.type === 'click') {
             let e = <Node>element;
             if (document.getElementById('trashcan') === null) {
                 this.svgRoot.appendChild(this.deleteShape);
@@ -75,12 +108,32 @@ export class Select {
                 this.svgRoot.appendChild(this.editShape);
             }
 
+            // reset the last one
+            if(this.lastSelectedOuterRect)
+                this.lastSelectedOuterRect.setAttributeNS(null, 'stroke', 'black');
+
+            if(this.lastSelectedInnerRect)
+                this.lastSelectedInnerRect.setAttributeNS(null, 'stroke', 'black');
+
+
+            // mark the border with blue
+            this.lastSelectedOuterRect = <Element>element.$view.childNodes[0];
+            this.lastSelectedInnerRect = <Element>element.$view.childNodes[1];
+
+            this.lastSelectedOuterRect.setAttributeNS(null, 'stroke', 'blue');
+            this.lastSelectedInnerRect.setAttributeNS(null, 'stroke', 'blue');
+
             this.editShape.setAttributeNS(null, 'visibility', 'visible');
             this.deleteShape.setAttributeNS(null, 'visibility', 'visible');
             const pos = e.getPos();
             const size = e.getSize();
-            const x = pos.x + size.x / 2 + this.padding;
-            const y = pos.y - size.y / 2 + this.padding / 2;
+            // const x = pos.x + size.x / 2 + this.padding;
+            // const y = pos.y - size.y / 2 + this.padding / 2;
+
+
+            let x = (e.getPos().x + e.getSize().x)+10;
+            let y = e.getPos().y;
+
 
             let editorEvent = new Event('editor');
             this.editShape.setAttributeNS(null, 'transform', `rotate(-45, ${x + 20}, ${y + 20}) translate(${x} ${y})`);
@@ -88,8 +141,11 @@ export class Select {
 
             this.deleteShape.setAttributeNS(null, 'transform', `translate(${x} ${y + 34 + this.padding})`);
             this.deleteShape.onclick = e => this.model.removeElement(element.id);
+
+            return true;
         }
-        else if (element instanceof Edge) {
+        
+        if (element instanceof Edge) {
             let e = <Edge>element;
             if (document.getElementById('trashcan') === null) {
                 this.svgRoot.appendChild(this.deleteShape);
@@ -99,15 +155,8 @@ export class Select {
 
             let x: number, y: number;
 
-            if (e.$points.length === 2) {
-                x = (e.$points[0].getPos().x + e.$points[1].getPos().x) / 2;
-                y = (e.$points[0].getPos().y + e.$points[1].getPos().y) / 2;
-            }
-            else {
-                const i = Math.floor(e.$points.length / 2);
-                x = e.$points[i].getPos().x;
-                y = e.$points[i].getPos().y;
-            }
+            x = (<MouseEvent>event).layerX;
+            y = (<MouseEvent>event).layerY;
 
             this.deleteShape.setAttributeNS(null, 'transform', `translate(${x} ${y})`);
             this.deleteShape.onclick = e => this.model.removeElement(element.id);

@@ -20,7 +20,8 @@ export class Input extends Control {
         if ("checkbox" === this.type || "radio" === this.type) {
             return "checked";
         }
-        return super.getStandardProperty();
+        // return super.getStandardProperty();
+        return "";
     }
 
     protected isKeyOnly(): boolean {
@@ -172,7 +173,7 @@ export class Input extends Control {
             //     }
             // }
             // this.getRoot().setValue(entity, this.lastProperty, newVal, value);
-            this.saveViewInData();
+            // this.saveViewInData();
         } else {
             console.log('value does not match the pattern...');
         }
