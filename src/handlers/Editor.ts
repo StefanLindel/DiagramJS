@@ -1,8 +1,9 @@
 import {DiagramElement} from '../elements/BaseElements';
 import {Clazz} from '../elements/nodes';
 import {Graph} from '../elements/Graph';
+import {HandlerPlugin} from "./HandlerPlugin";
 
-export class Editor {
+export class Editor implements HandlerPlugin {
     private editorElement: Element;
     private clazz: Clazz;
     private graph: Graph;

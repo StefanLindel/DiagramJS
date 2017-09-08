@@ -1,7 +1,6 @@
 //				######################################################### Info #########################################################
 import {DiagramElement, Point} from "../BaseElements";
 import {Util} from "../../util";
-import {Control} from "../../Control";
 import {Node} from "./Node";
 import {EventBus} from "../../EventBus";
 export class InfoText extends Node {
@@ -48,7 +47,7 @@ export class InfoText extends Node {
             let newEvent:Event = new Event(EventBus.CREATE);
             newEvent["eventtype"] = EventBus.CREATE;
             newEvent["source"] = this;
-            newEvent["entity"] = group;
+            newEvent["$graphModel"] = group;
             if(group != null) {
                 newEvent["id"] = (<any>group).getId();
             }
@@ -71,7 +70,7 @@ export class InfoText extends Node {
         let newEvent:Event = new Event(EventBus.CREATE);
         newEvent["eventtype"] = EventBus.CREATE;
         newEvent["source"] = this;
-        newEvent["entity"] = group;
+        newEvent["$graphModel"] = group;
         if(group != null) {
             newEvent["id"] = (<any>group).getId();
         }
@@ -91,7 +90,7 @@ export class InfoText extends Node {
         let newEvent:Event = new Event(EventBus.CREATE);
         newEvent["eventtype"] = EventBus.CREATE;
         newEvent["source"] = this;
-        newEvent["entity"] = info;
+        newEvent["$graphModel"] = info;
         Util.setPos(info, pos.x, pos.y);
         this.fireEvent(newEvent);
         return info;
@@ -123,7 +122,7 @@ export class InfoText extends Node {
 
     public initInfo():string {
         let root:any = this.$owner.getRoot();
-        if (!root.model.options.CardinalityInfo && !root.model.options.propertyinfo) {
+        if (!root.$graphModel.options.CardinalityInfo && !root.$graphModel.options.propertyinfo) {
             return null;
         }
         let infoTxt:string = this.getText();

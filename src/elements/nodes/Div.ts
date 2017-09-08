@@ -55,17 +55,17 @@ export class Div extends Control {
         if (hasItem) {
             let item = this.$owner.getItem(objId);
             item.addListener(this);
-            this.entity = item;
+            this.$model = item;
         }
     }
 
     public addItem(source: Bridge, entity: Data) {
-        this.entity = entity;
+        this.$model = entity;
         // check for new Element in Bridge
         if (entity) {
-            if (!this.className || this.className === entity.property) {
+            if (!this.className || entity.hasProperty(this.className)) {
                 if (entity.id === this.property.split('.')[0]) {
-                    entity.addListener(this);
+                    entity.addListener(this, this.className);
                 }
             }
         }
@@ -80,10 +80,10 @@ export class Div extends Control {
         }
     }
 
-    private controlChanged(ev: Event) {
+    public controlChanged(ev: Event) {
         if (!(this.$view instanceof HTMLDivElement)){
             return;
         }
-        this.getRoot().setValue(this.entity, this.lastProperty, this.$view.innerHTML);
+        this.getRoot().setValue(this.$model, this.lastProperty, this.$view.innerHTML);
     }
 }

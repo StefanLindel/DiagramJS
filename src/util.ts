@@ -63,7 +63,7 @@ export class Util {
             if (node[key] === null) {
                 continue;
             }
-            if (k === 'tag' || k.charAt(0) === '$' || k === 'model') {
+            if (k === 'tag' || k.charAt(0) === '$' || k === '$graphModel') {
                 continue;
             }
             if (k.charAt(0) === '#') {
@@ -71,7 +71,7 @@ export class Util {
                 continue;
             }
             if (k === 'rotate') {
-                item.setAttribute('transform', 'rotate(' + node[key] + ',' + node.model.x + ',' + node.model.y + ')');
+                item.setAttribute('transform', 'rotate(' + node[key] + ',' + node.$graphModel.x + ',' + node.$graphModel.y + ')');
                 continue;
             }
             if (k === 'value') {
@@ -118,8 +118,8 @@ export class Util {
         if (node.$parent) {
             node.$parent.appendChild(item);
         }
-        if (node.model) {
-            item.model = node.model;
+        if (node.$graphModel) {
+            item.$graphModel = node.$graphModel;
         }
         return item;
     }

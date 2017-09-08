@@ -20,7 +20,7 @@ export class LayoutGraphMin {
     public ranksep:number = 0;
     public edgesLabel: Array<Object> = [];
 
-    public nodeCount(): Number {
+    public nodeCount(): number {
         return this.count;
     }
 
@@ -272,8 +272,8 @@ export class DagreLayoutMin implements Layout {
      *    3. The graph is augmented with a "dummyChains" attribute which contains
      *       the first dummy in each chain of dummy nodes produced.
      */
-    public normalizeEdge(g:LayoutGraphMin) {
-        let i = 1;
+    public normalizeEdge(g:LayoutGraphMin) : void {
+        let i:number = 1;
         for (let id in g.edges) {
             let e:LayoutGraphEdge = <LayoutGraphEdge>g.edges[id];
             let v:string = e.source;
@@ -302,7 +302,7 @@ export class DagreLayoutMin implements Layout {
                 v = name;
             }
         }
-    };
+    }
 
     /*
      * Initializes ranks for the input graph using the longest path algorithm. This

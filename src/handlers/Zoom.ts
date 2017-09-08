@@ -1,6 +1,7 @@
 import {DiagramElement} from '../elements/BaseElements';
+import {HandlerPlugin} from "./HandlerPlugin";
 
-export class Zoom {
+export class Zoom implements HandlerPlugin {
 
     private svgRoot: SVGSVGElement;
 

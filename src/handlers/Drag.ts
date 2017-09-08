@@ -1,11 +1,12 @@
 import { EventHandler } from '../EventBus';
 import {DiagramElement, Point} from '../elements/BaseElements';
-import {Model} from '../elements/Model';
+import {GraphModel} from '../elements/Model';
 import {Node} from '../elements/nodes';
 import {Graph} from '../elements/Graph';
 import {Control} from "../Control";
+import {HandlerPlugin} from "./HandlerPlugin";
 
-export class Drag {
+export class Drag implements HandlerPlugin {
 
     private element: DiagramElement;
     private svgRoot: SVGSVGElement;
@@ -106,7 +107,7 @@ export class Drag {
             if (element.id !== this.element.id) {
                 return;
             }
-            let model = <Model>this.element;
+            let model = <GraphModel>this.element;
             const x = evt.clientX - this.mouseOffset.x;
             const y = evt.clientY - this.mouseOffset.y;
             const newOrigin = (<Graph>model.$owner).options.origin.add(new Point(x, y));

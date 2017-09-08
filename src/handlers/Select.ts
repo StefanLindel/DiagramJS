@@ -2,20 +2,22 @@ import {DiagramElement} from '../elements/BaseElements';
 import {Node} from '../elements/nodes';
 import {Edge} from '../elements/edges';
 import {Util} from '../util';
-import {Model} from '../elements/Model';
+import {GraphModel} from '../elements/Model';
+import {HandlerPlugin} from "./HandlerPlugin";
+import {Symbol, SymbolLibary} from "../elements/nodes/Symbol";
 
-export class Select {
+export class Select implements HandlerPlugin {
 
     private svgRoot: SVGSVGElement;
     private editShape: SVGSVGElement;
     private deleteShape: SVGSVGElement;
-    private model: Model;
+    private model: GraphModel;
     private padding = 5;
 
     private lastSelectedInnerRect : Element;
     private lastSelectedOuterRect : Element;
 
-    constructor(model: Model) {
+    constructor(model: GraphModel) {
         this.model = model;
         this.svgRoot = <SVGSVGElement><any>document.getElementById('root');
 
@@ -45,22 +47,9 @@ export class Select {
         editGroup.appendChild(editShape);
         this.editShape = editGroup;
 
-        const deletePath = 'M12 12 L18 12 L18 11 L22 11 L22 12 L28 12 L28 14 L27 14 L27 29 L13 29 L13 14 L12 14 Z M13 14 L27 14 M20 17 L20 26 M17 16 L17 27 M23 16 L23 27';
-        const deleteAttrPath = {
-            tag: 'path',
-            d: deletePath,
-            stroke: '#000',
-            'stroke-width': 1,
-            fill: 'white'
-        };
-        const deleteShape = Util.createShape(deleteAttrPath);
         const deleteBkg = Util.createShape(attrCircle);
 
-        let deleteGroup = Util.createShape({tag: 'g', id: 'trashcan', transform: 'translate(0 0)'});
-        deleteGroup.appendChild(deleteBkg);
-        deleteGroup.appendChild(deleteShape);
-
-        this.deleteShape = deleteGroup;
+        this.deleteShape = SymbolLibary.drawSVG({type:"Basket", background:true, id:'trashcan'});
     }
 
     public handle(event:Event, element: DiagramElement): boolean {

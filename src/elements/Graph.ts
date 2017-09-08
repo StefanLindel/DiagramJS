@@ -2,7 +2,7 @@ import * as edges from './edges';
 import * as nodes from './nodes';
 import * as layouts from '../layouts';
 import Layout from '../layouts/Layout';
-import {Model} from '../elements/Model';
+import {GraphModel} from '../elements/Model';
 import Palette from '../Palette';
 import {Size, Point} from './BaseElements';
 import {Util} from '../util';
@@ -15,7 +15,7 @@ import Options from "../Options";
 export class Graph extends Control {
     root: HTMLElement;
     canvas: Element;
-    model: Model;
+    $graphModel: GraphModel;
     options: Options;
     canvasSize: Size;
     nodeFactory: Object;
@@ -40,9 +40,9 @@ export class Graph extends Control {
         }
         this.initFactories();
         this.initCanvas();
-        this.model = new Model();
-        this.model.init(this);
-        this.model.load(json);
+        this.$graphModel = new GraphModel();
+        this.$graphModel.init(this);
+        this.$graphModel.load(json);
         this.initFeatures(this.options.features);
     }
 
@@ -79,7 +79,7 @@ export class Graph extends Control {
     }
 
     public addElement(type: string): boolean {
-        let success = this.model.addElement(type);
+        let success = this.$graphModel.addElement(type);
         if (success === true) {
             this.layout();
         }
@@ -87,18 +87,18 @@ export class Graph extends Control {
     }
 
     public layout() {
-        this.getLayout().layout(this, this.model);
+        this.getLayout().layout(this, this.$graphModel);
         this.draw();
     }
 
     public reLayout():void{
-        this.getLayout().layout(this, this.model);
+        this.getLayout().layout(this, this.$graphModel);
         console.log("ReLayout");
     }
 
     public draw() {
         this.clearCanvas();
-        const model = this.model;
+        const model = this.$graphModel;
         const canvas = this.canvas;
         let max: Point = new Point();
 
@@ -150,7 +150,7 @@ export class Graph extends Control {
             fill: 'url(#raster)'
         });
         canvas.appendChild(background);
-        canvas.appendChild(this.model.getSVG());
+        canvas.appendChild(this.$graphModel.getSVG());
     }
 
     private getLayout(): Layout {
@@ -218,7 +218,7 @@ export class Graph extends Control {
                 EventBus.subscribe(new Drag(this), 'mousedown', 'mouseup', 'mousemove', 'mouseleave');
             }
             if (features.select) {
-                EventBus.subscribe(new Select(this.model), 'click', 'drag');
+                EventBus.subscribe(new Select(this.$graphModel), 'click', 'drag');
             }
             if (features.palette) {
                 new Palette(this);

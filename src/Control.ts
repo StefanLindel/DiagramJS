@@ -1,29 +1,56 @@
-import {Bridge} from "./Bridge";
-import Data from "./Data";
-import EventListener from "./EventListener";
+import {Bridge} from './Bridge';
+import Data from './Data';
+import EventListener from './EventListener';
 
 export abstract class Control {
     public $owner: Control;
+    /**
+     *
+     */
     public property: string;
-    public $view: Element;
-    public viewData: Data;
-    protected entity: Data;
     public id: string;
-    protected viewListener: EventListenerOrEventListenerObject;
+    protected $model: Data;
+
+    public $view: Element;
+    protected $viewListener: EventListenerOrEventListenerObject;
+    public viewData: Data;
 
     /**
      * The properties, we want to listen to
      */
-    protected properties: string[] = [];
+    // static defaultProperties: string[] = [];
 
-    public getProperties(): string[] {
-        return this.properties;
-    }
+    // public getProperties(): string[] {
+    //     return this.properties;
+    // }
 
     constructor() {
         // e.g. this.properties.push("key");
-        this.properties.push("property");
+        // this.properties.push("property");
+        this.viewData = this.initViewDataProperties(this.viewData);
     }
+
+    public initViewDataProperties(oldData?: Data): Data {
+        const data: Data = new Data();
+        if (oldData) {
+            oldData.removeListener(this);
+            const keys: string[] = oldData.getKeys();
+            for (let i = 0; i < keys.length; i++) {
+                let attr = keys[i];
+                if (this.$view) {
+                    if (this.$view[attr] === null) {
+                        continue;
+                    }
+                    data.setValue(attr, this.$view[attr]);
+                } else {
+                    data.setValue(attr, null);
+                }
+            }
+        }
+        data.addListener(this);
+        return data;
+    }
+
 
     /**
      *  Set the new HTMLElement and attach listener to it.
@@ -35,27 +62,17 @@ export abstract class Control {
         let oldElement: Element = null;
         if (this.$view) {
             oldElement = this.$view;
-            if (this.viewListener) {
-                oldElement.removeEventListener("change", this.viewListener);
+            if (this.$viewListener) {
+                oldElement.removeEventListener('change', this.$viewListener);
             }
         }
         this.$view = element;
 
-        if (this.viewListener) {
-            element.addEventListener("change", this.viewListener);
+        if (this.$viewListener) {
+            element.addEventListener('change', this.$viewListener);
         }
-
-        let keys = this.getProperties();
-        this.viewData = new Data();
-        for (let i = 0; i < keys.length; i++) {
-            let attr = keys[i];
-            if (this.$view[attr] === null) {
-                continue;
-            }
-            this.viewData.setValue(attr, this.$view[attr]);
-        }
-        this.viewData.addListener(this);
-        return oldElement;
+        this.viewData = this.initViewDataProperties(this.viewData);
+        return element;
     }
 
     /**
@@ -63,7 +80,7 @@ export abstract class Control {
      * @returns {string}
      */
     protected getControlDataID() {
-        return this.id + "_data";
+        return this.id + '_data';
     }
 
     protected generateID(property ?: string, id ?: string): string {
@@ -74,7 +91,7 @@ export abstract class Control {
             // will generate a data Object suitable for the Control..
             // must be overridden, if the changeEvent shouldn't listen on value...
 //            return id + '.' + this.getStandardProperty();//+ "_data"
-            return id + '.' + "_data"
+            return id + '.' + '_data'
         }
         return null;
     }
@@ -107,23 +124,18 @@ export abstract class Control {
         if (this.$view == null) {
             return;
         }
-        if (data.hasOwnProperty("prop")) {
+        if (data.hasOwnProperty('prop')) {
             for (let key in data.prop) {
-                // let oldValue = this.getViewData().getValue(key);
-                // TODO here's the problem..
-                // this.getViewData().setValue(key, data.prop[key]);
-                if(this.$view){
-                    this.updateElement(key, data.prop[key]);
+                let oldValue = this.viewData.getValue(key);
+                if (this.$view) {
+                    this.updateElement(key, oldValue, data.prop[key]);
                 }
-
-                //this.getRoot().setValue(this, key, data.prop[key], oldValue);
             }
-//            this.saveViewInData();
             return;
         }
-        let hasRem = data.hasOwnProperty("rem");
+        let hasRem = data.hasOwnProperty('rem');
         let removed: any[] = [];
-        if (data.hasOwnProperty("upd")) {
+        if (data.hasOwnProperty('upd')) {
             for (let key in data.upd) {
                 let oldValue;
                 let newValue = data.upd[key];
@@ -141,10 +153,10 @@ export abstract class Control {
                 if (hasRem && data.rem.hasOwnProperty(key)) {
                     // if there's a rem, the oldValue from rem will be used and expected to be right..
                     oldValue = data.rem[key];
-                    if (this.entity && this.entity.getValue(key) == oldValue) {
-                        entity = this.entity;
+                    if (this.$model && this.$model.getValue(key) == oldValue) {
+                        entity = this.$model;
 //                    } else if (oldValue == this.getViewData().getValue(key)) {
-//                        entity = this.getViewData();
+//                        $graphModel = this.getViewData();
                     }
                     delete data.rem[key];
 
@@ -156,17 +168,17 @@ export abstract class Control {
 
                 if (entity) {
                     if (!hasRem) {
-                        if (entity == this.entity) {
-                            oldValue = this.entity.getValue(key);
+                        if (entity == this.$model) {
+                            oldValue = this.$model.getValue(key);
                         } else {
 //                           oldValue = this.getViewData().getValue(key);
                         }
                     }
                 } else {
-                    if (this.entity) {
-                        // try to get the oldValue directly from the entity...
-                        oldValue = this.entity.getValue(key);
-                        entity = this.entity;
+                    if (this.$model) {
+                        // try to get the oldValue directly from the $graphModel...
+                        oldValue = this.$model.getValue(key);
+                        entity = this.$model;
                     }
                     if (oldValue === null) {
                         // if there was no data in the entity, we try to get oldValue from the $view
@@ -180,18 +192,19 @@ export abstract class Control {
                     // no match, so update should be wrong...
                     continue;
                 }
-                // this.saveViewInData();
+                const viewDataOldValue = this.viewData.getValue(key);
                 if (entity == this.viewData) {
+
                     // this.getViewData().setValue(key, newValue);
-                    if(this.$view){
-                        this.updateElement(key, newValue);
+                    if (this.$view) {
+                        this.updateElement(key, viewDataOldValue, newValue);
                     }
                 } else {
-                    this.updateElement(key, newValue);
+                    this.updateElement(key, viewDataOldValue, newValue);
                 }
                 this.getRoot().setValue(entity, key, newValue, oldValue);
             }
-//            this.saveViewInData();
+            // this.saveViewInData();
         }
         if (hasRem) {
             for (let key in data.rem) {
@@ -201,19 +214,41 @@ export abstract class Control {
                 let oldValue;
 //                    this.getViewData().getValue(key);
 //                if (oldValue != data.rem[key] || data.upd !== undefined && (data.upd[key] == oldValue || this.getViewData().getValue(key) == data.upd[key])) {
-                    // if rem is invalid, or if the change is already applied, don't do anything..
-  //                  continue;
-    //            }
+                // if rem is invalid, or if the change is already applied, don't do anything..
+                //                  continue;
+                //            }
                 //delete this.viewData.getValue(key);
                 // this.saveViewInData();
-                this.updateElement(key, null);
+                this.updateElement(key, null, null);
                 // this.$view.removeAttribute(key);
-                if (this.entity) {
-//                    this.getRoot().setValue(this.entity, key, this.getViewData().getValue(key), oldValue);
+                if (this.$model) {
+//                    this.getRoot().setValue(this.$graphModel, key, this.getViewData().getValue(key), oldValue);
                 }
             }
         }
+        if (this.property) {
+            // Add listener to Input field:
+            this.$view['onchange'] = ((ev: Event) => {
+                    this.controlChanged(ev);
+                }
+            );
+        }
 //        this.saveViewInData();
+    }
+
+
+    protected updateViewData() {
+        if (!this.$view) {
+            return;
+        }
+        const keys: string[] = this.viewData.getKeys();
+        for (let i = 0; i < keys.length; i++) {
+            let attr = keys[i];
+            if (this.$view[attr] === null) {
+                continue;
+            }
+            this.viewData.setValue(attr, this.$view[attr]);
+        }
     }
 
     public getItem(id: string): Data {
@@ -241,12 +276,6 @@ export abstract class Control {
      * @param newValue
      */
     public propertyChange(entity: Data, property: string, oldValue: any, newValue: any) {
-//<<<<<<< HEAD
-//        //FIXME this.getRoot().setValue(this, property, newValue, oldValue);
-//        if(property == this.lastProperty) {
-//            this.updateElement(property, newValue);
-//        }
-//=======
        if (oldValue == newValue) {
            return;
        }
@@ -275,7 +304,61 @@ export abstract class Control {
 //             // }
 //         // }
 // >>>>>>> addOldFunctions
+        if (this.viewData) this.viewData.setValue(property, newValue);
+        if (this.$model) this.$model.setValue(property, newValue);
+        this.updateElement(property, oldValue, newValue);
     }
+
+    public controlChanged(ev: Event) {
+        if (this.$view instanceof HTMLInputElement == false) {
+            return;
+        }
+        let element = (<HTMLInputElement>this.$view);
+        if (element.checkValidity()) {
+
+        }
+    }
+
+
+    /**
+     *  Update GUI Element
+     * @param {string} property
+     * @param oldValue
+     * @param newValue
+     */
+    public updateElement(property: string, oldValue: any, newValue: any) {
+        if (this.$view && this.$view.hasAttribute(property)) {
+            this.$view.setAttribute(property, newValue);
+        }
+    }
+
+//        if (oldValue == newValue) {
+//            return;
+//        }
+//        if (oldValue == this.viewData.getValue(property)) {
+//            return;
+//        }
+//        // Set NewData to ViewData and Fire PC
+//        this.viewData.setValue(property, newValue);
+//
+//
+//
+//         // if ($graphModel == this.viewData) {
+//             // if the ViewData is changed, we want to change the $view
+//             // if (this.$graphModel) {
+//                 alert("$graphModel = viewData: " + this.getStandardProperty() + ", " +  property + ", newVal: " + newValue + ", oldVal: " + oldValue);
+//                 if (this.getStandardProperty() == property && this.$graphModel.hasProperty(property)) {
+//                     this.getRoot().setValue(this.$graphModel, property, newValue, oldValue);
+//                 }
+//             // }
+//         // } else {
+//             // the $graphModel is changed, so we want tell it to the viewData
+//             // if (this.viewData) {
+//                 alert("$graphModel = Data: " +  property);
+//                 // this.getRoot().setValue(this.viewData, property, newValue, oldValue);
+//                 this.viewData.setValue(property, newValue);
+//             // }
+//         // }
 
     public getId(): string {
         return this.id;
@@ -288,9 +371,9 @@ export abstract class Control {
     public addItem(source: Bridge, entity: Data) {
         // check for new Element in Bridge
         if (entity) {
-            if (!this.property || entity.property == this.property) {
-                entity.addListener(this);
-                this.entity = entity;
+            if (!this.property || entity.hasProperty(this.property)) {
+                entity.addListener(this, this.property);
+                this.$model = entity;
             }
         }
     }
@@ -317,22 +400,22 @@ export abstract class Control {
         }
 
         // remove listener on old object
-        if (this.entity) {
-            // this.entity.removeListener(this);
-            this.entity.removeListener(this, this.lastProperty);
+        if (this.$model) {
+            // this.$graphModel.removeListener(this);
+            this.$model.removeListener(this, this.lastProperty);
         }
         this.property = property;
 
         // add listener to object..
         if (object) {
             object.addListener(this, this.lastProperty);
-            this.entity = object;
-            this.updateElement(this.lastProperty, object.prop[this.lastProperty]);
+            this.$model = object;
+            this.updateElement(this.lastProperty, this.viewData.getValue(this.lastProperty), object.prop[this.lastProperty]);
         }
     }
 
     public registerListenerOnHTMLObject(eventType: string): boolean {
-       return this.registerEventListener(eventType, <HTMLElement>this.$view);
+        return this.registerEventListener(eventType, <HTMLElement>this.$view);
     }
 
     // Normal Event HTML-Event
@@ -352,14 +435,11 @@ export abstract class Control {
         return this;
     }
 
-    protected updateElement(property: string, value: string): void {
-    }
-
-    protected registerEventListener(eventType: string, htmlElement: HTMLElement) :boolean{
-        if(!htmlElement) {
+    protected registerEventListener(eventType: string, htmlElement: HTMLElement): boolean {
+        if (!htmlElement) {
             return false;
         }
-        if(htmlElement instanceof HTMLElement == false) {
+        if (htmlElement instanceof HTMLElement == false) {
             return false;
         }
         let control = this;

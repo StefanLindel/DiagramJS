@@ -23,9 +23,13 @@ export class Bridge extends Control {
     private language: string = navigator.language.toUpperCase();
     private toolBar: HTMLElement;
 
-    constructor() {
+    constructor(viewRoot?: HTMLElement) {
         super();
         let i;
+
+        if(viewRoot){
+            this.$view = viewRoot;
+        }
 
         let keys: string[] = Object.keys(adapters);
         for (i = 0; i < keys.length; i++) {
@@ -50,40 +54,6 @@ export class Bridge extends Control {
             window.addEventListener('online', updateOnlineStatus);
             window.addEventListener('offline', updateOnlineStatus);
         });
-    }
-
-    public static addProperties(values: Object, item: Data) {
-        if (!values) {
-            return;
-        }
-        if (values['prop']) {
-            let prop = values['prop'];
-            for (let property in prop) {
-                if (prop.hasOwnProperty(property) === false) {
-                    continue;
-                }
-                if (prop[property] !== null && '' !== prop[property]) {
-                    item.setValue(property, prop[property]);
-                }
-            }
-        } else {
-            let upd = values['upd'] || {};
-            let rem = values['rem'] || {};
-
-            for (let property in upd) {
-                if (upd.hasOwnProperty(property) === false) {
-                    continue;
-                }
-                if (rem.hasOwnProperty(property) === false) {
-                    item.setValue(property, upd[property]);
-                } else {
-                    // if we have a rem, we wan't to check, if its a valid change (teh old value is the value in rem)
-                    if (item.getValue(property) === rem[property]) {
-                        item.setValue(property, upd[property]);
-                    }
-                }
-            }
-        }
     }
 
     // noinspection JSUnusedGlobalSymbols
@@ -170,7 +140,8 @@ export class Bridge extends Control {
                             }
                         }
                         if (item.getAttribute("property")) {
-                            data.property = item.getAttribute("property");
+                            // TODO: FIXME!!!
+                            // data.property = item.getAttribute("property");
                         }
                     }
                 }
@@ -187,6 +158,7 @@ export class Bridge extends Control {
             config['id'] = this.getId();
         }
         className = config['className'] || config['class'];
+        className = className.toLocaleLowerCase();
         id = config['id'];
 
         // Check For Control or Data
@@ -194,8 +166,9 @@ export class Bridge extends Control {
             // Its Data
             let newData = !this.hasItem(config['id']);
             let item: Data = this.getItem(config['id']);
-            // if (id && className && !item.hasProperty()) {
-            //     item.property = className;
+            // TODO: FIXME!!!
+            // if (id && className && !item.property) {
+            //      item.property = className;
             // }
             if (newData) {
                 for (let i in this.controls) {
@@ -205,7 +178,10 @@ export class Bridge extends Control {
                     this.controls[i].addItem(this, item);
                 }
             }
-            Bridge.addProperties(config, item);
+            // Add all Values to item
+            item.addProperties(config);
+            //Bridge.addProperties(config['prop'], item);
+            //Bridge.addProperties(config['upd'], item);
             //Bridge.addProperties(config['upd'], item);
             this.adapterUpdate(JSON.stringify(config));
             return item;
@@ -293,7 +269,7 @@ export class Bridge extends Control {
      */
     public setValue(object: Object, attribute: string, newValue: Object, oldValue?: Object): boolean {
         alert("Bridge.setValue: oldVal:" + oldValue + ", newVal: " +  + newValue + ", attribute: " + attribute + ", object: " + JSON.stringify(object));
-        let obj: Object;
+        let obj: Data;
         let id: string;
         if (object instanceof String || typeof object === 'string') {
             // object is only the id of the Object, we want to change
@@ -305,18 +281,22 @@ export class Bridge extends Control {
             id = object.id;
         } else if (object.hasOwnProperty('id')) {
             // object is the real Object, we want to change
-            obj = object;
+            obj = <Data>object;
             id = object['id'];
         } else {
             console.log('object is neither Data nor String..');
             return false;
         }
         if (obj) {
+            // Execute Update to Data
+            obj.setValue(attribute, newValue);
+
+
             // Could be done here, but currently is done at this.execueChange..:
             // obj[attribute] = value;
         }
 
-        let tmp = {'id': id};
+        /*let tmp = {'id': id};
         if (typeof(newValue) !== 'undefined' && newValue !== null) {
             let upd = {};
             upd[attribute] = newValue;
@@ -326,8 +306,8 @@ export class Bridge extends Control {
             let rem = {};
             rem[attribute] = oldValue;
             tmp['rem'] = rem;
-        }
-        this.load(tmp);
+        }*/
+        //this.load(tmp);
         return true;
     }
 

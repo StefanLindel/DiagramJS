@@ -12,7 +12,7 @@ export class DagreLayout implements Layout {
         if (!window['dagre']) {
             return;
         }
-        let model = graph.model;
+        let model = graph.$graphModel;
 
         let innerG:any;
         

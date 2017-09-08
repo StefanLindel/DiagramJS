@@ -49,7 +49,7 @@ export class HTML extends Control {
                 continue;
             }
 
-            if (lowKey === 'tag' || lowKey.charAt(0) === '$' || lowKey === 'model' || lowKey === 'class') {
+            if (lowKey === 'tag' || lowKey.charAt(0) === '$' || lowKey === '$graphModel' || lowKey === 'class') {
                 continue;
             }
             if (lowKey === 'children') {
