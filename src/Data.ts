@@ -44,7 +44,7 @@ export default class Data {
         }
     }
 
-    private nullCheck(property: string): string {
+    private static nullCheck(property: string): string {
         if (property === undefined || property == null) {
             property = "";
         }
@@ -52,7 +52,7 @@ export default class Data {
     }
 
     protected getListeners(property: string): Control[] {
-        property = this.nullCheck(property);
+        property = Data.nullCheck(property);
         return this.$listener[property];
     }
 
@@ -70,7 +70,7 @@ export default class Data {
     }
 
     protected firePropertyChange(attribute: string, oldValue: Object, newValue: Object) {
-        attribute = this.nullCheck(attribute);
+        attribute = Data.nullCheck(attribute);
         // at first fire for the given property
         let listeners: Control[] = this.getListeners(attribute);
         if (listeners) {
@@ -121,7 +121,7 @@ export default class Data {
         let listeners: Control[] = this.getListeners(property);
         if (!listeners) {
             listeners = [];
-            this.$listener[this.nullCheck(property)] = listeners;
+            this.$listener[Data.nullCheck(property)] = listeners;
         }
         listeners.push(control);
     }
@@ -135,7 +135,7 @@ export default class Data {
         if (pos >= 0) {
             listeners.splice(pos, 1);
         }
-        if (listeners.length == 0 && this.nullCheck(property) != "") {
+        if (listeners.length == 0 && Data.nullCheck(property) != "") {
             // only remove, if it's not the default listener list...
             delete this.$listener[property];
         }
@@ -147,9 +147,9 @@ export default class Data {
 
     public addFrom(attribute: string, oldData: Data) : void{
         if(oldData) {
-            this.addTo(attribute, oldData.getValue(attribute));
+            this.setValue(attribute, oldData.getValue(attribute));
         }else {
-            this.addTo(attribute, null);
+            this.setValue(attribute, null);
         }
     }
 
