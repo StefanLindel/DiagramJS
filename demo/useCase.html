@@ -6,16 +6,33 @@
     <script src="../dist/diagram.js"></script>
 </head>
 <body>
+<button onclick="show()">Test</button>
 <script language="JavaScript">
-    let bridge = new DiagramJS.Bridge();
-    bridge.load({
-        "class": "input",
-        "id": "J1.N1",
-        "property": "number.value",
-        "value": 0,
-        "type": "number"
-    });
-
+function show() {
+	console.log(bridge);
+}
+</script>
+<script language="JavaScript">
+let bridge = new DiagramJS.Bridge();
+bridge.load({
+	"class": "input",
+    "id": "J1.N1",
+    "property": "number.value",
+    "value": 0,
+    "type": "number"
+});
+bridge.load({
+	"class": "div",
+    "id": "J1.N2",
+    "property": "number.value"
+});
+bridge.load({
+    "class": "input",
+    "id": "J1.N3",
+    "property": "number.value",
+    "value": 0,
+    "type": "number"
+});
 </script>
 </body>
 </html>

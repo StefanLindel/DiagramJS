@@ -62,7 +62,7 @@ export default class Data {
 
     public setValue(attribute: string, newValue: any):void {
         let oldValue = this.prop[attribute];
-        if (oldValue == newValue) {
+        if (oldValue == newValue && newValue !== null) {
             return;
         }
         this.prop[attribute] = newValue;

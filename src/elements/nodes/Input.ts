@@ -8,11 +8,8 @@ export class Input extends Control {
 
     constructor() {
         super();
-        this.$viewListener = ((ev: Event) => {
-            this.controlChanged(ev);
-        });
-    }
 
+    }
 
     public initViewDataProperties(oldData?: Data): Data {
         const data = super.initViewDataProperties(oldData);
@@ -96,35 +93,6 @@ export class Input extends Control {
                 return;
             }
         }
-
-        // check if object already exists
-        if (this.property) {
-            // Add listener to Input field:
-            this.$view['onchange'] = ((ev: Event) => {
-                    this.controlChanged(ev);
-                }
-            );
-        }
-/*
-                this.$graphModel = this.getRoot().getItem(this.property);
-
-                if (!useData) {
-                    // only if we have a inputField before with a value...
-                    this.$graphModel.setValue(this.lastProperty, this.$view[this.lastProperty]);
-                }
-                // this.$graphModel.property = this.lastProperty;
-                this.$graphModel.addListener(this, this.lastProperty);//,this.lastProperty
-                this.updateElement(this.lastProperty, this.$graphModel.getValue(this.lastProperty));
-            }
-
-            // Add listener to Input field:
-            // this.$view['onchange'] = ((ev: Event) => {
-            //         this.controlChanged(ev);
-            //     }
-            // );
-        } else {
-            // this.$graphModel = new Data();
-        }*/
     }
 
     public addItem(source: Bridge, entity: Data) {
@@ -158,6 +126,7 @@ export class Input extends Control {
         }
         let element = (<HTMLInputElement>this.$view);
         if (element.checkValidity()) {
+            super.controlChanged(ev);
         }
 //<<<<<<< HEAD
 //             let newVal = element[this.getStandardProperty()];

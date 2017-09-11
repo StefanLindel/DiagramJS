@@ -4,12 +4,10 @@ import Data from '../../Data';
 
 export class Div extends Control {
     private className: string;
-    private applyingChange: boolean = false;
 
     constructor(data:JSON) {
         super();
     }
-
 
     public load(data:JSON|any): any {
         let id: string;
@@ -49,13 +47,9 @@ export class Div extends Control {
             }
         }
 
-        // check if object already exists
-        let objId = this.property.split('.')[0];
-        let hasItem = this.$owner.hasItem(objId);
-        if (hasItem) {
-            let item = this.$owner.getItem(objId);
-            item.addListener(this);
-            this.$model = item;
+        // check if object already exists+
+        if (data.hasOwnProperty('property')) {
+            this.setProperty(data['property']);
         }
     }
 
@@ -71,19 +65,7 @@ export class Div extends Control {
         }
     }
 
-    propertyChange(entity: Data, property: string, oldValue:Object, newValue:Object) {
-        if (!(this.$view instanceof HTMLDivElement)){
-            return;
-        }
-        if (!this.applyingChange && property === this.lastProperty) {
-            this.$view.innerHTML = <string>newValue;
-        }
-    }
-
-    public controlChanged(ev: Event) {
-        if (!(this.$view instanceof HTMLDivElement)){
-            return;
-        }
-        this.getRoot().setValue(this.$model, this.lastProperty, this.$view.innerHTML);
+    public updateElement(property: string, oldValue: any, newValue: any) {
+        this.$view.innerHTML = <string>newValue;
     }
 }

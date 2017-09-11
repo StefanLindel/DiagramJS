@@ -12,25 +12,19 @@ export abstract class Control {
     protected $model: Data;
 
     public $view: Element;
-    protected $viewListener: EventListenerOrEventListenerObject;
+    private $viewListener: EventListenerOrEventListenerObject;
     public viewData: Data;
-
-    /**
-     * The properties, we want to listen to
-     */
-    // static defaultProperties: string[] = [];
-
-    // public getProperties(): string[] {
-    //     return this.properties;
-    // }
 
     constructor() {
         // e.g. this.properties.push("key");
         // this.properties.push("property");
         this.viewData = this.initViewDataProperties(this.viewData);
+        this.$viewListener = ((ev: Event) => {
+            this.controlChanged(ev);
+        });
     }
 
-    public initViewDataProperties(oldData?: Data): Data {
+   public initViewDataProperties(oldData?: Data): Data {
         const data: Data = new Data();
         if (oldData) {
             oldData.removeListener(this);
@@ -50,7 +44,6 @@ export abstract class Control {
         data.addListener(this);
         return data;
     }
-
 
     /**
      *  Set the new HTMLElement and attach listener to it.
@@ -276,18 +269,40 @@ export abstract class Control {
      * @param newValue
      */
     public propertyChange(entity: Data, property: string, oldValue: any, newValue: any) {
-        if (this.viewData) this.viewData.setValue(property, newValue);
-        if (this.$model) this.$model.setValue(property, newValue);
+        if (oldValue == newValue) {
+            return;
+        }
+        if (this.$view instanceof this.getControlClass() == false) {
+            return;
+        }
+        if (this.viewData) {
+            if (newValue !== this.viewData.getValue(property)) {
+                // Set NewData to ViewData and Fire PC
+                this.viewData.setValue(property, newValue);
+            }
+        }
+        if (this.$model) {
+            if (newValue !== this.$model.getValue(property)) {
+                this.$model.setValue(property, newValue);
+            }
+        }
         this.updateElement(property, oldValue, newValue);
     }
 
     public controlChanged(ev: Event) {
-        if (this.$view instanceof HTMLInputElement == false) {
+        if (this.$view instanceof this.getControlClass() == false) {
             return;
         }
         let element = (<HTMLInputElement>this.$view);
-        if (element.checkValidity()) {
-
+        for(let item in this.viewData.prop) {
+            if(this.viewData.prop.hasOwnProperty(item) == false) {
+                continue;
+            }
+            let value = this.viewData.prop[item];
+            let newValue = ev.currentTarget[item];
+            if(newValue !== value) {
+                this.viewData.setValue(item, newValue);
+            }
         }
     }
 
@@ -300,9 +315,17 @@ export abstract class Control {
      * @param newValue
      */
     public updateElement(property: string, oldValue: any, newValue: any) {
-        if (this.$view && this.$view.hasAttribute(property)) {
-            this.$view.setAttribute(property, newValue);
+        if(this.$view) {
+            this.$view[property] = newValue;
         }
+       /* if (this.$view && this.$view.hasAttribute(property)) {
+            this.$view.setAttribute(property, newValue);
+            // Check if exist Property
+            if(this.$model[this.lastProperty] == null) {
+                const prop = this.lastProperty;
+                this.$model.setValue(prop, this.$view.getAttribute(prop));
+            }
+        }*/
     }
 
 //<<<<<<< HEAD
@@ -373,11 +396,13 @@ export abstract class Control {
         if (!this.property) {
             return;
         }
-        let objId = property.split('.')[0];
-        let object = null;
-        if (this.$owner.hasItem(objId)) {
-            object = this.$owner.getItem(objId);
-        }
+        //let objId = property.split('.')[0];
+        // Get or Create Item
+        let object:Data = this.$owner.getItem(property);
+
+        //if (this.$owner.hasItem(objId)) {
+        //    object = this.$owner.getItem(objId);
+        //}
 
         // remove listener on old object
         if (this.$model) {
@@ -439,4 +464,9 @@ export abstract class Control {
         let arr: string[] = this.property.split('.');
         return arr[arr.length - 1];
     }
+
+    public getControlClass() {
+        return HTMLElement;
+    }
+
 }
