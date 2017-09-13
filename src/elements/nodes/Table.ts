@@ -31,10 +31,6 @@ export class Table extends Control {
     private dragPos: number;
     private tableOption: HTMLTableHeaderCellElement;
 
-    constructor(data: JSON) {
-        super();
-    }
-
     public load(data: any) :void {
         let id: string;
         // init form HTML
@@ -71,7 +67,7 @@ export class Table extends Control {
             // Must be an Update
             if (data['columns']) {
                 // It is a json must add all things and generate HTML
-                for (var i in data['columns']) {
+                for (let i in data['columns']) {
                     if (data['columns'].hasOwnProperty(i) === false) {
                         continue;
                     }
@@ -80,7 +76,7 @@ export class Table extends Control {
                     this.columns.push(col);
                     this.tableOption.parentElement.insertBefore(col.$element, this.tableOption);
                 }
-                for (var i in this.showedItems) {
+                for (let i in this.showedItems) {
                     let item: BridgeElement = this.showedItems[i];
                     let cell;
                     // Now Add some Children
@@ -94,7 +90,7 @@ export class Table extends Control {
                     }
                     for (let c: number = 0; c < this.columns.length; c++) {
                         let name = this.columns[c].attribute;
-                        let count = this.columns.length;
+                        //let count = this.columns.length;
                         cell = item.gui.children[c];
                         cell.innerHTML = item.model.getValue(name);
                     }
@@ -176,7 +172,7 @@ export class Table extends Control {
 
         if (data['columns']) {
             // It is a json must add all things and generate HTML
-            for (var i in data['columns']) {
+            for (let i in data['columns']) {
                 if (data['columns'].hasOwnProperty(i) === false) {
                     continue;
                 }
@@ -190,7 +186,8 @@ export class Table extends Control {
             headerrow.appendChild(this.tableOption);
             let context: HTMLElement = this.addOptionItem(null, this.tableOption, true);
             let contentChild: HTMLElement = this.addOptionItem('show', context, true);
-            let simpleLink: HTMLElement = this.addOptionItem('show', contentChild, false);
+            //let simpleLink: HTMLElement = this.addOptionItem('show', contentChild, false);
+            this.addOptionItem('show', contentChild, false);
         }
         this.registerEvents(['mousemove', 'mousedown', 'mouseup', 'resize', 'dragstart', 'dragover', 'drop', 'dragend']);
 
@@ -304,14 +301,14 @@ export class Table extends Control {
     }
 
     public parsingHeader(row: HTMLTableRowElement) {
-        for (var i in row.children) {
+        for (let i in row.children) {
             if (row.children.hasOwnProperty(i) === false) {
                 continue;
             }
             let column: HTMLTableHeaderCellElement = <HTMLTableHeaderCellElement>row.children[i];
             let id = column.innerHTML.trim();
             let col: Column = null;
-            for (var c in this.columns) {
+            for (let c in this.columns) {
                 if (this.columns.hasOwnProperty(i) === false) {
                     continue;
                 }
@@ -335,7 +332,7 @@ export class Table extends Control {
     public parsingData(row: HTMLTableRowElement) {
         let id = row.getAttribute('id');
         let item: Data = this.$owner.getItem(id);
-        for (var i in row.children) {
+        for (let i in row.children) {
             if (row.children.hasOwnProperty(i) === false) {
                 continue;
             }
@@ -627,12 +624,12 @@ export class Table extends Control {
         }
 
         this.items = [];
-        this.itemsIds = new Object();
+        this.itemsIds = {};
 
         // load all entitys that match the property
         if (this.property !== undefined) {
             let items = this.$owner.getItems();
-            for (var j in items) {
+            for (let j in items) {
                 if (items.hasOwnProperty(j)) {
                     let item = items[j];
                     if (item instanceof Data) {
@@ -672,7 +669,7 @@ export class Table extends Control {
     private createRow(data: BridgeElement): HTMLTableRowElement {
         let tr: HTMLTableRowElement = document.createElement("tr");
 
-        for (var id of this.columns) {
+        for (let id of this.columns) {
             let td: HTMLTableDataCellElement = document.createElement("td");
             tr.appendChild(td);
             td.innerHTML = data.model.getValue(id.attribute);

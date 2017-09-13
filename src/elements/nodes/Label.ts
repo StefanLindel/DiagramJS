@@ -1,11 +1,6 @@
 import {Control} from "../../Control";
 
 export class Label extends Control {
-    constructor(data: JSON) {
-        super();
-    }
-
-
     public load(data: JSON): any {
         this.createControl(this.$owner, data);
     }

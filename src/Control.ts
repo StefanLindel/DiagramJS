@@ -102,7 +102,7 @@ export abstract class Control {
         return this;
     }
 
-    public createEventListener(): EventListener {
+    public static createEventListener(): EventListener {
         return new EventListener();
     }
 
@@ -226,22 +226,6 @@ export abstract class Control {
                 }
             );
         }
-//        this.saveViewInData();
-    }
-
-
-    protected updateViewData() {
-        if (!this.$view) {
-            return;
-        }
-        const keys: string[] = this.viewData.getKeys();
-        for (let i = 0; i < keys.length; i++) {
-            let attr = keys[i];
-            if (this.$view[attr] === null) {
-                continue;
-            }
-            this.viewData.setValue(attr, this.$view[attr]);
-        }
     }
 
     public getItem(id: string): Data {
@@ -254,7 +238,7 @@ export abstract class Control {
     }
 
     public getItems(): Object {
-        return new Object();
+        return {};
     }
 
     public setValue(object: Object, attribute: string, newValue: Object, oldValue ?: Object): boolean {
@@ -272,7 +256,7 @@ export abstract class Control {
         if (oldValue == newValue) {
             return;
         }
-        if (this.$view instanceof this.getControlClass() == false) {
+        if (this.$view instanceof HTMLElement == false) {
             return;
         }
         if (this.viewData) {
@@ -290,10 +274,9 @@ export abstract class Control {
     }
 
     public controlChanged(ev: Event) {
-        if (this.$view instanceof this.getControlClass() == false) {
+        if (this.$view instanceof HTMLElement == false) {
             return;
         }
-        let element = (<HTMLInputElement>this.$view);
         for(let item in this.viewData.prop) {
             if(this.viewData.prop.hasOwnProperty(item) == false) {
                 continue;
@@ -306,7 +289,6 @@ export abstract class Control {
         }
     }
 
-//<<<<<<< HEAD
 
     /**
      *  Update GUI Element
@@ -318,50 +300,7 @@ export abstract class Control {
         if(this.$view) {
             this.$view[property] = newValue;
         }
-       /* if (this.$view && this.$view.hasAttribute(property)) {
-            this.$view.setAttribute(property, newValue);
-            // Check if exist Property
-            if(this.$model[this.lastProperty] == null) {
-                const prop = this.lastProperty;
-                this.$model.setValue(prop, this.$view.getAttribute(prop));
-            }
-        }*/
     }
-
-//<<<<<<< HEAD
-//        //FIXME this.getRoot().setValue(this, property, newValue, oldValue);
-//        if(property == this.lastProperty) {
-//            this.updateElement(property, newValue);
-//        }
-//=======
-//        if (oldValue == newValue) {
-//            return;
-//        }
-//        if (oldValue == this.viewData.getValue(property)) {
-//            return;
-//        }
-//        // Set NewData to ViewData and Fire PC
-//        this.viewData.setValue(property, newValue);
-//
-//
-//
-//         // if ($graphModel == this.viewData) {
-//             // if the ViewData is changed, we want to change the $view
-//             // if (this.$graphModel) {
-//                 alert("$graphModel = viewData: " + this.getStandardProperty() + ", " +  property + ", newVal: " + newValue + ", oldVal: " + oldValue);
-//                 if (this.getStandardProperty() == property && this.$graphModel.hasProperty(property)) {
-//                     this.getRoot().setValue(this.$graphModel, property, newValue, oldValue);
-//                 }
-//             // }
-//         // } else {
-//             // the $graphModel is changed, so we want tell it to the viewData
-//             // if (this.viewData) {
-//                 alert("$graphModel = Data: " +  property);
-//                 // this.getRoot().setValue(this.viewData, property, newValue, oldValue);
-//                 this.viewData.setValue(property, newValue);
-//             // }
-//         // }
-// >>>>>>> addOldFunctions
 
     public getId(): string {
         return this.id;
@@ -464,9 +403,4 @@ export abstract class Control {
         let arr: string[] = this.property.split('.');
         return arr[arr.length - 1];
     }
-
-    public getControlClass() {
-        return HTMLElement;
-    }
-
 }

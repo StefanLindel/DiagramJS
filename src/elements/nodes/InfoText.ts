@@ -1,5 +1,5 @@
 //				######################################################### Info #########################################################
-import {DiagramElement, Point} from "../BaseElements";
+import {Point} from "../BaseElements";
 import {Util} from "../../util";
 import {Node} from "./Node";
 import {EventBus} from "../../EventBus";

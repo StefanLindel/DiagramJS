@@ -4,11 +4,9 @@ import Data from "../../Data";
 
 export class Input extends Control {
     private type: string;
-    private applyingChange: boolean = false;
 
     constructor() {
         super();
-
     }
 
     public initViewDataProperties(oldData?: Data): Data {
@@ -21,12 +19,7 @@ export class Input extends Control {
         return data;
     }
 
-
-    protected isKeyOnly(): boolean {
-        return ("checkbox" === this.type || "radio" === this.type);
-    }
-
-    public load(data: any) {
+     public load(data: any) {
         let id: string;
         let inputField: HTMLElement;
         let useData: boolean;

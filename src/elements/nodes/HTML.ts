@@ -54,8 +54,10 @@ export class HTML extends Control {
             }
             if (lowKey === 'children') {
                 if (Array.isArray(properties[key])) {
-                    let item;
-                    for (item in properties[key]) {
+                    for (let item in properties[key]) {
+                        if(properties[key].hasOwnProperty(item) == false) {
+                            continue;
+                        }
                         let child = this.writeAttribute(item);
                         if (child) {
                             entity.appendChild(child);

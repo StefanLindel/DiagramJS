@@ -6,10 +6,6 @@ export class Form extends Control {
     private children: Object = {};
     // private property: string = "";
 
-    constructor(data: JSON) {
-        super();
-    }
-
     /**
      * Data should look like the following json:
      *
@@ -101,7 +97,7 @@ export class Form extends Control {
     public setProperty(id: string): void {
         this.property = id;
         let keys: string[] = Object.keys(this.children);
-        for (var k = 0; k < keys.length; k++) {
+        for (let k = 0; k < keys.length; k++) {
             let key = keys[k];
             let childControl = this.children[key];
             // only set Property, if there is a Property defined before

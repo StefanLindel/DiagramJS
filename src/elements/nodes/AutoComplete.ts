@@ -2,7 +2,6 @@
  * Created by Stefan on 28.06.2017.
  */
 import {Control} from "../../Control";
-import Data from "../../Data";
 
 export class AutoComplete extends Control {
     private $inputField:HTMLInputElement;
@@ -11,9 +10,6 @@ export class AutoComplete extends Control {
     private $items:HTMLDivElement;
     private isMultiple:boolean;
 
-    constructor(data: JSON) {
-        super();
-    }
     public load(json: JSON, owner?: Control): any {
         this.createControl(this.$owner, json);
     }
@@ -32,7 +28,7 @@ export class AutoComplete extends Control {
         if(data["value"]) {
             let values = data["value"];
             this.isMultiple = data["multiple"] != null;
-            let option:HTMLOptionElement
+            let option:HTMLOptionElement;
             if(this.isMultiple) {
                 this.$selected = document.createElement("select");
                 this.$selected.className = "hide";
@@ -46,7 +42,7 @@ export class AutoComplete extends Control {
                 div.appendChild(this.$selected);
                 this.$view["style"].setProperty("float", "left");
                 let that = this;
-                this.$inputField.oninput = function(e){that.onChange(e);}
+                this.$inputField.oninput = function(){that.onChange();}
             } else {
                 this.$inputField.id = this.id;
             }
@@ -84,7 +80,7 @@ export class AutoComplete extends Control {
         parent.appendChild(this);
     }
 
-    public onChange(event:Event) : void {
+    public onChange() : void {
         let textValue:string = this.$inputField.value;
         if(textValue.length<1) {
             return;
@@ -97,7 +93,7 @@ export class AutoComplete extends Control {
                     item.defaultSelected = true;
                     let test = document.createElement("li");
                     let that = this;
-                    test.onclick = function(e) {that.onDelete(item.value, test);}
+                    test.onclick = function() {that.onDelete(item.value, test);};
                     test.className = "selectedItem";
                     test.innerHTML = item.value;
                     this.$items.appendChild(test);

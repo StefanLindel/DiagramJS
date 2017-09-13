@@ -5,10 +5,6 @@ import Data from '../../Data';
 export class Div extends Control {
     private className: string;
 
-    constructor(data:JSON) {
-        super();
-    }
-
     public load(data:JSON|any): any {
         let id: string;
         // init form HTML

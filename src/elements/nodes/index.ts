@@ -1,3 +1,8 @@
+import {AutoComplete} from "./AutoComplete";
+import {BR} from "./BR";
+import {Div} from "./Div";
+import {Label} from "./Label";
+
 export * from './Node';
 export * from './Clazz';
 export * from './SO';
@@ -13,3 +18,9 @@ export * from './Table';
 export * from './HTML';
 export * from './Dice';
 export * from './AutoComplete'
+
+
+new AutoComplete();
+new BR();
+new Div();
+new Label();

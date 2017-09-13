@@ -180,8 +180,8 @@ export class Clazz extends Node {
     }
 
     private getModernStyle(): Element {
-        let width, height, id, size, z, item, rect, g, board, styleHeader, headerHeight, x, y;
-        board = this.getRoot()['board'];
+        let width, height, id, size, z, item, rect, g, styleHeader, headerHeight, x, y;
+        //let board = this.getRoot()['board'];
         styleHeader = Util.getStyle('ClazzHeader');
         headerHeight = styleHeader.getNumber('height');
         width = 0;
