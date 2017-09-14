@@ -1,0 +1,26 @@
+<html><body >
+<button onclick="disableContext();">Disable</button>
+
+<script language="Javascript">
+function disableContext() {
+//$(document).bind("oncontextmenu", function(e){return false;});
+//document.body.oncontextmenu = function(e){{return false;});
+
+	document.body.oncontextmenu = function(e){
+		var contextmenu = document.getElementById("ContextMenue");
+		if(contextmenu) {
+			contextmenu.style.visibility="";
+			contextmenu.style.position="absolute";
+			contextmenu.style.left=e.layerX;
+			contextmenu.style.top=e.layerY;
+		}
+		return false;
+	};
+}
+
+
+</script>
+
+<div id="ContextMenue" style="visibility:hidden">Hallo Welt</div>
+
+</body></html>
