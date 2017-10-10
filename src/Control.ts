@@ -1,8 +1,9 @@
 import {Bridge} from './Bridge';
 import Data from './Data';
 import EventListener from './EventListener';
+import PropertyChangeSupport from './PropertyChangeSupport';
 
-export abstract class Control {
+export abstract class Control implements PropertyChangeSupport{
     public $owner: Control;
     /**
      *
@@ -12,13 +13,13 @@ export abstract class Control {
     protected $model: Data;
 
     public $view: Element;
-    private $viewListener: EventListenerOrEventListenerObject;
+    protected $viewListener: EventListenerOrEventListenerObject;
     public viewData: Data;
 
     constructor() {
         // e.g. this.properties.push("key");
         // this.properties.push("property");
-        this.viewData = this.initViewDataProperties(this.viewData);
+        this.initViewDataProperties(this.viewData);
         this.$viewListener = ((ev: Event) => {
             this.controlChanged(ev);
         });
@@ -26,6 +27,7 @@ export abstract class Control {
 
    public initViewDataProperties(oldData?: Data): Data {
         const data: Data = new Data();
+        this.viewData = data;
         if (oldData) {
             oldData.removeListener(this);
             const keys: string[] = oldData.getKeys();
@@ -64,7 +66,7 @@ export abstract class Control {
         if (this.$viewListener) {
             element.addEventListener('change', this.$viewListener);
         }
-        this.viewData = this.initViewDataProperties(this.viewData);
+        this.initViewDataProperties(this.viewData);
         return element;
     }
 
@@ -260,13 +262,13 @@ export abstract class Control {
             return;
         }
         if (this.viewData) {
-            if (newValue !== this.viewData.getValue(property)) {
+            if (entity === this.viewData && newValue !== this.viewData.getValue(property)) {
                 // Set NewData to ViewData and Fire PC
                 this.viewData.setValue(property, newValue);
             }
         }
         if (this.$model) {
-            if (newValue !== this.$model.getValue(property)) {
+            if (entity === this.$model && newValue !== this.$model.getValue(property)) {
                 this.$model.setValue(property, newValue);
             }
         }
@@ -298,7 +300,11 @@ export abstract class Control {
      */
     public updateElement(property: string, oldValue: any, newValue: any) {
         if(this.$view) {
-            this.$view[property] = newValue;
+            if(newValue === null) {
+                this.$view.removeAttribute(property);
+            }else {
+                this.$view.setAttribute(property, newValue);
+            }
         }
     }
 
@@ -312,6 +318,7 @@ export abstract class Control {
 
     public addItem(source: Bridge, entity: Data) {
         // check for new Element in Bridge
+        console.log("Add item inside Control.. " + this.id);
         if (entity) {
             if (!this.property || entity.hasProperty(this.property)) {
                 entity.addListener(this, this.property);
@@ -332,7 +339,7 @@ export abstract class Control {
      Property looks like: 't1.talk'
      */
     public setProperty(property: string): void {
-        if (!this.property) {
+        if (!property) {
             return;
         }
         //let objId = property.split('.')[0];

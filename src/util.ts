@@ -2,14 +2,16 @@
 import {CSS} from './CSS';
 import {Node} from './elements/nodes/Node';
 import {DiagramElement, Point} from './elements/BaseElements';
-import {Control} from "./Control";
+import {Control} from './Control';
+import Data from './Data';
+import PropertyChangeSupport from './PropertyChangeSupport';
 
 export class Util {
-    static getRandomInt(min:number, max:number): number {
+    static getRandomInt(min: number, max: number): number {
         return Math.floor(Math.random() * (max - min + 1)) + min;
     }
 
-    static createShape(attrs:any): SVGSVGElement {
+    static createShape(attrs: any): SVGSVGElement {
         let xmlns = attrs.xmlns || 'http://www.w3.org/2000/svg';
         let shape = document.createElementNS(xmlns, attrs.tag);
         for (let attr in attrs) {
@@ -27,7 +29,8 @@ export class Util {
     };
 
     static isSVG(tag: string): boolean {
-        let i, list = ['svg', 'path', 'polygon', 'polyline', 'line', 'rect', 'filter', 'feGaussianBlur', 'feOffset', 'feBlend', 'linearGradient', 'stop', 'text', 'symbol', 'textPath', 'defs', 'fegaussianblur', 'feoffset', 'feblend', 'circle', 'ellipse', 'g'];
+        let i,
+            list = ['svg', 'path', 'polygon', 'polyline', 'line', 'rect', 'filter', 'feGaussianBlur', 'feOffset', 'feBlend', 'linearGradient', 'stop', 'text', 'symbol', 'textPath', 'defs', 'fegaussianblur', 'feoffset', 'feblend', 'circle', 'ellipse', 'g'];
         for (i = 0; i < list.length; i += 1) {
             if (list[i] === tag) {
                 return true;
@@ -124,7 +127,7 @@ export class Util {
         return item;
     }
 
-    static setSize(item:any, width:number|string, height:number|string): void {
+    static setSize(item: any, width: number | string, height: number | string): void {
         let value: number;
         value = Util.getValue(width);
         item.setAttribute('width', value);
@@ -134,7 +137,7 @@ export class Util {
         item.style.height = Math.ceil(value);
     }
 
-    static setPos(item:any, x: number, y: number): void {
+    static setPos(item: any, x: number, y: number): void {
         if (item.x && item.x.baseVal) {
             item.style.left = x + 'px';
             item.style.top = y + 'px';
@@ -144,7 +147,7 @@ export class Util {
         }
     }
 
-    static getValue(value: string|number): number {
+    static getValue(value: string | number): number {
         return parseInt(('0' + value).replace('px', ''), 10);
     }
 
@@ -160,11 +163,11 @@ export class Util {
         return navigator.userAgent.indexOf('Opera') > -1;
     }
 
-    static getEventX(event:Event|any): number {
+    static getEventX(event: Event | any): number {
         return (this.isIE) ? window.event['clientX'] : event.pageX;
     }
 
-    static getEventY(event:Event|any): number {
+    static getEventY(event: Event | any): number {
         return (this.isIE) ? window.event['clientY'] : event.pageY;
     }
 
@@ -172,7 +175,7 @@ export class Util {
         return parseInt((str || '0').replace('px', ''), 10);
     }
 
-    static getStyle(styleProp:string): CSS {
+    static getStyle(styleProp: string): CSS {
         let i, style, diff, current, ref, el = document.createElement('div'), css;
         document.body.appendChild(el);
         css = new CSS(styleProp);
@@ -254,12 +257,12 @@ export class Util {
         document.body.appendChild(svg);
     }
 
-    public static toJson(ref:JSON|Object): Object {
+    public static toJson(ref: JSON | Object): Object {
         let result = {};
         return Util.copy(result, ref, false, false);
     }
 
-    public static initControl(parent:Control, control:Control, type:string, id:string, json:JSON|Object) {
+    public static initControl(parent: Control, control: Control, type: string, id: string, json: JSON | Object) {
         if (typeof control.init === 'function') {
             control.init(parent, type, id);
         }
@@ -278,7 +281,7 @@ export class Util {
      * @returns ref
      * @name copy
      */
-    public static copy(ref:JSON|Object, src:JSON|Object, full: boolean, replace: boolean) {
+    public static copy(ref: JSON | Object, src: JSON | Object, full: boolean, replace: boolean) {
         if (src) {
             let i;
             for (i in src) {
@@ -315,15 +318,15 @@ export class Util {
         return ref;
     }
 
-    public static xmlstringify(text:string) : string {
-        text = text.replace("<", "&lt;");
-        text = text.replace(">", "&gt;");
+    public static xmlstringify(text: string): string {
+        text = text.replace('<', '&lt;');
+        text = text.replace('>', '&gt;');
         return text;
     }
 
-    public static toXML(ref:JSON|Object|any, src:JSON|Object|any, full: boolean, doc:Document) : any {
+    public static toXML(ref: JSON | Object | any, src: JSON | Object | any, full: boolean, doc: Document): any {
         let name;
-        if(!ref) {
+        if (!ref) {
             name = src.constructor.name;
             doc = document.implementation.createDocument(null, name, null);
             ref = doc.childNodes[0];
@@ -452,4 +455,61 @@ export class Util {
         }
         return new Point(x, y, p);
     }
+}
+
+export class PropertyBinder implements PropertyChangeSupport {
+    private propertyClass1: string;
+    private propertyClass2: string;
+    private data1: Data;
+    private data2: Data;
+
+    static bind(data1: Data, data2: Data, property1: string, property2: string) {
+        if(!data1 || !data2 || !property1) {
+            console.error("NullValue!!");
+            return null;
+        }
+        const propertyBinder = new PropertyBinder(data1, data2, property1, property2);
+        propertyBinder.bind();
+        return propertyBinder;
+    }
+
+    constructor(data1: Data, data2: Data, propertyClass1: string, propertyClass2: string) {
+        this.data1 = data1;
+        this.data2 = data2;
+        this.propertyClass1 = propertyClass1;
+        this.propertyClass2 = propertyClass2;
+    }
+
+    protected bind() {
+        // public addListener(control: Control, property?: string)
+        // todo: set value immediately
+        this.data1.setValue(this.propertyClass1, this.data2.getValue(this.propertyClass2));
+
+        this.data1.addListener(this, this.propertyClass1);
+        this.data2.addListener(this, this.propertyClass2);
+    }
+
+    protected unbind() {
+        // public addListener(control: Control, property?: string)
+        this.data1.removeListener(this, this.propertyClass2);
+        this.data1.removeListener(this, this.propertyClass2);
+    }
+
+    // works like a lock
+    private applyingChange: boolean = false;
+
+    propertyChange(entity: Data, property: string, oldValue: any, newValue: any): void {
+        if (!this.applyingChange) {
+            this.applyingChange = true;
+            if (entity === this.data1) {
+                // fire to data2
+                this.data2.setValue(property, newValue);
+            } else if (entity === this.data2) {
+                // fire to data1
+                this.data1.setValue(property, newValue);
+            }
+            this.applyingChange = false;
+        }
+    }
+
 }

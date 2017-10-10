@@ -1,4 +1,5 @@
 import {Control} from "./Control";
+import PropertyChangeSupport from './PropertyChangeSupport';
 
 export default class Data {
     public prop = {};
@@ -51,7 +52,7 @@ export default class Data {
         return property;
     }
 
-    protected getListeners(property: string): Control[] {
+    protected getListeners(property: string): PropertyChangeSupport[] {
         property = Data.nullCheck(property);
         return this.$listener[property];
     }
@@ -72,7 +73,7 @@ export default class Data {
     protected firePropertyChange(attribute: string, oldValue: Object, newValue: Object) {
         attribute = Data.nullCheck(attribute);
         // at first fire for the given property
-        let listeners: Control[] = this.getListeners(attribute);
+        let listeners: PropertyChangeSupport[] = this.getListeners(attribute);
         if (listeners) {
             for (let i in listeners) {
                 listeners[i].propertyChange(this, attribute, oldValue, newValue);
@@ -117,8 +118,8 @@ export default class Data {
         return true;
     }
 
-    public addListener(control: Control, property?: string) {
-        let listeners: Control[] = this.getListeners(property);
+    public addListener(control: PropertyChangeSupport, property?: string) {
+        let listeners: PropertyChangeSupport[] = this.getListeners(property);
         if (!listeners) {
             listeners = [];
             this.$listener[Data.nullCheck(property)] = listeners;
@@ -126,7 +127,7 @@ export default class Data {
         listeners.push(control);
     }
 
-    public removeListener(control: Control, property?: string) {
+    public removeListener(control: PropertyChangeSupport, property?: string) {
         let listeners = this.getListeners(property);
         if (listeners === null) {
             return;

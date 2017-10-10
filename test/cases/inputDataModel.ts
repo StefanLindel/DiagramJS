@@ -1,5 +1,5 @@
-import {TestCase} from "../TestCase";
-import {Control} from "../../src/Control";
+import {TestCase} from '../TestCase';
+import {Control} from '../../src/Control';
 
 export class InputDataModel extends TestCase {
     // execute(): Promise<boolean> {
@@ -18,12 +18,8 @@ export class InputDataModel extends TestCase {
         });
 
 
-        j1n1.$view["value"] = 42;
-        if ("createEvent" in document) {
-            var evt = document.createEvent("HTMLEvents");
-            evt.initEvent("change", false, true);
-            j1n1.$view.dispatchEvent(evt);
-        }
-        this.assertEquals("42", div.$view.innerHTML);
+        j1n1.$view['value'] = 42;
+        this.simulateClickEvent(j1n1.$view)
+        this.assertEquals('42', div.$view.innerHTML);
     }
 }

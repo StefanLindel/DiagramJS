@@ -1,6 +1,7 @@
-import {Control} from "../../Control";
-import {Bridge} from "../../Bridge";
-import Data from "../../Data";
+import {Control} from '../../Control';
+import {Bridge} from '../../Bridge';
+import Data from '../../Data';
+import {Util, PropertyBinder} from '../../util';
 
 export class Input extends Control {
     private type: string;
@@ -11,15 +12,15 @@ export class Input extends Control {
 
     public initViewDataProperties(oldData?: Data): Data {
         const data = super.initViewDataProperties(oldData);
-        if ("checkbox" === this.type || "radio" === this.type) {
-            data.addFrom("checked", oldData);
+        if ('checkbox' === this.type || 'radio' === this.type) {
+            data.addFrom('checked', oldData);
         }
-        data.addFrom("value", oldData);
-        data.addFrom("type", oldData);
+        data.addFrom('value', oldData);
+        data.addFrom('type', oldData);
         return data;
     }
 
-     public load(data: any) {
+    public load(data: any) {
         let id: string;
         let inputField: HTMLElement;
         let useData: boolean;
@@ -63,12 +64,16 @@ export class Input extends Control {
         } else {
             if (!inputField) {
                 this.setView(document.createElement('input'));
+                this.viewData = this.initViewDataProperties(this.viewData);
+                // append viewListener
+                // this.$view.addEventListener('change', this.$viewListener);
                 if (typeof(data) !== 'string') {
                     for (let attr in data) {
                         if (data.hasOwnProperty(attr) === false) {
                             continue;
                         }
-                        this.$view[attr] = data[attr];
+                        // this.$view[attr] = data[attr];
+                        this.viewData.setValue(attr, data[attr]);
                     }
                 } else {
                     if (this.type) {
@@ -80,6 +85,17 @@ export class Input extends Control {
                     this.$view.setAttribute('id', this.id);
                     this.$view.setAttribute('property', this.property);
                 }
+
+                if (data.value) {
+                    // if theres a value at the control, we want to change the model to the new value
+                    if (this.$model) {
+                        this.$model.setValue(this.lastProperty, data.value);
+                    }
+                }
+                if (this.$model) {
+                    PropertyBinder.bind(this.viewData, this.$model, 'value', this.lastProperty);
+                }
+
                 this.$owner.appendChild(this);
             } else {
                 // the id is already taken by an object, that is not an input field...
@@ -90,10 +106,12 @@ export class Input extends Control {
 
     public addItem(source: Bridge, entity: Data) {
         // check for new Element in Bridge
+        console.log("Here inside Input!!!" + this.id);
         if (this.property && entity) {
             if (entity.id === this.property.split('.')[0]) {
                 this.$model = entity;
-                entity.addListener(this, this.lastProperty);
+                PropertyBinder.bind(this.viewData, this.$model, 'value', this.lastProperty);
+                // entity.addListener(this, this.lastProperty);
             }
         }
     }
@@ -130,43 +148,43 @@ export class Input extends Control {
 //                 }
 //             } else {
 //             }
-            //let $graphModel;
-            //let value;
-            /*if (this.$graphModel) {
-                $graphModel = this.$graphModel;
-                value = this.$graphModel.getValue(this.lastProperty);
-            } else {
-                $graphModel = this;
-                if (this.$view) {
-                    value = this.$view[this.lastProperty];
-                }
-            }*/
-            // this.$model.setValue(this.lastProperty, newVal);
-            //this.propertyChange(this.$graphModel,this.lastProperty, this.$graphModel.getValue(this.lastProperty), newVal);
-            //this.getRoot().setValue($graphModel, this.lastProperty, newVal, value);
+        //let $graphModel;
+        //let value;
+        /*if (this.$graphModel) {
+            $graphModel = this.$graphModel;
+            value = this.$graphModel.getValue(this.lastProperty);
+        } else {
+            $graphModel = this;
+            if (this.$view) {
+                value = this.$view[this.lastProperty];
+            }
+        }*/
+        // this.$model.setValue(this.lastProperty, newVal);
+        //this.propertyChange(this.$graphModel,this.lastProperty, this.$graphModel.getValue(this.lastProperty), newVal);
+        //this.getRoot().setValue($graphModel, this.lastProperty, newVal, value);
 //=======
-            // let newVal = element[this.lastProperty];
-            // if (this.isKeyOnly()) {
-            //     // we expect, element[this.lastProperty] to be boolean:
-            //     if (!newVal) {
-            //         newVal = null;
-            //     }
-            // } else {
-            // }
-            // let $graphModel;
-            // let value;
+        // let newVal = element[this.lastProperty];
+        // if (this.isKeyOnly()) {
+        //     // we expect, element[this.lastProperty] to be boolean:
+        //     if (!newVal) {
+        //         newVal = null;
+        //     }
+        // } else {
+        // }
+        // let $graphModel;
+        // let value;
 
-            // $graphModel = this.getViewData();
-            // if (this.$graphModel) {
-            //     $graphModel = this.$graphModel;
-            //     value = this.$graphModel.getValue(this.lastProperty);
-            // } else {
-            //     $graphModel = this;
-            //     if (this.$view) {
-            //         value = this.$view[this.lastProperty];
-            //     }
-            // }
-            // this.getRoot().setValue($graphModel, this.lastProperty, newVal, value);
+        // $graphModel = this.getViewData();
+        // if (this.$graphModel) {
+        //     $graphModel = this.$graphModel;
+        //     value = this.$graphModel.getValue(this.lastProperty);
+        // } else {
+        //     $graphModel = this;
+        //     if (this.$view) {
+        //         value = this.$view[this.lastProperty];
+        //     }
+        // }
+        // this.getRoot().setValue($graphModel, this.lastProperty, newVal, value);
 //            this.saveViewInData();
 //>>>>>>> addOldFunctions
 //         } else {
@@ -179,10 +197,10 @@ export class Input extends Control {
         if (oldValue === type) {
             return;
         }
-        if(type=="radio") {
-            this.viewData.setValue("checked", null);
-        }else {
-            this.viewData.removeKey("checked");
+        if (type == 'radio') {
+            this.viewData.setValue('checked', null);
+        } else {
+            this.viewData.removeKey('checked');
         }
     }
 }

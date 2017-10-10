@@ -1,6 +1,6 @@
 import {Bridge} from '../src/Bridge';
 
-export abstract class   TestCase {
+export abstract class TestCase {
 
     protected bridge: Bridge;
     /**
@@ -24,7 +24,7 @@ export abstract class   TestCase {
     }
 
     // public abstract execute(): Promise<boolean>;
-    public execute(): boolean{
+    public execute(): boolean {
         this.run();
         return true;
     }
@@ -32,22 +32,40 @@ export abstract class   TestCase {
     protected abstract run(): void;
 
     public cleanup() {
-        if(this.control) {
+        if (this.control) {
             this.root.removeChild(this.control);
         }
     }
 
-    protected assertEquals(obj1: any, obj2: any): boolean {
+    /**
+     *
+     * @param obj1 expected Value
+     * @param obj2 actual Value
+     * @returns {boolean}
+     */
+    protected assertEquals(obj1: any, obj2: any, message?: string): boolean {
         if (obj1 !== obj2) {
-            throw new Error('Assertion error: ' + obj1 + ' expected, actually was: ' + obj2);
+            throw new Error((message ? '(' + message + ') ' : '') + 'Assertion error: ' + obj1 + ' expected, actually was: ' + obj2);
         }
         return obj1 === obj2;
     }
 
-    protected assertNotNull(obj1: any): boolean {
+    protected assertNotNull(obj1: any, message?: string): boolean {
         if (obj1 === null) {
-            throw new Error('Assertion error: ' + obj1 + ' expected, to be not null');
+            throw new Error((message ? '(' + message + ') ' : '') + 'Assertion error: ' + obj1 + ' expected, to be not null');
         }
         return obj1 !== null;
     }
+
+    protected simulateClickEvent(element: Element, eventType?: string) {
+        if ('createEvent' in document) {
+            if (!eventType) {
+                eventType = 'change';
+            }
+            var evt = document.createEvent('HTMLEvents');
+            evt.initEvent('change', false, true);
+            element.dispatchEvent(evt);
+        }
+    }
+
 }
