@@ -1,4 +1,3 @@
-import {Control} from "./Control";
 import PropertyChangeSupport from './PropertyChangeSupport';
 
 export default class Data {

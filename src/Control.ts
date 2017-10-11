@@ -2,6 +2,7 @@ import {Bridge} from './Bridge';
 import Data from './Data';
 import EventListener from './EventListener';
 import PropertyChangeSupport from './PropertyChangeSupport';
+import {PropertyBinder} from './PropertyBinder';
 
 export abstract class Control implements PropertyChangeSupport{
     public $owner: Control;
@@ -318,10 +319,10 @@ export abstract class Control implements PropertyChangeSupport{
 
     public addItem(source: Bridge, entity: Data) {
         // check for new Element in Bridge
-        console.log("Add item inside Control.. " + this.id);
         if (entity) {
             if (!this.property || entity.hasProperty(this.property)) {
-                entity.addListener(this, this.property);
+                PropertyBinder.bind(this.viewData, entity, 'value',this.lastProperty);
+                // entity.addListener(this, this.property);
                 this.$model = entity;
             }
         }
@@ -346,6 +347,8 @@ export abstract class Control implements PropertyChangeSupport{
         // Get or Create Item
         let object:Data = this.$owner.getItem(property);
 
+        // TODO: does not get updated properly later...
+
         //if (this.$owner.hasItem(objId)) {
         //    object = this.$owner.getItem(objId);
         //}
@@ -359,7 +362,8 @@ export abstract class Control implements PropertyChangeSupport{
 
         // add listener to object..
         if (object) {
-            object.addListener(this, this.lastProperty);
+            // object.addListener(this, this.lastProperty);
+            PropertyBinder.bind(this.viewData, object, 'value',this.lastProperty);
             this.$model = object;
             this.updateElement(this.lastProperty, this.viewData.getValue(this.lastProperty), object.prop[this.lastProperty]);
         }

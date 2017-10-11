@@ -1,7 +1,8 @@
 import {Control} from '../../Control';
 import {Bridge} from '../../Bridge';
 import Data from '../../Data';
-import {Util, PropertyBinder} from '../../util';
+import {Util} from '../../util';
+import {PropertyBinder} from '../../PropertyBinder';
 
 export class Input extends Control {
     private type: string;
@@ -106,7 +107,6 @@ export class Input extends Control {
 
     public addItem(source: Bridge, entity: Data) {
         // check for new Element in Bridge
-        console.log("Here inside Input!!!" + this.id);
         if (this.property && entity) {
             if (entity.id === this.property.split('.')[0]) {
                 this.$model = entity;
