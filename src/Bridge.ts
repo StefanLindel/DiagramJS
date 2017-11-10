@@ -12,7 +12,6 @@ import {Point} from "./elements/BaseElements";
 export class Bridge extends Control {
     // noinspection JSUnusedGlobalSymbols
     public static version: string = '0.42.01.1601007-1739';
-    private listener: Array<Object> = [];
     private controlFactory: Object = {};
     private adapterFactory: Object = {};
     private controls: Object = {};
@@ -38,7 +37,6 @@ export class Bridge extends Control {
                 this.adapterFactory[child.id.toLowerCase()] = child;
             }
         }
-
 
         keys = Object.keys(controls);
         for (i = 0; i < keys.length; i++) {
@@ -157,6 +155,12 @@ export class Bridge extends Control {
         if (!config['id']) {
             config['id'] = this.getId();
         }
+        // Backup for Old Graph
+        if(!config["className"] && (config['type']==="clazzdiagram" || config['type'] == "objectdiagram")) {
+            config["className"] = "graph";
+        }
+
+
         className = config['className'] || config['class'];
         className = className.toLocaleLowerCase();
         id = config['id'];
@@ -321,7 +325,7 @@ export class Bridge extends Control {
         } else if (object.hasOwnProperty('id')) {
             // object is the real Object, we want to change
             obj = object;
-            id = object['id'];
+            //id = object['id'];
         } else {
             console.log('object is neither Data nor String..');
             return;

@@ -5,7 +5,7 @@ import {Node} from '../elements/nodes';
 import {Graph} from '../elements/Graph';
 import {Control} from "../Control";
 
-export class Drag {
+export class Drag implements EventHandler {
 
     private element: DiagramElement;
     private svgRoot: SVGSVGElement;

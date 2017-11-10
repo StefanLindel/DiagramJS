@@ -1,0 +1,44 @@
+{
+    "typ": "classdiagram",
+    "nodes": {
+        "Uni": {
+            "typ": "node",
+            "id": "Uni",
+            "height": 74,
+            "width": 95,
+            "y": 226,
+            "x": 213
+        },
+        "Student": {
+            "typ": "node",
+            "id": "Student",
+            "height": 88,
+            "width": 143,
+            "y": 222,
+            "x": 492
+        }
+    },
+    "edges": [
+        {
+            "typ": "EDGE",
+            "source": {
+                "typ": "Info",
+                "property": "from",
+                "id": "Uni",
+                "height": 18,
+                "width": 31,
+                "y": 264,
+                "x": 328
+            },
+            "target": {
+                "typ": "Info",
+                "property": "to",
+                "id": "Student",
+                "height": 18,
+                "width": 12,
+                "y": 265,
+                "x": 460
+            }
+        }
+    ]
+}

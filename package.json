@@ -7,24 +7,29 @@
     "type": "git",
     "url": "https://gitlab.se.cs.uni-kassel.de/slin/DiagramJS.git"
   },
-  "dependencies": {},
+  "dependencies": {
+    "babel-eslint": "^8.0.2",
+    "eslint": "^4.10.0",
+    "eslint-plugin-react": "^7.4.0",
+    "jshint": "^2.9.5"
+  },
   "devDependencies": {
     "clone": "^2.1.1",
     "del": "^3.0.0",
     "gaze": "^1.1.2",
     "gulp": "^3.9.1",
-    "gulp-bump": "^2.7.0",
+    "gulp-bump": "^2.8.0",
     "gulp-git": "^2.4.2",
-    "gulp-typescript": "^3.2.2",
+    "gulp-typescript": "^3.2.3",
     "gulp-util": "^3.0.8",
-    "source-map-loader": "^0.2.1",
-    "ts-loader": "^2.3.4",
-    "tslint": "^5.7.0",
+    "source-map-loader": "^0.2.3",
+    "ts-loader": "^3.1.1",
+    "tslint": "^5.8.0",
     "tslint-loader": "^3.5.3",
-    "typescript": "^2.5.2",
+    "typescript": "^2.6.1",
     "uglify-js-harmony": "^2.6.2",
-    "webpack": "^3.5.5",
-    "webpack-dev-server": "^2.7.1",
+    "webpack": "^3.8.1",
+    "webpack-dev-server": "^2.9.4",
     "webpack-stream": "^4.0.0"
   }
 }

@@ -1,8 +1,9 @@
 import {DiagramElement} from '../elements/BaseElements';
 import {Clazz} from '../elements/nodes';
 import {Graph} from '../elements/Graph';
+import {EventHandler} from "../EventBus";
 
-export class Editor {
+export class Editor implements EventHandler {
     private editorElement: Element;
     private clazz: Clazz;
     private graph: Graph;

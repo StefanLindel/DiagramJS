@@ -21,10 +21,14 @@ export class Clazz extends Node {
         this.label = json.name || json.label || ('New ' + this.property);
         this.style = json.style || 'flat';
 
+        let width:number = 150;
+
         if (json['attributes']) {
             for (let attr of json['attributes']) {
                 this.attributes.push(attr);
                 y += this.attrHeight;
+                width = Math.max(width, Util.sizeOf(attr, this).width);
+
             }
         }
         if (json['methods']) {
@@ -34,7 +38,7 @@ export class Clazz extends Node {
             }
             y += this.attrHeight;
         }
-        this.withSize(150, y);
+        this.withSize(width, y);
         return this;
     }
 

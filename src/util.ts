@@ -205,6 +205,12 @@ export class Util {
         }
         root = <DiagramElement>model.getRoot();
         board = root.$view;
+        let addBoard:boolean = false;
+        if(!board) {
+            addBoard = true;
+            board = Util.createShape({tag: 'svg', id: 'root', width: 200, height: 200});
+            document.body.appendChild(board);
+        }
         if (board.tagName === 'svg') {
             if (typeof item === 'string') {
                 item = Util.create({tag: 'text', $font: true, value: item});
@@ -220,6 +226,9 @@ export class Util {
             if (node.getSize().isEmpty()) {
                 node.withSize(Math.ceil(rect.width), Math.ceil(rect.height));
             }
+        }
+        if(addBoard) {
+            document.body.removeChild(board);
         }
         return rect;
     }
