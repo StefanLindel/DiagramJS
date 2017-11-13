@@ -1,0 +1,16 @@
+.git
+test
+demo
+compile.bat
+doku/**
+tslint.json
+tsconfig.json
+#style.css
+#material.css
+save-commands.json
+ToDo.txt
+test.json
+pattern.txt
+DiagramJS.iml
+.idea/
+*.tgz

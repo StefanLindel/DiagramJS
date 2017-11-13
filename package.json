@@ -1,22 +1,20 @@
 {
-  "name": "DiagramJS",
-  "version": "0.0.3",
+  "name": "diagramjs",
+  "version": "0.0.5",
   "description": "DiagramJS",
-  "license": "EUPL-1.1",
+  "license": "MIT",
   "repository": {
     "type": "git",
-    "url": "https://gitlab.se.cs.uni-kassel.de/slin/DiagramJS.git"
-  },
-  "dependencies": {
-    "babel-eslint": "^8.0.2",
-    "eslint": "^4.10.0",
-    "eslint-plugin-react": "^7.4.0",
-    "jshint": "^2.9.5"
+    "url": "https://gitlab.com/Promotion_PetaF/DiagramJS.git"
   },
   "devDependencies": {
     "clone": "^2.1.1",
     "del": "^3.0.0",
     "gaze": "^1.1.2",
+    "babel-eslint": "^8.0.2",
+    "eslint": "^4.10.0",
+    "eslint-plugin-react": "^7.4.0",
+    "jshint": "^2.9.5",
     "gulp": "^3.9.1",
     "gulp-bump": "^2.8.0",
     "gulp-git": "^2.4.2",
