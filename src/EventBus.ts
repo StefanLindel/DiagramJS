@@ -1,4 +1,5 @@
 import {DiagramElement} from './elements/BaseElements';
+import {Control} from './Control';
 
 export interface EventHandler {
     handle(event: Event, element: DiagramElement): boolean;
@@ -16,15 +17,32 @@ export class EventBus {
     public static ELEMENTCLICK: string = 'ELEMENT:CLICK';
     public static ELEMENTDBLCLICK: string = 'ELEMENT:DBLCLICK';
     public static ELEMENTDRAG: string = 'ELEMENT:DRAG';
+    public static ELEMENTDRAGOVER: string = 'ELEMENT:DRAGOVER';
+    public static ELEMENTDROP: string = 'ELEMENT:DROP';
+    public static ELEMENTDRAGLEAVE: string = 'ELEMENT:DRAGLEAVE';
 
-    public static EVENTS: string[] = [EventBus.CREATE, EventBus.EDITOR, EventBus.ELEMENTMOUSEDOWN, EventBus.ELEMENTMOUSEUP, EventBus.ELEMENTMOUSELEAVE, EventBus.ELEMENTMOUSEMOVE, EventBus.ELEMENTMOUSEWHEEL, EventBus.ELEMENTCLICK, EventBus.ELEMENTDRAG, EventBus.ELEMENTDBLCLICK];
+    public static EVENTS: string[] = [
+        EventBus.CREATE,
+        EventBus.EDITOR,
+        EventBus.ELEMENTMOUSEDOWN,
+        EventBus.ELEMENTMOUSEUP,
+        EventBus.ELEMENTMOUSELEAVE,
+        EventBus.ELEMENTMOUSEMOVE,
+        EventBus.ELEMENTMOUSEWHEEL,
+        EventBus.ELEMENTCLICK,
+        EventBus.ELEMENTDRAG,
+        EventBus.ELEMENTDBLCLICK,
+        EventBus.ELEMENTDRAGOVER,
+        EventBus.ELEMENTDROP,
+        EventBus.ELEMENTDRAGLEAVE,
+    ];
 
     private static handlers = {};
 
-    static register(control: DiagramElement, view: Element) {
+    static register(control: Control, view: Element) {
         let events: string[];
-        if (typeof control.getEvents === 'function') {
-            events = control.getEvents();
+        if (typeof control['getEvents'] === 'function') {
+            events = control['getEvents']();
         }
 
         if (!events || !view) {

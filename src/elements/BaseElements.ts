@@ -19,7 +19,6 @@ interface GraphElement {
 
 export abstract class DiagramElement extends Control implements GraphElement {
     public id: string;
-
     protected isDraggable: boolean = true;
     private pos: Point = new Point();
     private size: Point = new Point();
@@ -56,7 +55,7 @@ export abstract class DiagramElement extends Control implements GraphElement {
             return new Point(pos.x + size.x, Math.min(center.y + offset, pos.y + size.y), Point.RIGHT);
         }
         return new Point();
-    };
+    }
 
     public getSVG(): Element {
         return null;

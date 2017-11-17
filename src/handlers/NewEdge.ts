@@ -5,50 +5,44 @@ import {Clazz} from '../elements/nodes/Clazz';
 import { EventHandler } from '../EventBus';
 
 export class NewEdge implements EventHandler {
-    private graph : Graph;
+    private graph: Graph;
     private svgRoot: SVGSVGElement;
-    private svgEdgeNipple : SVGElement;
-
+    private svgEdgeNipple: SVGElement;
     private isDrawLine = false;
+    private x: number;
+    private y: number;
 
-    private x : number;
-    private y : number;
-
-    constructor(graph:Graph){
+    constructor(graph: Graph) {
         this.svgRoot = <SVGSVGElement><any>document.getElementById('root');
         this.graph = graph;
     }
 
+    public isEnable(): boolean {
+        return true;
+    }
+
     public handle(event: Event, element: DiagramElement): boolean {
 
-        if(this.svgRoot !== <SVGSVGElement><any>document.getElementById('root')){
+        if (this.svgRoot !== <SVGSVGElement><any>document.getElementById('root')) {
             this.svgRoot = <SVGSVGElement><any>document.getElementById('root');
         }
 
-        switch(event.type){
-            case 'mousedown' : 
+        switch (event.type) {
+            case 'mousedown':
                 this.start(event, element);
-                console.log('#newEdge: mousedown');
                 break;
 
-            case 'mousemove' :
-                console.log('#newEdge: mousemove');
-                if(element instanceof Clazz){
-                    var clazz = <Clazz>element;
-
-                    console.log(clazz.getNipple());
+            case 'mousemove':
+                if (element instanceof Clazz) {
+                    let clazz = <Clazz>element;
                 }
                 this.drawEdge(event, element);
                 break;
-
-            case 'mouseleave' : 
+            case 'mouseleave':
                 this.highlightNipple(false);
-                console.log('#newEdge: mouseleave');
                 break;
-
-            case 'mouseup' : 
+            case 'mouseup':
                 this.highlightNipple(false);
-                console.log('#newEdge: mouseup');
                 break;
 
             default: break;
@@ -57,10 +51,10 @@ export class NewEdge implements EventHandler {
         return true;
     }
 
-    private drawEdge(evt : Event|any, element : DiagramElement) : void{
-        if(this.x && this.y){
-            let lineToX =evt.layerX;
-            let lineToy =evt.layerY;
+    private drawEdge(evt: Event|any, element: DiagramElement): void {
+        if (this.x && this.y) {
+            let lineToX = evt.layerX;
+            let lineToy = evt.layerY;
 
             let path =  `M${this.x} ${this.y} L${lineToX} ${lineToy}`;
 
@@ -73,12 +67,11 @@ export class NewEdge implements EventHandler {
                 fill: 'none'
             };
             let shape = Util.createShape(attr);
-            
             this.svgRoot.appendChild(shape);
         }
     }
 
-    private start(evt : Event|any, element : DiagramElement) : void{
+    private start(evt: Event|any, element: DiagramElement): void {
 
         // if(element.id === 'RootElement'){
         //     this.highlightNipple(false);
@@ -87,22 +80,22 @@ export class NewEdge implements EventHandler {
         // }
 
         this.svgEdgeNipple = <SVGGElement>element.$view.childNodes[1];
-        
+
         let x, y, width, height;
         x =  parseInt(this.svgEdgeNipple.attributes[0].value);
         y =  parseInt(this.svgEdgeNipple.attributes[1].value);
         width = 8;
         height = 8;
 
-        if((evt.layerX >= x && evt.layerX <= (x+width))
-            && evt.layerY >= y && evt.layerY <= (y+height)){
+        if ((evt.layerX >= x && evt.layerX <= (x + width))
+            && evt.layerY >= y && evt.layerY <= (y + height)) {
 
                 this.x = x;
                 this.y = y;
 
                 this.highlightNipple(true);
                 this.isDrawLine = true;
-                
+
                 return;
         }
 
@@ -111,14 +104,10 @@ export class NewEdge implements EventHandler {
         this.svgEdgeNipple = undefined;
     }
 
-    private highlightNipple(enabled : boolean) : void{
-        if(this.svgEdgeNipple){
+    private highlightNipple(enabled: boolean): void {
+        if (this.svgEdgeNipple) {
             let rgb = enabled ? 'rgb(255, 160, 51)' : 'rgb(0, 0, 0)';
             this.svgEdgeNipple.setAttributeNS(null, 'fill', rgb);
         }
-    }
-
-    public isEnable(): boolean {
-        return true;
     }
 }

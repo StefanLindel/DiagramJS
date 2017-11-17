@@ -1,13 +1,13 @@
 'use strict';
 
-import * as controls from "./elements/nodes";
-import * as adapters from "./adapters";
-import Data from "./Data";
-import {Control} from "./Control";
-import {Adapter} from "./Adapter";
-import {Graph} from "./elements/Graph";
-import {Util} from "./util";
-import {Point} from "./elements/BaseElements";
+import * as controls from './elements/nodes';
+import * as adapters from './adapters';
+import Data from './Data';
+import {Control} from './Control';
+import {Adapter} from './Adapter';
+import {Graph} from './elements/Graph';
+import {Util} from './util';
+import {Point} from './elements/BaseElements';
 
 export class Bridge extends Control {
     // noinspection JSUnusedGlobalSymbols
@@ -26,7 +26,7 @@ export class Bridge extends Control {
         super();
         let i;
 
-        if(viewRoot){
+        if (viewRoot) {
             this.$view = viewRoot;
         }
 
@@ -120,7 +120,7 @@ export class Bridge extends Control {
         let config = {}, className: string, id: string;
         if (typeof(json) === 'string') {
             // Only a String
-            config['id'] = "" + json;
+            config['id'] = '' + json;
             let item = document.getElementById(config['id']);
             let className: string;
             if (item) {
@@ -129,22 +129,22 @@ export class Bridge extends Control {
                     className = item.getAttribute('classname') || '';
                 }
                 // Found Element and now config Data element
-                if (item.getAttribute("property")) {
-                    if (this.hasItem(item.getAttribute("property"))) {
-                        let data = this.getItem(item.getAttribute("property"));
+                if (item.getAttribute('property')) {
+                    if (this.hasItem(item.getAttribute('property'))) {
+                        let data = this.getItem(item.getAttribute('property'));
                         for (let key in data.prop) {
                             if (item.getAttribute(key)) {
                                 data.setValue(key, item.getAttribute(key));
                             }
                         }
-                        if (item.getAttribute("property")) {
+                        if (item.getAttribute('property')) {
                             // TODO: FIXME!!!
                             // data.property = item.getAttribute("property");
                         }
                     }
                 }
             } else {
-                className = "" + json;
+                className = '' + json;
             }
             className = className.toLowerCase();
             config['className'] = className;

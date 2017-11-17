@@ -24,7 +24,7 @@ export class Util {
     static toPascalCase(value: string): string {
         value = value.charAt(0).toUpperCase() + value.substring(1).toLowerCase();
         return value;
-    };
+    }
 
     static isSVG(tag: string): boolean {
         let i,
@@ -205,8 +205,8 @@ export class Util {
         }
         root = <DiagramElement>model.getRoot();
         board = root.$view;
-        let addBoard:boolean = false;
-        if(!board) {
+        let addBoard: boolean = false;
+        if (!board) {
             addBoard = true;
             board = Util.createShape({tag: 'svg', id: 'root', width: 200, height: 200});
             document.body.appendChild(board);
@@ -227,7 +227,7 @@ export class Util {
                 node.withSize(Math.ceil(rect.width), Math.ceil(rect.height));
             }
         }
-        if(addBoard) {
+        if (addBoard) {
             document.body.removeChild(board);
         }
         return rect;
@@ -423,7 +423,7 @@ export class Util {
             }
         }
         return position;
-    };
+    }
 
     public static getUDPosition(m: number, n: number, e: DiagramElement, p: string, step?: number) {
         let pos: Point = e.getPos();
@@ -442,7 +442,7 @@ export class Util {
             }
         }
         return new Point(x, y, p);
-    };
+    }
 
     public static getLRPosition(m: number, n: number, e: DiagramElement, p: string, step?: number) {
         let pos: Point = e.getPos();
@@ -462,5 +462,19 @@ export class Util {
         }
         return new Point(x, y, p);
     }
-}
 
+    public static hasClass(element: Element, cls: string) {
+        return element.className.indexOf(cls) > 0;
+    }
+    public static addClass(element: Element, cls: string) {
+        if (!Util.hasClass(element, cls)) {
+            element.className = element.className + ' ' + cls;
+        }
+    }
+    public static removeClass(element: Element, cls: string) {
+        if (Util.hasClass(element, cls)) {
+            let reg = new RegExp('(\\s|^)' + cls + '(\\s|$)');
+            element.className = element.className.replace(reg, ' ');
+        }
+    }
+}

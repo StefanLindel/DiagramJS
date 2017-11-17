@@ -10,7 +10,8 @@ import {Control} from '../Control';
 import Data from '../Data';
 import {EventBus} from '../EventBus';
 import {Editor, Drag, Select, Zoom, NewEdge} from '../handlers';
-import Options from "../Options";
+import Options from '../Options';
+import {ImportFile} from '../handlers/ImportFile';
 
 export class Graph extends Control {
     root: HTMLElement;
@@ -21,7 +22,7 @@ export class Graph extends Control {
     nodeFactory: Object;
     edgeFactory: Object;
     layoutFactory: Object;
-    private currentlayout : Layout;
+    private currentlayout: Layout;
 
     constructor(json: any, options: Options) {
         super();
@@ -44,6 +45,7 @@ export class Graph extends Control {
         this.$graphModel.init(this);
         this.$graphModel.load(json);
         this.initFeatures(this.options.features);
+        EventBus.register(this,  this.root);
     }
 
     private static createPattern(): Element {
@@ -68,7 +70,7 @@ export class Graph extends Control {
         return defs;
     }
 
-    public ClearModel() : void{
+    public ClearModel(): void {
         this.$graphModel.removeAllElements();
         this.clearCanvas();
     }
@@ -79,8 +81,8 @@ export class Graph extends Control {
         return this;
     }
 
-    public propertyChange(entity: Data, property: string, oldValue:any, newValue:any) {
-
+    public propertyChange(entity: Data, property: string, oldValue: any, newValue: any) {
+        return;
     }
 
     public addElement(type: string): boolean {
@@ -96,9 +98,13 @@ export class Graph extends Control {
         this.draw();
     }
 
-    public reLayout():void{
+    public reLayout(): void {
         this.getLayout().layout(this, this.$graphModel);
-        console.log("ReLayout");
+        console.log('ReLayout');
+    }
+
+    public getEvents(): string[] {
+        return [EventBus.ELEMENTDRAGOVER, EventBus.ELEMENTDRAGLEAVE, EventBus.ELEMENTDROP];
     }
 
     public draw() {
@@ -159,13 +165,14 @@ export class Graph extends Control {
     }
 
     private getLayout(): Layout {
-        if(this.currentlayout) return this.currentlayout;
+        if (this.currentlayout) {
+            return this.currentlayout;
+        }
 
         let layout = this.options.layout || '';
         if (this.layoutFactory[layout]) {
             this.currentlayout = new this.layoutFactory[layout]();
-        }
-        else{
+        } else {
             this.currentlayout = new layouts.DagreLayout();
         }
 
@@ -208,9 +215,10 @@ export class Graph extends Control {
             this.root.setAttribute('class', 'diagram');
             document.body.appendChild(this.root);
         }
+        EventBus.subscribe(new ImportFile(this), 'dragover', 'dragleave', 'drop');
     }
 
-    private initFeatures(features:any) {
+    private initFeatures(features: any) {
         if (features) {
             if (features.zoom) {
                 let mousewheel = 'onwheel' in document.createElement('div') ? 'wheel' : document.onmousewheel !== undefined ? 'mousewheel' : 'DOMMouseScroll';
@@ -226,7 +234,7 @@ export class Graph extends Control {
                 EventBus.subscribe(new Select(this.$graphModel), 'click', 'drag');
             }
             if (features.palette) {
-                new Palette(this);
+                let palette = new Palette(this);
             }
         }
 

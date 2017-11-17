@@ -13,9 +13,9 @@ export class Drag implements EventHandler {
     private dragging = false;
     private reinsert = false;
     private mouseOffset = new Point();
-    private graph : Graph;
+    private graph: Graph;
 
-    constructor(graph:Graph) {
+    constructor(graph: Graph) {
         this.svgRoot = <SVGSVGElement><any>document.getElementById('root');
         this.graph = graph;
     }
@@ -23,7 +23,7 @@ export class Drag implements EventHandler {
     public handle(event: Event, element: DiagramElement): boolean {
         // event.stopPropagation();
 
-        if(this.svgRoot !== <SVGSVGElement><any>document.getElementById('root')){
+        if (this.svgRoot !== <SVGSVGElement><any>document.getElementById('root')) {
             this.svgRoot = <SVGSVGElement><any>document.getElementById('root');
         }
 
@@ -41,13 +41,11 @@ export class Drag implements EventHandler {
                 }
                 break;
             case 'mousemove':
-            console.log("mousemove im drag handler")
                 if (this.dragging) {
                     this.drag(event, element);
                 }
                 break;
             case 'mouseleave':
-            console.log("mouseLeave im drag handler")
                 if (this.dragging) {
                     this.reset();
                 }
@@ -68,7 +66,7 @@ export class Drag implements EventHandler {
         this.svgRoot.style.cursor = 'default';
     }
 
-    private start(evt:Event|any, element:Control) {
+    private start(evt: Event | any, element: Control) {
 
         this.dragging = true;
         this.mouseOffset.x = evt.clientX;
@@ -85,17 +83,15 @@ export class Drag implements EventHandler {
         }
     }
 
-    private drag(evt:Event|any, element: DiagramElement) {
+    private drag(evt: Event|any, element: DiagramElement) {
         if (this.reinsert) {
             if (this.element.id !== 'RootElement') {
-                console.log("lastChild: " + (<SVGSVGElement>this.svgRoot.lastChild).id + " svgElement: " + this.svgElement.id)
-                if((<SVGSVGElement>this.svgRoot.lastChild).id !== this.svgElement.id){
-
-                    var childToDrag;
-                    for (var childCount = 0; childCount < this.svgRoot.childElementCount; childCount++) {
-                        var child = <SVGSVGElement>this.svgRoot.childNodes[childCount];
-                        
-                        if(child.id === this.svgElement.id){
+                console.log('lastChild: ' + (<SVGSVGElement>this.svgRoot.lastChild).id + ' svgElement: ' + this.svgElement.id);
+                if ( (<SVGSVGElement>this.svgRoot.lastChild).id !== this.svgElement.id) {
+                    let childToDrag;
+                    for (let childCount = 0; childCount < this.svgRoot.childElementCount; childCount++) {
+                        let child = <SVGSVGElement>this.svgRoot.childNodes[childCount];
+                        if (child.id === this.svgElement.id) {
                             childToDrag = child;
                             break;
                         }
@@ -118,8 +114,8 @@ export class Drag implements EventHandler {
             const x = evt.clientX - this.mouseOffset.x;
             const y = evt.clientY - this.mouseOffset.y;
             const newOrigin = (<Graph>model.$owner).options.origin.add(new Point(x, y));
-            
-            if(this.svgRoot.getAttribute('viewBox')){
+
+            if (this.svgRoot.getAttribute('viewBox')) {
                 let values = this.svgRoot.getAttribute('viewBox').split(' ');
                 const newViewBox = `${newOrigin.x * -1} ${newOrigin.y * -1} ${values[2]} ${values[3]}`;
                 this.svgRoot.setAttribute('viewBox', newViewBox);
