@@ -1,10 +1,10 @@
-import {HandlerPlugin} from "./HandlerPlugin";
-import {DiagramElement} from "../elements/BaseElements";
+import {DiagramElement} from '../elements/BaseElements';
 import {Graph} from '../elements/Graph';
-import {Util} from '../util'
+import {Util} from '../util';
 import {Clazz} from '../elements/nodes/Clazz';
+import { EventHandler } from '../EventBus';
 
-export class NewEdge implements HandlerPlugin {
+export class NewEdge implements EventHandler {
     private graph : Graph;
     private svgRoot: SVGSVGElement;
     private svgEdgeNipple : SVGElement;
