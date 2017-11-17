@@ -28,6 +28,7 @@ g, path {
 
 .diagram {
   position: absolute;
+  padding: 5px;
   top: 50px;
   bottom: 0;
   left: 0;
@@ -40,6 +41,12 @@ g, path {
   -moz-user-select: none;
   -ms-user-select: none;
   user-select: none;
+}
+
+.diagramLoadFile{
+  background-color: #aeddff;
+  border-style: dashed;
+  border-width: 2px;
 }
 
 .logo {

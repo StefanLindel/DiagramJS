@@ -25,6 +25,20 @@ export class Symbol extends Node {
 // {tag: 'image', height: 30, width: 50, content$src: hallo}
 // {tag: 'text', 'text-anchor': 'left', x: '10'}
 export class SymbolLibary {
+
+    public static drawSVG(node:any) : SVGSVGElement {
+        //const lib = new SymbolLibary();
+        let symbol, fn = this[SymbolLibary.getName(node)];
+        if (typeof fn === 'function') {
+            const parent = SO.create(node);
+            parent['property'] = "SVG";
+            symbol = fn(parent);
+            //symbol = fn.apply(lib, parent);
+
+            return SymbolLibary.createGroup(parent, symbol);
+        }
+        return symbol;
+    }
     public static draw(node: DiagramElement, parent?: Object) : SVGElement {
         // Node is Symbol or simple Object
         let symbol, fn = this[SymbolLibary.getName(node)];
@@ -68,7 +82,7 @@ export class SymbolLibary {
         return typeof fn === 'function';
     }
 
-    public static getName(node: DiagramElement): string {
+    public static getName(node: any): string {
         if (node.property) {
             return 'draw' + SymbolLibary.upFirstChar(node.property);
         }
@@ -113,7 +127,7 @@ export class SymbolLibary {
             });
         } else {
             svg = Util.create({tag: 'g'});
-            transform = 'translate(' + group.pos.x + ' ' + group.pos.y + ')';
+            transform = 'translate(' + group.getPos().x + ' ' + group.getPos().y + ')';
             if (group.scale) {
                 transform += ' scale(' + group.scale + ')';
             }
@@ -121,7 +135,24 @@ export class SymbolLibary {
                 transform += ' rotate(' + group.rotate + ')';
             }
             svg.setAttribute('transform', transform);
+            if(group['id']) {
+                svg.id = group['id'];
+            }
         }
+        if(node['background']){
+            const attrCircle = {
+                tag: 'circle',
+                cx: 20,
+                cy: 20,
+                r: 17,
+                stroke: '#888',
+                'stroke-width': 2,
+                fill: '#DDD'
+            };
+            svg.appendChild(Util.create(attrCircle));
+        }
+
+
         for (i = 0; i < group.items.length; i += 1) {
             svg.appendChild(Util.create(group.items[i]));
         }
@@ -638,6 +669,47 @@ export class SymbolLibary {
                     tag: 'path',
                     d: 'M2,10 20,10 20,35 2,35 Z M2,17 20,17 M20,10 28,5 28,9 M 28.5,4.7 24,4',
                     style: 'fill:none;stroke:#000000;transform:scale(0.4);'
+                }
+            ]
+        });
+    }
+
+    public static drawBasket(node: any): DiagramElement {
+        let btnX=0, btnY=0, btnWidth=0, btnHeight=0;
+        return SO.create({
+            x: btnX,
+            y: btnY,
+            id:node['id'],
+            background:node['brackground'] || false,
+            width: btnWidth,
+            height: btnHeight,
+            items: [
+                {
+                    tag: 'path',
+                    d: 'M12 12 L18 12 L18 11 L22 11 L22 12 L28 12 L28 14 L27 14 L27 29 L13 29 L13 14 L12 14 Z M13 14 L27 14 M20 17 L20 26 M17 16 L17 27 M23 16 L23 27',
+                    style: 'fill:white;stroke:#000;stroke-width: 1;'
+                }
+            ]
+        });
+    }
+
+
+    public static drawPencil(node: any): DiagramElement {
+        let btnX=0, btnY=0, btnWidth=0, btnHeight=0;
+        return SO.create({
+            x: btnX,
+            y: btnY,
+            id:node['id'],
+            background:node['brackground'] || false,
+            width: btnWidth,
+            height: btnHeight,
+            items: [
+                {
+                    tag: 'path',
+                    d: 'M6 20 L12 23 L33 23 L33 17 L12 17 Z M30 17 L30 23 M12 17 L12 23 M15 19 L28 19 M15 21 L28 21',
+                    stroke: '#000',
+                    'stroke-width': 1,
+                    fill: 'white'
                 }
             ]
         });

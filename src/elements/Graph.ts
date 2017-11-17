@@ -9,7 +9,7 @@ import {Util} from '../util';
 import {Control} from '../Control';
 import Data from '../Data';
 import {EventBus} from '../EventBus';
-import {Editor, Drag, Select, Zoom} from '../handlers';
+import {Editor, Drag, Select, Zoom, NewEdge} from '../handlers';
 import Options from "../Options";
 
 export class Graph extends Control {
@@ -21,6 +21,7 @@ export class Graph extends Control {
     nodeFactory: Object;
     edgeFactory: Object;
     layoutFactory: Object;
+    private currentlayout : Layout;
 
     constructor(json: any, options: Options) {
         super();
@@ -67,6 +68,11 @@ export class Graph extends Control {
         return defs;
     }
 
+    public ClearModel() : void{
+        this.$graphModel.removeAllElements();
+        this.clearCanvas();
+    }
+
     public init(owner: Control, property?: string, id?: string): Control {
         super.init(owner, property, id);
         this.layout();
@@ -88,6 +94,11 @@ export class Graph extends Control {
     public layout() {
         this.getLayout().layout(this, this.$graphModel);
         this.draw();
+    }
+
+    public reLayout():void{
+        this.getLayout().layout(this, this.$graphModel);
+        console.log("ReLayout");
     }
 
     public draw() {
@@ -148,11 +159,17 @@ export class Graph extends Control {
     }
 
     private getLayout(): Layout {
+        if(this.currentlayout) return this.currentlayout;
+
         let layout = this.options.layout || '';
         if (this.layoutFactory[layout]) {
-            return new this.layoutFactory[layout]();
+            this.currentlayout = new this.layoutFactory[layout]();
         }
-        return new layouts.DagreLayout();
+        else{
+            this.currentlayout = new layouts.DagreLayout();
+        }
+
+        return this.currentlayout;
     }
 
     private initFactories() {
@@ -203,7 +220,7 @@ export class Graph extends Control {
                 EventBus.subscribe(new Editor(this), 'dblclick', 'editor');
             }
             if (features.drag) {
-                EventBus.subscribe(new Drag(), 'mousedown', 'mouseup', 'mousemove', 'mouseleave');
+                EventBus.subscribe(new Drag(this), 'mousedown', 'mouseup', 'mousemove', 'mouseleave');
             }
             if (features.select) {
                 EventBus.subscribe(new Select(this.$graphModel), 'click', 'drag');
@@ -212,5 +229,7 @@ export class Graph extends Control {
                 new Palette(this);
             }
         }
+
+        EventBus.subscribe(new NewEdge(this), 'mousedown', 'mouseup', 'mousemove', 'mouseleave');
     }
 }

@@ -6,7 +6,7 @@ import {Point} from '../BaseElements';
 export class Clazz extends Node {
     protected labelHeight = 25;
     protected labelFontSize = 14;
-    protected attrHeight = 20;
+    protected attrHeight = 25;
     protected attrFontSize = 12;
     private attributes: string[] = [];
     private methods: string[] = [];
@@ -56,18 +56,48 @@ export class Clazz extends Node {
             y: pos.y,
             height: size.y,
             width: size.x,
-            style: 'fill:white;stroke:black;stroke-width:2'
+            rx: 1,
+            ry: 1,
+            style: 'fill:white;stroke-width:2',
+            stroke: 'black'
         });
 
-        // SHAPE between Attributes and Methods
-        const contentShape = this.createShape({
-            tag: 'rect',
-            x: pos.x,
-            y: pos.y + this.labelHeight,
-            height: this.attrHeight * this.attributes.length,
-            width: size.x,
-            style: 'fill:white;stroke:black;stroke-width:2'
+        const edgeCreator = this.createShape({
+            tag : 'rect',
+            x: (pos.x+size.x)-2,
+            y: pos.y-6,
+            height: 8,
+            width: 8,
+            rx: 1,
+            ry: 1,
+            style: 'stroke-width:2',
+            fill : 'black',
+            stroke: 'black'
         });
+
+        
+        // line to separate label from attributes
+        const separatorLabelAttr = this.createShape({
+            tag : 'line',
+            x1 : pos.x,                   //line doesn't overlap the full shape
+            y1 : pos.y + this.labelHeight,
+            x2 : pos.x + size.x,        //line doesn't overlap the full shape
+            y2 : pos.y + this.labelHeight,
+            stroke : 'rgb(0, 0, 0)',        //black
+            'stroke-width' : 2
+        });
+
+        // line to separate label from attributes
+        const separatorAttrMethods = this.createShape({
+            tag : 'line',
+            x1 : pos.x,                   //line doesn't overlap the full shape
+            y1 : pos.y + this.labelHeight + (this.attrHeight * this.attributes.length),
+            x2 : pos.x + size.x,        //line doesn't overlap the full shape
+            y2 : pos.y + this.labelHeight + (this.attrHeight * this.attributes.length),
+            stroke : 'rgb(0, 0, 0)',        //black
+            'stroke-width' : 2
+        });
+
 
         // = = = LABEL = = =
         let label = this.createShape({
@@ -85,7 +115,9 @@ export class Clazz extends Node {
 
         let group = this.createShape({tag: 'g', id: this.id, transform: 'translate(0 0)'});
         group.appendChild(nodeShape);
-        group.appendChild(contentShape);
+        group.appendChild(edgeCreator);
+        group.appendChild(separatorLabelAttr);
+        group.appendChild(separatorAttrMethods);
         group.appendChild(label);
 
         // = = = ATTRIBUTES = = =
@@ -134,6 +166,10 @@ export class Clazz extends Node {
 
         this.$view = group;
         return group;
+    }
+
+    public getNipple() : string{
+        return "Nippel wurden aktiviert!";
     }
 
     public getEvents(): string[] {

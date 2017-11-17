@@ -39,7 +39,7 @@ export class EventBus {
             if (pos > 0) {
                 view.addEventListener(event.substr(pos + 1).toLowerCase(), EventBus.publish.bind(null, control));
             } else {
-                view.addEventListener(event, EventBus.publish.bind(null, control));
+                view.addEventListener(event.substr(pos + 1).toLowerCase(), EventBus.publish.bind(null, control));
             }
         }
     }

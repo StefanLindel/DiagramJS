@@ -81,6 +81,80 @@
 	  dia.layout();
 	//})();
 
+		function handleLoadFile(evt) {
+				evt.stopPropagation();
+				evt.preventDefault();
+		
+				var files = evt.dataTransfer.files; // FileList object.
+		
+				if(files.length > 1){
+					evt.dataTransfer.dropEffect = 'none';
+					return;
+				}
+
+				// files is a FileList of File objects. List some properties.
+				var reader  = new FileReader();
+				var output = [];
+				var htmlResult = '';
+				for (var i = 0, f; f = files[i]; i++) {
+						reader.onload = function(event){
+								htmlResult = event.target.result;
+								console.log("fileContent: " + htmlResult);
+						
+								var rootElement = document.getElementById("root");
+								var canvasElement = document.getElementById("canvas");
+								var palete = document.getElementById('palette');
+								var rootChildCount = rootElement.childElementCount;
+
+								for(var i = 0; i < rootChildCount; i++){
+									rootElement.removeChild(rootElement.firstChild);
+								}
+
+								canvasElement.removeChild(canvasElement.firstChild);
+								document.body.removeChild(palete);
+
+								
+								rootElement = null;
+								canvasElement = null;
+								palete = null;
+
+								if(dia){
+									dia.ClearModel();
+								}
+
+								var jsonData = JSON.parse(htmlResult);
+								dia = new Graph(jsonData, options);
+								dia.layout();
+						};
+
+						reader.readAsText(f);
+				}
+
+				evt.target.className = 'diagram';
+			}
+		
+			function handleDragOver(evt) {
+				evt.stopPropagation();
+				evt.preventDefault();
+				evt.dataTransfer.dropEffect = 'copy'; // Explicitly show this is a copy.
+				evt.target.className += ' diagramLoadFile';
+				console.log("handDragOver");
+			}
+
+			function handleDragLeave(evt) {
+				evt.stopPropagation();
+				evt.preventDefault();
+				evt.dataTransfer.dropEffect = 'link'; // Explicitly show this is a copy.
+				evt.target.className = 'diagram';
+				console.log("handDragLeave");
+			}
+
+
+			var dropZone = document.getElementById('canvas');
+			dropZone.addEventListener('dragover', handleDragOver, false);
+			dropZone.addEventListener('dragleave', handleDragLeave, false);
+			dropZone.addEventListener('drop', handleLoadFile, false);
+
 	</script>
 </body>
 

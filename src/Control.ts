@@ -1,10 +1,8 @@
 import {Bridge} from './Bridge';
 import Data from './Data';
 import EventListener from './EventListener';
-import PropertyChangeSupport from './PropertyChangeSupport';
-import {PropertyBinder} from './PropertyBinder';
 
-export abstract class Control implements PropertyChangeSupport{
+export abstract class Control {
     public $owner: Control;
     /**
      *
@@ -17,18 +15,23 @@ export abstract class Control implements PropertyChangeSupport{
     protected $viewListener: EventListenerOrEventListenerObject;
     public viewData: Data;
 
+    /**
+     * The properties, we want to listen to
+     */
+    // static defaultProperties: string[] = [];
+
+    // public getProperties(): string[] {
+    //     return this.properties;
+    // }
+
     constructor() {
         // e.g. this.properties.push("key");
         // this.properties.push("property");
-        this.initViewDataProperties(this.viewData);
-        this.$viewListener = ((ev: Event) => {
-            this.controlChanged(ev);
-        });
+        this.viewData = this.initViewDataProperties(this.viewData);
     }
 
-   public initViewDataProperties(oldData?: Data): Data {
+    public initViewDataProperties(oldData?: Data): Data {
         const data: Data = new Data();
-        this.viewData = data;
         if (oldData) {
             oldData.removeListener(this);
             const keys: string[] = oldData.getKeys();
@@ -47,6 +50,7 @@ export abstract class Control implements PropertyChangeSupport{
         data.addListener(this);
         return data;
     }
+
 
     /**
      *  Set the new HTMLElement and attach listener to it.
@@ -67,7 +71,7 @@ export abstract class Control implements PropertyChangeSupport{
         if (this.$viewListener) {
             element.addEventListener('change', this.$viewListener);
         }
-        this.initViewDataProperties(this.viewData);
+        this.viewData = this.initViewDataProperties(this.viewData);
         return element;
     }
 
@@ -105,7 +109,7 @@ export abstract class Control implements PropertyChangeSupport{
         return this;
     }
 
-    public static createEventListener(): EventListener {
+    public createEventListener(): EventListener {
         return new EventListener();
     }
 
@@ -177,9 +181,9 @@ export abstract class Control implements PropertyChangeSupport{
                         entity = this.$model;
                     }
                     if (oldValue === null) {
-                        // if there was no data in the $graphModel, we try to get oldValue from the $view
+                        // if there was no data in the entity, we try to get oldValue from the $view
 //                        oldValue = this.getViewData().getValue(key);
-//                        $graphModel = this.getViewData();
+//                        entity = this.getViewData();
                     }
                 }
 
@@ -229,6 +233,22 @@ export abstract class Control implements PropertyChangeSupport{
                 }
             );
         }
+//        this.saveViewInData();
+    }
+
+
+    protected updateViewData() {
+        if (!this.$view) {
+            return;
+        }
+        const keys: string[] = this.viewData.getKeys();
+        for (let i = 0; i < keys.length; i++) {
+            let attr = keys[i];
+            if (this.$view[attr] === null) {
+                continue;
+            }
+            this.viewData.setValue(attr, this.$view[attr]);
+        }
     }
 
     public getItem(id: string): Data {
@@ -241,7 +261,7 @@ export abstract class Control implements PropertyChangeSupport{
     }
 
     public getItems(): Object {
-        return {};
+        return new Object();
     }
 
     public setValue(object: Object, attribute: string, newValue: Object, oldValue ?: Object): boolean {
@@ -256,39 +276,46 @@ export abstract class Control implements PropertyChangeSupport{
      * @param newValue
      */
     public propertyChange(entity: Data, property: string, oldValue: any, newValue: any) {
-        if (oldValue == newValue) {
-            return;
-        }
-        if (this.$view instanceof HTMLElement == false) {
-            return;
-        }
-        if (this.viewData) {
-            if (entity === this.viewData && newValue !== this.viewData.getValue(property)) {
-                // Set NewData to ViewData and Fire PC
-                this.viewData.setValue(property, newValue);
-            }
-        }
-        if (this.$model) {
-            if (entity === this.$model && newValue !== this.$model.getValue(property)) {
-                this.$model.setValue(property, newValue);
-            }
-        }
+       if (oldValue == newValue) {
+           return;
+       }
+       if (oldValue == this.viewData.getValue(property)) {
+           return;
+       }
+       // Set NewData to ViewData and Fire PC
+       this.viewData.setValue(property, newValue);
+
+//
+//
+//         // if (entity == this.viewData) {
+//             // if the ViewData is changed, we want to change the $view
+//             // if (this.entity) {
+//                 alert("entity = viewData: " + this.getStandardProperty() + ", " +  property + ", newVal: " + newValue + ", oldVal: " + oldValue);
+//                 if (this.getStandardProperty() == property && this.entity.hasProperty(property)) {
+//                     this.getRoot().setValue(this.entity, property, newValue, oldValue);
+//                 }
+//             // }
+//         // } else {
+//             // the entity is changed, so we want tell it to the viewData
+//             // if (this.viewData) {
+//                 alert("entity = Data: " +  property);
+//                 // this.getRoot().setValue(this.viewData, property, newValue, oldValue);
+//                 this.viewData.setValue(property, newValue);
+//             // }
+//         // }
+// >>>>>>> addOldFunctions
+        if (this.viewData) this.viewData.setValue(property, newValue);
+        if (this.$model) this.$model.setValue(property, newValue);
         this.updateElement(property, oldValue, newValue);
     }
 
     public controlChanged(ev: Event) {
-        if (this.$view instanceof HTMLElement == false) {
+        if (this.$view instanceof HTMLInputElement == false) {
             return;
         }
-        for(let item in this.viewData.prop) {
-            if(this.viewData.prop.hasOwnProperty(item) == false) {
-                continue;
-            }
-            let value = this.viewData.prop[item];
-            let newValue = ev.currentTarget[item];
-            if(newValue !== value) {
-                this.viewData.setValue(item, newValue);
-            }
+        let element = (<HTMLInputElement>this.$view);
+        if (element.checkValidity()) {
+
         }
     }
 
@@ -300,14 +327,38 @@ export abstract class Control implements PropertyChangeSupport{
      * @param newValue
      */
     public updateElement(property: string, oldValue: any, newValue: any) {
-        if(this.$view) {
-            if(newValue === null) {
-                this.$view.removeAttribute(property);
-            }else {
-                this.$view.setAttribute(property, newValue);
-            }
+        if (this.$view && this.$view.hasAttribute(property)) {
+            this.$view.setAttribute(property, newValue);
         }
     }
+
+//        if (oldValue == newValue) {
+//            return;
+//        }
+//        if (oldValue == this.viewData.getValue(property)) {
+//            return;
+//        }
+//        // Set NewData to ViewData and Fire PC
+//        this.viewData.setValue(property, newValue);
+//
+//
+//
+//         // if ($graphModel == this.viewData) {
+//             // if the ViewData is changed, we want to change the $view
+//             // if (this.$graphModel) {
+//                 alert("$graphModel = viewData: " + this.getStandardProperty() + ", " +  property + ", newVal: " + newValue + ", oldVal: " + oldValue);
+//                 if (this.getStandardProperty() == property && this.$graphModel.hasProperty(property)) {
+//                     this.getRoot().setValue(this.$graphModel, property, newValue, oldValue);
+//                 }
+//             // }
+//         // } else {
+//             // the $graphModel is changed, so we want tell it to the viewData
+//             // if (this.viewData) {
+//                 alert("$graphModel = Data: " +  property);
+//                 // this.getRoot().setValue(this.viewData, property, newValue, oldValue);
+//                 this.viewData.setValue(property, newValue);
+//             // }
+//         // }
 
     public getId(): string {
         return this.id;
@@ -321,8 +372,7 @@ export abstract class Control implements PropertyChangeSupport{
         // check for new Element in Bridge
         if (entity) {
             if (!this.property || entity.hasProperty(this.property)) {
-                PropertyBinder.bind(this.viewData, entity, 'value',this.lastProperty);
-                // entity.addListener(this, this.property);
+                entity.addListener(this, this.property);
                 this.$model = entity;
             }
         }
@@ -340,18 +390,14 @@ export abstract class Control implements PropertyChangeSupport{
      Property looks like: 't1.talk'
      */
     public setProperty(property: string): void {
-        if (!property) {
+        if (!this.property) {
             return;
         }
-        //let objId = property.split('.')[0];
-        // Get or Create Item
-        let object:Data = this.$owner.getItem(property);
-
-        // TODO: does not get updated properly later...
-
-        //if (this.$owner.hasItem(objId)) {
-        //    object = this.$owner.getItem(objId);
-        //}
+        let objId = property.split('.')[0];
+        let object = null;
+        if (this.$owner.hasItem(objId)) {
+            object = this.$owner.getItem(objId);
+        }
 
         // remove listener on old object
         if (this.$model) {
@@ -362,8 +408,7 @@ export abstract class Control implements PropertyChangeSupport{
 
         // add listener to object..
         if (object) {
-            // object.addListener(this, this.lastProperty);
-            PropertyBinder.bind(this.viewData, object, 'value',this.lastProperty);
+            object.addListener(this, this.lastProperty);
             this.$model = object;
             this.updateElement(this.lastProperty, this.viewData.getValue(this.lastProperty), object.prop[this.lastProperty]);
         }

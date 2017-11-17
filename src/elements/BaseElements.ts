@@ -74,10 +74,10 @@ export abstract class DiagramElement extends Control implements GraphElement {
         if (x && y) {
             this.pos = new Point(x, y);
         } else {
-            if (typeof(x) !== 'undefined') {
+            if (typeof(x) !== 'undefined' && x != null) {
                 this.pos.x = x;
             }
-            if (typeof(y) !== 'undefined') {
+            if (typeof(y) !== 'undefined' && y != null) {
                 this.pos.y = y;
             }
         }

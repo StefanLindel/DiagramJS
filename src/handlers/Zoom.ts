@@ -1,6 +1,7 @@
 import {DiagramElement} from '../elements/BaseElements';
+import { EventHandler } from '../EventBus';
 
-export class Zoom {
+export class Zoom implements EventHandler {
 
     private svgRoot: SVGSVGElement;
 
@@ -9,6 +10,11 @@ export class Zoom {
     }
 
     public handle(e:any, element: DiagramElement): boolean {
+        
+        if(this.svgRoot !== <SVGSVGElement><any>document.getElementById('root')){
+            this.svgRoot = <SVGSVGElement><any>document.getElementById('root');
+        }
+
         let delta = e.deltaY || e.wheelDeltaY || -e.wheelDelta;
         let d = 1 + (delta / 1000);
 

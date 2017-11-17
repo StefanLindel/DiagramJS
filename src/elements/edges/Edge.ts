@@ -67,10 +67,84 @@ export class Edge extends DiagramElement {
     }
 
     public redraw() {
-        let a = this.getShortestPathIntersection(this.$sNode, this.$tNode.getPos());
-        let b = this.getShortestPathIntersection(this.$tNode, this.$sNode.getPos());
-        this.$view.setAttribute('d', `M${a.x} ${a.y} L${b.x} ${b.y}`);
+        // let a = this.getShortestPathIntersection(this.$sNode, this.$tNode.getPos());
+        // let b = this.getShortestPathIntersection(this.$tNode, this.$sNode.getPos());
+
+        // this.$view.setAttribute('d', `M${a.x} ${a.y} L${b.x} ${b.y}`);
+        let targetNodePos = this.$tNode.getPos();
+        let sourceNodePos = this.$sNode.getPos();
+
+        let targetNodeSize = this.$tNode.getSize();
+        let sourceNodeSize = this.$sNode.getSize();
+
+        let mx, my, lx, ly : Number;
+
+        if(targetNodePos.y < sourceNodePos.y){
+            ly = targetNodePos.y+targetNodeSize.y;
+            my = sourceNodePos.y;
+        }
+        else{
+            ly = targetNodePos.y;
+            my = sourceNodePos.y+sourceNodeSize.y;
+        }
+
+        mx = sourceNodePos.x+sourceNodeSize.x/2;
+        lx = targetNodePos.x+targetNodeSize.x/2;
+
+        if(mx > targetNodePos.x+targetNodeSize.x && sourceNodePos.x <= targetNodePos.x+targetNodeSize.x){
+            let diff = (mx - (targetNodePos.x+targetNodeSize.x));
+            mx -= diff;
+            // lx += diff;
+            
+            this.$view.setAttribute('d', `M${mx} ${my} L${lx} ${ly}`);
+            return;
+        }
+        
+        if(sourceNodePos.x > targetNodePos.x+targetNodeSize.x){
+            let diff = sourceNodePos.x - (targetNodePos.x+targetNodeSize.x);
+            mx = sourceNodePos.x;
+            lx += diff;
+
+            if(lx >= (targetNodePos.x+targetNodeSize.x)){
+                lx = (targetNodePos.x+targetNodeSize.x);
+            }
+
+            this.$view.setAttribute('d', `M${mx} ${my} L${lx} ${ly}`);
+            return;
+        }
+
+
+        if(targetNodePos.x > mx && targetNodePos.x <= sourceNodePos.x+sourceNodeSize.x){
+            let diff = (lx - (sourceNodePos.x+sourceNodeSize.x));
+            mx += diff;
+            // lx = sourceNodePos.x+sourceNodeSize.x;
+
+            this.$view.setAttribute('d', `M${mx} ${my} L${lx} ${ly}`);
+            return;
+        }
+        
+        if(sourceNodePos.x+sourceNodeSize.x < targetNodePos.x){
+            let diff = targetNodePos.x - (sourceNodePos.x+sourceNodeSize.x);
+            mx = sourceNodePos.x+sourceNodeSize.x;
+            lx -=diff;
+
+            if(lx <= targetNodePos.x){
+                lx = targetNodePos.x;
+            }
+
+            this.$view.setAttribute('d', `M${mx} ${my} L${lx} ${ly}`);
+            return;
+        }
+
+
+        this.$view.setAttribute('d', `M${mx} ${my} L${lx} ${ly}`);
         // FIXME  this.$points = [ a, b ];
+    }
+
+    private getShortestPointFromSource(source : Node, target : Node) : Point{
+        let result : Point;
+
+        return result;
     }
 
 // many Edges SOME DOWN AND SOME RIGHT OR LEFT
@@ -157,6 +231,10 @@ export class Edge extends DiagramElement {
         this.$points.push(line);
         // this.$points.push(new Line(start, end, this.$lineStyle, this.style));
     };
+
+    public clearPoints():any{
+        this.$points = [];
+    }
 
     public addLine(x1: number, y1: number, x2?: number, y2?: number) {
         let start: Point, end: Point;
