@@ -11,11 +11,11 @@ export class Select implements HandlerPlugin {
     private svgRoot: SVGSVGElement;
     private editShape: SVGSVGElement;
     private deleteShape: SVGSVGElement;
+    private newEdgeShape: SVGSVGElement;
     private model: GraphModel;
     private padding = 5;
 
-    private lastSelectedInnerRect : Element;
-    private lastSelectedOuterRect : Element;
+    private lastSelectedNode : Element;
 
     constructor(model: GraphModel) {
         this.model = model;
@@ -47,40 +47,35 @@ export class Select implements HandlerPlugin {
         editGroup.appendChild(editShape);
         this.editShape = editGroup;
 
-        const deleteBkg = Util.createShape(attrCircle);
+        // const deleteBkg = Util.createShape(attrCircle);
 
         this.deleteShape = SymbolLibary.drawSVG({type:"Basket", background:true, id:'trashcan'});
     }
 
     public handle(event:Event, element: DiagramElement): boolean {
+        if(this.svgRoot !== <SVGSVGElement><any>document.getElementById('root')){
+            this.svgRoot = <SVGSVGElement><any>document.getElementById('root');
+        }
+
         event.stopPropagation();
         if (event.type === 'drag') {
             this.editShape.setAttributeNS(null, 'visibility', 'hidden');
             this.deleteShape.setAttributeNS(null, 'visibility', 'hidden');
 
             // reset the last one
-            if(this.lastSelectedOuterRect !== <Element>element.$view.childNodes[0] && this.lastSelectedOuterRect){
-                this.lastSelectedOuterRect.setAttributeNS(null, 'stroke', 'black');
+            if(this.lastSelectedNode !== <Element>element.$view.childNodes[0] && this.lastSelectedNode){
+                this.lastSelectedNode.setAttributeNS(null, 'stroke', 'black');
             }
 
-            if(this.lastSelectedInnerRect !== <Element>element.$view.childNodes[1]  && this.lastSelectedInnerRect)
-                this.lastSelectedInnerRect.setAttributeNS(null, 'stroke', 'black');
-
-
             // mark the border with blue
-            this.lastSelectedOuterRect = <Element>element.$view.childNodes[0];
-            this.lastSelectedInnerRect = <Element>element.$view.childNodes[1];
+            this.lastSelectedNode = <Element>element.$view.childNodes[0];
 
-            this.lastSelectedOuterRect.setAttributeNS(null, 'stroke', 'blue');
-            this.lastSelectedInnerRect.setAttributeNS(null, 'stroke', 'blue');
+            this.lastSelectedNode.setAttributeNS(null, 'stroke', 'rgb(255, 160, 51)');
         }
 
         if(event.srcElement.id === 'background' || element === this.model){
-            if(this.lastSelectedOuterRect)
-                this.lastSelectedOuterRect.setAttributeNS(null, 'stroke', 'black');
-
-            if(this.lastSelectedInnerRect)
-                this.lastSelectedInnerRect.setAttributeNS(null, 'stroke', 'black');
+            if(this.lastSelectedNode)
+                this.lastSelectedNode.setAttributeNS(null, 'stroke', 'black');
 
             this.editShape.setAttributeNS(null, 'visibility', 'hidden');
             this.deleteShape.setAttributeNS(null, 'visibility', 'hidden');
@@ -98,19 +93,13 @@ export class Select implements HandlerPlugin {
             }
 
             // reset the last one
-            if(this.lastSelectedOuterRect)
-                this.lastSelectedOuterRect.setAttributeNS(null, 'stroke', 'black');
-
-            if(this.lastSelectedInnerRect)
-                this.lastSelectedInnerRect.setAttributeNS(null, 'stroke', 'black');
-
+            if(this.lastSelectedNode)
+                this.lastSelectedNode.setAttributeNS(null, 'stroke', 'black');
 
             // mark the border with blue
-            this.lastSelectedOuterRect = <Element>element.$view.childNodes[0];
-            this.lastSelectedInnerRect = <Element>element.$view.childNodes[1];
+            this.lastSelectedNode = <Element>element.$view.childNodes[0];
 
-            this.lastSelectedOuterRect.setAttributeNS(null, 'stroke', 'blue');
-            this.lastSelectedInnerRect.setAttributeNS(null, 'stroke', 'blue');
+            this.lastSelectedNode.setAttributeNS(null, 'stroke', 'rgb(255, 160, 51)');
 
             this.editShape.setAttributeNS(null, 'visibility', 'visible');
             this.deleteShape.setAttributeNS(null, 'visibility', 'visible');

@@ -23,6 +23,11 @@ export class Drag implements HandlerPlugin {
 
     public handle(event: Event, element: DiagramElement): boolean {
         // event.stopPropagation();
+
+        if(this.svgRoot !== <SVGSVGElement><any>document.getElementById('root')){
+            this.svgRoot = <SVGSVGElement><any>document.getElementById('root');
+        }
+
         switch (event.type) {
             case 'mousedown':
                 if ((!this.dragging) || (element.id !== 'RootElement')) {
@@ -37,11 +42,13 @@ export class Drag implements HandlerPlugin {
                 }
                 break;
             case 'mousemove':
+            console.log("mousemove im drag handler")
                 if (this.dragging) {
                     this.drag(event, element);
                 }
                 break;
             case 'mouseleave':
+            console.log("mouseLeave im drag handler")
                 if (this.dragging) {
                     this.reset();
                 }
@@ -63,6 +70,7 @@ export class Drag implements HandlerPlugin {
     }
 
     private start(evt:Event|any, element:Control) {
+
         this.dragging = true;
         this.mouseOffset.x = evt.clientX;
         this.mouseOffset.y = evt.clientY;

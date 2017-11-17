@@ -16,6 +16,7 @@ export default class Palette {
         this.graph = graph;
         let div = document.createElement('div');
         div.className = 'palette';
+        div.id = 'palette';
         document.body.appendChild(div);
         this.palette = div;
         this.addButtons();

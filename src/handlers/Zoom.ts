@@ -10,6 +10,11 @@ export class Zoom implements HandlerPlugin {
     }
 
     public handle(e:any, element: DiagramElement): boolean {
+        
+        if(this.svgRoot !== <SVGSVGElement><any>document.getElementById('root')){
+            this.svgRoot = <SVGSVGElement><any>document.getElementById('root');
+        }
+
         let delta = e.deltaY || e.wheelDeltaY || -e.wheelDelta;
         let d = 1 + (delta / 1000);
 

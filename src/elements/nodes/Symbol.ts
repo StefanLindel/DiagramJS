@@ -692,4 +692,26 @@ export class SymbolLibary {
             ]
         });
     }
+
+
+    public static drawPencil(node: any): DiagramElement {
+        let btnX=0, btnY=0, btnWidth=0, btnHeight=0;
+        return SO.create({
+            x: btnX,
+            y: btnY,
+            id:node['id'],
+            background:node['brackground'] || false,
+            width: btnWidth,
+            height: btnHeight,
+            items: [
+                {
+                    tag: 'path',
+                    d: 'M6 20 L12 23 L33 23 L33 17 L12 17 Z M30 17 L30 23 M12 17 L12 23 M15 19 L28 19 M15 21 L28 21',
+                    stroke: '#000',
+                    'stroke-width': 1,
+                    fill: 'white'
+                }
+            ]
+        });
+    }
 }

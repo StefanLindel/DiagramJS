@@ -43,6 +43,13 @@ export class GraphModel extends DiagramElement {
         return false;
     }
 
+    public removeAllElements() : void{
+
+        for(let idx in this.nodes){
+            this.removeElement(this.nodes[idx].id)
+        }
+    }
+
     public removeElement(id: string): boolean {
         if (this.nodes[id]) {
             let node = this.nodes[id];

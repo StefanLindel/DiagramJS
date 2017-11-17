@@ -9,7 +9,7 @@ import {Util} from '../util';
 import {Control} from '../Control';
 import Data from '../Data';
 import {EventBus} from '../EventBus';
-import {Editor, Drag, Select, Zoom} from '../handlers';
+import {Editor, Drag, Select, Zoom, NewEdge} from '../handlers';
 import Options from "../Options";
 
 export class Graph extends Control {
@@ -66,6 +66,11 @@ export class Graph extends Control {
         pattern.appendChild(cross);
         defs.appendChild(pattern);
         return defs;
+    }
+
+    public ClearModel() : void{
+        this.$graphModel.removeAllElements();
+        this.clearCanvas();
     }
 
     public init(owner: Control, property?: string, id?: string): Control {
@@ -224,5 +229,7 @@ export class Graph extends Control {
                 new Palette(this);
             }
         }
+
+        EventBus.subscribe(new NewEdge(this), 'mousedown', 'mouseup', 'mousemove', 'mouseleave');
     }
 }

@@ -1,0 +1,84 @@
+<html>
+    <head>
+        <title>
+            Loading File with Drag & Drop Example
+        </title>
+
+        <style>
+            .dropZone{
+                height: 100px;
+                width: 450px;
+                border-style: dashed;
+                border-width: 2px;
+                border-color: black;
+                background-color: #afafaf;
+                border-radius: 25px;
+                padding: 20px;
+                text-align: center;
+                vertical-align: middle;
+            }
+
+            .dropZoneCopy{
+                background-color: #aeddff
+            }
+        </style>
+    </head>
+    <body>
+        <div id="drop_zone" class="dropZone">Drop files here</div>
+        <output id="list"></output>
+        
+        <script>
+          function handleFileSelect(evt) {
+            evt.stopPropagation();
+            evt.preventDefault();
+        
+            var files = evt.dataTransfer.files; // FileList object.
+        
+            // files is a FileList of File objects. List some properties.
+            var reader  = new FileReader();
+            var output = [];
+            var htmlResult = '';
+            for (var i = 0, f; f = files[i]; i++) {
+              output.push('<li><strong>', escape(f.name), '</strong> (', f.type || 'n/a', ') - ',
+                          f.size, ' bytes, last modified: ',
+                          f.lastModifiedDate.toLocaleDateString(), '</li>');
+
+
+                reader.onload = function(event){
+                    htmlResult = event.target.result;
+                    console.log("fileContent: " + htmlResult);
+                    document.getElementById('list').innerHTML += '<br>' + htmlResult + '<br>';
+                };
+
+                reader.readAsText(f);
+
+            }
+            document.getElementById('list').innerHTML = '<ul>' + output.join('') + '</ul>';
+
+            evt.target.className = 'dropZone';
+          }
+        
+          function handleDragOver(evt) {
+            evt.stopPropagation();
+            evt.preventDefault();
+            evt.dataTransfer.dropEffect = 'copy'; // Explicitly show this is a copy.
+            evt.target.className += ' dropZoneCopy';
+            console.log("handDragOver");
+          }
+
+          function handleDragLeave(evt) {
+            evt.stopPropagation();
+            evt.preventDefault();
+            evt.dataTransfer.dropEffect = 'link'; // Explicitly show this is a copy.
+            evt.target.className = ' dropZone';
+            console.log("handDragLeave");
+          }
+        
+          // Setup the dnd listeners.
+          var dropZone = document.getElementById('drop_zone');
+          dropZone.addEventListener('dragover', handleDragOver, false);
+          dropZone.addEventListener('dragleave', handleDragLeave, false);
+          dropZone.addEventListener('drop', handleFileSelect, false);
+        </script>
+    </body>
+</html>
