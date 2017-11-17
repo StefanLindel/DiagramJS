@@ -15,6 +15,14 @@ export class ImportFile implements EventHandler {
     }
 
     handle(event: Event, element: DiagramElement): boolean {
+        if (event instanceof DragEvent === false) {
+            return false;
+        }
+        let evt: DragEvent = <DragEvent>event;
+        if (evt.type === 'dragover') {
+            this.handleDragOver(evt);
+        }
+        console.log(evt);
         return true;
     }
 
@@ -72,11 +80,39 @@ export class ImportFile implements EventHandler {
     }
 
     private handleDragOver(evt: DragEvent): void {
-        evt.stopPropagation();
-        evt.preventDefault();
+        let error: boolean = true, n: string, f;
+        let files = evt.target['files'] || evt.dataTransfer.files;
+        // process all File objects
+        if (!files || files.length < 1) {
+            return;
+    }
+        for (let i: number = 0; i < files.length; i += 1) {
+            f = files[i];
+            if (f.type.indexOf('text') === 0) {
+                error = false;
+            } else if (f.type === '') {
+                n = f.name.toLowerCase();
+                if (n.indexOf('json', n.length - 4) !== -1) {
+                    error = false;
+                }
+            }
+        }
         evt.dataTransfer.dropEffect = 'copy'; // Explicitly show this is a copy.
-        evt.target['className'] += ' diagramLoadFile';
-        console.log('handDragOver');
+        if (error) {
+            this.dragStyler(evt, 'Error');
+        } else if (evt.ctrlKey) {
+            this.dragStyler(evt, 'Add');
+        } else {
+            this.dragStyler(evt, 'Ok');
+        }
+        /* //evt.target['className'] += ' diagramLoadFile';
+        '//console.log('handDragOver');*/
+    }
+
+    private dragStyler(event: Event, typ: string) {
+        event.stopPropagation();
+        event.preventDefault();
+        this.setBoardStyle(typ);
     }
 
     private setBoardStyle(typ: string): boolean {
