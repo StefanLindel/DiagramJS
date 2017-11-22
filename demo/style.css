@@ -5,7 +5,7 @@ body {
 button {
   min-width: 70px;
   height: 34px;
-  font-weight: light;
+  font-weight: lighter;
   color: #333;
   cursor: pointer;
   font-size: 14px;
@@ -20,6 +20,23 @@ button {
   -webkit-box-shadow: 1px 1px 5px 0px rgba(0, 0, 0, 0.3);
   -moz-box-shadow: 1px 1px 5px 0px rgba(0, 0, 0, 0.3);
   box-shadow: 1px 1px 5px 0px rgba(0, 0, 0, 0.3);
+}
+
+.Error{
+  border-color: #f00;
+  color: #f00;
+  border-style: solid;
+  box-shadow: inset 0 3px 4px #888;
+}
+.Ok{
+  border-color: #009B00;
+  border-style: solid;
+  box-shadow: inset 0 3px 4px #888;
+}
+.Add{
+  border-color: yellow;
+  border-style: solid;
+  box-shadow: inset 0 3px 4px #888;
 }
 
 g, path {
@@ -69,9 +86,9 @@ h1 {
   padding-left: 220px;
   z-index: 3;
   background: rgb(245, 245, 245);
-  -webkit-box-shadow: 0px -3px 20px 5px rgba(0, 0, 0, 0.5);
-  -moz-box-shadow: 0px -3px 20px 5px rgba(0, 0, 0, 0.5);
-  box-shadow: 0px -3px 20px 5px rgba(0, 0, 0, 0.5);
+  -webkit-box-shadow: 0 -3px 20px 5px rgba(0, 0, 0, 0.5);
+  -moz-box-shadow: 0 -3px 20px 5px rgba(0, 0, 0, 0.5);
+  box-shadow: 0 -3px 20px 5px rgba(0, 0, 0, 0.5);
 }
 
 .toolbar button.layoutBtn {
@@ -113,7 +130,7 @@ h1 {
 
 .palette button svg polygon, .palette button svg text {
   alignment-baseline: central;
-  font-family: 'Helvetica Neue';
+  font-family: 'Helvetica';
   font-weight: bold;
   fill: #888;
 }
@@ -160,9 +177,9 @@ h1 {
   text-align: center;
   background: rgb(245, 245, 245);
   border: 1px solid rgb(200, 200, 200);
-  -webkit-box-shadow: 5px 5px 20px 0px rgba(0, 0, 0, 0.25);
-  -moz-box-shadow: 5px 5px 20px 0px rgba(0, 0, 0, 0.25);
-  box-shadow: 5px 5px 20px 0px rgba(0, 0, 0, 0.25);
+  -webkit-box-shadow: 5px 5px 20px 0 rgba(0, 0, 0, 0.25);
+  -moz-box-shadow: 5px 5px 20px 0 rgba(0, 0, 0, 0.25);
+  box-shadow: 5px 5px 20px 0 rgba(0, 0, 0, 0.25);
 }
 
 .editor h2 {
@@ -241,7 +258,7 @@ h1 {
 
 .code_box:before {
   top: 100%;
-  right: 0px;
+  right: 0;
   border: solid transparent;
   content: " ";
   position: absolute;

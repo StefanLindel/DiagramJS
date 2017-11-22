@@ -70,7 +70,13 @@ export class Graph extends Control {
         return defs;
     }
 
-    public ClearModel(): void {
+    public load(json: JSON | Object, owner ?: Control): any {
+        this.$graphModel = new GraphModel();
+        this.$graphModel.init(this);
+        this.$graphModel.load(json);
+    }
+
+    public clearModel(): void {
         this.$graphModel.removeAllElements();
         this.clearCanvas();
     }

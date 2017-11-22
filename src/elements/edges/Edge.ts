@@ -1,10 +1,8 @@
-import {DiagramElement, Point, Line} from '../BaseElements';
+import {DiagramElement, Line, Point} from '../BaseElements';
 import {Node} from '../nodes';
 import {InfoText} from '../nodes/InfoText';
 import {Util} from '../../util';
 import {EventBus} from '../../EventBus';
-import {Control} from "../../Control";
-import {UML} from "../../UML";
 
 export const enum Direction {
     Up, Down, Left, Right
@@ -23,6 +21,55 @@ export class Edge extends DiagramElement {
     $m: number;
     $n: number;
 
+    private static getShortestPointFromSource(source: Node, target: Node): Point {
+        let result: Point;
+
+        return result;
+    }
+
+    private static getShortestPathIntersection(node: Node, point: Point): Point {
+        let x = point.x;
+        let y = point.y;
+
+        let minX = node.getPos().x - node.getSize().x / 2;
+        let minY = node.getPos().y - node.getSize().y / 2;
+        let maxX = minX + node.getSize().x;
+        let maxY = minY + node.getSize().y;
+
+        let midX = (minX + maxX) / 2;
+        let midY = (minY + maxY) / 2;
+        let m = (midY - y) / (midX - x);
+
+        if (x <= midX) { // check "left" side
+            let minXy = m * (minX - x) + y;
+            if (minY < minXy && minXy < maxY) {
+                return new Point(minX, minXy);
+            }
+        }
+
+        if (x >= midX) { // check "right" side
+            let maxXy = m * (maxX - x) + y;
+            if (minY < maxXy && maxXy < maxY) {
+                return new Point(maxX, maxXy);
+            }
+        }
+
+        if (y <= midY) { // check "top" side
+            let minYx = (minY - y) / m + x;
+            if (minX < minYx && minYx < maxX) {
+                return new Point(minYx, minY);
+            }
+        }
+
+        if (y >= midY) { // check "bottom" side
+            let maxYx = (maxY - y) / m + x;
+            if (minX < maxYx && maxYx < maxX) {
+                return new Point(maxYx, maxY);
+            }
+        }
+        return new Point();
+    }
+
     public withItem(source: Node, target: Node): Edge {
         source.edges.push(this);
         target.edges.push(this);
@@ -31,7 +78,7 @@ export class Edge extends DiagramElement {
         this.source = source.id;
         this.target = target.id;
         return this;
-    };
+    }
 
     public getSVG(): Element {
         let path = '';
@@ -77,58 +124,58 @@ export class Edge extends DiagramElement {
         let targetNodeSize = this.$tNode.getSize();
         let sourceNodeSize = this.$sNode.getSize();
 
-        let mx, my, lx, ly : Number;
+        let mx, my, lx, ly: Number;
 
-        if(targetNodePos.y < sourceNodePos.y){
-            ly = targetNodePos.y+targetNodeSize.y;
+        if (targetNodePos.y < sourceNodePos.y) {
+            ly = targetNodePos.y + targetNodeSize.y;
             my = sourceNodePos.y;
         }
-        else{
+        else {
             ly = targetNodePos.y;
-            my = sourceNodePos.y+sourceNodeSize.y;
+            my = sourceNodePos.y + sourceNodeSize.y;
         }
 
-        mx = sourceNodePos.x+sourceNodeSize.x/2;
-        lx = targetNodePos.x+targetNodeSize.x/2;
+        mx = sourceNodePos.x + sourceNodeSize.x / 2;
+        lx = targetNodePos.x + targetNodeSize.x / 2;
 
-        if(mx > targetNodePos.x+targetNodeSize.x && sourceNodePos.x <= targetNodePos.x+targetNodeSize.x){
-            let diff = (mx - (targetNodePos.x+targetNodeSize.x));
+        let diff;
+        if (mx > targetNodePos.x + targetNodeSize.x && sourceNodePos.x <= targetNodePos.x + targetNodeSize.x) {
+            diff = (mx - (targetNodePos.x + targetNodeSize.x));
             mx -= diff;
             // lx += diff;
-            
+
             this.$view.setAttribute('d', `M${mx} ${my} L${lx} ${ly}`);
             return;
         }
-        
-        if(sourceNodePos.x > targetNodePos.x+targetNodeSize.x){
-            let diff = sourceNodePos.x - (targetNodePos.x+targetNodeSize.x);
+
+        if (sourceNodePos.x > targetNodePos.x + targetNodeSize.x) {
+            let diff = sourceNodePos.x - (targetNodePos.x + targetNodeSize.x);
             mx = sourceNodePos.x;
             lx += diff;
 
-            if(lx >= (targetNodePos.x+targetNodeSize.x)){
-                lx = (targetNodePos.x+targetNodeSize.x);
+            if (lx >= (targetNodePos.x + targetNodeSize.x)) {
+                lx = (targetNodePos.x + targetNodeSize.x);
             }
 
             this.$view.setAttribute('d', `M${mx} ${my} L${lx} ${ly}`);
             return;
         }
 
-
-        if(targetNodePos.x > mx && targetNodePos.x <= sourceNodePos.x+sourceNodeSize.x){
-            let diff = (lx - (sourceNodePos.x+sourceNodeSize.x));
+        if (targetNodePos.x > mx && targetNodePos.x <= sourceNodePos.x + sourceNodeSize.x) {
+            diff = (lx - (sourceNodePos.x + sourceNodeSize.x));
             mx += diff;
             // lx = sourceNodePos.x+sourceNodeSize.x;
 
             this.$view.setAttribute('d', `M${mx} ${my} L${lx} ${ly}`);
             return;
         }
-        
-        if(sourceNodePos.x+sourceNodeSize.x < targetNodePos.x){
-            let diff = targetNodePos.x - (sourceNodePos.x+sourceNodeSize.x);
-            mx = sourceNodePos.x+sourceNodeSize.x;
-            lx -=diff;
 
-            if(lx <= targetNodePos.x){
+        if (sourceNodePos.x + sourceNodeSize.x < targetNodePos.x) {
+            let diff = targetNodePos.x - (sourceNodePos.x + sourceNodeSize.x);
+            mx = sourceNodePos.x + sourceNodeSize.x;
+            lx -= diff;
+
+            if (lx <= targetNodePos.x) {
                 lx = targetNodePos.x;
             }
 
@@ -136,22 +183,13 @@ export class Edge extends DiagramElement {
             return;
         }
 
-
         this.$view.setAttribute('d', `M${mx} ${my} L${lx} ${ly}`);
         // FIXME  this.$points = [ a, b ];
     }
 
-    private getShortestPointFromSource(source : Node, target : Node) : Point{
-        let result : Point;
-
-        return result;
-    }
-
-// many Edges SOME DOWN AND SOME RIGHT OR LEFT
-// INFOTEXT DONT SHOW IF NO PLACE
 // INFOTEXT CALCULATE POSITION
     public calc(board: Element): boolean {
-        let result, options, linetyp, sourcePos:Point, targetPos:Point, divisor, startNode: Node, endNode: Node;
+        let result, options, linetyp, sourcePos: Point, targetPos: Point, divisor, startNode: Node, endNode: Node;
         startNode = <Node>this.$sNode.getShowed();
         endNode = <Node>this.$tNode.getShowed();
 
@@ -210,6 +248,9 @@ export class Edge extends DiagramElement {
         return true;
     }
 
+// many Edges SOME DOWN AND SOME RIGHT OR LEFT
+// INFOTEXT DONT SHOW IF NO PLACE
+
     public addLineTo(x1: number, y1: number, x2?: number, y2?: number) {
         let start, end;
         if (!x2 && !y2) {
@@ -230,9 +271,9 @@ export class Edge extends DiagramElement {
         line.target = end;
         this.$points.push(line);
         // this.$points.push(new Line(start, end, this.$lineStyle, this.style));
-    };
+    }
 
-    public clearPoints():any{
+    public clearPoints(): any {
         this.$points = [];
     }
 
@@ -255,12 +296,12 @@ export class Edge extends DiagramElement {
         line.source = start;
         line.target = end;
         this.$points.push(line);
-    };
+    }
 
-    public calcInfoPos(linePos:Point, item:Node, info: InfoText) {
+    public calcInfoPos(linePos: Point, item: Node, info: InfoText) {
         // Manuell move the InfoTag
         let newY: number, newX: number, spaceA: number = 20, spaceB: number = 0, step: number = 15;
-        let owner:any = item.$owner;
+        let owner: any = item.$owner;
         if (owner.options && !owner.options.rotatetext) {
             spaceA = 20;
             spaceB = 10;
@@ -293,7 +334,7 @@ export class Edge extends DiagramElement {
             }
         }
         info.withPos(Math.ceil(newX), Math.ceil(newY));
-    };
+    }
 
     public calcSquareLine() {
         // 1. Case		/------\
@@ -340,12 +381,12 @@ export class Edge extends DiagramElement {
         this.addLine(endPos.x + endSize.x / 2, endPos.y - 20);
         this.addLineTo(0, 20);
         return true;
-    };
+    }
 
     public calcOffset() {
         let i: number, z: number, x: number, y: number;
         let min: Point = new Point(999999999, 999999999), max: Point = new Point(0, 0);
-        let item:Line, svg, value:any;
+        let item: Line, svg, value: any;
         for (i = 0; i < this.$points.length; i += 1) {
             item = this.$points[i];
             if (item.lineType === Line.FORMAT.PATH) {
@@ -358,7 +399,7 @@ export class Edge extends DiagramElement {
                     continue;
                 }
                 for (z = 0; z < value.pathSegList.length; z += 1) {
-                    let child:any = value.pathSegList[z];
+                    let child: any = value.pathSegList[z];
                     switch (child.pathSegType) {
                         case SVGPathSeg.PATHSEG_MOVETO_ABS:
                         case SVGPathSeg.PATHSEG_LINETO_ABS:
@@ -383,7 +424,7 @@ export class Edge extends DiagramElement {
             }
         }
         return {x: min.x, y: min.y, width: max.x - min.x, height: max.y - min.y};
-    };
+    }
 
     protected getDirection(a: Point, b: Point): Direction {
         if (b.x < a.x) {
@@ -399,48 +440,5 @@ export class Edge extends DiagramElement {
             return Direction.Down;
         }
         return Direction.Down;
-    }
-
-    private getShortestPathIntersection(node: Node, point: Point): Point {
-        let x = point.x;
-        let y = point.y;
-
-        let minX = node.getPos().x - node.getSize().x / 2;
-        let minY = node.getPos().y - node.getSize().y / 2;
-        let maxX = minX + node.getSize().x;
-        let maxY = minY + node.getSize().y;
-
-        let midX = (minX + maxX) / 2;
-        let midY = (minY + maxY) / 2;
-        let m = (midY - y) / (midX - x);
-
-        if (x <= midX) { // check "left" side
-            let minXy = m * (minX - x) + y;
-            if (minY < minXy && minXy < maxY) {
-                return new Point(minX, minXy);
-            }
-        }
-
-        if (x >= midX) { // check "right" side
-            let maxXy = m * (maxX - x) + y;
-            if (minY < maxXy && maxXy < maxY) {
-                return new Point(maxX, maxXy);
-            }
-        }
-
-        if (y <= midY) { // check "top" side
-            let minYx = (minY - y) / m + x;
-            if (minX < minYx && minYx < maxX) {
-                return new Point(minYx, minY);
-            }
-        }
-
-        if (y >= midY) { // check "bottom" side
-            let maxYx = (maxY - y) / m + x;
-            if (minX < maxYx && maxYx < maxX) {
-                return new Point(maxYx, maxY);
-            }
-        }
-        return new Point();
     }
 }

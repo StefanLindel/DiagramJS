@@ -474,7 +474,7 @@ export class Util {
     public static removeClass(element: Element, cls: string) {
         if (Util.hasClass(element, cls)) {
             let reg = new RegExp('(\\s|^)' + cls + '(\\s|$)');
-            element.className = element.className.replace(reg, ' ');
+            element.className = element.className.replace(reg, ' ').trim();
         }
     }
 }

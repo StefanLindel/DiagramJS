@@ -9,11 +9,11 @@ export abstract class Control {
      */
     public property: string;
     public id: string;
-    protected $model: Data;
-
     public $view: Element;
-    protected $viewListener: EventListenerOrEventListenerObject;
     public viewData: Data;
+
+    protected $model: Data;
+    protected $viewListener: EventListenerOrEventListenerObject;
 
     /**
      * The properties, we want to listen to
@@ -75,27 +75,6 @@ export abstract class Control {
         return element;
     }
 
-    /**
-     * the id of the Data object, that contains the properties of the view
-     * @returns {string}
-     */
-    protected getControlDataID() {
-        return this.id + '_data';
-    }
-
-    protected generateID(property ?: string, id ?: string): string {
-        if (property) {
-            return property;
-        }
-        if (id) {
-            // will generate a data Object suitable for the Control..
-            // must be overridden, if the changeEvent shouldn't listen on value...
-//            return id + '.' + this.getStandardProperty();//+ "_data"
-            return id + '.' + '_data'
-        }
-        return null;
-    }
-
     public init(owner: Control, property ?: string, id ?: string): Control {
         if (!this.$owner) {
             this.$owner = owner;
@@ -121,7 +100,7 @@ export abstract class Control {
     }
 
     public initControl(data: any): void {
-        if (this.$view == null) {
+        if (this.$view === null) {
             return;
         }
         if (data.hasOwnProperty('prop')) {
@@ -168,7 +147,7 @@ export abstract class Control {
 
                 if (entity) {
                     if (!hasRem) {
-                        if (entity == this.$model) {
+                        if (entity === this.$model) {
                             oldValue = this.$model.getValue(key);
                         } else {
 //                           oldValue = this.getViewData().getValue(key);
@@ -217,7 +196,7 @@ export abstract class Control {
                 // if rem is invalid, or if the change is already applied, don't do anything..
                 //                  continue;
                 //            }
-                //delete this.viewData.getValue(key);
+                // delete this.viewData.getValue(key);
                 // this.saveViewInData();
                 this.updateElement(key, null, null);
                 // this.$view.removeAttribute(key);
@@ -234,21 +213,6 @@ export abstract class Control {
             );
         }
 //        this.saveViewInData();
-    }
-
-
-    protected updateViewData() {
-        if (!this.$view) {
-            return;
-        }
-        const keys: string[] = this.viewData.getKeys();
-        for (let i = 0; i < keys.length; i++) {
-            let attr = keys[i];
-            if (this.$view[attr] === null) {
-                continue;
-            }
-            this.viewData.setValue(attr, this.$view[attr]);
-        }
     }
 
     public getItem(id: string): Data {
@@ -276,14 +240,14 @@ export abstract class Control {
      * @param newValue
      */
     public propertyChange(entity: Data, property: string, oldValue: any, newValue: any) {
-       if (oldValue == newValue) {
-           return;
-       }
-       if (oldValue == this.viewData.getValue(property)) {
-           return;
-       }
-       // Set NewData to ViewData and Fire PC
-       this.viewData.setValue(property, newValue);
+        if (oldValue == newValue) {
+            return;
+        }
+        if (oldValue == this.viewData.getValue(property)) {
+            return;
+        }
+        // Set NewData to ViewData and Fire PC
+        this.viewData.setValue(property, newValue);
 
 //
 //
@@ -304,8 +268,12 @@ export abstract class Control {
 //             // }
 //         // }
 // >>>>>>> addOldFunctions
-        if (this.viewData) this.viewData.setValue(property, newValue);
-        if (this.$model) this.$model.setValue(property, newValue);
+        if (this.viewData) {
+            this.viewData.setValue(property, newValue);
+        }
+        if (this.$model) {
+            this.$model.setValue(property, newValue);
+        }
         this.updateElement(property, oldValue, newValue);
     }
 
@@ -318,7 +286,6 @@ export abstract class Control {
 
         }
     }
-
 
     /**
      *  Update GUI Element
@@ -433,6 +400,41 @@ export abstract class Control {
             return this.$owner.getShowed();
         }
         return this;
+    }
+
+    /**
+     * the id of the Data object, that contains the properties of the view
+     * @returns {string}
+     */
+    protected getControlDataID() {
+        return this.id + '_data';
+    }
+
+    protected generateID(property ?: string, id ?: string): string {
+        if (property) {
+            return property;
+        }
+        if (id) {
+            // will generate a data Object suitable for the Control..
+            // must be overridden, if the changeEvent shouldn't listen on value...
+//            return id + '.' + this.getStandardProperty();//+ "_data"
+            return id + '.' + '_data'
+        }
+        return null;
+    }
+
+    protected updateViewData() {
+        if (!this.$view) {
+            return;
+        }
+        const keys: string[] = this.viewData.getKeys();
+        for (let i = 0; i < keys.length; i++) {
+            let attr = keys[i];
+            if (this.$view[attr] === null) {
+                continue;
+            }
+            this.viewData.setValue(attr, this.$view[attr]);
+        }
     }
 
     protected registerEventListener(eventType: string, htmlElement: HTMLElement): boolean {
