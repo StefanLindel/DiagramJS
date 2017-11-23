@@ -1,7 +1,7 @@
-import {Control} from "../../Control";
+import {Control} from '../../Control';
 
 export class BR extends Control {
-    public load(json:JSON): any {
+    public load(json: JSON): any {
         this.createControl(this.$owner, json);
     }
 

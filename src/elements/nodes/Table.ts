@@ -1,7 +1,7 @@
-import {Control} from "../../Control";
-import BridgeElement from "../../BridgeElement";
-import Data from "../../Data";
-import {Util} from "../../util";
+import {Control} from '../../Control';
+import BridgeElement from '../../BridgeElement';
+import Data from '../../Data';
+import {Util} from '../../util';
 
 // noinspection JSUnusedGlobalSymbols
 export class Table extends Control {
@@ -31,7 +31,20 @@ export class Table extends Control {
     private dragPos: number;
     private tableOption: HTMLTableHeaderCellElement;
 
-    public load(data: any) :void {
+    get lastProperty(): string {
+        return this.property.split('.')[0];
+    }
+
+    private static indexOfChild(item: BridgeElement) {
+        let i: number = 0;
+        let child: Node = item.gui;
+        while ((child = child.previousSibling) !== null) {
+            i++;
+        }
+        return i;
+    }
+
+    public load(data: any): void {
         let id: string;
         // init form HTML
         if (typeof(data) === 'string') {
@@ -90,7 +103,7 @@ export class Table extends Control {
                     }
                     for (let c: number = 0; c < this.columns.length; c++) {
                         let name = this.columns[c].attribute;
-                        //let count = this.columns.length;
+                        // let count = this.columns.length;
                         cell = item.gui.children[c];
                         cell.innerHTML = item.model.getValue(name);
                     }
@@ -186,7 +199,7 @@ export class Table extends Control {
             headerrow.appendChild(this.tableOption);
             let context: HTMLElement = this.addOptionItem(null, this.tableOption, true);
             let contentChild: HTMLElement = this.addOptionItem('show', context, true);
-            //let simpleLink: HTMLElement = this.addOptionItem('show', contentChild, false);
+            // let simpleLink: HTMLElement = this.addOptionItem('show', contentChild, false);
             this.addOptionItem('show', contentChild, false);
         }
         this.registerEvents(['mousemove', 'mousedown', 'mouseup', 'resize', 'dragstart', 'dragover', 'drop', 'dragend']);
@@ -227,26 +240,6 @@ export class Table extends Control {
         this.updateElement(this.property, null);
 
         // now update those elements, that were not loaded currently
-    }
-
-    private parseData(column:any) : Column{
-        let col = new Column();
-        col.label = column.label || column.id;
-        col.attribute = column.attribute || column.label || column.id;
-        col.$element = document.createElement('th');
-        col.$element.innerHTML = col.label;
-        col.$element.draggable = true;
-
-        // resize Header
-        col.$resize = document.createElement('div');
-        col.$resize.classList.add('resize');
-        col.$element.appendChild(col.$resize);
-
-        return col;
-    }
-
-    get lastProperty(): string {
-        return this.property.split('.')[0];
     }
 
     public tableEvent(type: string, e: Event) {
@@ -614,7 +607,6 @@ export class Table extends Control {
         return this.columns;
     }
 
-
     public updateElement(property: string, value: string): void {
         // first clear all elements inside the table:
         for (let item of this.items) {
@@ -633,7 +625,7 @@ export class Table extends Control {
                 if (items.hasOwnProperty(j)) {
                     let item = items[j];
                     if (item instanceof Data) {
-                        if (property == j) {
+                        if (property === j) {
                             // if (property == item.property) {
                             let i = new BridgeElement(<Data>item);
                             this.items.push(i);
@@ -644,6 +636,13 @@ export class Table extends Control {
             }
             this.redrawAllElements();
         }
+    }
+
+    public setValue(object: Object, attribute: string, newValue: Object, oldValue?: Object): boolean {
+        if (this.$owner !== null) {
+            return this.getRoot().setValue(object, attribute, newValue, oldValue);
+        }
+        return super.setValue(object, attribute, newValue, oldValue);
     }
 
     protected redrawAllElements() {
@@ -666,11 +665,27 @@ export class Table extends Control {
         }
     }
 
+    private parseData(column: any): Column {
+        let col = new Column();
+        col.label = column.label || column.id;
+        col.attribute = column.attribute || column.label || column.id;
+        col.$element = document.createElement('th');
+        col.$element.innerHTML = col.label;
+        col.$element.draggable = true;
+
+        // resize Header
+        col.$resize = document.createElement('div');
+        col.$resize.classList.add('resize');
+        col.$element.appendChild(col.$resize);
+
+        return col;
+    }
+
     private createRow(data: BridgeElement): HTMLTableRowElement {
-        let tr: HTMLTableRowElement = document.createElement("tr");
+        let tr: HTMLTableRowElement = document.createElement('tr');
 
         for (let id of this.columns) {
-            let td: HTMLTableDataCellElement = document.createElement("td");
+            let td: HTMLTableDataCellElement = document.createElement('td');
             tr.appendChild(td);
             td.innerHTML = data.model.getValue(id.attribute);
         }
@@ -688,15 +703,6 @@ export class Table extends Control {
             false);
     }
 
-    private static indexOfChild(item: BridgeElement) {
-        let i: number = 0;
-        let child: Node = item.gui;
-        while ((child = child.previousSibling) !== null) {
-            i++;
-        }
-        return i;
-    }
-
     private columnDragEvent(type: string, e: DragEvent) {
         if (type === 'dragstart') {
             // Target (this) element is the source node.
@@ -704,7 +710,7 @@ export class Table extends Control {
             e.dataTransfer.effectAllowed = 'move';
             e.dataTransfer.setData('text/json', JSON.stringify(Util.toJson(this.moveElement)));
         } else if (type === 'dragenter') {
-
+            // TO Nothing
         } else if (type === 'dragleave') {
             this.moveElement.$element.classList.remove('over');
         } else if (type === 'dragover') {
@@ -811,15 +817,8 @@ export class Table extends Control {
             });
         }
     }
-
-
-    public setValue(object: Object, attribute: string, newValue: Object, oldValue?: Object): boolean {
-        if (this.$owner != null) {
-            return this.getRoot().setValue(object, attribute, newValue, oldValue);
-        }
-        return super.setValue(object, attribute, newValue, oldValue);
-    }
 }
+
 class Column {
     label: string;
     attribute: string;

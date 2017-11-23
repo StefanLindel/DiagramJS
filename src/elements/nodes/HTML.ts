@@ -4,7 +4,7 @@
 import {Control} from '../../Control';
 
 export class HTML extends Control {
-    constructor(data:JSON|Object|any) {
+    constructor(data: JSON|Object|any) {
         super();
 
         let id: string;
@@ -33,7 +33,7 @@ export class HTML extends Control {
         this.writeAttribute(data, this.$view);
     }
 
-    private writeAttribute(properties:Object, entity?:any) {
+    private writeAttribute(properties: Object, entity?: any) {
         let lowKey;
         if (!entity) {
             lowKey = properties['tag'] || 'div';
@@ -45,7 +45,7 @@ export class HTML extends Control {
             }
             lowKey = key.toLowerCase();
             if (properties[key] === null) {
-                entity.setAttribute(key,'');
+                entity.setAttribute(key, '');
                 continue;
             }
 
@@ -55,7 +55,7 @@ export class HTML extends Control {
             if (lowKey === 'children') {
                 if (Array.isArray(properties[key])) {
                     for (let item in properties[key]) {
-                        if(properties[key].hasOwnProperty(item) == false) {
+                        if (properties[key].hasOwnProperty(item) === false) {
                             continue;
                         }
                         let child = this.writeAttribute(item);

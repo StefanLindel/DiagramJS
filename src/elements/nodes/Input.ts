@@ -1,7 +1,6 @@
 import {Control} from '../../Control';
 import {Bridge} from '../../Bridge';
 import Data from '../../Data';
-import {Util} from '../../util';
 import {PropertyBinder} from '../../PropertyBinder';
 
 export class Input extends Control {
@@ -61,7 +60,7 @@ export class Input extends Control {
         if (inputField instanceof HTMLInputElement) {
             this.setView(inputField);
             this.type = inputField.type;
-            //useData = false;
+            // useData = false;
         } else {
             if (!inputField) {
                 this.setView(document.createElement('input'));
@@ -116,7 +115,7 @@ export class Input extends Control {
         }
     }
 
-    //TODO FIXME protected updateElement(property: string, value: string) {
+    // TODO FIXME protected updateElement(property: string, value: string) {
     //     if (this.$view instanceof HTMLInputElement) {
     //         if (value != null) {
     //             if(property == this.lastProperty) {
@@ -132,14 +131,14 @@ export class Input extends Control {
     // }
 
     public controlChanged(ev: Event) {
-        if (this.$view instanceof HTMLInputElement == false) {
+        if (this.$view instanceof HTMLInputElement === false) {
             return;
         }
         let element = (<HTMLInputElement>this.$view);
         if (element.checkValidity()) {
             super.controlChanged(ev);
         }
-//<<<<<<< HEAD
+// <<<<<<< HEAD
 //             let newVal = element[this.getStandardProperty()];
 //             if (this.isKeyOnly()) {
 //                 // we expect, element[this.lastProperty] to be boolean:
@@ -148,8 +147,8 @@ export class Input extends Control {
 //                 }
 //             } else {
 //             }
-        //let $graphModel;
-        //let value;
+        // let $graphModel;
+        // let value;
         /*if (this.$graphModel) {
             $graphModel = this.$graphModel;
             value = this.$graphModel.getValue(this.lastProperty);
@@ -160,9 +159,9 @@ export class Input extends Control {
             }
         }*/
         // this.$model.setValue(this.lastProperty, newVal);
-        //this.propertyChange(this.$graphModel,this.lastProperty, this.$graphModel.getValue(this.lastProperty), newVal);
-        //this.getRoot().setValue($graphModel, this.lastProperty, newVal, value);
-//=======
+        // this.propertyChange(this.$graphModel,this.lastProperty, this.$graphModel.getValue(this.lastProperty), newVal);
+        // this.getRoot().setValue($graphModel, this.lastProperty, newVal, value);
+// =======
         // let newVal = element[this.lastProperty];
         // if (this.isKeyOnly()) {
         //     // we expect, element[this.lastProperty] to be boolean:
@@ -186,7 +185,7 @@ export class Input extends Control {
         // }
         // this.getRoot().setValue($graphModel, this.lastProperty, newVal, value);
 //            this.saveViewInData();
-//>>>>>>> addOldFunctions
+// >>>>>>> addOldFunctions
 //         } else {
 //             console.log('value does not match the pattern...');
 //         }
@@ -197,7 +196,7 @@ export class Input extends Control {
         if (oldValue === type) {
             return;
         }
-        if (type == 'radio') {
+        if (type === 'radio') {
             this.viewData.setValue('checked', null);
         } else {
             this.viewData.removeKey('checked');

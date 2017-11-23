@@ -1,7 +1,7 @@
 import {DiagramElement} from '../elements/BaseElements';
 import {Clazz} from '../elements/nodes';
 import {Graph} from '../elements/Graph';
-import {EventHandler} from "../EventBus";
+import {EventHandler} from '../EventBus';
 
 export class Editor implements EventHandler {
     private editorElement: Element;
@@ -16,7 +16,7 @@ export class Editor implements EventHandler {
         return true;
     }
 
-    public handle(event:Event, element: DiagramElement): boolean {
+    public handle(event: Event, element: DiagramElement): boolean {
         if (element instanceof Clazz) {
             const clazz = element;
             const attributes = clazz.getPropertyAsString('attributes');

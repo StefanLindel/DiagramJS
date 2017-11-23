@@ -12,7 +12,7 @@ export class Node extends DiagramElement {
     $TOP: number = 0;
     $DOWN: number = 0;
 
-    constructor(data:JSON|string|Object|any) {
+    constructor(data: JSON|string|Object|any) {
         super();
         if (data) {
             if (data['x'] && data['y']) {
@@ -27,7 +27,7 @@ export class Node extends DiagramElement {
         }
     }
 
-    public getSVG() : Element {
+    public getSVG(): Element {
         const pos = this.getPos();
         const size = this.getSize();
 

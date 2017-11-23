@@ -2,7 +2,7 @@ import * as edges from './edges';
 import * as nodes from './nodes';
 import * as layouts from '../layouts';
 import Layout from '../layouts/Layout';
-import {GraphModel} from '../elements/Model';
+import {GraphModel} from './Model';
 import Palette from '../Palette';
 import {Size, Point} from './BaseElements';
 import {Util} from '../util';

@@ -3,8 +3,8 @@ import {Node} from '../elements/nodes';
 import {Edge} from '../elements/edges';
 import {Util} from '../util';
 import {GraphModel} from '../elements/Model';
-import {Symbol, SymbolLibary} from "../elements/nodes/Symbol";
-import { EventHandler } from '../EventBus';
+import {SymbolLibary} from '../elements/nodes/Symbol';
+import {EventHandler} from '../EventBus';
 
 export class Select implements EventHandler {
 
@@ -15,7 +15,7 @@ export class Select implements EventHandler {
     private model: GraphModel;
     private padding = 5;
 
-    private lastSelectedNode : Element;
+    private lastSelectedNode: Element;
 
     constructor(model: GraphModel) {
         this.model = model;
@@ -49,11 +49,11 @@ export class Select implements EventHandler {
 
         // const deleteBkg = Util.createShape(attrCircle);
 
-        this.deleteShape = SymbolLibary.drawSVG({type:"Basket", background:true, id:'trashcan'});
+        this.deleteShape = SymbolLibary.drawSVG({type: 'Basket', background: true, id: 'trashcan'});
     }
 
-    public handle(event:Event, element: DiagramElement): boolean {
-        if(this.svgRoot !== <SVGSVGElement><any>document.getElementById('root')){
+    public handle(event: Event, element: DiagramElement): boolean {
+        if (this.svgRoot !== <SVGSVGElement><any>document.getElementById('root')) {
             this.svgRoot = <SVGSVGElement><any>document.getElementById('root');
         }
 
@@ -63,7 +63,7 @@ export class Select implements EventHandler {
             this.deleteShape.setAttributeNS(null, 'visibility', 'hidden');
 
             // reset the last one
-            if(this.lastSelectedNode !== <Element>element.$view.childNodes[0] && this.lastSelectedNode){
+            if (this.lastSelectedNode !== <Element>element.$view.childNodes[0] && this.lastSelectedNode) {
                 this.lastSelectedNode.setAttributeNS(null, 'stroke', 'black');
             }
 
@@ -73,9 +73,10 @@ export class Select implements EventHandler {
             this.lastSelectedNode.setAttributeNS(null, 'stroke', 'rgb(255, 160, 51)');
         }
 
-        if(event.srcElement.id === 'background' || element === this.model){
-            if(this.lastSelectedNode)
+        if (event.srcElement.id === 'background' || element === this.model) {
+            if (this.lastSelectedNode) {
                 this.lastSelectedNode.setAttributeNS(null, 'stroke', 'black');
+            }
 
             this.editShape.setAttributeNS(null, 'visibility', 'hidden');
             this.deleteShape.setAttributeNS(null, 'visibility', 'hidden');
@@ -93,8 +94,9 @@ export class Select implements EventHandler {
             }
 
             // reset the last one
-            if(this.lastSelectedNode)
+            if (this.lastSelectedNode) {
                 this.lastSelectedNode.setAttributeNS(null, 'stroke', 'black');
+            }
 
             // mark the border with blue
             this.lastSelectedNode = <Element>element.$view.childNodes[0];
@@ -108,10 +110,8 @@ export class Select implements EventHandler {
             // const x = pos.x + size.x / 2 + this.padding;
             // const y = pos.y - size.y / 2 + this.padding / 2;
 
-
-            let x = (e.getPos().x + e.getSize().x)+10;
+            let x = (e.getPos().x + e.getSize().x) + 10;
             let y = e.getPos().y;
-
 
             let editorEvent = new Event('editor');
             this.editShape.setAttributeNS(null, 'transform', `rotate(-45, ${x + 20}, ${y + 20}) translate(${x} ${y})`);
@@ -122,9 +122,9 @@ export class Select implements EventHandler {
 
             return true;
         }
-        
+
         if (element instanceof Edge) {
-            let e = <Edge>element;
+            // let e = <Edge>element;
             if (document.getElementById('trashcan') === null) {
                 this.svgRoot.appendChild(this.deleteShape);
             }

@@ -1,4 +1,4 @@
-import {Control} from "../../Control";
+import {Control} from '../../Control';
 
 export class Label extends Control {
     public load(data: JSON): any {

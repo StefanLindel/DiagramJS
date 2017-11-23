@@ -9,9 +9,8 @@ export class Zoom implements EventHandler {
         this.svgRoot = <SVGSVGElement><any>document.getElementById('root');
     }
 
-    public handle(e:any, element: DiagramElement): boolean {
-        
-        if(this.svgRoot !== <SVGSVGElement><any>document.getElementById('root')){
+    public handle(e: any, element: DiagramElement): boolean {
+        if (this.svgRoot !== <SVGSVGElement><any>document.getElementById('root')) {
             this.svgRoot = <SVGSVGElement><any>document.getElementById('root');
         }
 

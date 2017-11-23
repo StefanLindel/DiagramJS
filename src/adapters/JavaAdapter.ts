@@ -1,9 +1,9 @@
-import {Adapter} from "../Adapter";
+import {Adapter} from '../Adapter';
 
 export class JavaAdapter extends Adapter {
     constructor() {
         super();
-        this.id = "JavaAdapter";
+        this.id = 'JavaAdapter';
     }
     update(evt: Object): boolean {
         if (this.isActive()) {
@@ -14,10 +14,6 @@ export class JavaAdapter extends Adapter {
     }
 
     public isActive(): boolean {
-        if (window['JavaBridge']) {
-            return true;
-        }
-        return false;
+        return window['JavaBridge'];
     }
 }
-

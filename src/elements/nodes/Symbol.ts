@@ -15,6 +15,7 @@ export class Symbol extends Node {
         return SymbolLibary.draw(this);
     }
 }
+
 // 				###################################################### SymbolLibary ####################################################################################
 // Example Items
 // {tag: 'path', d: ''}
@@ -26,20 +27,21 @@ export class Symbol extends Node {
 // {tag: 'text', 'text-anchor': 'left', x: '10'}
 export class SymbolLibary {
 
-    public static drawSVG(node:any) : SVGSVGElement {
-        //const lib = new SymbolLibary();
+    public static drawSVG(node: any): SVGSVGElement {
+        // const lib = new SymbolLibary();
         let symbol, fn = this[SymbolLibary.getName(node)];
         if (typeof fn === 'function') {
             const parent = SO.create(node);
-            parent['property'] = "SVG";
+            parent['property'] = 'SVG';
             symbol = fn(parent);
-            //symbol = fn.apply(lib, parent);
+            // symbol = fn.apply(lib, parent);
 
             return SymbolLibary.createGroup(parent, symbol);
         }
         return symbol;
     }
-    public static draw(node: DiagramElement, parent?: Object) : SVGElement {
+
+    public static draw(node: DiagramElement, parent?: Object): SVGElement {
         // Node is Symbol or simple Object
         let symbol, fn = this[SymbolLibary.getName(node)];
         if (typeof fn === 'function') {
@@ -95,30 +97,30 @@ export class SymbolLibary {
         return 'drawNode';
     }
 
- /*FIXME   public static createImage(node: Symbol, $graphModel:Node) {
-        let n, img: HTMLElement;
-        // node.$graphModel = node;
-        if (SymbolLibary.isSymbol(node)) {
-            return SymbolLibary.draw(null, node);
-        }
-        n = {tag: 'img', $graphModel: node, src: node['src']};
-        let size = node.getSize();
-        if (size.isEmpty() === false) {
-            n['width'] = size.x;
-            n['height'] = size.y;
-        } else {
-            n['xmlns'] = 'http://www.w3.org/1999/xhtml';
-        }
-        img = Util.create(n);
-        if (size.isEmpty()) {
-            $graphModel.appendImage(img);
-            return null;
-        }
-        return img;
-    }*/
+    /*FIXME   public static createImage(node: Symbol, $graphModel:Node) {
+           let n, img: HTMLElement;
+           // node.$graphModel = node;
+           if (SymbolLibary.isSymbol(node)) {
+               return SymbolLibary.draw(null, node);
+           }
+           n = {tag: 'img', $graphModel: node, src: node['src']};
+           let size = node.getSize();
+           if (size.isEmpty() === false) {
+               n['width'] = size.x;
+               n['height'] = size.y;
+           } else {
+               n['xmlns'] = 'http://www.w3.org/1999/xhtml';
+           }
+           img = Util.create(n);
+           if (size.isEmpty()) {
+               $graphModel.appendImage(img);
+               return null;
+           }
+           return img;
+       }*/
 
-    public static createGroup(node: DiagramElement, group:any) {
-        let func, y: number, yr: number, z: number, box, item:Element, transform, i, offsetX = 0, offsetY = 0;
+    public static createGroup(node: DiagramElement, group: any) {
+        let func, y: number, yr: number, z: number, box, item: Element, transform, i, offsetX = 0, offsetY = 0;
         let svg: any;
         if (node.property.toUpperCase() === 'HTML') {
             svg = Util.create({
@@ -135,11 +137,11 @@ export class SymbolLibary {
                 transform += ' rotate(' + group.rotate + ')';
             }
             svg.setAttribute('transform', transform);
-            if(group['id']) {
+            if (group['id']) {
                 svg.id = group['id'];
             }
         }
-        if(node['background']){
+        if (node['background']) {
             const attrCircle = {
                 tag: 'circle',
                 cx: 20,
@@ -151,7 +153,6 @@ export class SymbolLibary {
             };
             svg.appendChild(Util.create(attrCircle));
         }
-
 
         for (i = 0; i < group.items.length; i += 1) {
             svg.appendChild(Util.create(group.items[i]));
@@ -195,7 +196,7 @@ export class SymbolLibary {
             y = offsetY + 46;
             yr = offsetY + 28;
 
-            func = function (event:Event) {
+            func = function (event: Event) {
                 svg.activ.textContent = (<any>event.currentTarget).value;
             };
             for (z = 0; z < elements.length; z += 1) {
@@ -262,10 +263,10 @@ export class SymbolLibary {
         };
         svg.close();
         return svg;
-    };
+    }
 
-    public static addChild(parent:SVGElement, json:JSON|Element): void {
-        let item:Element;
+    public static addChild(parent: SVGElement, json: JSON | Element): void {
+        let item: Element;
         if ((<any>json).offsetLeft) {
             item = <Element>json;
         } else {
@@ -273,9 +274,9 @@ export class SymbolLibary {
         }
         item.setAttribute('class', 'draggable');
         parent.appendChild(item);
-    };
+    }
 
-    public static all(node:any): void {
+    public static all(node: any): void {
         SymbolLibary.drawSmiley(node);
         SymbolLibary.drawDatabase(node);
         SymbolLibary.drawLetter(node);
@@ -288,7 +289,7 @@ export class SymbolLibary {
         SymbolLibary.drawDropdown(node);
         SymbolLibary.drawClassicon(node);
         SymbolLibary.drawEdgeicon(node);
-    };
+    }
 
     public static drawSmiley(node: DiagramElement): DiagramElement {
         return SO.create({
@@ -310,7 +311,7 @@ export class SymbolLibary {
                 {tag: 'path', d: 'm43,32c-3,0.91 -4,-2.20 -4.04,-2.20'}
             ]
         });
-    };
+    }
 
     public static drawDatabase(node: DiagramElement): DiagramElement {
         return SO.create({
@@ -333,7 +334,7 @@ export class SymbolLibary {
                 }
             ]
         });
-    };
+    }
 
     public static drawLetter(node: DiagramElement): DiagramElement {
         return SO.create({
@@ -346,7 +347,7 @@ export class SymbolLibary {
                 {tag: 'path', stroke: 'black', fill: 'none', d: 'm1.06,1.14l10.94,6.81l10.91,-6.91'}
             ]
         });
-    };
+    }
 
     public static drawMobilephone(node: DiagramElement): DiagramElement {
         return SO.create({
@@ -367,7 +368,7 @@ export class SymbolLibary {
                 {tag: 'path', d: 'm 1.63 7.54 20.73 0 0 34-20.73 0z'}
             ]
         });
-    };
+    }
 
     public static drawWall(node: DiagramElement): DiagramElement {
         return SO.create({
@@ -384,7 +385,7 @@ export class SymbolLibary {
                 }
             ]
         });
-    };
+    }
 
     public static drawActor(node: DiagramElement): DiagramElement {
         return SO.create({
@@ -400,7 +401,7 @@ export class SymbolLibary {
                 {tag: 'line', stroke: '#000', y2: '39', x2: '20', y1: '30', x1: '12'}
             ]
         });
-    };
+    }
 
     public static drawLamp(node: DiagramElement): DiagramElement {
         return SO.create({
@@ -463,7 +464,7 @@ export class SymbolLibary {
                 {tag: 'path', d: 'm 22.5 28.57 0 10.7'}
             ]
         });
-    };
+    }
 
     public static drawStop(node: DiagramElement): DiagramElement {
         return SO.create({
@@ -481,7 +482,7 @@ export class SymbolLibary {
                 }
             ]
         });
-    };
+    }
 
     public static drawMin(node: DiagramElement): DiagramElement {
         return SO.create({
@@ -508,7 +509,7 @@ export class SymbolLibary {
                 }
             ]
         });
-    };
+    }
 
     public static drawArrow(node: DiagramElement): DiagramElement {
         return SO.create({
@@ -521,7 +522,7 @@ export class SymbolLibary {
                 {tag: 'path', fill: '#000', stroke: '#000', d: 'M 0,0 10,4 0,9 z'}
             ]
         });
-    };
+    }
 
     public static drawMax(node: DiagramElement): DiagramElement {
         return SO.create({
@@ -550,7 +551,7 @@ export class SymbolLibary {
                 }
             ]
         });
-    };
+    }
 
     public static drawButton(node: DiagramElement): DiagramElement {
         let btnX, btnY, btnWidth, btnHeight, btnValue;
@@ -580,7 +581,7 @@ export class SymbolLibary {
                 {tag: 'text', $font: true, x: 10, y: 18, fill: 'black', value: btnValue, 'class': 'hand'}
             ]
         });
-    };
+    }
 
     public static drawDropdown(node: DiagramElement): DiagramElement {
         let btnX, btnY, btnWidth, btnHeight;
@@ -622,7 +623,7 @@ export class SymbolLibary {
                 }
             ]
         });
-    };
+    }
 
     public static drawClassicon(node: DiagramElement): DiagramElement {
         let btnX, btnY, btnWidth, btnHeight;
@@ -650,7 +651,7 @@ export class SymbolLibary {
                 {tag: 'line', x1: 11, y1: 7, x2: 25, y2: 7, stroke: '#000'}
             ]
         });
-    };
+    }
 
     public static drawEdgeicon(node: DiagramElement): DiagramElement {
         let btnX, btnY, btnWidth, btnHeight;
@@ -675,12 +676,12 @@ export class SymbolLibary {
     }
 
     public static drawBasket(node: any): DiagramElement {
-        let btnX=0, btnY=0, btnWidth=0, btnHeight=0;
+        let btnX = 0, btnY = 0, btnWidth = 0, btnHeight = 0;
         return SO.create({
             x: btnX,
             y: btnY,
-            id:node['id'],
-            background:node['brackground'] || false,
+            id: node['id'],
+            background: node['brackground'] || false,
             width: btnWidth,
             height: btnHeight,
             items: [
@@ -693,14 +694,13 @@ export class SymbolLibary {
         });
     }
 
-
     public static drawPencil(node: any): DiagramElement {
-        let btnX=0, btnY=0, btnWidth=0, btnHeight=0;
+        let btnX = 0, btnY = 0, btnWidth = 0, btnHeight = 0;
         return SO.create({
             x: btnX,
             y: btnY,
-            id:node['id'],
-            background:node['brackground'] || false,
+            id: node['id'],
+            background: node['brackground'] || false,
             width: btnWidth,
             height: btnHeight,
             items: [

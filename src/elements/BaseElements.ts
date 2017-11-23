@@ -8,13 +8,20 @@ export interface Size {
 
 interface GraphElement {
     getSize(): Point;
+
     getPos(): Point;
+
     getCenter(): Point;
-    getSVG() : Element ;
-    getCanvas() : Element;
+
+    getSVG(): Element ;
+
+    getCanvas(): Element;
+
     getEvents(): string[];
-    withPos(x: number, y: number) : GraphElement;
-    load(data: any) : any;
+
+    withPos(x: number, y: number): GraphElement;
+
+    load(data: any): any;
 }
 
 export abstract class DiagramElement extends Control implements GraphElement {
@@ -73,10 +80,10 @@ export abstract class DiagramElement extends Control implements GraphElement {
         if (x && y) {
             this.pos = new Point(x, y);
         } else {
-            if (typeof(x) !== 'undefined' && x != null) {
+            if (typeof(x) !== 'undefined' && x !== null) {
                 this.pos.x = x;
             }
-            if (typeof(y) !== 'undefined' && y != null) {
+            if (typeof(y) !== 'undefined' && y !== null) {
                 this.pos.y = y;
             }
         }
@@ -106,7 +113,7 @@ export abstract class DiagramElement extends Control implements GraphElement {
         return super.getShowed();
     }
 
-    protected createShape(attrs:any): Element {
+    protected createShape(attrs: any): Element {
         return Util.createShape(attrs);
     }
 }
@@ -118,6 +125,7 @@ export class Point {
     public static DOWN: string = 'DOWN';
     x: number = 0;
     y: number = 0;
+
 //    pos:string = '';
 
     constructor(x?: number, y?: number, pos?: string) {
@@ -126,7 +134,7 @@ export class Point {
         if (pos) {
             this['pos'] = pos;
         }
-    };
+    }
 
     public add(pos: Point) {
         this.x += pos.x;
@@ -134,7 +142,7 @@ export class Point {
         return this;
     }
 
-    public getPosition() : string{
+    public getPosition(): string {
         if (!this['pos']) {
             return '';
         }
@@ -197,6 +205,7 @@ export class Point {
         }
     }
 }
+
 // 				######################################################### Line #########################################################
 export class Line extends DiagramElement {
     public static FORMAT = {SOLID: 'SOLID', DOTTED: 'DOTTED', PATH: 'PATH'};
@@ -220,7 +229,7 @@ export class Line extends DiagramElement {
         let pos = new Point();
         pos.center(this.source, this.target);
         return pos;
-    };
+    }
 
     public getSize() {
         let pos = new Point();
@@ -237,7 +246,7 @@ export class Line extends DiagramElement {
         return this;
     }
 
-    public withPath(path: Array<Point>, close:boolean, angle?: any): Line {
+    public withPath(path: Array<Point>, close: boolean, angle?: any): Line {
         let i: number, d: string = 'M' + path[0].x + ' ' + path[0].y;
         this.lineType = Line.FORMAT.PATH; // It is a Path not a Line
         for (i = 1; i < path.length; i += 1) {
@@ -269,7 +278,7 @@ export class Line extends DiagramElement {
                 'stroke-width': '1px'
             });
         }
-        let line:SVGGElement = <SVGGElement>Util.create({
+        let line: SVGGElement = <SVGGElement>Util.create({
             tag: 'line',
             'x1': this.source.x,
             'y1': this.source.y,

@@ -156,17 +156,16 @@ export class Bridge extends Control {
             config['id'] = this.getId();
         }
         // Backup for Old Graph
-        if(!config["className"] && (config['type']==="clazzdiagram" || config['type'] == "objectdiagram")) {
-            config["className"] = "graph";
+        if (!config['className'] && (config['type'] === 'clazzdiagram' || config['type'] === 'objectdiagram')) {
+            config['className'] = 'graph';
         }
-
 
         className = config['className'] || config['class'];
         className = className.toLocaleLowerCase();
         id = config['id'];
 
         // Check For Control or Data
-        if ((config['prop'] || config['upd'] || config['rem']) && this.controls[id] == null) {
+        if ((config['prop'] || config['upd'] || config['rem']) && this.controls[id] === null) {
             // Its Data
             let newData = !this.hasItem(config['id']);
             let item: Data = this.getItem(config['id']);
@@ -184,9 +183,9 @@ export class Bridge extends Control {
             }
             // Add all Values to item
             item.addProperties(config);
-            //Bridge.addProperties(config['prop'], item);
-            //Bridge.addProperties(config['upd'], item);
-            //Bridge.addProperties(config['upd'], item);
+            // Bridge.addProperties(config['prop'], item);
+            // Bridge.addProperties(config['upd'], item);
+            // Bridge.addProperties(config['upd'], item);
             this.adapterUpdate(JSON.stringify(config));
             return item;
         }
@@ -272,7 +271,7 @@ export class Bridge extends Control {
      * @returns {boolean}
      */
     public setValue(object: Object, attribute: string, newValue: Object, oldValue?: Object): boolean {
-        alert("Bridge.setValue: oldVal:" + oldValue + ", newVal: " +  + newValue + ", attribute: " + attribute + ", object: " + JSON.stringify(object));
+        alert('Bridge.setValue: oldVal:' + oldValue + ', newVal: ' +  + newValue + ', attribute: ' + attribute + ', object: ' + JSON.stringify(object));
         let obj: Data;
         let id: string;
         if (object instanceof String || typeof object === 'string') {
@@ -294,8 +293,6 @@ export class Bridge extends Control {
         if (obj) {
             // Execute Update to Data
             obj.setValue(attribute, newValue);
-
-
             // Could be done here, but currently is done at this.execueChange..:
             // obj[attribute] = value;
         }
@@ -311,7 +308,7 @@ export class Bridge extends Control {
             rem[attribute] = oldValue;
             tmp['rem'] = rem;
         }*/
-        //this.load(tmp);
+        // this.load(tmp);
         return true;
     }
 
@@ -325,7 +322,7 @@ export class Bridge extends Control {
         } else if (object.hasOwnProperty('id')) {
             // object is the real Object, we want to change
             obj = object;
-            //id = object['id'];
+            // id = object['id'];
         } else {
             console.log('object is neither Data nor String..');
             return;

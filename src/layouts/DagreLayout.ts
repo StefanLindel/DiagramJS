@@ -1,4 +1,4 @@
-import {Edge} from '../elements/edges';
+ import {Edge} from '../elements/edges';
 import {Node} from '../elements/nodes';
 import {Graph} from '../elements/Graph';
 import Layout from './Layout';
@@ -6,20 +6,19 @@ import {DiagramElement} from '../elements/BaseElements';
 
 export class DagreLayout implements Layout {
 
-    private g:any;
+    private g: any;
 
-    public layout(graph: Graph, node:DiagramElement) {
+    public layout(graph: Graph, node: DiagramElement) {
         if (!window['dagre']) {
             return;
         }
         let model = graph.$graphModel;
 
-        let innerG:any;
-        
-        if(this.g){
+        let innerG: any;
+
+        if (this.g) {
             innerG = this.g;
-        }
-        else{
+        } else {
              innerG = new window['dagre'].graphlib.Graph();
              this.g = innerG;
 
@@ -45,12 +44,12 @@ export class DagreLayout implements Layout {
         window['dagre'].layout(innerG);
         // dagre.layout(g);
 
-        innerG.nodes().forEach(function (v:string) {
+        innerG.nodes().forEach(function (v: string) {
             if (model.nodes[v]) {
                 model.nodes[v].withPos(innerG.node(v).x - innerG.node(v).width / 2, innerG.node(v).y - innerG.node(v).height / 2);
             }
         });
-        innerG.edges().forEach(function (e:any) {
+        innerG.edges().forEach(function (e: any) {
             for (let id in model.edges) {
                 let edge: Edge = model.edges[id];
                 if (edge.$sNode.id === e.v && edge.$tNode.id === e.w) {

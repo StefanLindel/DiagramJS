@@ -43,10 +43,10 @@ export class GraphModel extends DiagramElement {
         return false;
     }
 
-    public removeAllElements() : void{
+    public removeAllElements(): void {
 
-        for(let idx in this.nodes){
-            this.removeElement(this.nodes[idx].id)
+        for (let idx in this.nodes) {
+            this.removeElement(this.nodes[idx].id);
         }
     }
 
@@ -152,7 +152,7 @@ export class GraphModel extends DiagramElement {
         return null;
     }
 
-    private addEdge(edge:Edge ) {
+    private addEdge(edge: Edge ) {
         let type = edge.property || 'Edge';
         type = Util.toPascalCase(type);
         let id = this.getNewId(type);
@@ -173,7 +173,7 @@ export class GraphModel extends DiagramElement {
         newEdge.withItem(source, target);
 
         return newEdge;
-    };
+    }
 
     private getElement(type: string, id: string, data: Object): DiagramElement {
         const graph = <Graph>this.$owner;

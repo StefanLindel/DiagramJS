@@ -3,7 +3,7 @@ import Layout from './Layout';
 import {Graph} from '../elements/Graph';
 import {Edge} from '../elements/edges/Edge';
 import {Node} from '../elements/nodes/Node';
-import {Control} from "../Control";
+import {Control} from '../Control';
 
 export class LayoutGraphMin {
     public nodes: Object = {};
@@ -15,9 +15,9 @@ export class LayoutGraphMin {
     public count: number = 0;
     public minRank: number = Number.POSITIVE_INFINITY;
     public maxRank: number = 0;
-    public maxHeight:number = 0;
-    public maxWidth:number = 0;
-    public ranksep:number = 0;
+    public maxHeight: number = 0;
+    public maxWidth: number = 0;
+    public ranksep: number = 0;
     public edgesLabel: Array<Object> = [];
 
     public nodeCount(): number {
@@ -37,16 +37,17 @@ export class LayoutGraphMin {
         }
     }
 }
-export class LayoutGraphNode {
-    public id:string;
-    public width:number;
-    public height:number;
-    public x:number;
-    public y:number;
-    public edgeObj:LayoutGraphEdge;
-    public rank:number;
 
-    constructor(id:string, width:number, height:number, x:number, y:number) {
+export class LayoutGraphNode {
+    public id: string;
+    public width: number;
+    public height: number;
+    public x: number;
+    public y: number;
+    public edgeObj: LayoutGraphEdge;
+    public rank: number;
+
+    constructor(id: string, width: number, height: number, x: number, y: number) {
         this.id = id;
         this.width = width;
         this.height = height;
@@ -54,34 +55,34 @@ export class LayoutGraphNode {
         this.y = y;
     }
 }
+
 export class LayoutGraphEdge {
-    public source:string;
-    public target:string;
+    public source: string;
+    public target: string;
 }
 
-//				######################################################### DagreGraph #########################################################
+// 				######################################################### DagreGraph #########################################################
 export class DagreLayoutMin implements Layout {
-    public static EDGE_KEY_DELIM = "\x01";
+    public static EDGE_KEY_DELIM = '\x01';
 
     public layout(graph: Graph, node: DiagramElement) {
-//	public layout(graph, node) {
         let g, layoutNode, nodes, newEdge, edges;
         let i, n, x, y, sId, tId, split = DagreLayoutMin.EDGE_KEY_DELIM;
         let e: Edge;
 
-        nodes = node["nodes"];
-        edges = node["edges"];
+        nodes = node['nodes'];
+        edges = node['edges'];
         g = new LayoutGraphMin();
 
         for (i in nodes) {
-            if (!nodes.hasOwnProperty(i) || typeof (nodes[i]) === "function") {
+            if (!nodes.hasOwnProperty(i) || typeof (nodes[i]) === 'function') {
                 continue;
             }
             n = nodes[i];
             g.setNode(n.id, new LayoutGraphNode(n.id, n.getSize().x, n.getSize().y, n.getPos().x, n.getPos().y));
         }
         for (i in edges) {
-            if (!edges.hasOwnProperty(i) || typeof (edges[i]) === "function") {
+            if (!edges.hasOwnProperty(i) || typeof (edges[i]) === 'function') {
                 continue;
             }
             e = edges[i];
@@ -94,7 +95,7 @@ export class DagreLayoutMin implements Layout {
             }
             let idAB = sId + split + tId + split;
             let idBA = tId + split + sId + split;
-            if (sId != tId && g.edgesLabel.indexOf(idAB) < 0 && g.edgesLabel.indexOf(idBA) < 0) {
+            if (sId !== tId && g.edgesLabel.indexOf(idAB) < 0 && g.edgesLabel.indexOf(idBA) < 0) {
                 newEdge = {source: sId, target: tId, minlen: 1, weight: 1};
                 g.edges.push(newEdge);
                 g.edgesLabel.push(idAB);
@@ -114,7 +115,7 @@ export class DagreLayoutMin implements Layout {
         this.layouting(g);
         // Set the layouting back
         for (i in nodes) {
-            if (!nodes.hasOwnProperty(i) || typeof (nodes[i]) === "function") {
+            if (!nodes.hasOwnProperty(i) || typeof (nodes[i]) === 'function') {
                 continue;
             }
             n = nodes[i];
@@ -126,7 +127,7 @@ export class DagreLayoutMin implements Layout {
             }
         }
         for (i in edges) {
-            if (!edges.hasOwnProperty(i) || typeof (edges[i]) === "function") {
+            if (!edges.hasOwnProperty(i) || typeof (edges[i]) === 'function') {
                 continue;
             }
             e = edges[i];
@@ -135,18 +136,18 @@ export class DagreLayoutMin implements Layout {
         graph.draw();
     }
 
-    public getNodeId(node:Control) :string{
+    public getNodeId(node: Control): string {
         if (node.$owner) {
             return this.getNodeId(node.$owner) || node.id;
         }
         return node.id;
     }
 
-    public layouting(g:LayoutGraphMin) {
+    public layouting(g: LayoutGraphMin) {
         this.longestPath(g);
         this.normalizeRanks(g);
         this.normalizeEdge(g);
-        //this.setSimpleOrder(g);
+        // this.setSimpleOrder(g);
         this.order(g);
         g.ranksep = 25;
         // remove Dummy
@@ -154,7 +155,7 @@ export class DagreLayoutMin implements Layout {
         this.position(g);
     }
 
-    public setSimpleOrder(g:LayoutGraphMin) {
+    public setSimpleOrder(g: LayoutGraphMin) {
         let i, n;
         for (i in g.nodes) {
             n = g.nodes[i];
@@ -177,7 +178,7 @@ export class DagreLayoutMin implements Layout {
      *    1. Graph nodes will have an "order" attribute based on the results of the
      *       algorithm.
      */
-    public order(g:LayoutGraphMin) {
+    public order(g: LayoutGraphMin) {
         let layering = Array(g.maxRank + 1);
         let visited = {};
         let node, n, order, i;
@@ -185,7 +186,9 @@ export class DagreLayoutMin implements Layout {
             layering[i] = [];
         }
         for (n in g.nodes) {
-            if (visited[n]) continue;
+            if (visited[n]) {
+                continue;
+            }
             visited[n] = true;
             node = g.nodes[n];
             if (node.rank !== undefined) {
@@ -241,20 +244,20 @@ export class DagreLayoutMin implements Layout {
                 let node = g.nodes[layering[order][n]];
                 node.order = parseInt(n) + node.barycenter * node.weight;
                 if (isNaN(node.order)) {
-                    console.log("ERROR");
+                    console.log('ERROR');
                 }
             }
         }
-    };
+    }
 
-    public removeDummy(g:LayoutGraphMin) {
+    public removeDummy(g: LayoutGraphMin) {
         for (let z in g.dummyNodes) {
             let node = g.dummyNodes[z];
             g.setNode(node.id, null);
         }
         g.dummyNodes = [];
         g.dummyEdges = {};
-    };
+    }
 
     /*
      * Breaks any long edges in the graph into short segments that span 1 layer
@@ -272,21 +275,23 @@ export class DagreLayoutMin implements Layout {
      *    3. The graph is augmented with a "dummyChains" attribute which contains
      *       the first dummy in each chain of dummy nodes produced.
      */
-    public normalizeEdge(g:LayoutGraphMin) : void {
-        let i:number = 1;
+    public normalizeEdge(g: LayoutGraphMin): void {
+        let i: number = 1;
         for (let id in g.edges) {
-            let e:LayoutGraphEdge = <LayoutGraphEdge>g.edges[id];
-            let v:string = e.source;
+            let e: LayoutGraphEdge = <LayoutGraphEdge>g.edges[id];
+            let v: string = e.source;
             let vRank = g.node(v).rank;
-            const w:string = e.target;
-            const wRank:number = g.node(w).rank;
-            let name:string;
+            const w: string = e.target;
+            const wRank: number = g.node(w).rank;
+            let name: string;
 
-            if (wRank === vRank + 1) continue;
+            if (wRank === vRank + 1) {
+                continue;
+            }
 
             let dummy;
             for (vRank = vRank + 1; vRank < wRank; ++vRank) {
-                name = "_d" + e.source + e.target + (i++);
+                name = '_d' + e.source + e.target + (i++);
                 let newEdge = {source: v, target: name, minlen: 1, weight: 1};
                 dummy = new LayoutGraphNode(name, 0, 0, 0, 0);
                 dummy.edgeObj = e;
@@ -325,7 +330,7 @@ export class DagreLayoutMin implements Layout {
      *
      *    1. Each node will be assign an (unnormalized) "rank" property.
      */
-    public longestPath(g:LayoutGraphMin) {
+    public longestPath(g: LayoutGraphMin) {
         let i, n, visited = [];
         for (i in g.nodes) {
             n = g.nodes[i];
@@ -335,7 +340,7 @@ export class DagreLayoutMin implements Layout {
         }
     }
 
-    public findAllPaths(g:LayoutGraphMin, n:Node, currentCost:number, path:Array<String>) {
+    public findAllPaths(g: LayoutGraphMin, n: Node, currentCost: number, path: Array<String>) {
         let min: number = 0;
         let id: string;
         let z: number;
@@ -355,13 +360,13 @@ export class DagreLayoutMin implements Layout {
             return min;
         }
         return currentCost;
-    };
+    }
 
     /*
      * Adjusts the ranks for all nodes in the graph such that all nodes v have
      * rank(v) >= 0 and at least one node w has rank(w) = 0.
      */
-    public normalizeRanks(g:LayoutGraphMin) {
+    public normalizeRanks(g: LayoutGraphMin) {
         let min = g.minRank;
         let value;
         g.maxRank = Number.NEGATIVE_INFINITY;
@@ -379,9 +384,9 @@ export class DagreLayoutMin implements Layout {
                 g.maxWidth = Math.max(g.maxWidth, node.width);
             }
         }
-    };
+    }
 
-    public position(g:LayoutGraphMin) {
+    public position(g: LayoutGraphMin) {
         this.positionY(g);
         let list = this.positionX(g);
         for (let i in list) {
@@ -395,9 +400,9 @@ export class DagreLayoutMin implements Layout {
             }
 
         }
-    };
+    }
 
-    public positionY(g:LayoutGraphMin) {
+    public positionY(g: LayoutGraphMin) {
         let layering = this.buildLayerMatrix(g);
         let rankSep = g.ranksep;
         let prevY = 0;
@@ -418,7 +423,7 @@ export class DagreLayoutMin implements Layout {
      * Given a DAG with each node assigned "rank" and "order" properties, this
      * function will produce a matrix with the ids of each node.
      */
-    public buildLayerMatrix(g:LayoutGraphMin) {
+    public buildLayerMatrix(g: LayoutGraphMin) {
         let layering = Array(g.maxRank + 1);
         for (let i = 0; i < layering.length; i++) {
             layering[i] = [];
@@ -430,10 +435,10 @@ export class DagreLayoutMin implements Layout {
             }
         }
         return layering;
-    };
+    }
 
-    public positionX(g:LayoutGraphMin) {
+    public positionX(g: LayoutGraphMin) {
         let layering = this.buildLayerMatrix(g);
         return layering;
-    };
+    }
 }

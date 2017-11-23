@@ -17,8 +17,7 @@ export * from './Label';
 export * from './Table';
 export * from './HTML';
 export * from './Dice';
-export * from './AutoComplete'
-
+export * from './AutoComplete';
 
 new AutoComplete();
 new BR();
