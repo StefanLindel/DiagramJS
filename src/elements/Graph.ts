@@ -12,6 +12,8 @@ import {EventBus} from '../EventBus';
 import {Editor, Drag, Select, Zoom, NewEdge} from '../handlers';
 import Options from '../Options';
 import {ImportFile} from '../handlers/ImportFile';
+import {SymbolLibary} from './nodes/Symbol';
+import {CSS} from '../CSS';
 
 export class Graph extends Control {
     root: HTMLElement;
@@ -23,6 +25,7 @@ export class Graph extends Control {
     edgeFactory: Object;
     layoutFactory: Object;
     private currentlayout: Layout;
+    private layerToolBar: SVGSVGElement;
 
     constructor(json: any, options: Options) {
         super();
@@ -68,6 +71,45 @@ export class Graph extends Control {
         pattern.appendChild(cross);
         defs.appendChild(pattern);
         return defs;
+    }
+
+    public addLayerToolBar(): boolean {
+        if (this.layerToolBar) {
+            return false;
+        }
+        let subElements = [['Save', 'PNG', 'SVG', 'HTML', 'PDF'], 'Load'];
+
+        let c: number, z: number;
+        for (c = 0; c < subElements.length; c += 1) {
+            if (typeof subElements[c] === 'string') {
+                z += 1;
+            } else {
+                z += subElements[c].length;
+            }
+        }
+        z = z * 30 + 20;
+
+        this.layerToolBar = Util.createShape({
+            tag: 'svg',
+            id: 'root',
+            width: '150px',
+            height: z + 'px',
+            x: '100px'
+        });
+        this.layerToolBar.appendChild(CSS.getStdDef());
+        let func = function (event: Event) {
+           // (<any>event.currentTarget).value;
+        };
+        let btn = {id: 'Storage', type: 'Hamburger', x: 2, y: 8, width: 140, elements: subElements, activText: 'Localstorage', action: func};
+        let item = SymbolLibary.drawSVG(btn);
+        this.layerToolBar.appendChild(item);
+        //        buttons.push(item);
+        //    }
+        //    return buttons;
+        // };
+        this.canvas.appendChild(this.layerToolBar);
+
+        return true;
     }
 
     public load(json: JSON | Object, owner ?: Control): any {

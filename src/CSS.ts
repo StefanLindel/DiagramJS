@@ -43,6 +43,27 @@ export class CSS {
         }
     }
 
+    public static getStdDef() {
+        let child, def = Util.create({tag: 'defs'});
+
+        child = Util.create({tag: 'filter', id: 'drop-shadow'});
+        child.appendChild(Util.create({tag: 'feGaussianBlur', 'in': 'SourceAlpha', result: 'blur-out', stdDeviation: 2}));
+        child.appendChild(Util.create({tag: 'feOffset', 'in': 'blur-out', dx: 2, dy: 2}));
+        child.appendChild(Util.create({tag: 'feBlend', 'in': 'SourceGraphic', mode: 'normal'}));
+        def.appendChild(child);
+        child = Util.create({tag: 'linearGradient', id: 'reflect', x1: 0, x2: 0, y1: '50%', y2: 0, spreadMethod: 'reflect'});
+        child.appendChild(Util.create({tag: 'stop', 'stop-color': '#aaa', offset: 0}));
+        child.appendChild(Util.create({tag: 'stop', 'stop-color': '#eee', offset: '100%'}));
+        def.appendChild(child);
+
+        child = Util.create({tag: 'linearGradient', id: 'classelement', x1: 0, x2: '100%', y1: '100%', y2: 0});
+        child.appendChild(Util.create({tag: 'stop', 'stop-color': '#fff', offset: 0}));
+        child.appendChild(Util.create({tag: 'stop', 'stop-color': '#d3d3d3', offset: 1}));
+        def.appendChild(child);
+
+        return def;
+    }
+
     public static getSubstring(str: string, search: string, startChar: string, endChar: string, splitter: string): any {
         let pos, end, count = 0, array = [];
         pos = str.indexOf(search);

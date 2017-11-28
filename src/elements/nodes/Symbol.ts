@@ -120,7 +120,7 @@ export class SymbolLibary {
        }*/
 
     public static createGroup(node: DiagramElement, group: any) {
-        let func, y: number, yr: number, z: number, box, item: Element, transform, i, offsetX = 0, offsetY = 0;
+        let func, y: number, z: number, box, item: Element, transform, i, offsetX = 0, offsetY = 0;
         let svg: any;
         if (node.property.toUpperCase() === 'HTML') {
             svg = Util.create({
@@ -168,13 +168,23 @@ export class SymbolLibary {
                 }
             }
             box = Util.create({tag: 'g'});
-            z = elements.length * 25 + 6;
+            // Calculate new Height
+            let c: number;
+            z = 0;
+            for (c = 0; c < elements.length; c += 1) {
+                if (typeof elements[c] === 'string') {
+                    z += 1;
+                } else {
+                    z += elements[c].length;
+                }
+            }
+            z = z * 25 + 6;
             box.appendChild(Util.create({
                 tag: 'rect',
                 rx: 0,
                 x: offsetX,
                 y: (offsetY + 28),
-                width: 60,
+                width: 70,
                 height: z,
                 stroke: '#000',
                 fill: '#fff',
@@ -183,44 +193,63 @@ export class SymbolLibary {
             node['$heightMax'] = z + node['$heightMin'];
 
             svg['elements'] = elements;
-            svg['activ'] = Util.create({
-                tag: 'text',
-                $font: true,
-                'text-anchor': 'left',
-                'width': 60,
-                'x': (10 + offsetX),
-                'y': 20,
-                value: node['activText']
-            });
-            svg.appendChild(svg.activ);
-            y = offsetY + 46;
-            yr = offsetY + 28;
-
-            func = function (event: Event) {
-                svg.activ.textContent = (<any>event.currentTarget).value;
-            };
-            for (z = 0; z < elements.length; z += 1) {
-                box.appendChild(Util.create({
+            if (node['type'] === 'DropDown') {
+                svg['activ'] = Util.create({
                     tag: 'text',
                     $font: true,
                     'text-anchor': 'left',
                     'width': 60,
-                    'x': 10,
-                    'y': y,
-                    value: elements[z]
-                }));
-
-                item = Util.create({
-                    tag: 'rect',
-                    rx: 0,
-                    x: offsetX,
-                    y: yr,
-                    width: 60,
-                    height: 24,
-                    stroke: 'none',
-                    'class': 'SVGChoice'
+                    'x': (10 + offsetX),
+                    'y': 20,
+                    value: node['activText']
                 });
-                box.appendChild(item);
+                svg.appendChild(svg.activ);
+            }
+
+            y = offsetY + 46;
+            // 46 -28 = 18
+
+            func = function (event: Event) {
+                if (svg.activ) {
+                    svg.activ.textContent = (<any>event.currentTarget).value;
+                }
+            };
+            let txt: string;
+            let textClass = 'SVGTEXT';
+            for (z = 0; z < elements.length; z += 1) {
+                if (typeof elements[z] === 'string') {
+                    txt = elements[z];
+                } else {
+                    item = this.addText(y, offsetX, box, elements[z][0], 'SVGTEXT');
+                    y += 26;
+                    for (c = 1; c < elements[z].length; c += 1) {
+                        item = this.addText(y, offsetX, box, '* ' + elements[z][c], 'SVGTEXTITEM');
+
+                        item['value'] = elements[z];
+                        if (node['action']) {
+                            item['onclick'] = node['action'];
+                        } else {
+                            item['onclick'] = func;
+                        }
+                        y += 26;
+                    }
+                    txt = elements[z];
+                    let subBox = Util.create({
+                        tag: 'rect',
+                        rx: 0,
+                        x: offsetX,
+                        y: (offsetY + 28),
+                        width: 60,
+                        height: z,
+                        stroke: '#000',
+                        fill: '#fff',
+                        opacity: '0.7'
+                    });
+                    continue;
+                }
+                // let txt = elements[z];
+                item = this.addText(y, offsetX, box, txt, textClass);
+
                 item['value'] = elements[z];
                 if (node['action']) {
                     item['onclick'] = node['action'];
@@ -228,7 +257,6 @@ export class SymbolLibary {
                     item['onclick'] = func;
                 }
                 y += 26;
-                yr += 26;
             }
             svg.choicebox = box;
         }
@@ -291,6 +319,19 @@ export class SymbolLibary {
         SymbolLibary.drawEdgeicon(node);
     }
 
+    public static drawHamburger(node: DiagramElement): DiagramElement {
+        return SO.create({
+            x: node.getPos().x,
+            y: node.getPos().y,
+            width: 50,
+            height: 52,
+            items: [
+                {tag: 'circle', r: 10, fill: '#ccc', cx: 8, cy: 8},
+                {tag: 'path', d: 'M 2,3 H 13 M 2,8 H 13 M 2,13 H 13', stroke: 'black', fill: 'none'}
+            ]
+        });
+    }
+
     public static drawSmiley(node: DiagramElement): DiagramElement {
         return SO.create({
             x: node.getPos().x,
@@ -298,13 +339,7 @@ export class SymbolLibary {
             width: 50,
             height: 52,
             items: [
-                {
-                    tag: 'path',
-                    d: 'm49.01774,25.64542a24.5001,24.5 0 1 1 -49.0001,0a24.5001,24.5 0 1 1 49.0001,0z',
-                    stroke: 'black',
-                    fill: 'none'
-                },
-                {tag: 'path', d: 'm8,31.5c16,20 32,0.3 32,0.3'},
+                {tag: 'path', d: 'm49.01774,25.64542a24.5001,24.5 0 1 1 -49.0001,0a24.5001,24.5 0 1 1 49.0001,0z', stroke: 'black', fill: 'none'},              {tag: 'path', d: 'm8,31.5c16,20 32,0.3 32,0.3'},
                 {tag: 'path', d: 'm19.15,20.32a1.74,2.52 0 1 1 -3.49,0a1.74,2.52 0 1 1 3.49,0z'},
                 {tag: 'path', d: 'm33,20.32a1.74,2.52 0 1 1 -3.48,0a1.74,2.52 0 1 1 3.48,0z'},
                 {tag: 'path', d: 'm5.57,31.65c3.39,0.91 4.03,-2.20 4.03,-2.20'},
@@ -713,5 +748,37 @@ export class SymbolLibary {
                 }
             ]
         });
+    }
+
+    private static addText(y: number, offsetX: number, box: Element, text: string, textClass: string): Element {
+        let item: Element;
+        box.appendChild(Util.create({
+            tag: 'text',
+            $font: true,
+            'text-anchor': 'left',
+            width: 70,
+            x: 10,
+            y: y,
+            class: textClass,
+            value: text
+        }));
+        if (textClass === 'SVGTEXT') {
+            textClass = 'SVGChoiceText';
+        } else {
+            textClass = 'SVGChoice';
+        }
+
+        item = Util.create({
+            tag: 'rect',
+            rx: 0,
+            x: offsetX,
+            y: y - 18,
+            width: 70,
+            height: 24,
+            stroke: 'none',
+            class: textClass
+        });
+        box.appendChild(item);
+        return item;
     }
 }

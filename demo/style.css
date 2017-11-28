@@ -1,484 +1,519 @@
 body {
-  font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
+	font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
 }
 
 button {
-  min-width: 70px;
-  height: 34px;
-  font-weight: lighter;
-  color: #333;
-  cursor: pointer;
-  font-size: 14px;
-  background: transparent;
-  margin: 8px 15px;
-  border: 1px solid #AAA;
-  border-radius: 2px;
-  background: rgb(250, 250, 250);
-  text-align: center;
-  white-space: nowrap;
-  vertical-align: middle;
-  -webkit-box-shadow: 1px 1px 5px 0px rgba(0, 0, 0, 0.3);
-  -moz-box-shadow: 1px 1px 5px 0px rgba(0, 0, 0, 0.3);
-  box-shadow: 1px 1px 5px 0px rgba(0, 0, 0, 0.3);
+	min-width: 70px;
+	height: 34px;
+	font-weight: lighter;
+	color: #333;
+	cursor: pointer;
+	font-size: 14px;
+	background: transparent;
+	margin: 8px 15px;
+	border: 1px solid #AAA;
+	border-radius: 2px;
+	background: rgb(250, 250, 250);
+	text-align: center;
+	white-space: nowrap;
+	vertical-align: middle;
+	-webkit-box-shadow: 1px 1px 5px 0px rgba(0, 0, 0, 0.3);
+	-moz-box-shadow: 1px 1px 5px 0px rgba(0, 0, 0, 0.3);
+	box-shadow: 1px 1px 5px 0px rgba(0, 0, 0, 0.3);
 }
 
 .Error{
-  border-color: #f00;
-  color: #f00;
-  border-style: solid;
-  box-shadow: inset 0 3px 4px #888;
+	border-color: #f00;
+	color: #f00;
+	border-style: solid;
+	box-shadow: inset 0 3px 4px #888;
 }
 .Ok{
-  border-color: #009B00;
-  border-style: solid;
-  box-shadow: inset 0 3px 4px #888;
+	border-color: #009B00;
+	border-style: solid;
+	box-shadow: inset 0 3px 4px #888;
 }
 .Add{
-  border-color: yellow;
-  border-style: solid;
-  box-shadow: inset 0 3px 4px #888;
+	border-color: yellow;
+	border-style: solid;
+	box-shadow: inset 0 3px 4px #888;
+}
+.saveBtn:hover{
+	opacity:0.75;
+	cursor: hand;
+	
+}
+.SVGBtn {
+	fill:url(#reflect);
+}
+.SVGChoice {
+	opacity: 0.1;
+	fill:#FFF;
+}
+.SVGChoiceCaption {
+	font-weight: bold;
+	opacity: 0.1;
+	fill:#FFF;
+}
+.SVGChoiceText {
+	opacity: 0.1;
+	fill:#FFF;
+	cursor: auto;
 }
 
+.SVGChoice:hover {
+	opacity: 0.3;
+	fill: #FF9;
+}
+
+.SVGTEXT {
+	font-weight: bold;
+}
+.SVGTEXTITEM {
+	font-weight: bold;
+}
+
+
 g, path {
-  cursor: pointer;
+	cursor: pointer;
 }
 
 .diagram {
-  position: absolute;
-  padding: 5px;
-  top: 50px;
-  bottom: 0;
-  left: 0;
-  right: 0;
-  z-index: 1;
-  cursor: default;
-  -webkit-touch-callout: none;
-  -webkit-user-select: none;
-  -khtml-user-select: none;
-  -moz-user-select: none;
-  -ms-user-select: none;
-  user-select: none;
+	position: absolute;
+	padding: 5px;
+	top: 50px;
+	bottom: 0;
+	left: 0;
+	right: 0;
+	z-index: 1;
+	cursor: default;
+	-webkit-touch-callout: none;
+	-webkit-user-select: none;
+	-khtml-user-select: none;
+	-moz-user-select: none;
+	-ms-user-select: none;
+	user-select: none;
 }
 
 .diagramLoadFile{
-  background-color: #aeddff;
-  border-style: dashed;
-  border-width: 2px;
+	background-color: #aeddff;
+	border-style: dashed;
+	border-width: 2px;
 }
 
 .logo {
-  position: absolute;
-  left: 20px;
+	position: absolute;
+	left: 20px;
 }
 
 h1 {
-  margin-top: 5px;
-  color: #363336;
+	margin-top: 5px;
+	color: #363336;
 }
 
 .toolbar {
-  width: 100%;
-  height: 50px;
-  position: absolute;
-  top: 0;
-  left: 0;
-  right: 0;
-  padding-left: 220px;
-  z-index: 3;
-  background: rgb(245, 245, 245);
-  -webkit-box-shadow: 0 -3px 20px 5px rgba(0, 0, 0, 0.5);
-  -moz-box-shadow: 0 -3px 20px 5px rgba(0, 0, 0, 0.5);
-  box-shadow: 0 -3px 20px 5px rgba(0, 0, 0, 0.5);
+	width: 100%;
+	height: 50px;
+	position: absolute;
+	top: 0;
+	left: 0;
+	right: 0;
+	padding-left: 220px;
+	z-index: 3;
+	background: rgb(245, 245, 245);
+	-webkit-box-shadow: 0 -3px 20px 5px rgba(0, 0, 0, 0.5);
+	-moz-box-shadow: 0 -3px 20px 5px rgba(0, 0, 0, 0.5);
+	box-shadow: 0 -3px 20px 5px rgba(0, 0, 0, 0.5);
 }
 
 .toolbar button.layoutBtn {
-  background: url('data:image/svg+xml;utf8,<svg width="100%" height="100%" viewBox="0 0 70 60" enable-background="new 0 0 70 60" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink"><path id="diapath" d="M53,41V29H31V19h7V3H22v16h7v10H7v12H0v16h16V41H9V31h20v10h-7v16h16V41h-7V31h20v10h-7v16h16V41H53z M24,5h12v12H24V5z M14,55H2V43h12V55z M36,55H24V43h12V55z M58,55H46V43h12V55z"/></svg>') right no-repeat;
+	background: url('data:image/svg+xml;utf8,<svg width="100%" height="100%" viewBox="0 0 70 60" enable-background="new 0 0 70 60" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink"><path id="diapath" d="M53,41V29H31V19h7V3H22v16h7v10H7v12H0v16h16V41H9V31h20v10h-7v16h16V41h-7V31h20v10h-7v16h16V41H53z M24,5h12v12H24V5z M14,55H2V43h12V55z M36,55H24V43h12V55z M58,55H46V43h12V55z"/></svg>') right no-repeat;
 }
 
 .palette {
-  width: 70px;
-  position: absolute;
-  top: 100px;
-  left: 15px;
-  z-index: 2;
-  background: rgb(245, 245, 245);
-  border: 1px solid rgb(200, 200, 200);
-  -webkit-box-shadow: 5px 5px 20px 0px rgba(0, 0, 0, 0.25);
-  -moz-box-shadow: 5px 5px 20px 0px rgba(0, 0, 0, 0.25);
-  box-shadow: 5px 5px 20px 0px rgba(0, 0, 0, 0.25);
+	width: 70px;
+	position: absolute;
+	top: 100px;
+	left: 15px;
+	z-index: 2;
+	background: rgb(245, 245, 245);
+	border: 1px solid rgb(200, 200, 200);
+	-webkit-box-shadow: 5px 5px 20px 0px rgba(0, 0, 0, 0.25);
+	-moz-box-shadow: 5px 5px 20px 0px rgba(0, 0, 0, 0.25);
+	box-shadow: 5px 5px 20px 0px rgba(0, 0, 0, 0.25);
 }
 
 .palette button {
-  min-width: 0;
-  margin: 6px;
-  padding: 1px;
-  width: 58px;
-  height: 45px;
+	min-width: 0;
+	margin: 6px;
+	padding: 1px;
+	width: 58px;
+	height: 45px;
 }
 
 .palette button svg, .palette button svg line, .palette button svg polygon, .palette button svg rect, .palette button svg text {
-  transition: 250ms;
-  transition-timing-function: ease-in-out;
-  -webkit-transition: 250ms;
-  -webkit-transition-timing-function: ease-in-out;
+	transition: 250ms;
+	transition-timing-function: ease-in-out;
+	-webkit-transition: 250ms;
+	-webkit-transition-timing-function: ease-in-out;
 }
 
 .palette button svg line, .palette button svg rect {
-  fill: none;
-  stroke: #888;
+	fill: none;
+	stroke: #888;
 }
 
 .palette button svg polygon, .palette button svg text {
-  alignment-baseline: central;
-  font-family: 'Helvetica';
-  font-weight: bold;
-  fill: #888;
+	alignment-baseline: central;
+	font-family: 'Helvetica';
+	font-weight: bold;
+	fill: #888;
 }
 
 .palette button:hover svg rect, .palette button:hover svg line {
-  stroke: black;
+	stroke: black;
 }
 
 .palette button:hover svg polygon, .palette button:hover svg text {
-  fill: black;
+	fill: black;
 }
 
 #trashcan:hover circle {
-  stroke: #333;
-  fill: #ff9c9c;
+	stroke: #333;
+	fill: #ff9c9c;
 }
 
 #edit:hover circle {
-  stroke: #333;
-  fill: #fff68f;
+	stroke: #333;
+	fill: #fff68f;
 }
 
 .centercenter {
-  width: 300px;
-  height: 500px;
-  position: absolute;
-  left: 50%;
-  top: 50%;
-  margin-left: -150px;
-  margin-top: -250px;
-  text-align: center;
+	width: 300px;
+	height: 500px;
+	position: absolute;
+	left: 50%;
+	top: 50%;
+	margin-left: -150px;
+	margin-top: -250px;
+	text-align: center;
 }
 
 .editor {
-  width: 400px;
-  height: 550px;
-  position: absolute;
-  left: 50%;
-  top: 50%;
-  z-index: 42;
-  margin-left: -200px;
-  margin-top: -275px;
-  padding: 10px 30px;
-  text-align: center;
-  background: rgb(245, 245, 245);
-  border: 1px solid rgb(200, 200, 200);
-  -webkit-box-shadow: 5px 5px 20px 0 rgba(0, 0, 0, 0.25);
-  -moz-box-shadow: 5px 5px 20px 0 rgba(0, 0, 0, 0.25);
-  box-shadow: 5px 5px 20px 0 rgba(0, 0, 0, 0.25);
+	width: 400px;
+	height: 550px;
+	position: absolute;
+	left: 50%;
+	top: 50%;
+	z-index: 42;
+	margin-left: -200px;
+	margin-top: -275px;
+	padding: 10px 30px;
+	text-align: center;
+	background: rgb(245, 245, 245);
+	border: 1px solid rgb(200, 200, 200);
+	-webkit-box-shadow: 5px 5px 20px 0 rgba(0, 0, 0, 0.25);
+	-moz-box-shadow: 5px 5px 20px 0 rgba(0, 0, 0, 0.25);
+	box-shadow: 5px 5px 20px 0 rgba(0, 0, 0, 0.25);
 }
 
 .editor h2 {
-  margin: 0.5em 0;
+	margin: 0.5em 0;
 }
 
 .editor hr {
-  margin-bottom: 15px;
+	margin-bottom: 15px;
 }
 
 .editor h3 {
-  font-size: 16px;
-  text-align: left;
-  margin: 0.5em 0;
-  color: #333;
+	font-size: 16px;
+	text-align: left;
+	margin: 0.5em 0;
+	color: #333;
 }
 
 .editor h4 {
-  font-size: 12px;
-  text-align: left;
-  font-weight: normal;
-  margin: 0.5em 0;
-  color: #888;
+	font-size: 12px;
+	text-align: left;
+	font-weight: normal;
+	margin: 0.5em 0;
+	color: #888;
 }
 
 .editor input {
-  width: 350px;
+	width: 350px;
 }
 
 .editor textarea {
-  width: 350px;
-  height: 100px;
+	width: 350px;
+	height: 100px;
 }
 
 .editor .methods, .editor .attributes {
-  margin: 20px 0;
+	margin: 20px 0;
 }
 
 .editor .buttons {}
 
 .ClassEditor {
-  width: 100%;
-  height: 100%;
-  min-height: 100%;
-  min-width: 100%;
-  border: 1px solid black;
-  vertical-align: middle;
-  text-align: center;
+	width: 100%;
+	height: 100%;
+	min-height: 100%;
+	min-width: 100%;
+	border: 1px solid black;
+	vertical-align: middle;
+	text-align: center;
 }
 
 .Error {
-  border-color: #f00;
-  color: #f00;
-  box-shadow: inset 0 3px 4px #888;
+	border-color: #f00;
+	color: #f00;
+	box-shadow: inset 0 3px 4px #888;
 }
 
 .Ok {
-  border-color: #009B00;
-  box-shadow: inset 0 3px 4px #888;
+	border-color: #009B00;
+	box-shadow: inset 0 3px 4px #888;
 }
 
 .Add {
-  border-color: yellow;
-  box-shadow: inset 0 3px 4px #888;
+	border-color: yellow;
+	box-shadow: inset 0 3px 4px #888;
 }
 
 .code_box {
-  position: absolute;
-  width: 400px;
-  height: 300px;
-  border: 1px solid #c2e1f5;
-  right: 8px;
-  bottom: 56px;
-  text-align: left;
+	position: absolute;
+	width: 400px;
+	height: 300px;
+	border: 1px solid #c2e1f5;
+	right: 8px;
+	bottom: 56px;
+	text-align: left;
 }
 
 .code_box:before {
-  top: 100%;
-  right: 0;
-  border: solid transparent;
-  content: " ";
-  position: absolute;
-  border-top-color: #c2e1f5;
-  border-width: 20px;
+	top: 100%;
+	right: 0;
+	border: solid transparent;
+	content: " ";
+	position: absolute;
+	border-top-color: #c2e1f5;
+	border-width: 20px;
 }
 
 .CodeView {
-  background: #F4F4F4;
-  position: fixed;
-  bottom: 9px;
-  right: 7px;
-  width: 30px;
-  height: 30px;
+	background: #F4F4F4;
+	position: fixed;
+	bottom: 9px;
+	right: 7px;
+	width: 30px;
+	height: 30px;
 }
 
 .pi {
-  padding-top: 5px;
-  cursor: hand;
+	padding-top: 5px;
+	cursor: hand;
 }
 
 .ChoiceBox {
-  position: absolute;
-  height: 80px;
-  border: 1px solid black;
-  overflow-y: scroll;
-  overflow-x: hidden;
+	position: absolute;
+	height: 80px;
+	border: 1px solid black;
+	overflow-y: scroll;
+	overflow-x: hidden;
 }
 
 .ChoiceBox div {
-  height: 20px;
-  width: 100%;
-  cursor: pointer;
+	height: 20px;
+	width: 100%;
+	cursor: pointer;
 }
 
 .ChoiceBox div.alt {
-  background: #F5F5F5;
+	background: #F5F5F5;
 }
 
 .ChoiceBox div:hover {
-  background: #8EB8FD;
+	background: #8EB8FD;
 }
 
 .classdiagram {
-  border: 1px solid rgb(187, 187, 187);
-  position: absolute;
+	border: 1px solid rgb(187, 187, 187);
+	position: absolute;
 }
 
 .objectdiagram {
-  border: 1px solid rgb(187, 187, 187);
-  position: absolute;
+	border: 1px solid rgb(187, 187, 187);
+	position: absolute;
 }
 
 .Clazz {
-  border: 1px solid rgb(187, 187, 187);
-  /*background-color: rgb(221, 221, 221);*/
-  position: absolute;
-  background: #ffffff;
+	border: 1px solid rgb(187, 187, 187);
+	/*background-color: rgb(221, 221, 221);*/
+	position: absolute;
+	background: #ffffff;
 }
 
 .ClazzHeader {
-  background-image: linear-gradient(left, white 0%, lightgray 50%);
-  background-image: linear-gradient(top, white 0%, lightgray 50%);
-  background-image: linear-gradient(45deg, white 0%, lightgray 50%);
-  height: 30px;
+	background-image: linear-gradient(left, white 0%, lightgray 50%);
+	background-image: linear-gradient(top, white 0%, lightgray 50%);
+	background-image: linear-gradient(45deg, white 0%, lightgray 50%);
+	height: 30px;
 }
 
 .Clazz .first {
-  border-top: 1px solid black;
+	border-top: 1px solid black;
 }
 
 .Clazz .methods {
-  margin-left: 10px;
-  padding-left: 10px;
-  padding-right: 10px;
-  text-align: left;
-  vertical-align: top;
+	margin-left: 10px;
+	padding-left: 10px;
+	padding-right: 10px;
+	text-align: left;
+	vertical-align: top;
 }
 
 .Clazz .attributes {
-  margin-left: 10px;
-  padding-left: 10px;
-  padding-right: 10px;
-  text-align: left;
-  vertical-align: top;
+	margin-left: 10px;
+	padding-left: 10px;
+	padding-right: 10px;
+	text-align: left;
+	vertical-align: top;
 }
 
 .objectElement {
-  border: 1px solid rgb(187, 187, 187);
-  /*background-color: rgb(221, 221, 221);*/
-  position: absolute;
-  background: #ffffff;
+	border: 1px solid rgb(187, 187, 187);
+	/*background-color: rgb(221, 221, 221);*/
+	position: absolute;
+	background: #ffffff;
 }
 
 .objectElement table {
-  border-spacing: 0;
-  cursor: hand;
+	border-spacing: 0;
+	cursor: hand;
 }
 
 .objectElement th {
-  background-image: linear-gradient(left, white 0%, lightgray 50%);
-  background-image: linear-gradient(top, white 0%, lightgray 50%);
-  background-image: linear-gradient(45deg, white 0%, lightgray 50%);
+	background-image: linear-gradient(left, white 0%, lightgray 50%);
+	background-image: linear-gradient(top, white 0%, lightgray 50%);
+	background-image: linear-gradient(45deg, white 0%, lightgray 50%);
 }
 
 .objectElement .first {
-  border-top: 1px solid black;
+	border-top: 1px solid black;
 }
 
 .ToolButton {
-  background: #eeeeee;
-  /* Old browsers */
-  background: -moz-linear-gradient(top, #eeeeee 0%, #aaaaaa 50%, #e5e5e5 100%);
-  /* FF3.6+ */
-  background: -webkit-gradient(linear, left top, left bottom, color-stop(0%, #eeeeee), color-stop(50%, #aaaaaa), color-stop(100%, #e5e5e5));
-  /* Chrome,Safari4+ */
-  background: -webkit-linear-gradient(top, #eeeeee 0%, #aaaaaa 50%, #e5e5e5 100%);
-  /* Chrome10+,Safari5.1+ */
-  background: -o-linear-gradient(top, #eeeeee 0%, #aaaaaa 50%, #e5e5e5 100%);
-  /* Opera 11.10+ */
-  background: -ms-linear-gradient(top, #eeeeee 0%, #aaaaaa 50%, #e5e5e5 100%);
-  /* IE10+ */
-  background: linear-gradient(to bottom, #eeeeee 0%, #aaaaaa 50%, #e5e5e5 100%);
-  /* W3C */
-  border-radius: 20px;
-  -webkit-box-shadow: 2px 2px 5px 0 rgba(0, 0, 0, 0.75);
-  -moz-box-shadow: 2px 2px 5px 0 rgba(0, 0, 0, 0.75);
-  box-shadow: 2px 2px 5px 0 rgba(0, 0, 0, 0.75);
-  cursor: pointer;
+	background: #eeeeee;
+	/* Old browsers */
+	background: -moz-linear-gradient(top, #eeeeee 0%, #aaaaaa 50%, #e5e5e5 100%);
+	/* FF3.6+ */
+	background: -webkit-gradient(linear, left top, left bottom, color-stop(0%, #eeeeee), color-stop(50%, #aaaaaa), color-stop(100%, #e5e5e5));
+	/* Chrome,Safari4+ */
+	background: -webkit-linear-gradient(top, #eeeeee 0%, #aaaaaa 50%, #e5e5e5 100%);
+	/* Chrome10+,Safari5.1+ */
+	background: -o-linear-gradient(top, #eeeeee 0%, #aaaaaa 50%, #e5e5e5 100%);
+	/* Opera 11.10+ */
+	background: -ms-linear-gradient(top, #eeeeee 0%, #aaaaaa 50%, #e5e5e5 100%);
+	/* IE10+ */
+	background: linear-gradient(to bottom, #eeeeee 0%, #aaaaaa 50%, #e5e5e5 100%);
+	/* W3C */
+	border-radius: 20px;
+	-webkit-box-shadow: 2px 2px 5px 0 rgba(0, 0, 0, 0.75);
+	-moz-box-shadow: 2px 2px 5px 0 rgba(0, 0, 0, 0.75);
+	box-shadow: 2px 2px 5px 0 rgba(0, 0, 0, 0.75);
+	cursor: pointer;
 }
 
 .EdgeInfo {
-  position: absolute;
+	position: absolute;
 }
 
 .patternElement {
-  border: 1px solid rgb(187, 187, 187);
-  /*background-color: rgb(221, 221, 221);*/
-  position: absolute;
-  background: lightblue;
+	border: 1px solid rgb(187, 187, 187);
+	/*background-color: rgb(221, 221, 221);*/
+	position: absolute;
+	background: lightblue;
 }
 
 .patternElement table {
-  border-spacing: 0;
-  cursor: hand;
+	border-spacing: 0;
+	cursor: hand;
 }
 
 .patternElement .head {
-  text-align: center;
+	text-align: center;
 }
 
 .patternElement th {
-  padding-left: 10px;
-  padding-right: 10px;
+	padding-left: 10px;
+	padding-right: 10px;
 }
 
 .patternElement .first {
-  border-top: 1px solid black;
+	border-top: 1px solid black;
 }
 
 .lineElement {
-  z-index: 42;
-  border-bottom: 1px solid black;
+	z-index: 42;
+	border-bottom: 1px solid black;
 }
 
 .lineRaster {
-  border-right: 1px dotted rgba(0, 0, 0, 0.3);
-  border-bottom: 1px dotted rgba(0, 0, 0, 0.3);
-  width: 1px;
-  height: 1px;
-  position: absolute;
+	border-right: 1px dotted rgba(0, 0, 0, 0.3);
+	border-bottom: 1px dotted rgba(0, 0, 0, 0.3);
+	width: 1px;
+	height: 1px;
+	position: absolute;
 }
 
 .infoBox {
-  border: 1px solid rgb(187, 187, 187);
-  position: absolute;
+	border: 1px solid rgb(187, 187, 187);
+	position: absolute;
 }
 
 .draggable {
-  cursor: move;
+	cursor: move;
 }
 
 .selection {
-  cursor: hand;
-  opacity: 0;
+	cursor: hand;
+	opacity: 0;
 }
 
 .selection:hover {
-  cursor: hand;
-  opacity: 0.3;
-  fill: #FF9;
+	cursor: hand;
+	opacity: 0.3;
+	fill: #FF9;
 }
 
 .saveBtn:hover {
-  opacity: 0.75;
-  cursor: hand;
+	opacity: 0.75;
+	cursor: hand;
 }
 
 .btn:hover {
-  opacity: 0.75;
-  cursor: pointer;
+	opacity: 0.75;
+	cursor: pointer;
 }
 
 .hand {
-  cursor: pointer;
+	cursor: pointer;
 }
 
 .saveBtn {
-  fill: url(#reflect);
-  filter: drop-shadow(5px 5px 2px black);
+	fill: url(#reflect);
+	filter: drop-shadow(5px 5px 2px black);
 }
 
 .draggable {}
 
 .draggable:hover {
-  border: 1px dashed black;
-  -moz-border-radius: 8px;
-  -webkit-border-radius: 8px;
-  border-radius: 8px;
-  cursor: move;
-  opacity: 0.50;
-  fill: #ddd;
+	border: 1px dashed black;
+	-moz-border-radius: 8px;
+	-webkit-border-radius: 8px;
+	border-radius: 8px;
+	cursor: move;
+	opacity: 0.50;
+	fill: #ddd;
 }
