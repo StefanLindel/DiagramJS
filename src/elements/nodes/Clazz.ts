@@ -1,7 +1,7 @@
-import {Node} from './Node';
-import {EventBus} from '../../EventBus';
-import {Util} from '../../util';
-import {Point} from '../BaseElements';
+import { Node } from './Node';
+import { EventBus } from '../../EventBus';
+import { Util } from '../../util';
+import { Point } from '../BaseElements';
 
 export class Clazz extends Node {
     protected labelHeight = 25;
@@ -12,7 +12,7 @@ export class Clazz extends Node {
     private methods: string[] = [];
     private style: string;
 
-    constructor(json:JSON|string|Object|any) {
+    constructor(json: JSON | string | Object | any) {
         super(json);
         if (!json) {
             json = {};
@@ -21,7 +21,7 @@ export class Clazz extends Node {
         this.label = json.name || json.label || ('New ' + this.property);
         this.style = json.style || 'flat';
 
-        let width:number = 150;
+        let width: number = 150;
 
         if (json['attributes']) {
             for (let attr of json['attributes']) {
@@ -56,47 +56,15 @@ export class Clazz extends Node {
             y: pos.y,
             height: size.y,
             width: size.x,
-            rx: 1,
-            ry: 1,
+            rx: 10,
+            ry: 10,
             style: 'fill:white;stroke-width:2',
             stroke: 'black'
         });
 
-        const edgeCreator = this.createShape({
-            tag : 'rect',
-            x: (pos.x+size.x)-2,
-            y: pos.y-6,
-            height: 8,
-            width: 8,
-            rx: 1,
-            ry: 1,
-            style: 'stroke-width:2',
-            fill : 'black',
-            stroke: 'black'
-        });
 
-        
-        // line to separate label from attributes
-        const separatorLabelAttr = this.createShape({
-            tag : 'line',
-            x1 : pos.x,                   //line doesn't overlap the full shape
-            y1 : pos.y + this.labelHeight,
-            x2 : pos.x + size.x,        //line doesn't overlap the full shape
-            y2 : pos.y + this.labelHeight,
-            stroke : 'rgb(0, 0, 0)',        //black
-            'stroke-width' : 2
-        });
 
-        // line to separate label from attributes
-        const separatorAttrMethods = this.createShape({
-            tag : 'line',
-            x1 : pos.x,                   //line doesn't overlap the full shape
-            y1 : pos.y + this.labelHeight + (this.attrHeight * this.attributes.length),
-            x2 : pos.x + size.x,        //line doesn't overlap the full shape
-            y2 : pos.y + this.labelHeight + (this.attrHeight * this.attributes.length),
-            stroke : 'rgb(0, 0, 0)',        //black
-            'stroke-width' : 2
-        });
+
 
 
         // = = = LABEL = = =
@@ -113,15 +81,28 @@ export class Clazz extends Node {
         });
         label.textContent = this.label;
 
-        let group = this.createShape({tag: 'g', id: this.id, transform: 'translate(0 0)'});
+        let group = this.createShape({ tag: 'g', id: this.id, transform: 'translate(0 0)' });
         group.appendChild(nodeShape);
-        group.appendChild(edgeCreator);
-        group.appendChild(separatorLabelAttr);
-        group.appendChild(separatorAttrMethods);
         group.appendChild(label);
 
         // = = = ATTRIBUTES = = =
         if (this.attributes.length > 0) {
+
+
+            // line to separate label from attributes
+            const separatorLabelAttr = this.createShape({
+                tag: 'line',
+                x1: pos.x,                   //line doesn't overlap the full shape
+                y1: pos.y + this.labelHeight,
+                x2: pos.x + size.x,        //line doesn't overlap the full shape
+                y2: pos.y + this.labelHeight,
+                stroke: 'rgb(0, 0, 0)',        //black
+                'stroke-width': 2
+            });
+
+
+            group.appendChild(separatorLabelAttr);
+
             let y = pos.y + this.labelHeight + this.attrHeight / 2;
             for (let element of this.attributes) {
                 const attrText = {
@@ -145,6 +126,21 @@ export class Clazz extends Node {
         let height = this.attributes.length * this.attrHeight;
         let y = pos.y + this.labelHeight + height + this.attrHeight / 2;
         if (this.methods.length > 0) {
+
+            // line to separate label from attributes
+            const separatorAttrMethods = this.createShape({
+                tag: 'line',
+                x1: pos.x,                   //line doesn't overlap the full shape
+                y1: pos.y + this.labelHeight + (this.attrHeight * this.attributes.length),
+                x2: pos.x + size.x,        //line doesn't overlap the full shape
+                y2: pos.y + this.labelHeight + (this.attrHeight * this.attributes.length),
+                stroke: 'rgb(0, 0, 0)',        //black
+                'stroke-width': 2
+            });
+
+
+            group.appendChild(separatorAttrMethods);
+
             y += this.attrHeight / 2;
             for (let element of this.methods) {
                 const attrText = {
@@ -166,10 +162,6 @@ export class Clazz extends Node {
 
         this.$view = group;
         return group;
-    }
-
-    public getNipple() : string{
-        return "Nippel wurden aktiviert!";
     }
 
     public getEvents(): string[] {
@@ -237,7 +229,7 @@ export class Clazz extends Node {
                 id += ' (' + this['counter'] + ')';
             }
         }
-        g = Util.create({tag: 'g', model: this});
+        g = Util.create({ tag: 'g', model: this });
         size = Util.sizeOf(id, this);
         width = Math.max(width, size.width);
         if (this.attributes && this.attributes.length > 0) {
@@ -324,7 +316,7 @@ export class Clazz extends Node {
             }
         }
         if (this.methods && this.methods.length > 0) {
-            g.appendChild(Util.create({tag: 'line', x1: x, y1: y, x2: x + width, y2: y, stroke: '#000'}));
+            g.appendChild(Util.create({ tag: 'line', x1: x, y1: y, x2: x + width, y2: y, stroke: '#000' }));
             y += 20;
             for (z = 0; z < this.methods.length; z += 1) {
                 g.appendChild(Util.create({

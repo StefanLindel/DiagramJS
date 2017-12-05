@@ -1,10 +1,10 @@
-import {Graph} from './Graph';
-import {DiagramElement} from './BaseElements';
-import {Edge} from './edges';
-import {Node} from './nodes';
-import {Control} from '../Control';
-import {Util} from '../util';
-import {EventBus} from '../EventBus';
+import { Graph } from './Graph';
+import { DiagramElement, Point } from './BaseElements';
+import { Edge } from './edges';
+import { Node } from './nodes';
+import { Control } from '../Control';
+import { Util } from '../util';
+import { EventBus } from '../EventBus';
 
 export class GraphModel extends DiagramElement {
     nodes: Object = {};
@@ -25,6 +25,22 @@ export class GraphModel extends DiagramElement {
                 this.addEdge(edge);
             }
         }
+    }
+
+    public getNodeByPosition(x: number, y: number) : Node{
+        for (let idx in this.nodes) {
+            let node = this.nodes[idx];
+
+            let posOfNode: Point = (<Node>node).getPos();
+            let sizeOfNode: Point = (<Node>node).getSize();
+
+            if ((posOfNode.x <= x && (posOfNode.x + sizeOfNode.x) >= x)
+                && (posOfNode.y <= y && (posOfNode.y + sizeOfNode.y) >= y)) {
+                    return node;
+            }
+        }
+
+        return null;
     }
 
     public init(owner: Control, property?: string, id?: string): Control {
@@ -95,7 +111,7 @@ export class GraphModel extends DiagramElement {
         let text = this.createShape(attrText);
         text.textContent = '(0, 0)';
 
-        let group = this.createShape({tag: 'g'});
+        let group = this.createShape({ tag: 'g' });
         group.appendChild(shape);
         group.appendChild(text);
 
@@ -107,7 +123,7 @@ export class GraphModel extends DiagramElement {
     }
     private initCanvas() {
         const graph = <Graph>this.$owner;
-        graph.canvasSize = {width: graph.root.clientWidth, height: graph.root.clientHeight};
+        graph.canvasSize = { width: graph.root.clientWidth, height: graph.root.clientHeight };
         graph.canvas = Util.createShape({
             tag: 'svg',
             id: 'root',
@@ -142,9 +158,10 @@ export class GraphModel extends DiagramElement {
         return false;
     }
 
-    private findNodeByLabel(label: string): Node|null {
+    private findNodeByLabel(label: string): Node | null {
         for (let index in this.nodes) {
             let node = this.nodes[index];
+
             if (node.label === label) {
                 return node;
             }
@@ -152,7 +169,7 @@ export class GraphModel extends DiagramElement {
         return null;
     }
 
-    private addEdge(edge: Edge ) {
+    public addEdge(edge: Edge): Edge {
         let type = edge.property || 'Edge';
         type = Util.toPascalCase(type);
         let id = this.getNewId(type);
@@ -160,13 +177,13 @@ export class GraphModel extends DiagramElement {
         let newEdge = <Edge>this.getElement(type, id, edge);
         let source: Node = this.findNodeByLabel(edge.source);
         if (!source) {
-            source = new Node({label: edge.source});
+            source = new Node({ label: edge.source });
             source.init(this);
             this.addNode(source);
         }
         let target: Node = this.findNodeByLabel(edge.target);
         if (!target) {
-            target = new Node({label: edge.target});
+            target = new Node({ label: edge.target });
             target.init(this);
             this.addNode(target);
         }

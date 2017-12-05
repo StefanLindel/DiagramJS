@@ -1,14 +1,16 @@
-import {DiagramElement} from '../elements/BaseElements';
-import {Graph} from '../elements/Graph';
-import {Util} from '../util';
-import {Clazz} from '../elements/nodes/Clazz';
+import { DiagramElement } from '../elements/BaseElements';
+import { Graph } from '../elements/Graph';
+import { Util } from '../util';
+import { Clazz } from '../elements/nodes/Clazz';
 import { EventHandler } from '../EventBus';
+import { Edge } from '../elements/index';
 
 export class NewEdge implements EventHandler {
     private graph: Graph;
     private svgRoot: SVGSVGElement;
-    private svgEdgeNipple: SVGElement;
-    private isDrawLine = false;
+    private svgLine: SVGSVGElement;
+    private isEdgeDrawing: boolean;
+    private sourceNode: Clazz;
     private x: number;
     private y: number;
 
@@ -27,22 +29,27 @@ export class NewEdge implements EventHandler {
             this.svgRoot = <SVGSVGElement><any>document.getElementById('root');
         }
 
+        if (!(<KeyboardEvent>event).ctrlKey) {
+            this.removeLine();
+            return true;
+        }
+
+        // draw a new edge
+
         switch (event.type) {
             case 'mousedown':
-                this.start(event, element);
+                if (element instanceof Clazz) {
+                    this.start(event, element);
+                }
                 break;
 
             case 'mousemove':
-                if (element instanceof Clazz) {
-                    let clazz = <Clazz>element;
-                }
                 this.drawEdge(event, element);
                 break;
             case 'mouseleave':
-                this.highlightNipple(false);
                 break;
             case 'mouseup':
-                this.highlightNipple(false);
+                this.setNewEdgeToNode(event);
                 break;
 
             default: break;
@@ -51,63 +58,79 @@ export class NewEdge implements EventHandler {
         return true;
     }
 
-    private drawEdge(evt: Event|any, element: DiagramElement): void {
-        if (this.x && this.y) {
-            let lineToX = evt.layerX;
-            let lineToy = evt.layerY;
+    private drawEdge(evt: Event | any, element: DiagramElement): void {
 
-            let path =  `M${this.x} ${this.y} L${lineToX} ${lineToy}`;
+        if (!this.isEdgeDrawing) {
+            return;
+        }
+        let lineToX = evt.layerX;
+        let lineToy = evt.layerY;
+
+        let path = `M${this.x} ${this.y} L${lineToX} ${lineToy}`;
+        // if line wasnt draw
+        if (!this.svgLine) {
 
             let attr = {
                 tag: 'path',
-                id : 'newLine',
+                id: 'newLine',
                 d: path,
                 stroke: 'black',
-                'stroke-width': '3',
+                'stroke-width': '2',
                 fill: 'none'
             };
+
+
             let shape = Util.createShape(attr);
             this.svgRoot.appendChild(shape);
+            this.svgLine = shape;
+        }
+        else {
+
+            // set new L path
+            this.svgLine.setAttributeNS(null, 'd', path);
         }
     }
 
-    private start(evt: Event|any, element: DiagramElement): void {
+    private removeLine(): void {
+        this.isEdgeDrawing = false;        
 
-        // if(element.id === 'RootElement'){
-        //     this.highlightNipple(false);
-        //     this.svgEdgeNipple = undefined;
-        //     return;
-        // }
-
-        this.svgEdgeNipple = <SVGGElement>element.$view.childNodes[1];
-
-        let x, y, width, height;
-        x =  parseInt(this.svgEdgeNipple.attributes[0].value);
-        y =  parseInt(this.svgEdgeNipple.attributes[1].value);
-        width = 8;
-        height = 8;
-
-        if ((evt.layerX >= x && evt.layerX <= (x + width))
-            && evt.layerY >= y && evt.layerY <= (y + height)) {
-
-                this.x = x;
-                this.y = y;
-
-                this.highlightNipple(true);
-                this.isDrawLine = true;
-
-                return;
+        if (this.svgLine) {
+            this.svgRoot.removeChild(this.svgLine);
+            this.svgLine = null;
         }
-
-        this.x = undefined;
-        this.y = undefined;
-        this.svgEdgeNipple = undefined;
     }
 
-    private highlightNipple(enabled: boolean): void {
-        if (this.svgEdgeNipple) {
-            let rgb = enabled ? 'rgb(255, 160, 51)' : 'rgb(0, 0, 0)';
-            this.svgEdgeNipple.setAttributeNS(null, 'fill', rgb);
+    private setNewEdgeToNode(event: Event | any): void {
+        // get node from position
+        let targetNode = this.graph.$graphModel.getNodeByPosition(event.layerX, event.layerY);
+
+        if (!targetNode) {
+            this.removeLine();
+
+            return;
         }
+
+        let jsonData = {
+            type: 'Edge',
+            source: this.sourceNode.label,
+            target: targetNode.label
+        };
+
+        this.removeLine();
+
+        this.graph.$graphModel.addEdge(<any>jsonData);
+        this.graph.layout();
+    }
+
+    private start(evt: Event | any, element: DiagramElement): void {
+
+        if (this.isEdgeDrawing) {
+            return;
+        }
+        this.isEdgeDrawing = true;
+        this.sourceNode = element as Clazz;
+
+        this.x = evt.layerX;
+        this.y = evt.layerY;
     }
 }
