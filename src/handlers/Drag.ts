@@ -1,9 +1,9 @@
 import { EventHandler } from '../EventBus';
-import {DiagramElement, Point} from '../elements/BaseElements';
-import {GraphModel} from '../elements/Model';
-import {Node} from '../elements/nodes';
-import {Graph} from '../elements/Graph';
-import {Control} from '../Control';
+import { DiagramElement, Point } from '../elements/BaseElements';
+import { GraphModel } from '../elements/Model';
+import { Node } from '../elements/nodes';
+import { Graph } from '../elements/Graph';
+import { Control } from '../Control';
 
 export class Drag implements EventHandler {
 
@@ -22,6 +22,10 @@ export class Drag implements EventHandler {
 
     public handle(event: Event, element: DiagramElement): boolean {
         // event.stopPropagation();
+
+        if ((<KeyboardEvent>window.event).ctrlKey) {
+            return true;
+        }
 
         if (this.svgRoot !== <SVGSVGElement><any>document.getElementById('root')) {
             this.svgRoot = <SVGSVGElement><any>document.getElementById('root');
@@ -83,11 +87,10 @@ export class Drag implements EventHandler {
         }
     }
 
-    private drag(evt: Event|any, element: DiagramElement) {
+    private drag(evt: Event | any, element: DiagramElement) {
         if (this.reinsert) {
             if (this.element.id !== 'RootElement') {
-                console.log('lastChild: ' + (<SVGSVGElement>this.svgRoot.lastChild).id + ' svgElement: ' + this.svgElement.id);
-                if ( (<SVGSVGElement>this.svgRoot.lastChild).id !== this.svgElement.id) {
+                if ((<SVGSVGElement>this.svgRoot.lastChild).id !== this.svgElement.id) {
                     let childToDrag;
                     for (let childCount = 0; childCount < this.svgRoot.childElementCount; childCount++) {
                         let child = <SVGSVGElement>this.svgRoot.childNodes[childCount];

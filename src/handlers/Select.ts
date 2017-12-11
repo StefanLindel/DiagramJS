@@ -11,7 +11,6 @@ export class Select implements EventHandler {
     private svgRoot: SVGSVGElement;
     private editShape: SVGSVGElement;
     private deleteShape: SVGSVGElement;
-    private newEdgeShape: SVGSVGElement;
     private model: GraphModel;
     private padding = 5;
 
