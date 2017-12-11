@@ -760,7 +760,8 @@ export class SymbolLibary {
             x: 10,
             y: y,
             class: textClass,
-            value: text
+            value: text,
+            eventValue: text
         }));
         if (textClass === 'SVGTEXT') {
             textClass = 'SVGChoiceText';
@@ -776,8 +777,9 @@ export class SymbolLibary {
             width: 70,
             height: 24,
             stroke: 'none',
-            class: textClass
+            class: textClass,
         });
+        item['eventValue'] = text;
         box.appendChild(item);
         return item;
     }

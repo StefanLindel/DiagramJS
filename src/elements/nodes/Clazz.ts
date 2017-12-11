@@ -2,6 +2,7 @@ import {Node} from './Node';
 import {EventBus} from '../../EventBus';
 import {Util} from '../../util';
 import {Point} from '../BaseElements';
+import {SymbolLibary} from "./Symbol";
 
 export class Clazz extends Node {
     protected labelHeight = 25;
@@ -12,7 +13,7 @@ export class Clazz extends Node {
     private methods: string[] = [];
     private style: string;
 
-    constructor(json:JSON|string|Object|any) {
+    constructor(json: JSON | string | Object | any) {
         super(json);
         if (!json) {
             json = {};
@@ -21,7 +22,7 @@ export class Clazz extends Node {
         this.label = json.name || json.label || ('New ' + this.property);
         this.style = json.style || 'flat';
 
-        let width:number = 150;
+        let width: number = 150;
 
         if (json['attributes']) {
             for (let attr of json['attributes']) {
@@ -63,41 +64,39 @@ export class Clazz extends Node {
         });
 
         const edgeCreator = this.createShape({
-            tag : 'rect',
-            x: (pos.x+size.x)-2,
-            y: pos.y-6,
+            tag: 'rect',
+            x: (pos.x + size.x) - 2,
+            y: pos.y - 6,
             height: 8,
             width: 8,
             rx: 1,
             ry: 1,
             style: 'stroke-width:2',
-            fill : 'black',
+            fill: 'black',
             stroke: 'black'
         });
 
-        
         // line to separate label from attributes
         const separatorLabelAttr = this.createShape({
-            tag : 'line',
-            x1 : pos.x,                   //line doesn't overlap the full shape
-            y1 : pos.y + this.labelHeight,
-            x2 : pos.x + size.x,        //line doesn't overlap the full shape
-            y2 : pos.y + this.labelHeight,
-            stroke : 'rgb(0, 0, 0)',        //black
-            'stroke-width' : 2
+            tag: 'line',
+            x1: pos.x,                   // line doesn't overlap the full shape
+            y1: pos.y + this.labelHeight,
+            x2: pos.x + size.x,        // line doesn't overlap the full shape
+            y2: pos.y + this.labelHeight,
+            stroke: 'rgb(0, 0, 0)',        // black
+            'stroke-width': 2
         });
 
         // line to separate label from attributes
         const separatorAttrMethods = this.createShape({
-            tag : 'line',
-            x1 : pos.x,                   //line doesn't overlap the full shape
-            y1 : pos.y + this.labelHeight + (this.attrHeight * this.attributes.length),
-            x2 : pos.x + size.x,        //line doesn't overlap the full shape
-            y2 : pos.y + this.labelHeight + (this.attrHeight * this.attributes.length),
-            stroke : 'rgb(0, 0, 0)',        //black
-            'stroke-width' : 2
+            tag: 'line',
+            x1: pos.x,                   // line doesn't overlap the full shape
+            y1: pos.y + this.labelHeight + (this.attrHeight * this.attributes.length),
+            x2: pos.x + size.x,        // line doesn't overlap the full shape
+            y2: pos.y + this.labelHeight + (this.attrHeight * this.attributes.length),
+            stroke: 'rgb(0, 0, 0)',        // black
+            'stroke-width': 2
         });
-
 
         // = = = LABEL = = =
         let label = this.createShape({
@@ -168,8 +167,137 @@ export class Clazz extends Node {
         return group;
     }
 
-    public getNipple() : string{
-        return "Nippel wurden aktiviert!";
+    public getHTML(): Element {
+        let first, z, cell, item, model, htmlElement: HTMLElement = <HTMLElement>Util.create({tag: 'div', model: this});
+        model = this.$owner;
+        if (this.property === 'patternobject') {
+            htmlElement.className = 'patternElement';
+       // } else if (SymbolLibary.isSymbol(this)) {
+       //     return this.symbolLib.draw(null, node);
+        }
+        if (this.property === 'classdiagram') {
+            htmlElement.className = 'classdiagram';
+        } else if (this.property === 'objectdiagram') {
+            htmlElement.className = 'objectdiagram';
+        } else if (model.property.toLowerCase() === 'objectdiagram') {
+            htmlElement.className = 'objectElement';
+        } else {
+            htmlElement.className = 'classElement';
+        }
+        let pos = this.getPos();
+        Util.setPos(htmlElement, pos.x, pos.y);
+        htmlElement.style.zIndex = '5000';
+
+        if (this.property === 'objectdiagram' || this.property === 'classdiagram') {
+            this.withPos(30, 30);
+            this.$view = htmlElement;
+            // if (draw) {
+            //     this.model.draw(node);
+            //     htmlElement.style.borderColor = "red";
+            //    if (node.style && node.style.toLowerCase() === "nac") {
+            //         htmlElement.appendChild(this.symbolLib.draw(null, {type: "stop", x: 0, y: 0}));
+            //     }
+            // } else {
+            //     this.model.layout(0, 0, node);
+            // }
+            // this.setSize(htmlElement, node.$gui.style.width, node.$gui.style.height);
+            return htmlElement;
+        }
+        /*
+        this.model.createElement(htmlElement, "class", node);
+        if (node.content) {
+            node.content.width = node.content.width || 0;
+            node.content.height = node.content.height || 0;
+            if (node.content.src) {
+                item = this.createImage(node.content);
+                if (!item) {return null; }
+                htmlElement.appendChild(item);
+                return htmlElement;
+            }
+            if (node.content.html) {
+                htmlElement.innerHTML = node.content.html;
+                return htmlElement;
+            }
+        }
+        item = this.util.create({tag: 'table', border: "0"});
+        item.style.width = "100%";
+        item.style.height = "100%";
+        htmlElement.appendChild(item);
+        if (node.head$src) {
+            cell = this.createCell(item, "td", node);
+            cell.style.textAlign = "center";
+            if (!node.head$img) {
+                node.head$img = {};
+                node.head$img.src = node.head$src;
+                node.head$img.width = node.head$width;
+                node.head$img.height = node.head$height;
+            }
+            z = this.createImage(node.head$img);
+            if (z) {
+                cell.appendChild(z);
+            }
+        }
+        if (node.headinfo) {
+            this.createCell(item, "td", node, node.headinfo).className = "head";
+        }
+
+        if (model.type.toLowerCase() === "objectdiagram") {
+            z = node.id.charAt(0).toLowerCase() + node.id.slice(1);
+        } else {
+            z = node.id;
+        }
+        if (node.href) {
+            z = "<a href=\"" + node.href + "\">" + z + "</a>";
+        }
+        cell  = this.createCell(item, "th", node, z, "id");
+        if (model.type.toLowerCase() === "objectdiagram") {
+            cell.style.textDecorationLine = "underline";
+        }
+        cell = null;
+        if (node.attributes) {
+            first = true;
+            for (z = 0; z < node.attributes.length; z += 1) {
+                var color="";
+                var attr = node.attributes[z];
+                if(attr.indexOf("[")>=0){
+                    color = " " + attr.substring(attr.indexOf("[")+1, attr.indexOf("]"));
+                    attr = attr.substring(0, attr.indexOf("["))+attr.substring(attr.indexOf("]")+1);
+                }
+                cell = this.createCell(item, "td", node, attr, "attribute");
+                if (!first) {
+                    cell.className = 'attributes'+color;
+                } else {
+                    cell.className = 'attributes first'+color;
+                    first = false;
+                }
+            }
+        }
+        if (node.methods) {
+            first = true;
+            for (z = 0; z < node.methods.length; z += 1) {
+                cell = this.createCell(item, "td", node, node.methods[z], "method");
+                if (!first) {
+                    cell.className = 'methods';
+                } else {
+                    cell.className = 'methods first';
+                    first = false;
+                }
+            }
+        }
+        if (!cell) {
+            cell = this.createCell(item, "td", node, "&nbsp;");
+            cell.className = 'first';
+            this.model.createElement(cell, "empty", node);
+        }
+        htmlElement.appendChild(item);
+        htmlElement.node = node;
+        node.$gui = htmlElement;
+         */
+        return htmlElement;
+    }
+
+    public getNipple(): string {
+        return 'Nippel wurden aktiviert!';
     }
 
     public getEvents(): string[] {
@@ -221,7 +349,7 @@ export class Clazz extends Node {
 
     private getModernStyle(): Element {
         let width, height, id, size, z, item, rect, g, styleHeader, headerHeight, x, y;
-        //let board = this.getRoot()['board'];
+        // let board = this.getRoot()['board'];
         styleHeader = Util.getStyle('ClazzHeader');
         headerHeight = styleHeader.getNumber('height');
         width = 0;

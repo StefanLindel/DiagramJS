@@ -77,9 +77,9 @@ export class Graph extends Control {
         if (this.layerToolBar) {
             return false;
         }
-        let subElements = [['Save', 'PNG', 'SVG', 'HTML', 'PDF'], 'Load'];
+        let subElements = ['HTML', ['Save', 'PNG', 'SVG', 'HTML', 'PDF']];
 
-        let c: number, z: number;
+        let c: number, z: number = 0;
         for (c = 0; c < subElements.length; c += 1) {
             if (typeof subElements[c] === 'string') {
                 z += 1;
@@ -92,13 +92,18 @@ export class Graph extends Control {
         this.layerToolBar = Util.createShape({
             tag: 'svg',
             id: 'root',
-            width: '150px',
+            width: '80px',
             height: z + 'px',
-            x: '100px'
+            x: '100px',
+            style: 'position: inherit;right: 80px;'
         });
         this.layerToolBar.appendChild(CSS.getStdDef());
+        let that = this;
         let func = function (event: Event) {
-           // (<any>event.currentTarget).value;
+            let text = (<any>event.currentTarget).eventValue;
+            text = text.replace('* ', '');
+            // console.log((<any>event.currentTarget).value);
+            that.saveAs(text);
         };
         let btn = {id: 'Storage', type: 'Hamburger', x: 2, y: 8, width: 140, elements: subElements, activText: 'Localstorage', action: func};
         let item = SymbolLibary.drawSVG(btn);
@@ -107,9 +112,68 @@ export class Graph extends Control {
         //    }
         //    return buttons;
         // };
-        this.canvas.appendChild(this.layerToolBar);
+        // this.canvas.appendChild(this.layerToolBar);
+        this.root.appendChild(this.layerToolBar);
 
         return true;
+    }
+
+    public save(typ: string, data: any, name: string) {
+        let a = document.createElement('a');
+        a.href = window.URL.createObjectURL(new Blob([data], {type: typ}));
+        a.download = name;
+        a.click();
+    }
+    public saveAs(typ: string) {
+        typ = typ.toLowerCase();
+        if (typ === 'svg') {
+            this.save('image/svg+xml', this.serializeXmlNode(this.$graphModel.$view), 'download.svg');
+        } else if (typ === 'png') {
+            this.exportPNG();
+        // } else if (typ === "html") {
+            //     this.ExportHTML();
+
+            // } else if (typ === "pdf") {
+            // this.ExportPDF();
+            // } else if (typ === "eps") {
+            // this.ExportEPS();
+        }
+    }
+
+    public serializeXmlNode(xmlNode: any) {
+        if (window['XMLSerializer'] !== undefined) {
+            return (new window['XMLSerializer']()).serializeToString(xmlNode);
+        }
+        if (xmlNode.xml !== undefined) {
+            return xmlNode.xml;
+        }
+        return xmlNode.outerHTML;
+    }
+/*
+    Graph.prototype.ExportPDF = function () {
+        var converter, pdf = new jsPDF('l','px',[this.model.width, this.model.height]);
+        converter = new svgConverter(this.board, pdf, {removeInvalid: false});
+        pdf.save('Download.pdf');
+    };
+    Graph.prototype.ExportEPS = function () {
+        var converter, doc = new svgConverter.jsEPS({inverting: true});
+        converter = new svgConverter(this.board, doc, {removeInvalid: false});
+        doc.save();
+    };*/
+    public exportPNG(): void {
+        let canvas, context, a, image = new Image();
+        image.src = 'data:image/svg+xml;base64,' + Util.utf8$to$b64(this.serializeXmlNode(this.$graphModel.$view));
+        image.onload = function () {
+            canvas = document.createElement('canvas');
+            canvas.width = image.width;
+            canvas.height = image.height;
+            context = canvas.getContext('2d');
+            context.drawImage(image, 0, 0);
+            a = document.createElement('a');
+            a.download = "download.png";
+            a.href = canvas.toDataURL('image/png');
+            a.click();
+        };
     }
 
     public load(json: JSON | Object, owner ?: Control): any {

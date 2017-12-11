@@ -251,6 +251,10 @@ export class Util {
         return '#000';
     }
 
+    public static utf8$to$b64(str: string) : string {
+        return window.btoa(encodeURIComponent(str))
+    }
+
     public static showSVG(control: DiagramElement) {
         let svg = Util.create({
             tag: 'svg',

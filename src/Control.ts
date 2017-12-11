@@ -51,7 +51,6 @@ export abstract class Control {
         return data;
     }
 
-
     /**
      *  Set the new HTMLElement and attach listener to it.
      *  Also remove Listeners from old one and return the old one, if present.
@@ -142,9 +141,7 @@ export abstract class Control {
                     if (entity === null) {
                         continue;
                     }
-                } else {
                 }
-
                 if (entity) {
                     if (!hasRem) {
                         if (entity === this.$model) {
@@ -219,7 +216,6 @@ export abstract class Control {
         return null;
     }
 
-
     public hasItem(id: string): boolean {
         return false;
     }
@@ -240,10 +236,10 @@ export abstract class Control {
      * @param newValue
      */
     public propertyChange(entity: Data, property: string, oldValue: any, newValue: any) {
-        if (oldValue == newValue) {
+        if (oldValue === newValue) {
             return;
         }
-        if (oldValue == this.viewData.getValue(property)) {
+        if (oldValue === this.viewData.getValue(property)) {
             return;
         }
         // Set NewData to ViewData and Fire PC
@@ -278,7 +274,7 @@ export abstract class Control {
     }
 
     public controlChanged(ev: Event) {
-        if (this.$view instanceof HTMLInputElement == false) {
+        if (this.$view instanceof HTMLInputElement === false) {
             return;
         }
         let element = (<HTMLInputElement>this.$view);
@@ -389,6 +385,7 @@ export abstract class Control {
     // Eventtype:string,
     // id:string of Control
     public fireEvent(evt: Event): void {
+        // Do Nothing
     }
 
     public isClosed(): boolean {
@@ -418,7 +415,7 @@ export abstract class Control {
             // will generate a data Object suitable for the Control..
             // must be overridden, if the changeEvent shouldn't listen on value...
 //            return id + '.' + this.getStandardProperty();//+ "_data"
-            return id + '.' + '_data'
+            return id + '.' + '_data';
         }
         return null;
     }
@@ -441,7 +438,7 @@ export abstract class Control {
         if (!htmlElement) {
             return false;
         }
-        if (htmlElement instanceof HTMLElement == false) {
+        if (htmlElement instanceof HTMLElement === false) {
             return false;
         }
         let control = this;
