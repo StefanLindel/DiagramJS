@@ -124,7 +124,7 @@ export class Select implements EventHandler {
 
 
 
-
+            // properties panel stuff
             let clazz = <Clazz>e;
             if (clazz) {
                 // set class name of node in propertiespanel
@@ -148,7 +148,7 @@ export class Select implements EventHandler {
                     textBoxAttr.value = attributes[idx];
 
                     tabContentAttr.appendChild(textBoxAttr);
-                    tabContentAttr.appendChild(document.createTextNode('<br/>'));
+                    tabContentAttr.appendChild(document.createElement('br'));
                 }
 
                 // get tab content of attributes
@@ -167,7 +167,7 @@ export class Select implements EventHandler {
                     textBoxMethods.value = methods[idx];
 
                     tabContentMethods.appendChild(textBoxMethods);
-                    tabContentMethods.appendChild(document.createTextNode('<br/>'));
+                    tabContentMethods.appendChild(document.createElement('br'));
                 }
             }
 
@@ -175,7 +175,6 @@ export class Select implements EventHandler {
         }
 
         if (element instanceof Edge) {
-            // let e = <Edge>element;
             if (document.getElementById('trashcan') === null) {
                 this.svgRoot.appendChild(this.deleteShape);
             }
@@ -189,6 +188,24 @@ export class Select implements EventHandler {
 
             this.deleteShape.setAttributeNS(null, 'transform', `translate(${x} ${y})`);
             this.deleteShape.onclick = e => this.model.removeElement(element.id);
+
+
+
+            // properties panel stuff
+            let e = <Edge>element;
+            if(e){
+                // show label
+                let inputTypeEdgeLabel = document.getElementById('edgeLabelInput');
+                inputTypeEdgeLabel.setAttribute('value', e.$sNode.label + ' -> ' + e.$tNode.label);
+
+                // show source node
+                let inputTypeEdgeSrc = document.getElementById('edgeSrcInput');
+                inputTypeEdgeSrc.setAttribute('value', e.$sNode.label);
+
+                // show target node
+                let inputTypeEdgeTarget = document.getElementById('edgeTargetInput');
+                inputTypeEdgeTarget.setAttribute('value', e.$tNode.label);
+            }
         }
         return true;
     }

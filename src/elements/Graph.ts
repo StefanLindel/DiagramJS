@@ -352,7 +352,7 @@ export class Graph extends Control {
         }
 
         var dispatcher = new PropertiesPanel.PropertiesPanel.Dispatcher();
-        dispatcher.dispatch(PropertiesPanel.PropertiesPanel.PropertiesView.Class);
+        dispatcher.dispatch(PropertiesPanel.PropertiesPanel.PropertiesView.Edge);
 
         EventBus.subscribe(new NewEdge(this), 'mousedown', 'mouseup', 'mousemove', 'mouseleave');
     }
