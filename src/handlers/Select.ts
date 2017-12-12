@@ -1,10 +1,11 @@
-import {DiagramElement} from '../elements/BaseElements';
-import {Node} from '../elements/nodes';
-import {Edge} from '../elements/edges';
-import {Util} from '../util';
-import {GraphModel} from '../elements/Model';
-import {SymbolLibary} from '../elements/nodes/Symbol';
-import {EventHandler} from '../EventBus';
+import { DiagramElement } from '../elements/BaseElements';
+import { Node } from '../elements/nodes';
+import { Edge } from '../elements/edges';
+import { Util } from '../util';
+import { GraphModel } from '../elements/Model';
+import { SymbolLibary } from '../elements/nodes/Symbol';
+import { EventHandler } from '../EventBus';
+import { Clazz } from '../main';
 
 export class Select implements EventHandler {
 
@@ -41,14 +42,14 @@ export class Select implements EventHandler {
         const editShape = Util.createShape(editAttr);
         const editBkg = Util.createShape(attrCircle);
 
-        let editGroup = Util.createShape({tag: 'g', id: 'edit', transform: 'rotate(-45, 20, 20) translate(0 0)'});
+        let editGroup = Util.createShape({ tag: 'g', id: 'edit', transform: 'rotate(-45, 20, 20) translate(0 0)' });
         editGroup.appendChild(editBkg);
         editGroup.appendChild(editShape);
         this.editShape = editGroup;
 
         // const deleteBkg = Util.createShape(attrCircle);
 
-        this.deleteShape = SymbolLibary.drawSVG({type: 'Basket', background: true, id: 'trashcan'});
+        this.deleteShape = SymbolLibary.drawSVG({ type: 'Basket', background: true, id: 'trashcan' });
     }
 
     public handle(event: Event, element: DiagramElement): boolean {
@@ -66,7 +67,8 @@ export class Select implements EventHandler {
                 this.lastSelectedNode.setAttributeNS(null, 'stroke', 'black');
             }
 
-            // mark the border with blue
+            // mark the border with orange
+            // TODO: color has to be set to css file
             this.lastSelectedNode = <Element>element.$view.childNodes[0];
 
             this.lastSelectedNode.setAttributeNS(null, 'stroke', 'rgb(255, 160, 51)');
@@ -97,7 +99,8 @@ export class Select implements EventHandler {
                 this.lastSelectedNode.setAttributeNS(null, 'stroke', 'black');
             }
 
-            // mark the border with blue
+            // mark the border with orange
+            // TODO: color has to be set to css file
             this.lastSelectedNode = <Element>element.$view.childNodes[0];
 
             this.lastSelectedNode.setAttributeNS(null, 'stroke', 'rgb(255, 160, 51)');
@@ -118,6 +121,55 @@ export class Select implements EventHandler {
 
             this.deleteShape.setAttributeNS(null, 'transform', `translate(${x} ${y + 34 + this.padding})`);
             this.deleteShape.onclick = e => this.model.removeElement(element.id);
+
+
+
+
+            let clazz = <Clazz>e;
+            if (clazz) {
+                // set class name of node in propertiespanel
+                // outsource this code in own handler
+                let classNameInputText = document.getElementById('className');
+                classNameInputText.setAttribute('value', e.label);
+
+                // get tab content of attributes
+                let tabContentAttr = document.getElementById('clazzAttributes');
+
+                // remove previous attributes
+                while (tabContentAttr.firstChild) {
+                    tabContentAttr.removeChild(tabContentAttr.firstChild);
+                }
+
+                let attributes = clazz.getAttributes();
+                for (let idx in attributes) {
+                    let textBoxAttr = document.createElement('input');
+                    textBoxAttr.type = 'text';
+                    textBoxAttr.id = 'attrName' + attributes[idx];
+                    textBoxAttr.value = attributes[idx];
+
+                    tabContentAttr.appendChild(textBoxAttr);
+                    tabContentAttr.appendChild(document.createTextNode('<br/>'));
+                }
+
+                // get tab content of attributes
+                let tabContentMethods = document.getElementById('clazzMethods');
+
+                // remove previous methods
+                while (tabContentMethods.firstChild) {
+                    tabContentMethods.removeChild(tabContentMethods.firstChild);
+                }
+
+                let methods = clazz.getMethods();
+                for (let idx in methods) {
+                    let textBoxMethods = document.createElement('input');
+                    textBoxMethods.type = 'text';
+                    textBoxMethods.id = 'methodName' + methods[idx];
+                    textBoxMethods.value = methods[idx];
+
+                    tabContentMethods.appendChild(textBoxMethods);
+                    tabContentMethods.appendChild(document.createTextNode('<br/>'));
+                }
+            }
 
             return true;
         }

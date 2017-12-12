@@ -42,6 +42,14 @@ export class Clazz extends Node {
         return this;
     }
 
+    public getAttributes():string[]{
+        return this.attributes;
+    }
+
+    public getMethods():string[]{
+        return this.methods;
+    }
+
     public getSVG(): Element {
         if (this.style === 'modern') {
             return this.getModernStyle();
@@ -61,9 +69,6 @@ export class Clazz extends Node {
             style: 'fill:white;stroke-width:2',
             stroke: 'black'
         });
-
-
-
 
 
 
@@ -206,7 +211,9 @@ export class Clazz extends Node {
 
         if (changed) {
             this[type] = newProperties;
-            this.getSize().y = this.labelHeight + (this.attributes.length + this.methods.length) * this.attrHeight;
+            this.getSize().y = this.labelHeight + ((this.attributes.length + this.methods.length) * this.attrHeight) 
+                + this.attrHeight;
+
         }
         return changed;
     }

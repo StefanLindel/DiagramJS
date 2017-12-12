@@ -4,6 +4,7 @@ import * as layouts from '../layouts';
 import Layout from '../layouts/Layout';
 import {GraphModel} from './Model';
 import Palette from '../Palette';
+import * as PropertiesPanel from '../PropertiesPanel';
 import {Size, Point} from './BaseElements';
 import {Util} from '../util';
 import {Control} from '../Control';
@@ -349,6 +350,9 @@ export class Graph extends Control {
                 let palette = new Palette(this);
             }
         }
+
+        var dispatcher = new PropertiesPanel.PropertiesPanel.Dispatcher();
+        dispatcher.dispatch(PropertiesPanel.PropertiesPanel.PropertiesView.Class);
 
         EventBus.subscribe(new NewEdge(this), 'mousedown', 'mouseup', 'mousemove', 'mouseleave');
     }
