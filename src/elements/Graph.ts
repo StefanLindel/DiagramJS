@@ -351,8 +351,11 @@ export class Graph extends Control {
             }
         }
 
-        var dispatcher = new PropertiesPanel.PropertiesPanel.Dispatcher();
+        // var dispatcher = new PropertiesPanel.PropertiesPanel.Dispatcher();
+        // dispatcher.dispatch(PropertiesPanel.PropertiesPanel.PropertiesView.Edge);
+        let dispatcher = new PropertiesPanel.PropertiesPanel.Dispatcher();
         dispatcher.dispatch(PropertiesPanel.PropertiesPanel.PropertiesView.Edge);
+        EventBus.subscribe(dispatcher, 'click');
 
         EventBus.subscribe(new NewEdge(this), 'mousedown', 'mouseup', 'mousemove', 'mouseleave');
     }

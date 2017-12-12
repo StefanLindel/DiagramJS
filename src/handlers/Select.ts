@@ -124,52 +124,7 @@ export class Select implements EventHandler {
 
 
 
-            // properties panel stuff
-            let clazz = <Clazz>e;
-            if (clazz) {
-                // set class name of node in propertiespanel
-                // outsource this code in own handler
-                let classNameInputText = document.getElementById('className');
-                classNameInputText.setAttribute('value', e.label);
-
-                // get tab content of attributes
-                let tabContentAttr = document.getElementById('clazzAttributes');
-
-                // remove previous attributes
-                while (tabContentAttr.firstChild) {
-                    tabContentAttr.removeChild(tabContentAttr.firstChild);
-                }
-
-                let attributes = clazz.getAttributes();
-                for (let idx in attributes) {
-                    let textBoxAttr = document.createElement('input');
-                    textBoxAttr.type = 'text';
-                    textBoxAttr.id = 'attrName' + attributes[idx];
-                    textBoxAttr.value = attributes[idx];
-
-                    tabContentAttr.appendChild(textBoxAttr);
-                    tabContentAttr.appendChild(document.createElement('br'));
-                }
-
-                // get tab content of attributes
-                let tabContentMethods = document.getElementById('clazzMethods');
-
-                // remove previous methods
-                while (tabContentMethods.firstChild) {
-                    tabContentMethods.removeChild(tabContentMethods.firstChild);
-                }
-
-                let methods = clazz.getMethods();
-                for (let idx in methods) {
-                    let textBoxMethods = document.createElement('input');
-                    textBoxMethods.type = 'text';
-                    textBoxMethods.id = 'methodName' + methods[idx];
-                    textBoxMethods.value = methods[idx];
-
-                    tabContentMethods.appendChild(textBoxMethods);
-                    tabContentMethods.appendChild(document.createElement('br'));
-                }
-            }
+            
 
             return true;
         }
@@ -191,21 +146,6 @@ export class Select implements EventHandler {
 
 
 
-            // properties panel stuff
-            let e = <Edge>element;
-            if(e){
-                // show label
-                let inputTypeEdgeLabel = document.getElementById('edgeLabelInput');
-                inputTypeEdgeLabel.setAttribute('value', e.$sNode.label + ' -> ' + e.$tNode.label);
-
-                // show source node
-                let inputTypeEdgeSrc = document.getElementById('edgeSrcInput');
-                inputTypeEdgeSrc.setAttribute('value', e.$sNode.label);
-
-                // show target node
-                let inputTypeEdgeTarget = document.getElementById('edgeTargetInput');
-                inputTypeEdgeTarget.setAttribute('value', e.$tNode.label);
-            }
         }
         return true;
     }

@@ -1,53 +1,160 @@
-export namespace PropertiesPanel{
+import { Clazz } from './elements/nodes/Clazz';
+import { EventHandler } from './EventBus';
+import { Edge } from './elements/index';
+import { DiagramElement } from './elements/BaseElements';
 
-    export enum PropertiesView{
+export namespace PropertiesPanel {
+
+    export enum PropertiesView {
         Clazz = 'clazz',
         Object = 'object',
         Edge = 'edge'
     }
 
-    export class Dispatcher{
+    export class Dispatcher implements EventHandler {
+        private _blankView: BlankView;
 
-        private _blankView : BlankView;
-        
-        constructor(){
+        constructor() {
             this._blankView = new BlankView();
         }
 
-        public dispatch(view : PropertiesView) : void{
+        public dispatch(view: PropertiesView): void {
             let createdView = this.createView(view);
             this._blankView.show(createdView);
         }
 
-        private createView(view : PropertiesView) : APanel{
+        public getCurrentView(): PropertiesView {
+            return this._blankView.getCurrentView();
+        }
+
+        private createView(view: PropertiesView): APanel {
+
             let panel;
-            if(view === PropertiesView.Clazz){
+            if (this._blankView && this._blankView.getCurrentView() === view) {
+                return this._blankView.getCurrentPanel();
+            }
+
+            if (view === PropertiesView.Clazz) {
                 panel = new ClassPanel();
             }
-            if(view === PropertiesView.Object){
+            if (view === PropertiesView.Object) {
                 panel = new ObjectPanel();
             }
-            if(view === PropertiesView.Edge){
+            if (view === PropertiesView.Edge) {
                 panel = new EdgePanel();
             }
-    
+
             panel.init();
             return panel;
         }
+
+        handle(event: Event, element: DiagramElement): boolean {
+            this.handleSelectNodeEvent(event, element);
+            this.handleSelectEdgeEvent(event, element);
+
+            return true;
+        }
+        isEnable(): boolean {
+            return true;
+        }
+
+        private handleSelectEdgeEvent(event: Event, element: DiagramElement) {
+
+            // properties panel stuff
+            if (!(element instanceof Edge)) {
+                return false;
+            }
+
+            let edge = <Edge>element;
+            this.dispatch(PropertiesView.Edge);
+
+            // show label
+            let inputTypeEdgeLabel = document.getElementById('edgeLabelInput');
+            inputTypeEdgeLabel.setAttribute('value', edge.$sNode.label + ' -> ' + edge.$tNode.label);
+
+            // show source node
+            let inputTypeEdgeSrc = document.getElementById('edgeSrcInput');
+            inputTypeEdgeSrc.setAttribute('value', edge.$sNode.label);
+
+            // show target node
+            let inputTypeEdgeTarget = document.getElementById('edgeTargetInput');
+            inputTypeEdgeTarget.setAttribute('value', edge.$tNode.label);
+
+            return true;
+        }
+
+        private handleSelectNodeEvent(event: Event, element: DiagramElement): boolean {
+
+            // properties panel stuff
+            if (!(element instanceof Clazz)) {
+                return false;
+            }
+
+            let clazz = <Clazz>element;
+            this.dispatch(PropertiesView.Clazz);
+
+            // set class name of node in propertiespanel
+            // outsource this code in own handler
+            let classNameInputText = document.getElementById('className');
+            classNameInputText.setAttribute('value', clazz.label);
+
+            // get tab content of attributes
+            let tabContentAttr = document.getElementById('clazzAttributes');
+
+            // remove previous attributes
+            while (tabContentAttr.firstChild) {
+                tabContentAttr.removeChild(tabContentAttr.firstChild);
+            }
+
+            let attributes = clazz.getAttributes();
+            for (let idx in attributes) {
+                let textBoxAttr = document.createElement('input');
+                textBoxAttr.type = 'text';
+                textBoxAttr.id = 'attrName' + attributes[idx];
+                textBoxAttr.value = attributes[idx];
+
+                tabContentAttr.appendChild(textBoxAttr);
+                tabContentAttr.appendChild(document.createElement('br'));
+            }
+
+            // get tab content of attributes
+            let tabContentMethods = document.getElementById('clazzMethods');
+
+            // remove previous methods
+            while (tabContentMethods.firstChild) {
+                tabContentMethods.removeChild(tabContentMethods.firstChild);
+            }
+
+            let methods = clazz.getMethods();
+            for (let idx in methods) {
+                let textBoxMethods = document.createElement('input');
+                textBoxMethods.type = 'text';
+                textBoxMethods.id = 'methodName' + methods[idx];
+                textBoxMethods.value = methods[idx];
+
+                tabContentMethods.appendChild(textBoxMethods);
+                tabContentMethods.appendChild(document.createElement('br'));
+            }
+
+
+            return true;
+        }
     }
 
-    export class BlankView{
+    export class BlankView {
 
-        protected _divMainPanel : HTMLDivElement;
-        protected _divChildPanel : HTMLDivElement;
-        protected _hideProp : boolean;
+        protected _divMainPanel: HTMLDivElement;
+        protected _divChildPanel: HTMLDivElement;
+        protected _hideProp: boolean;
+        private _currentView: PropertiesView;
+        private _currentPanel: APanel;
 
-        constructor(){
+        constructor() {
             this.initMainPanel();
         }
 
-        private initMainPanel(): void{
-            if(document.getElementById('classProp')){
+        private initMainPanel(): void {
+            if (document.getElementById('classProp')) {
                 return;
             }
 
@@ -69,16 +176,16 @@ export namespace PropertiesPanel{
             document.body.appendChild(this._divMainPanel);
         }
 
-        private hideproperties(evt : Event) : void {
+        private hideproperties(evt: Event): void {
 
-            if(this._hideProp == true){
+            if (this._hideProp == true) {
                 console.log("hide properties");
                 document.getElementById("properties").className = "properties-hidden";
                 document.getElementById("classProp").className = "propertiespanel-hidden";
                 (<HTMLInputElement>document.getElementById((<any>evt.target).id)).innerHTML = '&#8896;';
-                
+
             }
-            else{
+            else {
                 console.log("show properties");
                 document.getElementById("properties").className = "properties";
                 document.getElementById("classProp").className = "propertiespanel";
@@ -87,50 +194,67 @@ export namespace PropertiesPanel{
             this._hideProp = !this._hideProp;
         }
 
-        public show(panel : APanel) : void{
+        public show(panel: APanel): void {
             // remove the previous properties view
-            if(this._divChildPanel !== undefined){
+            if (this._divChildPanel) {
                 let previousView = document.getElementById(this._divChildPanel.id);
-                if(previousView){
+                if (previousView) {
                     this._divMainPanel.removeChild(previousView);
                     console.log("REMOVED: " + panel.getPropertiesView());
                 }
             }
 
             // set the newer properties view
+            this._currentPanel = panel;
+            this._currentView = panel.getPropertiesView();
             this._divChildPanel = panel.getPanel();
             this._divMainPanel.appendChild(this._divChildPanel);
         }
 
+        public getCurrentView(): PropertiesView {
+            return this._currentView;
+        }
+
+        public getCurrentPanel(): APanel {
+            return this._currentPanel;
+        }
+
     }
 
-    export abstract class APanel{
-        protected _divChildPanel : HTMLDivElement;
-        protected _divTabbedPanel : HTMLDivElement;
+    export abstract class APanel {
+        protected _divChildPanel: HTMLDivElement;
+        protected _divTabbedPanel: HTMLDivElement;
 
-        constructor(){
+        constructor() {
             // div for properties
             this._divChildPanel = document.createElement('div');
             this._divChildPanel.id = 'properties';
-            this._divChildPanel.className = 'properties-hidden';
+
+            if(document.getElementById("classProp").className.indexOf('hidden') > -1){
+                this._divChildPanel.className = 'properties-hidden';
+            }
+            else{
+                this._divChildPanel.className = 'properties';
+            }
+            
 
             this._divTabbedPanel = document.createElement('div');
             this._divTabbedPanel.id = 'classtabproperties';
             this._divTabbedPanel.className = 'tabbedpane';
 
             // add tabbed panel
-            this._divChildPanel.appendChild( this._divTabbedPanel);
+            this._divChildPanel.appendChild(this._divTabbedPanel);
         }
 
-        abstract init() : void;
+        abstract init(): void;
 
-        abstract getPropertiesView() : PropertiesView;
+        abstract getPropertiesView(): PropertiesView;
 
-        public getPanel() : HTMLDivElement{
+        public getPanel(): HTMLDivElement {
             return this._divChildPanel;
         }
 
-        protected createTabElement(id : string, value : string) : HTMLButtonElement{
+        protected createTabElement(id: string, value: string): HTMLButtonElement {
             let tabElementBtn = document.createElement('button');
             tabElementBtn.id = id;
             tabElementBtn.className = 'tablinks';
@@ -138,14 +262,14 @@ export namespace PropertiesPanel{
 
             tabElementBtn.onclick = e => this.openTab(id);
 
-            return tabElementBtn;      
+            return tabElementBtn;
         }
 
-        protected openTab(clickedId : string):void{
+        protected openTab(clickedId: string): void {
             console.log(`tab ${clickedId} was opened!`);
 
             let tabs = document.getElementsByClassName('tablinks');
-            for(let i = 0; i < tabs.length; i++){
+            for (let i = 0; i < tabs.length; i++) {
                 tabs[i].className = tabs[i].className.replace('active', '');
             }
 
@@ -155,7 +279,7 @@ export namespace PropertiesPanel{
 
             // hide other tabcontent
             let tabContents = document.getElementsByClassName('tabcontent');
-            for(let i = 0; i < tabContents.length; i++){
+            for (let i = 0; i < tabContents.length; i++) {
                 (<HTMLElement>tabContents[i]).style.display = 'none';
             }
 
@@ -164,15 +288,22 @@ export namespace PropertiesPanel{
                 .style.display = 'block';
 
         }
+
+        public showFirstTab():void{
+            let tabs = document.getElementsByClassName('tablinks');
+            if(tabs && tabs.length > 0){
+                this.openTab(tabs[0].id);
+            }
+        }
     }
 
-    export class ClassPanel extends APanel{
+    export class ClassPanel extends APanel {
 
-        constructor(){
+        constructor() {
             super();
         }
 
-        public init() : void{
+        public init(): void {
             // create and append tab elements
             this._divTabbedPanel.appendChild(this.createTabElement('generalClassPropBtn', 'General'));
             this._divTabbedPanel.appendChild(this.createTabElement('attrClassPropBtn', 'Attributes'));
@@ -183,11 +314,11 @@ export namespace PropertiesPanel{
             this.createTabMethodContent();
         }
 
-        public getPropertiesView() : PropertiesView{
+        public getPropertiesView(): PropertiesView {
             return PropertiesView.Clazz;
         }
 
-        private createTabGeneralContent() : void{
+        private createTabGeneralContent(): void {
 
             let div = document.createElement('div');
             div.id = this.getPropertiesView().toString().toLowerCase() + 'General';
@@ -203,11 +334,11 @@ export namespace PropertiesPanel{
 
             div.appendChild(document.createTextNode('Name: '));
             div.appendChild(textBoxClass);
-            
+
             this._divChildPanel.appendChild(div);
         }
 
-        private createTabAttrContent() : void{
+        private createTabAttrContent(): void {
 
             let div = document.createElement('div');
             div.id = this.getPropertiesView().toString().toLowerCase() + 'Attributes';
@@ -221,11 +352,11 @@ export namespace PropertiesPanel{
 
             div.appendChild(document.createTextNode('Attribute: '));
             div.appendChild(textBoxAttr);
-            
+
             this._divChildPanel.appendChild(div);
         }
 
-        private createTabMethodContent() : void{
+        private createTabMethodContent(): void {
 
             let div = document.createElement('div');
             div.id = this.getPropertiesView().toString().toLowerCase() + 'Methods';
@@ -240,13 +371,13 @@ export namespace PropertiesPanel{
 
             div.appendChild(document.createTextNode('Method: '));
             div.appendChild(textBoxMethod);
-            
+
             this._divChildPanel.appendChild(div);
         }
     }
 
-    export class EdgePanel extends APanel{
-        constructor(){
+    export class EdgePanel extends APanel {
+        constructor() {
             super();
         }
 
@@ -297,19 +428,19 @@ export namespace PropertiesPanel{
             div.appendChild(document.createElement('br'));
             div.appendChild(document.createTextNode('Target: '));
             div.appendChild(textBoxEdgeTarget);
-            
+
             this._divChildPanel.appendChild(div);
         }
     }
 
-    export class ObjectPanel extends APanel{
+    export class ObjectPanel extends APanel {
 
-        constructor(){
+        constructor() {
             super();
         }
 
-        public init() : void{
-            
+        public init(): void {
+
             // div for class properties
             this._divChildPanel = document.createElement('div');
             this._divChildPanel.id = 'properties';
@@ -331,7 +462,7 @@ export namespace PropertiesPanel{
             this._divChildPanel.appendChild(textBoxObjectAttr);
         }
 
-        public getPropertiesView() : PropertiesView{
+        public getPropertiesView(): PropertiesView {
             return PropertiesView.Object;
         }
     }
