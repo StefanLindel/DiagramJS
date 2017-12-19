@@ -2,12 +2,17 @@ import { Node } from './Node';
 import { EventBus } from '../../EventBus';
 import { Util } from '../../util';
 import { Point } from '../BaseElements';
+import Attribute from './Attribute';
 
 export class Clazz extends Node {
     protected labelHeight = 25;
     protected labelFontSize = 14;
     protected attrHeight = 25;
     protected attrFontSize = 12;
+
+    //TODO: create classes for methods and attributes
+    private attributesObj : Attribute[] = [];
+
     private attributes: string[] = [];
     private methods: string[] = [];
     private style: string;
@@ -25,6 +30,9 @@ export class Clazz extends Node {
 
         if (json['attributes']) {
             for (let attr of json['attributes']) {
+                this.attributesObj.push(new Attribute(attr));
+
+                // Obsolete
                 this.attributes.push(attr);
                 y += this.attrHeight;
                 width = Math.max(width, Util.sizeOf(attr, this).width);
@@ -109,7 +117,7 @@ export class Clazz extends Node {
             group.appendChild(separatorLabelAttr);
 
             let y = pos.y + this.labelHeight + this.attrHeight / 2;
-            for (let element of this.attributes) {
+            for (let element of this.attributesObj) {
                 const attrText = {
                     tag: 'text',
                     x: pos.x + 10,
@@ -121,7 +129,7 @@ export class Clazz extends Node {
                     fill: 'black'
                 };
                 let text = this.createShape(attrText);
-                text.textContent = element;
+                text.textContent = element.toString();
                 group.appendChild(text);
                 y += this.attrHeight;
             }

@@ -2,6 +2,7 @@ import { Clazz } from './elements/nodes/Clazz';
 import { EventHandler } from './EventBus';
 import { Edge } from './elements/index';
 import { DiagramElement } from './elements/BaseElements';
+import { Graph } from './elements/Graph';
 
 export namespace PropertiesPanel {
 
@@ -11,11 +12,14 @@ export namespace PropertiesPanel {
         Edge = 'edge'
     }
 
+
     export class Dispatcher implements EventHandler {
         private _blankView: BlankView;
+        private _graph : Graph;
 
-        constructor() {
+        constructor(graph:Graph) {
             this._blankView = new BlankView();
+            this._graph = graph;
         }
 
         public dispatch(view: PropertiesView): void {
@@ -90,6 +94,7 @@ export namespace PropertiesPanel {
                 return false;
             }
 
+            let graph = this._graph;
             let clazz = <Clazz>element;
             this.dispatch(PropertiesView.Clazz);
 
@@ -97,6 +102,14 @@ export namespace PropertiesPanel {
             // outsource this code in own handler
             let classNameInputText = document.getElementById('className');
             classNameInputText.setAttribute('value', clazz.label);
+
+            
+
+            classNameInputText.addEventListener('change', function(){
+                clazz.label = (<any>classNameInputText).value;
+                console.log('onchange');
+                graph.layout();
+            });
 
             // get tab content of attributes
             let tabContentAttr = document.getElementById('clazzAttributes');
@@ -128,9 +141,15 @@ export namespace PropertiesPanel {
             let methods = clazz.getMethods();
             for (let idx in methods) {
                 let textBoxMethods = document.createElement('input');
+                
+
                 textBoxMethods.type = 'text';
                 textBoxMethods.id = 'methodName' + methods[idx];
                 textBoxMethods.value = methods[idx];
+                textBoxMethods.addEventListener('change', function(){
+                    clazz.convertStringToProperty(textBoxMethods.value, 'methods') || false;
+                    graph.layout();
+                });
 
                 tabContentMethods.appendChild(textBoxMethods);
                 tabContentMethods.appendChild(document.createElement('br'));
@@ -162,7 +181,7 @@ export namespace PropertiesPanel {
             this._divMainPanel = document.createElement('div');
             this._divMainPanel.id = 'classProp'
             this._divMainPanel.className = 'propertiespanel-hidden';
-            this._divMainPanel.innerHTML = 'Eigenschaften';
+            this._divMainPanel.innerHTML = 'Properties';
 
             // button to display and hide the properties of e.g. a class
             let btnDivMainDisplay = document.createElement('button');
@@ -209,6 +228,8 @@ export namespace PropertiesPanel {
             this._currentView = panel.getPropertiesView();
             this._divChildPanel = panel.getPanel();
             this._divMainPanel.appendChild(this._divChildPanel);
+
+            panel.showFirstTab();
         }
 
         public getCurrentView(): PropertiesView {

@@ -77,6 +77,8 @@ export class Drag implements EventHandler {
         this.mouseOffset.y = evt.clientY;
 
         if (this.element.id === 'RootElement') {
+            console.log('start root');
+
             this.svgRoot.style.cursor = 'move';
             this.svgRoot.style.cursor = 'grabbing';
             this.svgRoot.style.cursor = '-moz-grabbin';
@@ -110,6 +112,9 @@ export class Drag implements EventHandler {
             element.$view.dispatchEvent(dragEvent);
         }
         if (element.id === 'RootElement') {
+
+            console.log('root was dragged');
+
             if (element.id !== this.element.id) {
                 return;
             }

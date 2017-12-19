@@ -10,7 +10,7 @@ import {Util} from '../util';
 import {Control} from '../Control';
 import Data from '../Data';
 import {EventBus} from '../EventBus';
-import {Editor, Drag, Select, Zoom, NewEdge} from '../handlers';
+import {Editor, Drag, Select, Zoom, NewEdge, AddNode} from '../handlers';
 import Options from '../Options';
 import {ImportFile} from '../handlers/ImportFile';
 import {SymbolLibary} from './nodes/Symbol';
@@ -353,10 +353,11 @@ export class Graph extends Control {
 
         // var dispatcher = new PropertiesPanel.PropertiesPanel.Dispatcher();
         // dispatcher.dispatch(PropertiesPanel.PropertiesPanel.PropertiesView.Edge);
-        let dispatcher = new PropertiesPanel.PropertiesPanel.Dispatcher();
+        let dispatcher = new PropertiesPanel.PropertiesPanel.Dispatcher(this);
         dispatcher.dispatch(PropertiesPanel.PropertiesPanel.PropertiesView.Edge);
         EventBus.subscribe(dispatcher, 'click');
 
         EventBus.subscribe(new NewEdge(this), 'mousedown', 'mouseup', 'mousemove', 'mouseleave');
+        EventBus.subscribe(new AddNode(this), 'mousedown', 'mouseup', 'mousemove', 'mouseleave');
     }
 }
