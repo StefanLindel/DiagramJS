@@ -130,6 +130,8 @@ export class Drag implements EventHandler {
             }
         }
         else {
+            event.stopPropagation();
+
             let node = <Node>element;
             const translation = this.svgElement.getAttributeNS(null, 'transform').slice(10, -1).split(' ');
             const sx = parseInt(translation[0]);
@@ -140,6 +142,8 @@ export class Drag implements EventHandler {
             node.getPos().addNum(transX - sx, transY - sy);
             node.redrawEdges();
             // this.graph.reLayout();
+
+            console.log('node ' + node.label + ' was dragged');
         }
         this.mouseOffset.x = evt.clientX;
         this.mouseOffset.y = evt.clientY;

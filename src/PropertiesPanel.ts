@@ -6,6 +6,10 @@ import { Graph } from './elements/Graph';
 
 export namespace PropertiesPanel {
 
+    //TODO: methods und attribute in einzelne klassen umwandeln und
+    // modifier, namen und typ einzeln in einem element darstellen
+    // method erhalten dazu weitere elemente zum bearbeiten von parametern
+
     export enum PropertiesView {
         Clazz = 'clazz',
         Object = 'object',

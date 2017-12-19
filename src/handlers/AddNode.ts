@@ -8,10 +8,11 @@ import { Util } from '../util';
 
 export class AddNode implements EventHandler {
 
-    public MIN_SIZE_TO_ADD_NODE : number = 10;
+    public MIN_SIZE_TO_ADD_NODE : number = 30;
     private graph: Graph;
     private svgRoot: SVGSVGElement;
     private svgRect: SVGSVGElement;
+    private svgRectWithText: SVGSVGElement;
     private isRectDrawing: boolean;
     private isBigEnoughForAddNode: boolean;
     private x: number;
@@ -62,8 +63,15 @@ export class AddNode implements EventHandler {
         if (!this.isRectDrawing) {
             return;
         }
+
+        evt.stopPropagation();
+
         let width = evt.layerX-this.x;
         let height = evt.layerY-this.y;
+
+        if(width < 0 || height < 0){
+            return;
+        }
 
         if(width > this.MIN_SIZE_TO_ADD_NODE && height > this.MIN_SIZE_TO_ADD_NODE){
             this.isBigEnoughForAddNode = true;
@@ -77,43 +85,54 @@ export class AddNode implements EventHandler {
         // if line wasnt draw
         if (!this.svgRect) {
 
-            let rectAddNode = {
+            let rectAddNode = Util.createShape({
                 tag: 'rect',
                 id: 'addNodeRect',
                 x: this.x,
                 y: this.y,
                 width: 1,
                 height: 1,
-                stroke: 'blue',
-                'stroke-width': '2',
-                fill: 'none'
-            };
+                stroke: 'rgba(0,0,255,1)',
+                'stroke-width': '1',
+                fill: 'rgba(0,0,255,0.225)'
+            });
 
-            let textAddNode = {
+            let textAddNode = Util.createShape({
                 tag: 'text',
-                x: this.x,
-                y: this.y,
+                x: this.x+33,
+                y: (this.y-10),
                 'text-anchor': 'middle',
                 'alignment-baseline': 'central',
                 'font-family': 'Verdana',
-                'font-size': 14,
-                'font-weight': 'bold',
+                'font-size': 12,
                 fill: 'black'
-            }
+            });
+            textAddNode.textContent = 'Create new';
 
             let group = Util.createShape({ tag: 'g', id: 'groupAddNode', transform: 'translate(0 0)' });
             group.appendChild(rectAddNode);
-            group.appendChild(label);
+            group.appendChild(textAddNode);
 
-            let shape = Util.createShape(rectAddNode);
-            this.svgRoot.appendChild(shape);
-            this.svgRect = shape;
+            // let shape = Util.createShape(rectAddNode);
+            this.svgRoot.appendChild(group);
+            this.svgRect = rectAddNode;
+            this.svgRectWithText = group;
         }
         else {
 
             // set width and height
             this.svgRect.setAttributeNS(null, 'width', width.toString());
             this.svgRect.setAttributeNS(null, 'height', height.toString());
+
+            // set color
+            if(this.isBigEnoughForAddNode){
+                this.svgRect.setAttributeNS(null, 'stroke', 'rgba(0,255,0,1)');
+                this.svgRect.setAttributeNS(null, 'fill', 'rgba(0,255,0,0.225)');
+            }
+            else{
+                this.svgRect.setAttributeNS(null, 'stroke', 'rgba(0,0,255,1)');
+                this.svgRect.setAttributeNS(null, 'fill', 'rgba(0,0,255,0.225)');
+            }
         }
     }
 
@@ -121,11 +140,14 @@ export class AddNode implements EventHandler {
         this.isRectDrawing = false;    
         this.isBigEnoughForAddNode = false;
 
-        if (this.svgRect) {
-            this.svgRoot.removeChild(this.svgRect);
+        if (this.svgRectWithText) {
+            this.svgRoot.removeChild(this.svgRectWithText);
+            this.svgRectWithText = null;
+        }
+
+        if(this.svgRect){
             this.svgRect = null;
         }
-        
     }
 
     private addNode(): void{
