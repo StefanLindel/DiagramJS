@@ -19,6 +19,7 @@ export * from './HTML';
 export * from './Dice';
 export * from './AutoComplete';
 export * from './Attribute';
+export * from './Method';
 
 new AutoComplete();
 new BR();

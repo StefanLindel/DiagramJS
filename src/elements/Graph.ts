@@ -267,8 +267,8 @@ export class Graph extends Control {
             id: 'background',
             width: 5000,
             height: 5000,
-            x: -1500,
-            y: -1500,
+            x: 0,
+            y: 0,
             stroke: '#999',
             'stroke-width': '1',
             fill: 'url(#raster)'
@@ -344,7 +344,7 @@ export class Graph extends Control {
                 EventBus.subscribe(new Drag(this), 'mousedown', 'mouseup', 'mousemove', 'mouseleave');
             }
             if (features.select) {
-                EventBus.subscribe(new Select(this.$graphModel), 'click', 'drag');
+                EventBus.subscribe(new Select(this.$graphModel, this), 'click', 'drag');
             }
             if (features.palette) {
                 let palette = new Palette(this);

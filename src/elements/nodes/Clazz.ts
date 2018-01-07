@@ -117,7 +117,7 @@ export class Clazz extends Node {
             group.appendChild(separatorLabelAttr);
 
             let y = pos.y + this.labelHeight + this.attrHeight / 2;
-            for (let element of this.attributesObj) {
+            for (let element of this.attributes) {
                 const attrText = {
                     tag: 'text',
                     x: pos.x + 10,
@@ -224,6 +224,31 @@ export class Clazz extends Node {
 
         }
         return changed;
+    }
+
+    public addProperty(value : string, type : string) : void{
+        if(!this[type] || !value || value.length === 0){
+            return;
+        }
+
+        for(let valueOfType of this[type]){
+            if(valueOfType === value){
+                return;
+            }
+        }
+
+        this[type].push(value);
+
+        this.getSize().y = this.labelHeight + ((this.attributes.length + this.methods.length) * this.attrHeight) 
+        + this.attrHeight;
+    }
+
+    public addAttribute(value : string) : void{
+        this.addProperty(value, 'attributes');
+    }
+
+    public addMethod(value : string) : void{
+        this.addProperty(value, 'methods');
     }
 
     private getModernStyle(): Element {

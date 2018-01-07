@@ -14,6 +14,8 @@ export class AddNode implements EventHandler {
     private svgRect: SVGSVGElement;
     private svgRectWithText: SVGSVGElement;
     private isRectDrawing: boolean;
+    private isDrawToLeft: boolean;
+    private isDrawToTop: boolean;
     private isBigEnoughForAddNode: boolean;
     private x: number;
     private y: number;
@@ -28,6 +30,10 @@ export class AddNode implements EventHandler {
     }
 
     public handle(event: Event, element: DiagramElement): boolean {
+
+        if ((<KeyboardEvent>window.event).ctrlKey) {
+            return true;
+        }
 
         if (this.svgRoot !== <SVGSVGElement><any>document.getElementById('root')) {
             this.svgRoot = <SVGSVGElement><any>document.getElementById('root');
@@ -68,9 +74,22 @@ export class AddNode implements EventHandler {
 
         let width = evt.layerX-this.x;
         let height = evt.layerY-this.y;
+        
+        // rectangle is in a negative area, drawn to upper case. not possibble with svg
+        if(width < 0){
+            this.isDrawToLeft = true;
+            width *= -1;
+        }
+        else{
+            this.isDrawToLeft = false;
+        }
 
-        if(width < 0 || height < 0){
-            return;
+        if(height < 0){
+            this.isDrawToTop = true;
+            height *= -1;
+        }
+        else{
+            this.isDrawToTop = false;
         }
 
         if(width > this.MIN_SIZE_TO_ADD_NODE && height > this.MIN_SIZE_TO_ADD_NODE){
@@ -92,7 +111,7 @@ export class AddNode implements EventHandler {
                 y: this.y,
                 width: 1,
                 height: 1,
-                stroke: 'rgba(0,0,255,1)',
+                stroke: 'rgba(255, 160, 51, 1)',
                 'stroke-width': '1',
                 fill: 'rgba(0,0,255,0.225)'
             });
@@ -120,6 +139,14 @@ export class AddNode implements EventHandler {
         }
         else {
 
+            if(this.isDrawToLeft){
+                this.svgRect.setAttributeNS(null, 'x', evt.layerX );
+            }
+
+            if(this.isDrawToTop){
+                this.svgRect.setAttributeNS(null, 'y', evt.layerY);
+            }
+
             // set width and height
             this.svgRect.setAttributeNS(null, 'width', width.toString());
             this.svgRect.setAttributeNS(null, 'height', height.toString());
@@ -130,8 +157,8 @@ export class AddNode implements EventHandler {
                 this.svgRect.setAttributeNS(null, 'fill', 'rgba(0,255,0,0.225)');
             }
             else{
-                this.svgRect.setAttributeNS(null, 'stroke', 'rgba(0,0,255,1)');
-                this.svgRect.setAttributeNS(null, 'fill', 'rgba(0,0,255,0.225)');
+                this.svgRect.setAttributeNS(null, 'stroke', 'rgba(255, 160, 51, 1)');
+                this.svgRect.setAttributeNS(null, 'fill', 'rgba(255, 160, 51, 0.225)');
             }
         }
     }

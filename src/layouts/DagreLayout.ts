@@ -6,7 +6,7 @@ import {DiagramElement} from '../elements/BaseElements';
 
 export class DagreLayout implements Layout {
 
-    private g: any;
+    // private g: any;
 
     public layout(graph: Graph, node: DiagramElement) {
         if (!window['dagre']) {
@@ -16,17 +16,17 @@ export class DagreLayout implements Layout {
 
         let innerG: any;
 
-        if (this.g) {
-            innerG = this.g;
-        } else {
+        // if (this.g) {
+        //     innerG = this.g;
+        // } else {
              innerG = new window['dagre'].graphlib.Graph();
-             this.g = innerG;
+            //  this.g = innerG;
 
             // const g = new dagre.graphlib.Graph();
             innerG.setGraph({marginx: 20, marginy: 20}).setDefaultEdgeLabel(function () {
                 return {};
             });
-        }
+        // }
 
         if (model.nodes) {
             for (let id in model.nodes) {

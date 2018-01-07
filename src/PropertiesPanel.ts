@@ -106,12 +106,9 @@ export namespace PropertiesPanel {
             // outsource this code in own handler
             let classNameInputText = document.getElementById('className');
             classNameInputText.setAttribute('value', clazz.label);
-
             
-
             classNameInputText.addEventListener('change', function(){
                 clazz.label = (<any>classNameInputText).value;
-                console.log('onchange');
                 graph.layout();
             });
 
@@ -202,14 +199,12 @@ export namespace PropertiesPanel {
         private hideproperties(evt: Event): void {
 
             if (this._hideProp == true) {
-                console.log("hide properties");
                 document.getElementById("properties").className = "properties-hidden";
                 document.getElementById("classProp").className = "propertiespanel-hidden";
                 (<HTMLInputElement>document.getElementById((<any>evt.target).id)).innerHTML = '&#8896;';
 
             }
             else {
-                console.log("show properties");
                 document.getElementById("properties").className = "properties";
                 document.getElementById("classProp").className = "propertiespanel";
                 (<HTMLInputElement>document.getElementById((<any>evt.target).id)).innerHTML = '&#8897;';
@@ -223,7 +218,6 @@ export namespace PropertiesPanel {
                 let previousView = document.getElementById(this._divChildPanel.id);
                 if (previousView) {
                     this._divMainPanel.removeChild(previousView);
-                    console.log("REMOVED: " + panel.getPropertiesView());
                 }
             }
 
@@ -291,8 +285,6 @@ export namespace PropertiesPanel {
         }
 
         protected openTab(clickedId: string): void {
-            console.log(`tab ${clickedId} was opened!`);
-
             let tabs = document.getElementsByClassName('tablinks');
             for (let i = 0; i < tabs.length; i++) {
                 tabs[i].className = tabs[i].className.replace('active', '');
