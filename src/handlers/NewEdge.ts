@@ -14,6 +14,8 @@ export class NewEdge implements EventHandler {
     private x: number;
     private y: number;
 
+    private lastHighlightedNode: Element;
+
     constructor(graph: Graph) {
         this.svgRoot = <SVGSVGElement><any>document.getElementById('root');
         this.graph = graph;
@@ -88,6 +90,24 @@ export class NewEdge implements EventHandler {
 
             // set new L path
             this.svgLine.setAttributeNS(null, 'd', path);
+
+            // get node from position
+            let targetNode = this.graph.$graphModel.getNodeByPosition(evt.layerX, evt.layerY);
+
+            // if some targetnode is available, so highlight the node
+            if(targetNode){
+
+                // reset the last one
+                if (this.lastHighlightedNode !== <Element>targetNode.$view.childNodes[0] && this.lastHighlightedNode) {
+                    this.lastHighlightedNode.setAttributeNS(null, 'class', 'SVGClazz');
+                }
+
+                this.lastHighlightedNode = <Element>targetNode.$view.childNodes[0];
+                this.lastHighlightedNode.setAttributeNS(null, 'class', 'SVGClazz-drawedge');
+            }
+            else if(this.lastHighlightedNode) {
+                this.lastHighlightedNode.setAttributeNS(null, 'class', 'SVGClazz');
+            }
         }
     }
 
@@ -132,5 +152,8 @@ export class NewEdge implements EventHandler {
 
         this.x = evt.layerX;
         this.y = evt.layerY;
+
+        // highlight the start node
+
     }
 }

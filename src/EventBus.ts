@@ -55,9 +55,10 @@ export class EventBus {
             }
             pos = event.indexOf(':');
             if (pos > 0) {
-                view.addEventListener(event.substr(pos + 1).toLowerCase(), EventBus.publish.bind(null, control));
+                // TODO: solve problem with firefox: window.event is undefined
+                view.addEventListener(event.substr(pos + 1).toLowerCase(), function(evt){EventBus.publish(<DiagramElement>control, evt);});
             } else {
-                view.addEventListener(event.substr(pos + 1).toLowerCase(), EventBus.publish.bind(null, control));
+                view.addEventListener(event.substr(pos + 1).toLowerCase(), function(evt){EventBus.publish(<DiagramElement>control, evt);});
             }
         }
     }
@@ -71,7 +72,9 @@ export class EventBus {
     // }
     // }
 
-    public static publish(element: DiagramElement, event: Event) {
+    public static publish(element: DiagramElement, evt: Event) {
+        let event = evt || window.event;
+
         let handlers = EventBus.handlers[event.type];
         if (handlers) {
             for (let handler of handlers) {

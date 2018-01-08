@@ -111,9 +111,7 @@ export class AddNode implements EventHandler {
                 y: this.y,
                 width: 1,
                 height: 1,
-                stroke: 'rgba(255, 160, 51, 1)',
-                'stroke-width': '1',
-                fill: 'rgba(0,0,255,0.225)'
+                class: 'SVGAddNode'
             });
 
             let textAddNode = Util.createShape({
@@ -153,12 +151,10 @@ export class AddNode implements EventHandler {
 
             // set color
             if(this.isBigEnoughForAddNode){
-                this.svgRect.setAttributeNS(null, 'stroke', 'rgba(0,255,0,1)');
-                this.svgRect.setAttributeNS(null, 'fill', 'rgba(0,255,0,0.225)');
+                this.svgRect.setAttributeNS(null, 'class', 'SVGAddNode-ready');
             }
             else{
-                this.svgRect.setAttributeNS(null, 'stroke', 'rgba(255, 160, 51, 1)');
-                this.svgRect.setAttributeNS(null, 'fill', 'rgba(255, 160, 51, 0.225)');
+                this.svgRect.setAttributeNS(null, 'class', 'SVGAddNode');
             }
         }
     }

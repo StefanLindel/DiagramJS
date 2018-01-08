@@ -67,14 +67,12 @@ export class Select implements EventHandler {
 
             // reset the last one
             if (this.lastSelectedNode !== <Element>element.$view.childNodes[0] && this.lastSelectedNode) {
-                this.lastSelectedNode.setAttributeNS(null, 'stroke', 'black');
+                this.lastSelectedNode.setAttributeNS(null, 'class', 'SVGClazz');
             }
 
             // mark the border with orange
-            // TODO: color has to be set to css file
             this.lastSelectedNode = <Element>element.$view.childNodes[0];
-
-            this.lastSelectedNode.setAttributeNS(null, 'stroke', 'rgb(255, 160, 51)');
+            this.lastSelectedNode.setAttributeNS(null, 'class', 'SVGClazz-selected');
 
             // remove last inline edit of clazz
             this.removeLastInlineEdit();
@@ -82,7 +80,7 @@ export class Select implements EventHandler {
 
         if (event.srcElement.id === 'background' || element === this.model) {
             if (this.lastSelectedNode) {
-                this.lastSelectedNode.setAttributeNS(null, 'stroke', 'black');
+                this.lastSelectedNode.setAttributeNS(null, 'class', 'SVGClazz');
             }
 
             this.editShape.setAttributeNS(null, 'visibility', 'hidden');
@@ -105,17 +103,15 @@ export class Select implements EventHandler {
 
             // reset the last one
             if (this.lastSelectedNode) {
-                this.lastSelectedNode.setAttributeNS(null, 'stroke', 'black');
+                this.lastSelectedNode.setAttributeNS(null, 'class', 'SVGClazz');
             }
 
             // remove last inline edit of clazz
             this.removeLastInlineEdit();
 
             // mark the border with orange
-            // TODO: color has to be set to css file
             this.lastSelectedNode = <Element>element.$view.childNodes[0];
-
-            this.lastSelectedNode.setAttributeNS(null, 'stroke', 'rgb(255, 160, 51)');
+            this.lastSelectedNode.setAttributeNS(null, 'class', 'SVGClazz-selected');
 
             this.editShape.setAttributeNS(null, 'visibility', 'visible');
             this.deleteShape.setAttributeNS(null, 'visibility', 'visible');
@@ -127,9 +123,8 @@ export class Select implements EventHandler {
             let x = (e.getPos().x + e.getSize().x) + 10;
             let y = e.getPos().y;
 
-            let editorEvent = new Event('editor');
             this.editShape.setAttributeNS(null, 'transform', `rotate(-45, ${x + 20}, ${y + 20}) translate(${x} ${y})`);
-            this.editShape.onclick = e => element.$view.dispatchEvent(editorEvent);
+            this.editShape.onclick = e => element.$view.dispatchEvent(new Event('editor'));
 
             this.deleteShape.setAttributeNS(null, 'transform', `translate(${x} ${y + 34 + this.padding})`);
             this.deleteShape.onclick = e => this.model.removeElement(element.id);
@@ -153,8 +148,6 @@ export class Select implements EventHandler {
             
             divInlineEdit.appendChild(inputText);
             document.body.appendChild(divInlineEdit);
-
-            // let inputText = divInlineEdit.children[0];
 
             inputText.addEventListener('change', (evt) => 
             {
@@ -270,7 +263,10 @@ export class Select implements EventHandler {
         // remove last inline edit of clazz
         let lastInlineEdit = document.getElementById('inlineEdit');
         if(lastInlineEdit){
-            lastInlineEdit.remove();
+            document.body.removeChild(lastInlineEdit);
+
+            // its not supported in internet explorer
+            // lastInlineEdit.remove();
         }
     }
 

@@ -74,8 +74,7 @@ export class Clazz extends Node {
             width: size.x,
             rx: 10,
             ry: 10,
-            style: 'fill:white;stroke-width:2',
-            stroke: 'black'
+            class: 'SVGClazz'
         });
 
 

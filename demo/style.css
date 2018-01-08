@@ -596,3 +596,31 @@ h1 {
     border-top: none;
     font-size: 12px;
 }
+
+.SVGClazz{
+	stroke-width: 2;
+	stroke: black;
+	fill: white;
+}
+
+.SVGClazz-selected{
+	stroke: #FFA033;
+	fill: rgb(255, 241, 225);
+}
+
+.SVGClazz-drawedge{
+	stroke: rgb(0, 162, 0);
+	fill: rgba(0, 162, 0, 0.125);
+}
+
+.SVGAddNode{
+	stroke: rgb(255, 160, 51);
+	stroke-width: 1;
+	fill: rgba(255, 160, 51, 0.125);
+}
+
+.SVGAddNode-ready{
+	stroke: rgb(0, 162, 0);
+	stroke-width: 1;
+	fill: rgba(0, 162, 0, 0.125);
+}
