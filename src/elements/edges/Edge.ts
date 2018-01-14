@@ -118,13 +118,18 @@ export class Edge extends DiagramElement {
         // let b = this.getShortestPathIntersection(this.$tNode, this.$sNode.getPos());
 
         // this.$view.setAttribute('d', `M${a.x} ${a.y} L${b.x} ${b.y}`);
+
+        // TODO: setup points, not only the path of view
+
+
+
         let targetNodePos = this.$tNode.getPos();
         let sourceNodePos = this.$sNode.getPos();
 
         let targetNodeSize = this.$tNode.getSize();
         let sourceNodeSize = this.$sNode.getSize();
 
-        let mx, my, lx, ly: Number;
+        let mx, my, lx, ly: number;
 
         if (targetNodePos.y < sourceNodePos.y) {
             ly = targetNodePos.y + targetNodeSize.y;
@@ -144,7 +149,12 @@ export class Edge extends DiagramElement {
             mx -= diff;
             // lx += diff;
 
-            this.$view.setAttribute('d', `M${mx} ${my} L${lx} ${ly}`);
+            this.$view.setAttribute('d', `M${mx} ${my} L${lx} ${ly} Z`);
+
+            // reset points
+            this.clearPoints();
+            this.addLine(mx, my);
+            this.addLine(lx, ly);
             return;
         }
 
@@ -157,7 +167,12 @@ export class Edge extends DiagramElement {
                 lx = (targetNodePos.x + targetNodeSize.x);
             }
 
-            this.$view.setAttribute('d', `M${mx} ${my} L${lx} ${ly}`);
+            this.$view.setAttribute('d', `M${mx} ${my} L${lx} ${ly} Z`);
+
+            // reset points
+            this.clearPoints();
+            this.addLine(mx, my);
+            this.addLine(lx, ly);
             return;
         }
 
@@ -166,7 +181,12 @@ export class Edge extends DiagramElement {
             mx += diff;
             // lx = sourceNodePos.x+sourceNodeSize.x;
 
-            this.$view.setAttribute('d', `M${mx} ${my} L${lx} ${ly}`);
+            this.$view.setAttribute('d', `M${mx} ${my} L${lx} ${ly} Z`);
+
+            // reset points
+            this.clearPoints();
+            this.addLine(mx, my);
+            this.addLine(lx, ly);
             return;
         }
 
@@ -179,11 +199,21 @@ export class Edge extends DiagramElement {
                 lx = targetNodePos.x;
             }
 
-            this.$view.setAttribute('d', `M${mx} ${my} L${lx} ${ly}`);
+            this.$view.setAttribute('d', `M${mx} ${my} L${lx} ${ly} Z`);
+
+            // reset points
+            this.clearPoints();
+            this.addLine(mx, my);
+            this.addLine(lx, ly);
             return;
         }
 
-        this.$view.setAttribute('d', `M${mx} ${my} L${lx} ${ly}`);
+        this.$view.setAttribute('d', `M${mx} ${my} L${lx} ${ly} Z`);
+
+        // reset points
+        this.clearPoints();
+        this.addLine(mx, my);
+        this.addLine(lx, ly);
         // FIXME  this.$points = [ a, b ];
     }
 

@@ -2,34 +2,33 @@ import { Direction, Edge } from './Edge';
 
 export class Aggregation extends Edge {
   public getSVG(): Element {
+    let endPoint = this.$points[this.$points.length-1];
+    // set the startpoint lower
+    endPoint.target.y =  endPoint.target.y-20;
+
+    let startX = endPoint.target.x;
+    let startY = endPoint.target.y;
     let line = super.getSVG();
 
-    const endLine = this.$points[this.$points.length - 1];
-    let direction = this.getDirection(endLine.source, endLine.target);
+    let path = `M${startX} ${startY} L${startX+6} ${startY + 10} L${startX} ${startY+20} L${startX-6} ${startY+10} Z`;
 
-    const x = endLine.getPos().x;
-    const y = endLine.getPos().y;
+    this.id = super.getId() + '-diamond-white';
 
-    let path: string;
-    switch (direction) {
-      case Direction.Up:    path = `M${x} ${y - 1} L${x + 10} ${y - 11} L${x} ${y - 21} L${x - 10} ${y - 11} Z`; break;
-      case Direction.Down:  path = `M${x} ${y} L${x + 10} ${y - 10} L${x} ${y - 20} L${x - 10} ${y - 10} Z`; break;
-      case Direction.Left:  path = `M${x} ${y} L${x - 10} ${y - 10} L${x - 20} ${y} L${x - 10} ${y + 10} Z`; break;
-      case Direction.Right: path = `M${x} ${y} L${x + 10} ${y - 10} L${x + 20} ${y} L${x + 10} ${y + 10} Z`; break;
-    }
-
+    // draw white filled arrow
     let attr = {
-      tag: 'path',
-      d: path,
-      stroke: 'black',
-      'stroke-width': '2',
-      fill: 'white'
-    };
-    let connector = this.createShape(attr);
+        tag: 'path',
+        id: this.id,
+        d: path,
+        stroke: 'black',
+        'stroke-width': '3',
+        fill: 'white'
+      };
+
+    let composition = this.createShape(attr);
 
     let group = this.createShape({ tag: 'g' });
     group.appendChild(line);
-    group.appendChild(connector);
+    group.appendChild(composition);
     return group;
   }
 }

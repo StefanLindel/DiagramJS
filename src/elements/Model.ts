@@ -169,8 +169,8 @@ export class GraphModel extends DiagramElement {
         return null;
     }
 
-    public addEdge(edge: Edge): Edge {
-        let type = edge.property || 'Edge';
+    public addEdge(edge: any): Edge {
+        let type = edge.type || 'Edge';
         type = Util.toPascalCase(type);
         let id = this.getNewId(type);
 
