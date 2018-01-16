@@ -3,6 +3,7 @@ import { EventBus } from '../../EventBus';
 import { Util } from '../../util';
 import { Point } from '../BaseElements';
 import Attribute from './Attribute';
+import Method from './Method';
 
 export class Clazz extends Node {
     protected labelHeight = 25;
@@ -12,9 +13,8 @@ export class Clazz extends Node {
 
     //TODO: create classes for methods and attributes
     private attributesObj : Attribute[] = [];
+    private methodsObj : Method[] = [];
 
-    private attributes: string[] = [];
-    private methods: string[] = [];
     private style: string;
 
     constructor(json: JSON | string | Object | any) {
@@ -32,8 +32,8 @@ export class Clazz extends Node {
             for (let attr of json['attributes']) {
                 this.attributesObj.push(new Attribute(attr));
 
-                // Obsolete
-                this.attributes.push(attr);
+                // // Obsolete
+                // this.attributes.push(attr);
                 y += this.attrHeight;
                 width = Math.max(width, Util.sizeOf(attr, this).width);
 
@@ -41,7 +41,11 @@ export class Clazz extends Node {
         }
         if (json['methods']) {
             for (let method of json['methods']) {
-                this.methods.push(method);
+
+                this.methodsObj.push(new Method(method));
+
+                // Obsolete
+                // this.methods.push(method);
                 y += this.attrHeight;
             }
             y += this.attrHeight;
@@ -50,12 +54,12 @@ export class Clazz extends Node {
         return this;
     }
 
-    public getAttributes():string[]{
-        return this.attributes;
+    public getAttributesObj():Attribute[]{
+        return this.attributesObj;
     }
 
-    public getMethods():string[]{
-        return this.methods;
+    public getMethodsObj():Method[]{
+        return this.methodsObj;
     }
 
     public getSVG(): Element {
@@ -98,7 +102,7 @@ export class Clazz extends Node {
         group.appendChild(label);
 
         // = = = ATTRIBUTES = = =
-        if (this.attributes.length > 0) {
+        if (this.attributesObj.length > 0) {
 
 
             // line to separate label from attributes
@@ -116,7 +120,7 @@ export class Clazz extends Node {
             group.appendChild(separatorLabelAttr);
 
             let y = pos.y + this.labelHeight + this.attrHeight / 2;
-            for (let element of this.attributes) {
+            for (let element of this.attributesObj) {
                 const attrText = {
                     tag: 'text',
                     x: pos.x + 10,
@@ -135,17 +139,17 @@ export class Clazz extends Node {
         }
 
         // = = = METHODS = = =
-        let height = this.attributes.length * this.attrHeight;
+        let height = this.attributesObj.length * this.attrHeight;
         let y = pos.y + this.labelHeight + height + this.attrHeight / 2;
-        if (this.methods.length > 0) {
+        if (this.methodsObj.length > 0) {
 
             // line to separate label from attributes
             const separatorAttrMethods = this.createShape({
                 tag: 'line',
                 x1: pos.x,                   //line doesn't overlap the full shape
-                y1: pos.y + this.labelHeight + (this.attrHeight * this.attributes.length),
+                y1: pos.y + this.labelHeight + (this.attrHeight * this.attributesObj.length),
                 x2: pos.x + size.x,        //line doesn't overlap the full shape
-                y2: pos.y + this.labelHeight + (this.attrHeight * this.attributes.length),
+                y2: pos.y + this.labelHeight + (this.attrHeight * this.attributesObj.length),
                 stroke: 'rgb(0, 0, 0)',        //black
                 'stroke-width': 2
             });
@@ -154,7 +158,7 @@ export class Clazz extends Node {
             group.appendChild(separatorAttrMethods);
 
             y += this.attrHeight / 2;
-            for (let element of this.methods) {
+            for (let element of this.methodsObj) {
                 const attrText = {
                     tag: 'text',
                     x: pos.x + 10,
@@ -166,7 +170,7 @@ export class Clazz extends Node {
                     fill: 'black'
                 };
                 let text = this.createShape(attrText);
-                text.textContent = element;
+                text.textContent = element.toString();
                 group.appendChild(text);
                 y += this.attrHeight;
             }
@@ -218,7 +222,7 @@ export class Clazz extends Node {
 
         if (changed) {
             this[type] = newProperties;
-            this.getSize().y = this.labelHeight + ((this.attributes.length + this.methods.length) * this.attrHeight) 
+            this.getSize().y = this.labelHeight + ((this.attributesObj.length + this.methodsObj.length) * this.attrHeight) 
                 + this.attrHeight;
 
         }
@@ -231,23 +235,47 @@ export class Clazz extends Node {
         }
 
         for(let valueOfType of this[type]){
-            if(valueOfType === value){
+            if(valueOfType.toString() === value){
                 return;
             }
         }
 
-        this[type].push(value);
+        let extractedValue;
+        if((<any>type).startsWith('attribute')){
+            extractedValue = new Attribute(value);
+        }
+        else if((<any>type).startsWith('method')){
+            extractedValue = new Method(value);
+        }
 
-        this.getSize().y = this.labelHeight + ((this.attributes.length + this.methods.length) * this.attrHeight) 
-        + this.attrHeight;
+        this[type].push(extractedValue);
+
+        this.getSize().y = this.labelHeight + ((this.attributesObj.length + this.methodsObj.length) * this.attrHeight) 
+            + this.attrHeight;
     }
 
     public addAttribute(value : string) : void{
-        this.addProperty(value, 'attributes');
+        this.addProperty(value, 'attributesObj');
     }
 
     public addMethod(value : string) : void{
-        this.addProperty(value, 'methods');
+        this.addProperty(value, 'methodsObj');
+    }
+
+    public removeAttribute(attr: Attribute) : void{
+        let idx = this.attributesObj.indexOf(attr);
+        this.attributesObj.splice(idx, 1);
+
+        this.getSize().y = this.labelHeight + ((this.attributesObj.length + this.methodsObj.length) * this.attrHeight) 
+            + this.attrHeight;
+    }
+
+    public removeMethod(method: Method) : void{
+        let idx = this.methodsObj.indexOf(method);
+        this.methodsObj.splice(idx, 1);
+
+        this.getSize().y = this.labelHeight + ((this.attributesObj.length + this.methodsObj.length) * this.attrHeight) 
+            + this.attrHeight;
     }
 
     private getModernStyle(): Element {
@@ -271,18 +299,18 @@ export class Clazz extends Node {
         g = Util.create({ tag: 'g', model: this });
         size = Util.sizeOf(id, this);
         width = Math.max(width, size.width);
-        if (this.attributes && this.attributes.length > 0) {
-            height = height + this.attributes.length * 25;
-            for (z = 0; z < this.attributes.length; z += 1) {
-                width = Math.max(width, Util.sizeOf(this.attributes[z], this).width);
+        if (this.attributesObj && this.attributesObj.length > 0) {
+            height = height + this.attributesObj.length * 25;
+            for (z = 0; z < this.attributesObj.length; z += 1) {
+                width = Math.max(width, Util.sizeOf(this.attributesObj[z], this).width);
             }
         } else {
             height += 20;
         }
-        if (this.methods && this.methods.length > 0) {
-            height = height + this.methods.length * 25;
-            for (z = 0; z < this.methods.length; z += 1) {
-                width = Math.max(width, Util.sizeOf(this.methods[z], this).width);
+        if (this.methodsObj && this.methodsObj.length > 0) {
+            height = height + this.methodsObj.length * 25;
+            for (z = 0; z < this.methodsObj.length; z += 1) {
+                width = Math.max(width, Util.sizeOf(this.methodsObj[z], this).width);
             }
         }
         width += 20;
@@ -337,8 +365,8 @@ export class Clazz extends Node {
         }));
         y += headerHeight + 20;
 
-        if (this.attributes) {
-            for (z = 0; z < this.attributes.length; z += 1) {
+        if (this.attributesObj) {
+            for (z = 0; z < this.attributesObj.length; z += 1) {
                 g.appendChild(Util.create({
                     tag: 'text',
                     $font: true,
@@ -346,18 +374,18 @@ export class Clazz extends Node {
                     'width': width,
                     'x': (x + 10),
                     'y': y,
-                    value: this.attributes[z]
+                    value: this.attributesObj[z].toString()
                 }));
                 y += 20;
             }
-            if (this.attributes.length > 0) {
+            if (this.attributesObj.length > 0) {
                 y -= 10;
             }
         }
-        if (this.methods && this.methods.length > 0) {
+        if (this.methodsObj && this.methodsObj.length > 0) {
             g.appendChild(Util.create({ tag: 'line', x1: x, y1: y, x2: x + width, y2: y, stroke: '#000' }));
             y += 20;
-            for (z = 0; z < this.methods.length; z += 1) {
+            for (z = 0; z < this.methodsObj.length; z += 1) {
                 g.appendChild(Util.create({
                     tag: 'text',
                     $font: true,
@@ -365,7 +393,7 @@ export class Clazz extends Node {
                     'width': width,
                     'x': x + 10,
                     'y': y,
-                    value: this.methods[z]
+                    value: this.methodsObj[z].toString()
                 }));
                 y += 20;
             }

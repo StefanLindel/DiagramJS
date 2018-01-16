@@ -18,6 +18,7 @@ export class Select implements EventHandler {
     private padding = 5;
 
     private lastSelectedNode: Element;
+    private lastSelectedEdge: Element;
 
     constructor(model: GraphModel, graph : Graph) {
         this.model = model;
@@ -65,29 +66,19 @@ export class Select implements EventHandler {
             this.editShape.setAttributeNS(null, 'visibility', 'hidden');
             this.deleteShape.setAttributeNS(null, 'visibility', 'hidden');
 
-            // reset the last one
-            if (this.lastSelectedNode !== <Element>element.$view.childNodes[0] && this.lastSelectedNode) {
-                this.lastSelectedNode.setAttributeNS(null, 'class', 'SVGClazz');
-            }
+            this.resetLastSelectedElements();
 
             // mark the border with orange
             this.lastSelectedNode = <Element>element.$view.childNodes[0];
             this.lastSelectedNode.setAttributeNS(null, 'class', 'SVGClazz-selected');
-
-            // remove last inline edit of clazz
-            this.removeLastInlineEdit();
         }
 
         if (event.srcElement.id === 'background' || element === this.model) {
-            if (this.lastSelectedNode) {
-                this.lastSelectedNode.setAttributeNS(null, 'class', 'SVGClazz');
-            }
+
+            this.resetLastSelectedElements();
 
             this.editShape.setAttributeNS(null, 'visibility', 'hidden');
             this.deleteShape.setAttributeNS(null, 'visibility', 'hidden');
-
-            // remove last inline edit of clazz
-            this.removeLastInlineEdit();
 
             return true;
         }
@@ -101,13 +92,7 @@ export class Select implements EventHandler {
                 this.svgRoot.appendChild(this.editShape);
             }
 
-            // reset the last one
-            if (this.lastSelectedNode) {
-                this.lastSelectedNode.setAttributeNS(null, 'class', 'SVGClazz');
-            }
-
-            // remove last inline edit of clazz
-            this.removeLastInlineEdit();
+            this.resetLastSelectedElements();
 
             // mark the border with orange
             this.lastSelectedNode = <Element>element.$view.childNodes[0];
@@ -253,10 +238,27 @@ export class Select implements EventHandler {
             this.deleteShape.setAttributeNS(null, 'transform', `translate(${x} ${y})`);
             this.deleteShape.onclick = e => this.model.removeElement(element.id);
 
+            this.resetLastSelectedElements();
 
+            let edge = <Edge>element;
+            this.lastSelectedEdge = edge.$view;
 
+            this.lastSelectedEdge.setAttributeNS(null, 'class', 'SVGEdge-selected');
         }
         return true;
+    }
+
+    private resetLastSelectedElements(){
+        // reset the last one
+        if (this.lastSelectedNode) {
+            this.lastSelectedNode.setAttributeNS(null, 'class', 'SVGClazz');
+        }
+
+        if(this.lastSelectedEdge){
+            this.lastSelectedEdge.setAttributeNS(null, 'class', 'SVGEdge');
+        }
+
+        this.removeLastInlineEdit();
     }
 
     private removeLastInlineEdit() : void{

@@ -5,3 +5,4 @@ export * from './Generalisation';
 export * from './Implements';
 export * from './Unidirectional';
 export * from './Dependency';
+export * from './Association';

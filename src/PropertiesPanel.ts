@@ -3,6 +3,7 @@ import { EventHandler } from './EventBus';
 import { Edge } from './elements/index';
 import { DiagramElement } from './elements/BaseElements';
 import { Graph } from './elements/Graph';
+import * as edges from './elements/edges';
 
 export namespace PropertiesPanel {
 
@@ -38,9 +39,9 @@ export namespace PropertiesPanel {
         private createView(view: PropertiesView): APanel {
 
             let panel;
-            if (this._blankView && this._blankView.getCurrentView() === view) {
-                return this._blankView.getCurrentPanel();
-            }
+            // if (this._blankView && this._blankView.getCurrentView() === view) {
+            //     return this._blankView.getCurrentPanel();
+            // }
 
             if (view === PropertiesView.Clazz) {
                 panel = new ClassPanel();
@@ -75,6 +76,21 @@ export namespace PropertiesPanel {
 
             let edge = <Edge>element;
             this.dispatch(PropertiesView.Edge);
+
+            const g = this._graph;
+            // add eventlistener to combobox of edge type
+            let cBoxEdgeType = <any>document.getElementById('edgeTypeSelect');
+            cBoxEdgeType.value = edge.typ;
+            cBoxEdgeType.addEventListener('change', function(){
+                let selectedType = cBoxEdgeType.options[cBoxEdgeType.selectedIndex].value;
+
+                let newEdge = edge.convertEdge(selectedType, g.$graphModel.getNewId(selectedType));
+                delete g.$graphModel.edges[edge.id];
+                g.$graphModel.edges[newEdge.id] = newEdge;
+
+                edge = newEdge;
+                g.layout();
+            });
 
             // show label
             let inputTypeEdgeLabel = document.getElementById('edgeLabelInput');
@@ -120,12 +136,23 @@ export namespace PropertiesPanel {
                 tabContentAttr.removeChild(tabContentAttr.firstChild);
             }
 
-            let attributes = clazz.getAttributes();
-            for (let idx in attributes) {
+            let attributes = clazz.getAttributesObj();
+            for (let attr of attributes) {
                 let textBoxAttr = document.createElement('input');
+
                 textBoxAttr.type = 'text';
-                textBoxAttr.id = 'attrName' + attributes[idx];
-                textBoxAttr.value = attributes[idx];
+                textBoxAttr.value = attr.toString();
+                textBoxAttr.addEventListener('change', function(){
+                    // remove method
+                    if(textBoxAttr.value.length == 0){
+                        clazz.removeAttribute(attr);
+                        tabContentAttr.removeChild(textBoxAttr);
+                    }else{
+                        attr.updateAttribute(textBoxAttr.value);
+                    }
+
+                    graph.layout();
+                });
 
                 tabContentAttr.appendChild(textBoxAttr);
                 tabContentAttr.appendChild(document.createElement('br'));
@@ -139,23 +166,28 @@ export namespace PropertiesPanel {
                 tabContentMethods.removeChild(tabContentMethods.firstChild);
             }
 
-            let methods = clazz.getMethods();
-            for (let idx in methods) {
-                let textBoxMethods = document.createElement('input');
+            let methods = clazz.getMethodsObj();
+            for (let method of methods) {
+                let textBoxMethod = document.createElement('input');
                 
+                textBoxMethod.type = 'text';
+                textBoxMethod.value = method.toString();
+                textBoxMethod.addEventListener('change', function(){
+                    // remove method
+                    if(textBoxMethod.value.length == 0){
+                        clazz.removeMethod(method);
+                        tabContentMethods.removeChild(textBoxMethod);
+                    }
+                    else{
+                        method.updateMethod(textBoxMethod.value);
+                    }
 
-                textBoxMethods.type = 'text';
-                textBoxMethods.id = 'methodName' + methods[idx];
-                textBoxMethods.value = methods[idx];
-                textBoxMethods.addEventListener('change', function(){
-                    clazz.convertStringToProperty(textBoxMethods.value, 'methods') || false;
                     graph.layout();
                 });
 
-                tabContentMethods.appendChild(textBoxMethods);
+                tabContentMethods.appendChild(textBoxMethod);
                 tabContentMethods.appendChild(document.createElement('br'));
             }
-
 
             return true;
         }
@@ -413,6 +445,35 @@ export namespace PropertiesPanel {
             div.id = this.getPropertiesView().toString().toLowerCase() + 'General';
             div.className = 'tabcontent';
 
+            // edge type
+            let cBoxEdgeType = document.createElement('select');
+            cBoxEdgeType.id = 'edgeTypeSelect';
+            cBoxEdgeType.style.marginRight = '10px';
+
+            let edgeTypes : string[] = new Array();
+
+            for(let type in edges){
+                if(type.toString() === 'Association'
+                    || type.toString() === 'Dependency'
+                    || type.toString() === 'Unidirectional'){
+                        continue;
+                }
+
+                edgeTypes.push(type);
+            }
+
+            edgeTypes.sort();
+
+            for(let type of edgeTypes){
+                let selectOption = document.createElement('option');
+                selectOption.value = type;
+                selectOption.innerHTML = type;
+                cBoxEdgeType.appendChild(selectOption);
+            }
+
+            div.appendChild(document.createTextNode('Type: '));
+            div.appendChild(cBoxEdgeType);
+
             // edge label
             let textBoxEdgeLabel = document.createElement('input');
             textBoxEdgeLabel.type = 'text';
@@ -420,6 +481,7 @@ export namespace PropertiesPanel {
             textBoxEdgeLabel.placeholder = 'Edge label';
             textBoxEdgeLabel.style.marginRight = '10px';
 
+            div.appendChild(document.createElement('br'));
             div.appendChild(document.createTextNode('Label: '));
             div.appendChild(textBoxEdgeLabel);
 

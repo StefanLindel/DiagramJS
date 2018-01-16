@@ -134,8 +134,8 @@ export class Graph extends Control {
         // } else if (typ === "html") {
             //     this.ExportHTML();
 
-            // } else if (typ === "pdf") {
-            // this.ExportPDF();
+            } else if (typ === "pdf") {
+            this.exportPDF();
             // } else if (typ === "eps") {
             // this.ExportEPS();
         }
@@ -149,6 +149,18 @@ export class Graph extends Control {
             return xmlNode.xml;
         }
         return xmlNode.outerHTML;
+    }
+
+    public exportPDF():void{
+        if(!window['jsPDF']){
+            console.log('jspdf n.a.');
+            return;
+        }
+
+        let pdf = new window['jsPDF']();
+
+        pdf.text('Hello world!', 10, 10);
+        pdf.save('TestHelloWorld.pdf');
     }
 /*
     Graph.prototype.ExportPDF = function () {
@@ -244,7 +256,7 @@ export class Graph extends Control {
                 }
             }
         }
-        Util.setSize(this.canvas, max.x, max.y);
+        Util.setSize(this.canvas, max.x+30, max.y);
         if (model.edges) {
             for (let id in model.edges) {
                 let edge = model.edges[id];

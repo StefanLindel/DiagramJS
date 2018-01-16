@@ -138,7 +138,7 @@ export class GraphModel extends DiagramElement {
         EventBus.register(this, this.$view);
     }
 
-    private getNewId(prefix?: string): string {
+    public getNewId(prefix?: string): string {
         this.counter++;
         let id = (prefix ? prefix.toLowerCase() + '-' : '') + Math.floor(Math.random() * 100000);
         return id;
@@ -175,6 +175,7 @@ export class GraphModel extends DiagramElement {
         let id = this.getNewId(type);
 
         let newEdge = <Edge>this.getElement(type, id, edge);
+        newEdge.typ = type;
         let source: Node = this.findNodeByLabel(edge.source);
         if (!source) {
             source = new Node({ label: edge.source });

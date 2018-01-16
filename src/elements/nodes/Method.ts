@@ -11,11 +11,11 @@ export default class Method extends DiagramElement{
     // Derived (/)
     // Static (underlined)
 
-    private modifier : string;
-    private name : string;
-    private type : string;
+    public modifier : string;
+    public name : string;
+    public type : string;
 
-    private params : string[];
+    public params : string[];
 
     constructor(data : any | JSON){
         super();
@@ -31,31 +31,42 @@ export default class Method extends DiagramElement{
             this.type = data.type;
         }
 
-        if(data.name){
+        else if(data.name){
             this.name = data.name;
         }
 
-        if(data.modifier){
+        else if(data.modifier){
             this.modifier = data.modifier;
         }
 
-        if(data.params){
+        else if(data.params){
             this.params = data.params;
         }
 
-        if(!this.type && !this.name && !this.modifier){
+        else{
             let dataSplitted = data.split(' ');
 
-            if(dataSplitted && dataSplitted.length == 4){
+            if(dataSplitted){
                 this.modifier = dataSplitted[0];
-                this.name = dataSplitted[1];
-                this.type = dataSplitted[3];
+                this.name = dataSplitted[1] || '';
+                this.type = dataSplitted[3] || '';
             }
         }
     }
 
+    public updateMethod(data: any | JSON) : void{
+        this.extractData(data);
+    }
+
     public toString() : string{
-        return `${this.modifier} ${this.name} : ${this.type}`;
+
+        let functionName = `${this.modifier} ${this.name}`;
+
+        if(this.type){
+            functionName = functionName + ' : ' + this.type;
+        }
+
+        return functionName;
     }
 
     public getSVG() : Element{

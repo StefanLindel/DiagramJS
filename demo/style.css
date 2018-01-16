@@ -597,6 +597,16 @@ h1 {
     font-size: 12px;
 }
 
+.SVGEdge{
+	stroke-width: 3;
+	stroke: black;
+}
+
+.SVGEdge-selected{
+	stroke-width: 3;
+	stroke: #FFA033;
+}
+
 .SVGClazz{
 	stroke-width: 2;
 	stroke: black;

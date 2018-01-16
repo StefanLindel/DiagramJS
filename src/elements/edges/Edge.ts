@@ -3,6 +3,7 @@ import {Node} from '../nodes';
 import {InfoText} from '../nodes/InfoText';
 import {Util} from '../../util';
 import {EventBus} from '../../EventBus';
+import * as edges from '../edges';
 
 export const enum Direction {
     Up, Down, Left, Right
@@ -11,6 +12,7 @@ export const enum Direction {
 export class Edge extends DiagramElement {
     public source: string;
     public target: string;
+    public typ: string;
     public $sNode: Node;
     public $tNode: Node;
     public lineStyle: string;
@@ -20,6 +22,9 @@ export class Edge extends DiagramElement {
     targetInfo: InfoText;
     $m: number;
     $n: number;
+
+    
+    protected $targetElement : Element;
 
     private static getShortestPointFromSource(source: Node, target: Node): Point {
         let result: Point;
@@ -97,20 +102,36 @@ export class Edge extends DiagramElement {
             tag: 'path',
             id: this.id,
             d: path,
-            stroke: 'black',
-            'stroke-width': '3',
-            fill: 'none'
+            fill: 'none',
+            class: 'SVGEdge'
         };
         let shape = this.createShape(attr);
 
         this.$view = shape;
 
-        EventBus.register(this, this.$view);
         return shape;
     }
 
     public getEvents(): string[] {
         return [EventBus.ELEMENTCLICK, EventBus.EDITOR];
+    }
+
+    public convertEdge(type: string, newId: string) : Edge{
+        if(!edges[type]){
+            return this;
+        }
+        
+        let idxInSrc = this.$sNode.edges.indexOf(this);
+        this.$sNode.edges.splice(idxInSrc, 1);
+        let idxInTarget = this.$tNode.edges.indexOf(this);
+        this.$tNode.edges.splice(idxInTarget, 1);
+        
+        let newEdge : Edge = new edges[type]();
+        newEdge.withItem(this.$sNode, this.$tNode);
+        newEdge.id = newId;
+        newEdge.typ = type;
+
+        return newEdge;
     }
 
     public redraw() {
