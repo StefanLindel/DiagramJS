@@ -23,7 +23,7 @@ export class Drag implements EventHandler {
     public handle(event: Event, element: DiagramElement): boolean {
         // event.stopPropagation();
 
-        if ((<KeyboardEvent>window.event).ctrlKey) {
+        if ((<KeyboardEvent>event).ctrlKey) {
             return true;
         }
 
@@ -125,7 +125,7 @@ export class Drag implements EventHandler {
             }
         }
         else {
-            event.stopPropagation();
+            evt.stopPropagation();
 
             let node = <Node>element;
             const translation = this.svgElement.getAttributeNS(null, 'transform').slice(10, -1).split(' ');
