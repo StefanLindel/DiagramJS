@@ -1,12 +1,12 @@
-import { DiagramElement } from '../elements/BaseElements';
-import { Node } from '../elements/nodes';
-import { Edge } from '../elements/edges';
-import { Util } from '../util';
-import { GraphModel } from '../elements/Model';
-import { SymbolLibary } from '../elements/nodes/Symbol';
-import { EventHandler } from '../EventBus';
-import { Clazz } from '../main';
-import { Graph } from '../elements/Graph';
+import {DiagramElement} from '../elements/BaseElements';
+import {Node} from '../elements/nodes';
+import {Edge} from '../elements/edges';
+import {Util} from '../util';
+import {GraphModel} from '../elements/Model';
+import {SymbolLibary} from '../elements/nodes/Symbol';
+import {EventHandler} from '../EventBus';
+import {Clazz} from '../main';
+import {Graph} from '../elements/Graph';
 
 export class Select implements EventHandler {
 
@@ -14,13 +14,13 @@ export class Select implements EventHandler {
     private editShape: SVGSVGElement;
     private deleteShape: SVGSVGElement;
     private model: GraphModel;
-    private graph : Graph;
+    private graph: Graph;
     private padding = 5;
 
     private lastSelectedNode: Element;
     private lastSelectedEdge: Element;
 
-    constructor(model: GraphModel, graph : Graph) {
+    constructor(model: GraphModel, graph: Graph) {
         this.model = model;
         this.graph = graph;
         this.svgRoot = <SVGSVGElement><any>document.getElementById('root');
@@ -46,14 +46,14 @@ export class Select implements EventHandler {
         const editShape = Util.createShape(editAttr);
         const editBkg = Util.createShape(attrCircle);
 
-        let editGroup = Util.createShape({ tag: 'g', id: 'edit', transform: 'rotate(-45, 20, 20) translate(0 0)' });
+        let editGroup = Util.createShape({tag: 'g', id: 'edit', transform: 'rotate(-45, 20, 20) translate(0 0)'});
         editGroup.appendChild(editBkg);
         editGroup.appendChild(editShape);
         this.editShape = editGroup;
 
         // const deleteBkg = Util.createShape(attrCircle);
 
-        this.deleteShape = SymbolLibary.drawSVG({ type: 'Basket', background: true, id: 'trashcan' });
+        this.deleteShape = SymbolLibary.drawSVG({type: 'Basket', background: true, id: 'trashcan'});
     }
 
     public handle(event: Event, element: DiagramElement): boolean {
@@ -114,7 +114,6 @@ export class Select implements EventHandler {
             this.deleteShape.setAttributeNS(null, 'transform', `translate(${x} ${y + 34 + this.padding})`);
             this.deleteShape.onclick = e => this.model.removeElement(element.id);
 
-
             // draw textbox to edit clazz in one line
             let divInlineEdit = document.createElement('div');
             divInlineEdit.id = 'inlineEdit';
@@ -129,45 +128,42 @@ export class Select implements EventHandler {
             inputText.style.width = '100%';
             inputText.placeholder = 'Add properties, edit label';
 
-
-            
             divInlineEdit.appendChild(inputText);
             document.body.appendChild(divInlineEdit);
 
-            inputText.addEventListener('change', (evt) => 
-            {
+            inputText.addEventListener('change', (evt) => {
                 let lastInlineEdit = document.getElementById('inlineEdit');
                 let input = lastInlineEdit.children[0];
             });
 
             let g = this.graph;
 
-            let propertyTypes : string[] = ['boolean', 'byte', 'char', 'double', 'float', 'int', 'long', 'short', 'string'];
+            let propertyTypes: string[] = ['boolean', 'byte', 'char', 'double', 'float', 'int', 'long', 'short', 'string'];
 
-            inputText.addEventListener('keydown', function(evt){
+            inputText.addEventListener('keydown', function (evt) {
 
                 let keyCode = (<any>evt).which;
                 let clazz = <Clazz>e;
 
                 let inputValue = <any>inputText.value;
 
-                if(inputValue.endsWith(':') && !document.getElementById('selectPropertyType')){
+                if (inputValue.endsWith(':') && !document.getElementById('selectPropertyType')) {
                     let selectType = document.createElement('select');
                     selectType.id = 'selectPropertyType';
                     selectType.style.width = '100%';
 
-                    for(let type of propertyTypes){
+                    for (let type of propertyTypes) {
                         let selectOption = document.createElement('option');
                         selectOption.value = type;
                         selectOption.innerHTML = type;
                         selectType.appendChild(selectOption);
                     }
 
-                    selectType.addEventListener('change', function(evt){
+                    selectType.addEventListener('change', function (evt) {
                         let inputValueSplitted = inputValue.split(':');
                         let selectedPropertyType = selectType.options[selectType.selectedIndex].value;
 
-                        if(inputValueSplitted.length >= 1){
+                        if (inputValueSplitted.length >= 1) {
                             inputText.value = inputValueSplitted[0].trim() + ' : ' + selectedPropertyType;
                             inputText.focus();
                         }
@@ -175,30 +171,30 @@ export class Select implements EventHandler {
 
                     divInlineEdit.appendChild(selectType);
                 }
-                else if(!inputValue.includes(':')){
+                else if (!inputValue.includes(':')) {
                     let selectType = document.getElementById('selectPropertyType');
 
-                    if(selectType){
+                    if (selectType) {
                         selectType.remove();
                     }
                 }
 
-                if(keyCode !== 13){
+                if (keyCode !== 13) {
                     return;
                 }
 
                 // attribute
-                if(inputValue.includes(':') && !(inputValue.includes('(') && inputValue.includes(')'))){
+                if (inputValue.includes(':') && !(inputValue.includes('(') && inputValue.includes(')'))) {
                     clazz.addAttribute(inputValue.trim());
                     g.layout();
                 }
                 // method
-                else if(inputValue.includes('(') && inputValue.includes(')')){
+                else if (inputValue.includes('(') && inputValue.includes(')')) {
                     clazz.addMethod(inputValue.trim());
                     g.layout();
                 }
                 // label
-                else if (inputValue.trim().split(' ').length === 1 && inputValue.trim().length > 0){
+                else if (inputValue.trim().split(' ').length === 1 && inputValue.trim().length > 0) {
                     clazz.label = inputValue.trim();
                     g.layout();
                 }
@@ -213,7 +209,7 @@ export class Select implements EventHandler {
                 // remove combobox to select type of property
                 let selectType = document.getElementById('selectPropertyType');
 
-                if(selectType){
+                if (selectType) {
                     selectType.remove();
                 }
             });
@@ -264,15 +260,11 @@ export class Select implements EventHandler {
     private removeLastInlineEdit() : void{
         // remove last inline edit of clazz
         let lastInlineEdit = document.getElementById('inlineEdit');
-        if(lastInlineEdit){
+        if (lastInlineEdit) {
             document.body.removeChild(lastInlineEdit);
 
             // its not supported in internet explorer
             // lastInlineEdit.remove();
         }
-    }
-
-    public isEnable(): boolean {
-        return true;
     }
 }
