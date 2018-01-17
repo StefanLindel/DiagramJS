@@ -130,7 +130,11 @@ export class Drag implements EventHandler {
             let node = <Node>element;
             const translation = this.svgElement.getAttributeNS(null, 'transform').slice(10, -1).split(' ');
             const sx = parseInt(translation[0]);
-            const sy = parseInt(translation[1]);
+            let sy = 0;
+            if (translation.length > 1) {
+                sy = parseInt(translation[1]);
+            }
+
             const transX = sx + evt.clientX - this.mouseOffset.x;
             const transY = sy + evt.clientY - this.mouseOffset.y;
             this.svgElement.setAttributeNS(null, 'transform', 'translate(' + transX + ' ' + transY + ')');
