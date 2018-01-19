@@ -134,6 +134,13 @@ export class Edge extends DiagramElement {
         return newEdge;
     }
 
+    /**
+     * TODO: Edges will be redraw from every single existing point!
+     */
+    public redrawEdge() : void{
+
+    }
+
     public redraw() {
         // let a = this.getShortestPathIntersection(this.$sNode, this.$tNode.getPos());
         // let b = this.getShortestPathIntersection(this.$tNode, this.$sNode.getPos());

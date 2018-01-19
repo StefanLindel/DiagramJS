@@ -54,6 +54,26 @@ export default class Attribute extends DiagramElement{
 
     public updateAttribute(data: any | JSON) : void{
         this.extractData(data);
+        this.updateTextOfView();
+    }
+
+    public updateModifier(modifier : string) : void {
+        this.modifier = modifier;
+        this.updateTextOfView();
+    }
+
+    public updateType(type : string) : void {
+        this.type = type;
+        this.updateTextOfView();
+    }
+
+    public updateName(name : string) : void {
+        this.name = name;
+        this.updateTextOfView();
+    }
+
+    public updateTextOfView(){
+        this.$view.textContent = this.toString();
     }
 
     public toString() : string{
@@ -71,6 +91,8 @@ export default class Attribute extends DiagramElement{
         attrSvg.textContent = this.toString();
         attrSvg.setAttributeNS(null, 'class', 'SVGClazzProperty SVGClazzAttribute');
         
+        this.$view = attrSvg;
+
         return attrSvg;
     }
 }

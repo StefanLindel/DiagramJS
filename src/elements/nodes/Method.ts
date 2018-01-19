@@ -56,10 +56,29 @@ export default class Method extends DiagramElement{
 
     public updateMethod(data: any | JSON) : void{
         this.extractData(data);
+        this.updateTextOfView();
+    }
+
+    public updateModifier(modifier : string) : void {
+        this.modifier = modifier;
+        this.updateTextOfView();
+    }
+
+    public updateType(type : string) : void {
+        this.type = type;
+        this.updateTextOfView();
+    }
+
+    public updateName(name : string) : void {
+        this.name = name;
+        this.updateTextOfView();
+    }
+
+    public updateTextOfView(){
+        this.$view.textContent = this.toString();
     }
 
     public toString() : string{
-
         let functionName = `${this.modifier} ${this.name}`;
 
         if(this.type){
@@ -80,6 +99,8 @@ export default class Method extends DiagramElement{
         methodSvg.textContent = this.toString();
         methodSvg.setAttributeNS(null, 'class', 'SVGClazzProperty SVGClazzMethod');
         
+        this.$view = methodSvg;
+
         return methodSvg;
     }
 }

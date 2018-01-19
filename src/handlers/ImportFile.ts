@@ -56,7 +56,6 @@ export class ImportFile implements EventHandler {
                 // CHANGE TO INTERNAL OBJECT
                 let rootElement = document.getElementById('root');
                 let canvasElement = document.getElementById('canvas');
-                let palete = document.getElementById('palette');
                 let rootChildCount = rootElement.childElementCount;
 
                 for (let i = 0; i < rootChildCount; i++) {
@@ -64,11 +63,9 @@ export class ImportFile implements EventHandler {
                 }
 
                 canvasElement.removeChild(canvasElement.firstChild);
-                document.body.removeChild(palete);
 
                 rootElement = null;
                 canvasElement = null;
-                palete = null;
 
                 if (that.graph) {
                     that.graph.clearModel();

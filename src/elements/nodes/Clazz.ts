@@ -123,6 +123,8 @@ export class Clazz extends Node {
             for (let attr of this.attributesObj) {
 
                 let attrSvg = attr.getSVG();
+                attr.$owner = this;
+                
                 attrSvg.setAttributeNS(null, 'x', '' + (pos.x + 10));
                 attrSvg.setAttributeNS(null, 'y', '' + y);
 
@@ -153,11 +155,13 @@ export class Clazz extends Node {
             y += this.attrHeight / 2;
             for (let method of this.methodsObj) {
 
-                let attrSvg = method.getSVG();
-                attrSvg.setAttributeNS(null, 'x', '' + (pos.x + 10));
-                attrSvg.setAttributeNS(null, 'y', '' + y);
+                let methodSvg = method.getSVG();
+                method.$owner = this;
 
-                group.appendChild(attrSvg);
+                methodSvg.setAttributeNS(null, 'x', '' + (pos.x + 10));
+                methodSvg.setAttributeNS(null, 'y', '' + y);
+
+                group.appendChild(methodSvg);
                 y += this.attrHeight;
             }
         }

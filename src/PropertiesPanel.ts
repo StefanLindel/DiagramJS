@@ -151,9 +151,7 @@ export namespace PropertiesPanel {
                 selectAttrModifier.value = attr.modifier;
 
                 selectAttrModifier.addEventListener('change', function(){
-                    attr.modifier = selectAttrModifier.options[selectAttrModifier.selectedIndex].value;
-                    
-                    graph.layout();
+                    attr.updateModifier(selectAttrModifier.options[selectAttrModifier.selectedIndex].value);
                 });
 
                 // create name input
@@ -164,15 +162,14 @@ export namespace PropertiesPanel {
                 textBoxAttrName.type = 'text';
                 textBoxAttrName.value = attr.name;
                 textBoxAttrName.addEventListener('change', function(){
-                    // remove method
                     if(textBoxAttrName.value.length == 0){
                         clazz.removeAttribute(attr);
                         tabContentAttr.removeChild(divEditAttr);
-                    }else{
-                        attr.name = textBoxAttrName.value;
-                    }
 
-                    graph.layout();
+                        graph.layout();
+                    }else{
+                        attr.updateName(textBoxAttrName.value);
+                    }
                 });
 
                 // create type select
@@ -189,9 +186,7 @@ export namespace PropertiesPanel {
                 selectAttrType.value = attr.type;
 
                 selectAttrType.addEventListener('change', function(){
-                    attr.type = selectAttrType.options[selectAttrType.selectedIndex].value;
-                    
-                    graph.layout();
+                    attr.updateType(selectAttrType.options[selectAttrType.selectedIndex].value);
                 });
 
                 // create a button to delete the attribute
@@ -244,9 +239,7 @@ export namespace PropertiesPanel {
                 selectMethodModifier.value = method.modifier;
 
                 selectMethodModifier.addEventListener('change', function () {
-                    method.modifier = selectMethodModifier.options[selectMethodModifier.selectedIndex].value;
-
-                    graph.layout();
+                    method.updateModifier(selectMethodModifier.options[selectMethodModifier.selectedIndex].value);
                 });
 
                 // create name input
@@ -261,11 +254,12 @@ export namespace PropertiesPanel {
                     if (textBoxAttrName.value.length == 0) {
                         clazz.removeMethod(method);
                         tabContentAttr.removeChild(divEditMethod);
+
+                        graph.layout();
                     } else {
-                        method.name = textBoxAttrName.value;
+                        method.updateName(textBoxAttrName.value);
                     }
 
-                    graph.layout();
                 });
 
                 // create type select
@@ -282,9 +276,7 @@ export namespace PropertiesPanel {
                 selectMethodType.value = method.type;
 
                 selectMethodType.addEventListener('change', function () {
-                    method.type = selectMethodType.options[selectMethodType.selectedIndex].value;
-
-                    graph.layout();
+                    method.updateType(selectMethodType.options[selectMethodType.selectedIndex].value);
                 });
 
                 // create a button to delete the attribute
