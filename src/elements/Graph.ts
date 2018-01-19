@@ -17,8 +17,8 @@ import {SymbolLibary} from './nodes/Symbol';
 import {CSS} from '../CSS';
 
 export class Graph extends Control {
-    root: HTMLElement;
-    canvas: Element;
+    canvas: HTMLElement;
+    root: Element;
     $graphModel: GraphModel;
     options: Options;
     canvasSize: Size;
@@ -49,7 +49,7 @@ export class Graph extends Control {
         this.$graphModel.init(this);
         this.$graphModel.load(json);
         this.initFeatures(this.options.features);
-        EventBus.register(this,  this.root);
+        EventBus.register(this,  this.canvas);
     }
 
     private static createPattern(): Element {
@@ -114,7 +114,7 @@ export class Graph extends Control {
         //    return buttons;
         // };
         // this.canvas.appendChild(this.layerToolBar);
-        this.root.appendChild(this.layerToolBar);
+        this.canvas.appendChild(this.layerToolBar);
 
         return true;
     }
@@ -197,7 +197,7 @@ export class Graph extends Control {
 
     public clearModel(): void {
         this.$graphModel.removeAllElements();
-        this.clearCanvas();
+        this.clearSvgRoot();
     }
 
     public init(owner: Control, property?: string, id?: string): Control {
@@ -233,9 +233,9 @@ export class Graph extends Control {
     }
 
     public draw() {
-        this.clearCanvas();
-        const model = this.$graphModel;
-        const canvas = this.canvas;
+        this.clearSvgRoot();
+        let model = this.$graphModel;
+        let root = this.root;
         let max: Point = new Point();
 
         if (model.nodes) {
@@ -243,7 +243,7 @@ export class Graph extends Control {
                 let node = model.nodes[id];
                 let svg = node.getSVG();
                 EventBus.register(node, svg);
-                canvas.appendChild(svg);
+                root.appendChild(svg);
 
                 let temp: number;
                 temp = node.getPos().x + node.getSize().x;
@@ -256,37 +256,39 @@ export class Graph extends Control {
                 }
             }
         }
-        Util.setSize(this.canvas, max.x+30, max.y);
+        Util.setSize(this.root, max.x+30, max.y);
         if (model.edges) {
             for (let id in model.edges) {
                 let edge = model.edges[id];
                 let svg = edge.getSVG();
                 EventBus.register(edge, svg);
-                canvas.appendChild(svg);
+                root.appendChild(svg);
             }
         }
     }
 
-    private clearCanvas() {
-        const canvas = this.canvas;
-        while (canvas.firstChild) {
-            canvas.removeChild(canvas.firstChild);
+    private clearSvgRoot() {
+        const root = this.root;
+        while (root.firstChild) {
+            root.removeChild(root.firstChild);
         }
 
-        canvas.appendChild(Graph.createPattern());
-        const background = Util.createShape({
+        root.appendChild(Graph.createPattern());
+        let background = Util.createShape({
             tag: 'rect',
             id: 'background',
-            width: 5000,
-            height: 5000,
+            width: 1280,
+            height: 800,
             x: 0,
             y: 0,
             stroke: '#999',
             'stroke-width': '1',
             fill: 'url(#raster)'
         });
-        canvas.appendChild(background);
-        canvas.appendChild(this.$graphModel.getSVG());
+        root.appendChild(background);
+
+        // not neccessary
+        // canvas.appendChild(this.$graphModel.getSVG());
     }
 
     private getLayout(): Layout {
@@ -333,12 +335,12 @@ export class Graph extends Control {
 
     private initCanvas() {
         if (this.options.canvas) {
-            this.root = document.getElementById(this.options.canvas);
+            this.canvas = document.getElementById(this.options.canvas);
         }
-        if (!this.root) {
-            this.root = document.createElement('div');
-            this.root.setAttribute('class', 'diagram');
-            document.body.appendChild(this.root);
+        if (!this.canvas) {
+            this.canvas = document.createElement('div');
+            this.canvas.setAttribute('class', 'diagram');
+            document.body.appendChild(this.canvas);
         }
         EventBus.subscribe(new ImportFile(this), 'dragover', 'dragleave', 'drop');
     }

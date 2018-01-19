@@ -123,16 +123,16 @@ export class GraphModel extends DiagramElement {
     }
     private initCanvas() {
         const graph = <Graph>this.$owner;
-        graph.canvasSize = { width: graph.root.clientWidth, height: graph.root.clientHeight };
-        graph.canvas = Util.createShape({
+        graph.canvasSize = { width: graph.canvas.clientWidth, height: graph.canvas.clientHeight };
+        graph.root = Util.createShape({
             tag: 'svg',
             id: 'root',
             width: graph.canvasSize.width,
             height: graph.canvasSize.height
             // FIXME,viewBox: `${this.$graph.options.origin.x * -1} ${this.$graph.options.origin.y * -1} ${this.$graph.canvasSize.width} ${this.$graph.canvasSize.height}`
         });
-        this.$view = graph.canvas;
-        graph.root.appendChild(graph.canvas);
+        this.$view = graph.root;
+        graph.canvas.appendChild(graph.root);
 
         let mousewheel = 'onwheel' in document.createElement('div') ? 'wheel' : document.onmousewheel !== undefined ? 'mousewheel' : 'DOMMouseScroll';
         EventBus.register(this, this.$view);

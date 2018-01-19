@@ -5,6 +5,9 @@
 	<meta charset="utf-8" />
 	<title>DiagramJS - Simple Example</title>
 	<link href="style.css" rel="stylesheet" type="text/css">
+	<script src="../dist/diagram.js" type="text/javascript"></script>
+	<script src="dagre.js" type="text/javascript"></script>
+	<script src="jspdf.min.js" type="text/javascript"></script>
 </head>
 
 <body>
@@ -13,73 +16,70 @@
 		<button id="layoutBtn">AUTO-LAYOUT</button>
 	</div>
 	<div class="diagram" id="canvas"></div>
-	<script src="../dist/diagram.js" type="text/javascript"></script>
-	<script src="dagre.js" type="text/javascript"></script>
-	<script src="jspdf.min.js" type="text/javascript"></script>
 	<script language="javascript">
-	var data = {
-	  typ: 'clazzdiagram',
-	  nodes: [
-	    {
-	      type: 'clazz',
-	      name: 'User',
-	      attributes: [ '+ name : string', '+ address : string', '- id : int'],
-	      methods: [ '+ register()', '+ login()' ]
-	    },
-	    {
-	      type: 'clazz',
-	      name: 'Order',
-	      attributes: [ '+ status : string', '+ date : string', '- orderId : int'],
-	      methods: [ '+ place()', '+ cancel()', '+ refund()' ]
-	    },
-	    {
-	      type: 'clazz',
-	      name: 'Account',
-	      attributes: [ '- id : int']
-	    },
-	    {
-	      type: 'clazz',
-	      name: 'Product',
-	      attributes: [ '+ name : string', '+ description : string', '+ photo : string', '- id : int'],
-	      methods: [ '+ addToOrder()' ]
-	    },
-	    {
-	      type: 'clazz',
-	      name: 'Payment',
-	      attributes: [ '+ provider : string', '+ amount : string' ],
-	      methods: [ '+ getStatus()' ]
-	    }
-	  ],
-	  edges: [
-	    { type: 'Edge', source: 'Order', target: 'Product' },
-	    { type: 'Edge', source: 'User', target: 'Order' },
-	    { type: 'Edge', source: 'User', target: 'Account' },
-	    { type: 'Edge', source: 'Order', target: 'Payment' },
-	    { type: 'Edge', source: 'Payment', target: 'Account' }
-	  ]
-	};
+		var data = {
+			typ: 'clazzdiagram',
+			nodes: [
+				{
+					type: 'clazz',
+					name: 'User',
+					attributes: ['+ name : string', '+ address : string', '- id : int'],
+					methods: ['+ register()', '+ login()']
+				},
+				{
+					type: 'clazz',
+					name: 'Order',
+					attributes: ['+ status : string', '+ date : string', '- orderId : int'],
+					methods: ['+ place()', '+ cancel()', '+ refund()']
+				},
+				{
+					type: 'clazz',
+					name: 'Account',
+					attributes: ['- id : int']
+				},
+				{
+					type: 'clazz',
+					name: 'Product',
+					attributes: ['+ name : string', '+ description : string', '+ photo : string', '- id : int'],
+					methods: ['+ addToOrder()']
+				},
+				{
+					type: 'clazz',
+					name: 'Payment',
+					attributes: ['+ provider : string', '+ amount : string'],
+					methods: ['+ getStatus()']
+				}
+			],
+			edges: [
+				{ type: 'Edge', source: 'Order', target: 'Product' },
+				{ type: 'Edge', source: 'User', target: 'Order' },
+				{ type: 'Edge', source: 'User', target: 'Account' },
+				{ type: 'Edge', source: 'Order', target: 'Payment' },
+				{ type: 'Edge', source: 'Payment', target: 'Account' }
+			]
+		};
 
-	var options = {
-	  canvas: 'canvas',
-	  origin: new Point(150, 45),
-	  layout: "DagreLayout",
-	  features: {
-	    drag: true,
-	    editor: true,
-	    palette: true,
-	    select: true,
-	    zoom: true
-	  }
-	};
+		var options = {
+			canvas: 'canvas',
+			origin: new Point(150, 45),
+			layout: "DagreLayout",
+			features: {
+				drag: true,
+				editor: true,
+				palette: true,
+				select: true,
+				zoom: true
+			}
+		};
 
-	var dia = new Graph(data, options);
+		var dia = new Graph(data, options);
 
-	document.getElementById('layoutBtn').onclick = function () {
-	  dia.layout();
-	};
+		document.getElementById('layoutBtn').onclick = function () {
+			dia.layout();
+		};
 
-	//(function() {
-	  dia.layout();
+		//(function() {
+		dia.layout();
 	//})();
 	</script>
 </body>

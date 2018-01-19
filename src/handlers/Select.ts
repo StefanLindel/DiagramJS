@@ -1,12 +1,12 @@
-import {DiagramElement} from '../elements/BaseElements';
-import {Node} from '../elements/nodes';
-import {Edge} from '../elements/edges';
-import {Util} from '../util';
-import {GraphModel} from '../elements/Model';
-import {SymbolLibary} from '../elements/nodes/Symbol';
-import {EventHandler} from '../EventBus';
-import {Clazz} from '../main';
-import {Graph} from '../elements/Graph';
+import { DiagramElement } from '../elements/BaseElements';
+import { Node } from '../elements/nodes';
+import { Edge } from '../elements/edges';
+import { Util } from '../util';
+import { GraphModel } from '../elements/Model';
+import { SymbolLibary } from '../elements/nodes/Symbol';
+import { EventHandler } from '../EventBus';
+import { Clazz } from '../main';
+import { Graph } from '../elements/Graph';
 
 export class Select implements EventHandler {
 
@@ -46,14 +46,14 @@ export class Select implements EventHandler {
         const editShape = Util.createShape(editAttr);
         const editBkg = Util.createShape(attrCircle);
 
-        let editGroup = Util.createShape({tag: 'g', id: 'edit', transform: 'rotate(-45, 20, 20) translate(0 0)'});
+        let editGroup = Util.createShape({ tag: 'g', id: 'edit', transform: 'rotate(-45, 20, 20) translate(0 0)' });
         editGroup.appendChild(editBkg);
         editGroup.appendChild(editShape);
         this.editShape = editGroup;
 
         // const deleteBkg = Util.createShape(attrCircle);
 
-        this.deleteShape = SymbolLibary.drawSVG({type: 'Basket', background: true, id: 'trashcan'});
+        this.deleteShape = SymbolLibary.drawSVG({ type: 'Basket', background: true, id: 'trashcan' });
     }
 
     public handle(event: Event, element: DiagramElement): boolean {
@@ -73,7 +73,7 @@ export class Select implements EventHandler {
             this.lastSelectedNode.setAttributeNS(null, 'class', 'SVGClazz-selected');
         }
 
-        if (event.srcElement.id === 'background' || element === this.model) {
+        if (event.target['id'] === 'background' || element === this.model) {
 
             this.resetLastSelectedElements();
 
@@ -244,20 +244,20 @@ export class Select implements EventHandler {
         return true;
     }
 
-    private resetLastSelectedElements(){
+    private resetLastSelectedElements() {
         // reset the last one
         if (this.lastSelectedNode) {
             this.lastSelectedNode.setAttributeNS(null, 'class', 'SVGClazz');
         }
 
-        if(this.lastSelectedEdge){
+        if (this.lastSelectedEdge) {
             this.lastSelectedEdge.setAttributeNS(null, 'class', 'SVGEdge');
         }
 
         this.removeLastInlineEdit();
     }
 
-    private removeLastInlineEdit() : void{
+    private removeLastInlineEdit(): void {
         // remove last inline edit of clazz
         let lastInlineEdit = document.getElementById('inlineEdit');
         if (lastInlineEdit) {
@@ -266,5 +266,9 @@ export class Select implements EventHandler {
             // its not supported in internet explorer
             // lastInlineEdit.remove();
         }
+    }
+
+    public isEnable() : boolean{
+        return true;
     }
 }

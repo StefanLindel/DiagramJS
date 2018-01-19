@@ -120,20 +120,13 @@ export class Clazz extends Node {
             group.appendChild(separatorLabelAttr);
 
             let y = pos.y + this.labelHeight + this.attrHeight / 2;
-            for (let element of this.attributesObj) {
-                const attrText = {
-                    tag: 'text',
-                    x: pos.x + 10,
-                    y: y,
-                    'text-anchor': 'start',
-                    'alignment-baseline': 'middle',
-                    'font-family': 'Verdana',
-                    'font-size': this.attrFontSize,
-                    fill: 'black'
-                };
-                let text = this.createShape(attrText);
-                text.textContent = element.toString();
-                group.appendChild(text);
+            for (let attr of this.attributesObj) {
+
+                let attrSvg = attr.getSVG();
+                attrSvg.setAttributeNS(null, 'x', '' + (pos.x + 10));
+                attrSvg.setAttributeNS(null, 'y', '' + y);
+
+                group.appendChild(attrSvg);
                 y += this.attrHeight;
             }
         }
@@ -158,20 +151,13 @@ export class Clazz extends Node {
             group.appendChild(separatorAttrMethods);
 
             y += this.attrHeight / 2;
-            for (let element of this.methodsObj) {
-                const attrText = {
-                    tag: 'text',
-                    x: pos.x + 10,
-                    y: y,
-                    'text-anchor': 'start',
-                    'alignment-baseline': 'middle',
-                    'font-family': 'Verdana',
-                    'font-size': this.attrFontSize,
-                    fill: 'black'
-                };
-                let text = this.createShape(attrText);
-                text.textContent = element.toString();
-                group.appendChild(text);
+            for (let method of this.methodsObj) {
+
+                let attrSvg = method.getSVG();
+                attrSvg.setAttributeNS(null, 'x', '' + (pos.x + 10));
+                attrSvg.setAttributeNS(null, 'y', '' + y);
+
+                group.appendChild(attrSvg);
                 y += this.attrHeight;
             }
         }

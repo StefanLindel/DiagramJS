@@ -11,7 +11,7 @@ export default class Attribute extends DiagramElement{
     // Derived (/)
     // Static (underlined)
 
-    public modifier : string;
+    public modifier : string = '+';
     public name : string;
     public type : string;
 
@@ -39,6 +39,9 @@ export default class Attribute extends DiagramElement{
         }
 
         else{
+
+            // TODO: edit the extract algorithmus
+            // e.g. name : string
             let dataSplitted = data.split(' ');
 
             if(dataSplitted){
@@ -58,8 +61,16 @@ export default class Attribute extends DiagramElement{
     }
 
     public getSVG() : Element{
+        let attrText = {
+            tag: 'text',
+            'text-anchor': 'start',
+            'alignment-baseline': 'middle',
+        };
+
+        let attrSvg = Util.createShape(attrText);
+        attrSvg.textContent = this.toString();
+        attrSvg.setAttributeNS(null, 'class', 'SVGClazzProperty SVGClazzAttribute');
         
-        
-        return null;
+        return attrSvg;
     }
 }

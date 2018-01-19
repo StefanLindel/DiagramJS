@@ -11,9 +11,9 @@ export default class Method extends DiagramElement{
     // Derived (/)
     // Static (underlined)
 
-    public modifier : string;
+    public modifier : string = '+';
     public name : string;
-    public type : string;
+    public type : string = 'void';
 
     public params : string[];
 
@@ -70,8 +70,16 @@ export default class Method extends DiagramElement{
     }
 
     public getSVG() : Element{
+        let methodText = {
+            tag: 'text',
+            'text-anchor': 'start',
+            'alignment-baseline': 'middle',
+        };
+
+        let methodSvg = Util.createShape(methodText);
+        methodSvg.textContent = this.toString();
+        methodSvg.setAttributeNS(null, 'class', 'SVGClazzProperty SVGClazzMethod');
         
-        
-        return null;
+        return methodSvg;
     }
 }

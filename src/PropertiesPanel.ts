@@ -7,10 +7,6 @@ import * as edges from './elements/edges';
 
 export namespace PropertiesPanel {
 
-    //TODO: methods und attribute in einzelne klassen umwandeln und
-    // modifier, namen und typ einzeln in einem element darstellen
-    // method erhalten dazu weitere elemente zum bearbeiten von parametern
-
     export enum PropertiesView {
         Clazz = 'clazz',
         Object = 'object',
@@ -39,9 +35,6 @@ export namespace PropertiesPanel {
         private createView(view: PropertiesView): APanel {
 
             let panel;
-            // if (this._blankView && this._blankView.getCurrentView() === view) {
-            //     return this._blankView.getCurrentPanel();
-            // }
 
             if (view === PropertiesView.Clazz) {
                 panel = new ClassPanel();
@@ -57,13 +50,13 @@ export namespace PropertiesPanel {
             return panel;
         }
 
-        handle(event: Event, element: DiagramElement): boolean {
+        public handle(event: Event, element: DiagramElement): boolean {
             this.handleSelectNodeEvent(event, element);
             this.handleSelectEdgeEvent(event, element);
 
             return true;
         }
-        isEnable(): boolean {
+        public isEnable(): boolean {
             return true;
         }
 
@@ -77,7 +70,7 @@ export namespace PropertiesPanel {
             let edge = <Edge>element;
             this.dispatch(PropertiesView.Edge);
 
-            const g = this._graph;
+            let g = this._graph;
             // add eventlistener to combobox of edge type
             let cBoxEdgeType = <any>document.getElementById('edgeTypeSelect');
             cBoxEdgeType.value = edge.typ;
@@ -136,26 +129,90 @@ export namespace PropertiesPanel {
                 tabContentAttr.removeChild(tabContentAttr.firstChild);
             }
 
+            // TODO: attributes and methods got the same code to display the edit tab
+            // put this together
+
             let attributes = clazz.getAttributesObj();
             for (let attr of attributes) {
-                let textBoxAttr = document.createElement('input');
+                // wrap all inputs in one div
+                let divEditAttr = document.createElement('div');
+                divEditAttr.style.marginTop = '5px';
 
-                textBoxAttr.type = 'text';
-                textBoxAttr.value = attr.toString();
-                textBoxAttr.addEventListener('change', function(){
+                // create modifier select 
+                let selectAttrModifier = document.createElement('select');
+
+                let modifierList : string[] = ['+', '-', '#'];
+                modifierList.forEach(modifier => {
+                    let modifierOption = document.createElement('option');
+                    modifierOption.value = modifier;
+                    modifierOption.innerHTML = modifier;
+                    selectAttrModifier.appendChild(modifierOption);
+                });
+                selectAttrModifier.value = attr.modifier;
+
+                selectAttrModifier.addEventListener('change', function(){
+                    attr.modifier = selectAttrModifier.options[selectAttrModifier.selectedIndex].value;
+                    
+                    graph.layout();
+                });
+
+                // create name input
+                let textBoxAttrName = document.createElement('input');
+                textBoxAttrName.style.marginLeft = '5px';
+                textBoxAttrName.style.marginRight = '5px';
+
+                textBoxAttrName.type = 'text';
+                textBoxAttrName.value = attr.name;
+                textBoxAttrName.addEventListener('change', function(){
                     // remove method
-                    if(textBoxAttr.value.length == 0){
+                    if(textBoxAttrName.value.length == 0){
                         clazz.removeAttribute(attr);
-                        tabContentAttr.removeChild(textBoxAttr);
+                        tabContentAttr.removeChild(divEditAttr);
                     }else{
-                        attr.updateAttribute(textBoxAttr.value);
+                        attr.name = textBoxAttrName.value;
                     }
 
                     graph.layout();
                 });
 
-                tabContentAttr.appendChild(textBoxAttr);
-                tabContentAttr.appendChild(document.createElement('br'));
+                // create type select
+                let selectAttrType = document.createElement('select');
+
+                // TODO: make a dynamic list of all ever entered types
+                let typeList : string[] = ['boolean', 'byte', 'char', 'double', 'float', 'int', 'long', 'short', 'string'];
+                typeList.forEach(type => {
+                    let modifierOption = document.createElement('option');
+                    modifierOption.value = type;
+                    modifierOption.innerHTML = type;
+                    selectAttrType.appendChild(modifierOption);
+                });
+                selectAttrType.value = attr.type;
+
+                selectAttrType.addEventListener('change', function(){
+                    attr.type = selectAttrType.options[selectAttrType.selectedIndex].value;
+                    
+                    graph.layout();
+                });
+
+                // create a button to delete the attribute
+                let btnDelete = document.createElement('button');
+                btnDelete.innerHTML = 'X';
+                btnDelete.title = 'Delete attribute';
+                btnDelete.style.marginLeft = '5px';
+                btnDelete.style.color = 'red';
+
+                btnDelete.addEventListener('click', function(){
+                    clazz.removeAttribute(attr);
+                    tabContentAttr.removeChild(divEditAttr);
+
+                    graph.layout();
+                });
+
+                divEditAttr.appendChild(selectAttrModifier);
+                divEditAttr.appendChild(textBoxAttrName);
+                divEditAttr.appendChild(selectAttrType);
+                divEditAttr.appendChild(btnDelete);
+                tabContentAttr.appendChild(divEditAttr);
             }
 
             // get tab content of attributes
@@ -168,25 +225,87 @@ export namespace PropertiesPanel {
 
             let methods = clazz.getMethodsObj();
             for (let method of methods) {
-                let textBoxMethod = document.createElement('input');
-                
-                textBoxMethod.type = 'text';
-                textBoxMethod.value = method.toString();
-                textBoxMethod.addEventListener('change', function(){
+
+
+                // wrap all inputs in one div
+                let divEditMethod = document.createElement('div');
+                divEditMethod.style.marginTop = '5px';
+
+                // create modifier select 
+                let selectMethodModifier = document.createElement('select');
+
+                let modifierList: string[] = ['+', '-', '#'];
+                modifierList.forEach(modifier => {
+                    let modifierOption = document.createElement('option');
+                    modifierOption.value = modifier;
+                    modifierOption.innerHTML = modifier;
+                    selectMethodModifier.appendChild(modifierOption);
+                });
+                selectMethodModifier.value = method.modifier;
+
+                selectMethodModifier.addEventListener('change', function () {
+                    method.modifier = selectMethodModifier.options[selectMethodModifier.selectedIndex].value;
+
+                    graph.layout();
+                });
+
+                // create name input
+                let textBoxAttrName = document.createElement('input');
+                textBoxAttrName.style.marginLeft = '5px';
+                textBoxAttrName.style.marginRight = '5px';
+
+                textBoxAttrName.type = 'text';
+                textBoxAttrName.value = method.name;
+                textBoxAttrName.addEventListener('change', function () {
                     // remove method
-                    if(textBoxMethod.value.length == 0){
+                    if (textBoxAttrName.value.length == 0) {
                         clazz.removeMethod(method);
-                        tabContentMethods.removeChild(textBoxMethod);
-                    }
-                    else{
-                        method.updateMethod(textBoxMethod.value);
+                        tabContentAttr.removeChild(divEditMethod);
+                    } else {
+                        method.name = textBoxAttrName.value;
                     }
 
                     graph.layout();
                 });
 
-                tabContentMethods.appendChild(textBoxMethod);
-                tabContentMethods.appendChild(document.createElement('br'));
+                // create type select
+                let selectMethodType = document.createElement('select');
+
+                // TODO: make a dynamic list of all ever entered types
+                let typeList: string[] = ['boolean', 'byte', 'char', 'double', 'float', 'int', 'long', 'short', 'string'];
+                typeList.forEach(type => {
+                    let modifierOption = document.createElement('option');
+                    modifierOption.value = type;
+                    modifierOption.innerHTML = type;
+                    selectMethodType.appendChild(modifierOption);
+                });
+                selectMethodType.value = method.type;
+
+                selectMethodType.addEventListener('change', function () {
+                    method.type = selectMethodType.options[selectMethodType.selectedIndex].value;
+
+                    graph.layout();
+                });
+
+                // create a button to delete the attribute
+                let btnDelete = document.createElement('button');
+                btnDelete.innerHTML = 'X';
+                btnDelete.title = 'Delete method';
+                btnDelete.style.marginLeft = '5px';
+                btnDelete.style.color = 'red';
+
+                btnDelete.addEventListener('click', function () {
+                    clazz.removeMethod(method);
+                    tabContentMethods.removeChild(divEditMethod);
+
+                    graph.layout();
+                });
+
+                divEditMethod.appendChild(selectMethodModifier);
+                divEditMethod.appendChild(textBoxAttrName);
+                divEditMethod.appendChild(selectMethodType);
+                divEditMethod.appendChild(btnDelete);
+                tabContentMethods.appendChild(divEditMethod);
             }
 
             return true;
@@ -217,14 +336,15 @@ export namespace PropertiesPanel {
             this._divMainPanel.innerHTML = 'Properties';
 
             // button to display and hide the properties of e.g. a class
-            let btnDivMainDisplay = document.createElement('button');
-            btnDivMainDisplay.id = 'btnHidePropertiesPanel';
-            btnDivMainDisplay.className = 'btnHideProp';
-            btnDivMainDisplay.innerHTML = '&#8896;';
-            btnDivMainDisplay.style.cssFloat = 'right';
-            btnDivMainDisplay.onclick = e => this.hideproperties(e);
+            let btnProperties = document.createElement('button');
+            btnProperties.id = 'btnHidePropertiesPanel';
+            btnProperties.title = 'Show properties';
+            btnProperties.className = 'btnHideProp';
+            btnProperties.innerHTML = '&#8896;';
+            btnProperties.style.cssFloat = 'right';
+            btnProperties.onclick = e => this.hideproperties(e);
 
-            this._divMainPanel.appendChild(btnDivMainDisplay);
+            this._divMainPanel.appendChild(btnProperties);
             document.body.appendChild(this._divMainPanel);
         }
 
@@ -233,13 +353,18 @@ export namespace PropertiesPanel {
             if (this._hideProp == true) {
                 document.getElementById("properties").className = "properties-hidden";
                 document.getElementById("classProp").className = "propertiespanel-hidden";
-                (<HTMLInputElement>document.getElementById((<any>evt.target).id)).innerHTML = '&#8896;';
+                let btn = document.getElementById('btnHidePropertiesPanel');
+                btn.innerHTML = '&#8896;';
+                btn.title = 'Show properties';
 
             }
             else {
                 document.getElementById("properties").className = "properties";
                 document.getElementById("classProp").className = "propertiespanel";
-                (<HTMLInputElement>document.getElementById((<any>evt.target).id)).innerHTML = '&#8897;';
+                let btn = document.getElementById('btnHidePropertiesPanel');
+                btn.innerHTML = '&#8897;';
+                btn.title = 'Hide properties';
+
             }
             this._hideProp = !this._hideProp;
         }
@@ -373,17 +498,44 @@ export namespace PropertiesPanel {
             div.id = this.getPropertiesView().toString().toLowerCase() + 'General';
             div.className = 'tabcontent';
 
+            let divTable = document.createElement('div');
+            divTable.className = 'divTable';
 
-            // text input for className
+            let divTableBody = document.createElement('div');
+            divTableBody.className = 'divTableBody';
+            
+
+
+            // ROW1: clazz name
+            let divRowClazzName = document.createElement('div');
+            divRowClazzName.className = 'divTableRow';
+
+            // ROW 1 -> Cell1 text clazz name
+            let divRowClazzNameCellText = document.createElement('div');
+            divRowClazzNameCellText.className = 'divTableCell';
+            divRowClazzNameCellText.innerHTML = 'Name:';
+
+            // ROW 1 -> Cell2 input clazz name
+            let divRowClazzNameCellInput = document.createElement('div');
+            divRowClazzNameCellInput.className = 'divTableCell';
+
+
             let textBoxClass = document.createElement('input');
             textBoxClass.type = 'text';
             textBoxClass.id = 'className';
             textBoxClass.placeholder = 'Class name';
             textBoxClass.style.marginRight = '10px';
 
-            div.appendChild(document.createTextNode('Name: '));
-            div.appendChild(textBoxClass);
 
+            divRowClazzNameCellInput.appendChild(textBoxClass);
+
+            divRowClazzName.appendChild(divRowClazzNameCellText);
+            divRowClazzName.appendChild(divRowClazzNameCellInput);
+            divTableBody.appendChild(divRowClazzName);
+
+            divTable.appendChild(divTableBody);
+
+            div.appendChild(divTable);
             this._divChildPanel.appendChild(div);
         }
 
@@ -445,10 +597,29 @@ export namespace PropertiesPanel {
             div.id = this.getPropertiesView().toString().toLowerCase() + 'General';
             div.className = 'tabcontent';
 
-            // edge type
-            let cBoxEdgeType = document.createElement('select');
-            cBoxEdgeType.id = 'edgeTypeSelect';
-            cBoxEdgeType.style.marginRight = '10px';
+            let divTable = document.createElement('div');
+            divTable.className = 'divTable';
+
+            let divTableBody = document.createElement('div');
+            divTableBody.className = 'divTableBody';
+            
+
+            // ROW 1: edge type 
+            let divRowEdgeType = document.createElement('div');
+            divRowEdgeType.className = 'divTableRow';
+
+            // ROW 1 -> Cell1 text Type
+            let divRowEdgeTypeCellText = document.createElement('div');
+            divRowEdgeTypeCellText.className = 'divTableCell';
+            divRowEdgeTypeCellText.innerHTML = 'Type:';
+
+            // ROW 2 -> Cell2 select Type
+            let divRowEdgeTypeCellSelect = document.createElement('div');
+            divRowEdgeTypeCellSelect.className = 'divTableCell';
+
+            let selectEdgeType = document.createElement('select');
+            selectEdgeType.id = 'edgeTypeSelect';
+            selectEdgeType.className = 'col2';
 
             let edgeTypes : string[] = new Array();
 
@@ -468,46 +639,100 @@ export namespace PropertiesPanel {
                 let selectOption = document.createElement('option');
                 selectOption.value = type;
                 selectOption.innerHTML = type;
-                cBoxEdgeType.appendChild(selectOption);
+                selectEdgeType.appendChild(selectOption);
             }
 
-            div.appendChild(document.createTextNode('Type: '));
-            div.appendChild(cBoxEdgeType);
+            divRowEdgeTypeCellSelect.appendChild(selectEdgeType);
 
-            // edge label
+            divRowEdgeType.appendChild(divRowEdgeTypeCellText);
+            divRowEdgeType.appendChild(divRowEdgeTypeCellSelect);
+            divTableBody.appendChild(divRowEdgeType);
+
+            
+            // ROW 2: edge label 
+            let divRowEdgeLabel = document.createElement('div');
+            divRowEdgeLabel.className = 'divTableRow';
+
+            // ROW 2 -> Cell1 text Label
+            let divRowEdgeLabelCellText = document.createElement('div');
+            divRowEdgeLabelCellText.className = 'divTableCell';
+            divRowEdgeLabelCellText.innerHTML = 'Label:';
+
+            // ROW 2 -> Cell2 input Label
+            let divRowEdgeLabelCellInput = document.createElement('div');
+            divRowEdgeLabelCellInput.className = 'divTableCell';
+
+
             let textBoxEdgeLabel = document.createElement('input');
             textBoxEdgeLabel.type = 'text';
             textBoxEdgeLabel.id = 'edgeLabelInput';
             textBoxEdgeLabel.placeholder = 'Edge label';
-            textBoxEdgeLabel.style.marginRight = '10px';
+            textBoxEdgeLabel.className = 'col2';
 
-            div.appendChild(document.createElement('br'));
-            div.appendChild(document.createTextNode('Label: '));
-            div.appendChild(textBoxEdgeLabel);
+            divRowEdgeLabelCellInput.appendChild(textBoxEdgeLabel);
 
-            // source node
+            divRowEdgeLabel.appendChild(divRowEdgeLabelCellText);
+            divRowEdgeLabel.appendChild(divRowEdgeLabelCellInput);
+            divTableBody.appendChild(divRowEdgeLabel);
+
+
+            // ROW3: source node
+            let divRowEdgeSrcNode = document.createElement('div');
+            divRowEdgeSrcNode.className = 'divTableRow';
+
+            // ROW 3 -> Cell1 text Source Node
+            let divRowEdgeSrcNodeCellText = document.createElement('div');
+            divRowEdgeSrcNodeCellText.className = 'divTableCell';
+            divRowEdgeSrcNodeCellText.innerHTML = 'Source:';
+
+            // ROW 3 -> Cell2 input Source Node
+            let divRowEdgeSrcNodeCellInput = document.createElement('div');
+            divRowEdgeSrcNodeCellInput.className = 'divTableCell';
+
             let textBoxEdgeSrc = document.createElement('input');
             textBoxEdgeSrc.type = 'text';
             textBoxEdgeSrc.id = 'edgeSrcInput';
             textBoxEdgeSrc.placeholder = 'Edge Source';
-            textBoxEdgeSrc.style.marginRight = '10px';
+            textBoxEdgeSrc.className = 'col2';
 
-            div.appendChild(document.createElement('br'));
-            div.appendChild(document.createTextNode('Source: '));
-            div.appendChild(textBoxEdgeSrc);
+            divRowEdgeSrcNodeCellInput.appendChild(textBoxEdgeSrc);
 
-            // target node
+            divRowEdgeSrcNode.appendChild(divRowEdgeSrcNodeCellText);
+            divRowEdgeSrcNode.appendChild(divRowEdgeSrcNodeCellInput);
+            divTableBody.appendChild(divRowEdgeSrcNode);
+
+
+
+            // ROW4: target node
+            let divRowEdgeTargetNode = document.createElement('div');
+            divRowEdgeTargetNode.className = 'divTableRow';
+
+            // ROW 4 -> Cell1 text Target Node
+            let divRowEdgeTargetNodeCellText = document.createElement('div');
+            divRowEdgeTargetNodeCellText.className = 'divTableCell';
+            divRowEdgeTargetNodeCellText.innerHTML = 'Source:';
+
+            // ROW 4 -> Cell2 input Target Node
+            let divRowEdgeTargetNodeCellInput = document.createElement('div');
+            divRowEdgeTargetNodeCellInput.className = 'divTableCell';
+
+
             let textBoxEdgeTarget = document.createElement('input');
             textBoxEdgeTarget.type = 'text';
             textBoxEdgeTarget.id = 'edgeTargetInput';
             textBoxEdgeTarget.placeholder = 'Edge Source';
-            textBoxEdgeTarget.style.marginRight = '10px';
+            textBoxEdgeTarget.className = 'col2';
 
 
-            div.appendChild(document.createElement('br'));
-            div.appendChild(document.createTextNode('Target: '));
-            div.appendChild(textBoxEdgeTarget);
+            divRowEdgeTargetNodeCellInput.appendChild(textBoxEdgeTarget);
 
+            divRowEdgeTargetNode.appendChild(divRowEdgeTargetNodeCellText);
+            divRowEdgeTargetNode.appendChild(divRowEdgeTargetNodeCellInput);
+            divTableBody.appendChild(divRowEdgeTargetNode);
+
+            divTable.appendChild(divTableBody);
+
+            div.appendChild(divTable);
             this._divChildPanel.appendChild(div);
         }
     }

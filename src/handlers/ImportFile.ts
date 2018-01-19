@@ -22,7 +22,7 @@ export class ImportFile implements EventHandler {
         if (evt.type === 'dragover') {
             this.handleDragOver(evt);
         } else if (evt.type === 'dragleave') {
-            if (this.graph.root !== evt.target) {
+            if (this.graph.canvas !== evt.target) {
                 return false;
             }
             this.setBoardStyle('dragleave');
@@ -130,7 +130,7 @@ export class ImportFile implements EventHandler {
     }
 
     private setBoardStyle(typ: string): boolean {
-        let b = this.graph.root;
+        let b = this.graph.canvas;
         Util.removeClass(b, 'Error');
         Util.removeClass(b, 'Ok');
         Util.removeClass(b, 'Add');
