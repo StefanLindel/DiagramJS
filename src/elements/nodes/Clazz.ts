@@ -12,11 +12,11 @@ export class Clazz extends Node {
     protected attrHeight = 25;
     protected attrFontSize = 12;
 
-    private attributesObj: Attribute[] = [];
-    private methodsObj: Method[] = [];
-    private $labelView: Element;
+    protected attributesObj: Attribute[] = [];
+    protected methodsObj: Method[] = [];
+    protected $labelView: Element;
 
-    private style: string;
+    protected style: string;
 
     constructor(json: JSON | string | Object | any) {
         super(json);

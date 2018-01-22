@@ -20,6 +20,8 @@ export * from './Dice';
 export * from './AutoComplete';
 export * from './Attribute';
 export * from './Method';
+export * from './Abstract';
+export * from './Interface';
 
 new AutoComplete();
 new BR();
