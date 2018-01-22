@@ -131,11 +131,6 @@ export class Select implements EventHandler {
             divInlineEdit.appendChild(inputText);
             document.body.appendChild(divInlineEdit);
 
-            inputText.addEventListener('change', (evt) => {
-                let lastInlineEdit = document.getElementById('inlineEdit');
-                let input = lastInlineEdit.children[0];
-            });
-
             let g = this.graph;
 
             let propertyTypes: string[] = ['boolean', 'byte', 'char', 'double', 'float', 'int', 'long', 'short', 'string'];
@@ -186,17 +181,16 @@ export class Select implements EventHandler {
                 // attribute
                 if (inputValue.includes(':') && !(inputValue.includes('(') && inputValue.includes(')'))) {
                     clazz.addAttribute(inputValue.trim());
-                    g.layout();
+                    clazz.reDraw();
                 }
                 // method
                 else if (inputValue.includes('(') && inputValue.includes(')')) {
                     clazz.addMethod(inputValue.trim());
-                    g.layout();
+                    clazz.reDraw();
                 }
                 // label
                 else if (inputValue.trim().split(' ').length === 1 && inputValue.trim().length > 0) {
-                    clazz.label = inputValue.trim();
-                    g.layout();
+                    clazz.updateLabel(inputValue.trim());
                 }
 
                 // reset size

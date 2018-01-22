@@ -4,6 +4,7 @@ import { Util } from '../../util';
 import { Point } from '../BaseElements';
 import Attribute from './Attribute';
 import Method from './Method';
+import { Size } from '../index';
 
 export class Clazz extends Node {
     protected labelHeight = 25;
@@ -11,9 +12,9 @@ export class Clazz extends Node {
     protected attrHeight = 25;
     protected attrFontSize = 12;
 
-    //TODO: create classes for methods and attributes
-    private attributesObj : Attribute[] = [];
-    private methodsObj : Method[] = [];
+    private attributesObj: Attribute[] = [];
+    private methodsObj: Method[] = [];
+    private $labelView: Element;
 
     private style: string;
 
@@ -30,23 +31,23 @@ export class Clazz extends Node {
 
         if (json['attributes']) {
             for (let attr of json['attributes']) {
-                this.attributesObj.push(new Attribute(attr));
 
-                // // Obsolete
-                // this.attributes.push(attr);
+                let attrObj = new Attribute(attr);
+                attrObj.$owner = this;
+                this.attributesObj.push(attrObj);
                 y += this.attrHeight;
                 width = Math.max(width, Util.sizeOf(attr, this).width);
-
             }
         }
         if (json['methods']) {
             for (let method of json['methods']) {
 
-                this.methodsObj.push(new Method(method));
+                let mthodObj = new Method(method);
+                mthodObj.$owner = this;
+                this.methodsObj.push(mthodObj);
 
-                // Obsolete
-                // this.methods.push(method);
                 y += this.attrHeight;
+                width = Math.max(width, Util.sizeOf(method, this).width);
             }
             y += this.attrHeight;
         }
@@ -54,11 +55,11 @@ export class Clazz extends Node {
         return this;
     }
 
-    public getAttributesObj():Attribute[]{
+    public getAttributesObj(): Attribute[] {
         return this.attributesObj;
     }
 
-    public getMethodsObj():Method[]{
+    public getMethodsObj(): Method[] {
         return this.methodsObj;
     }
 
@@ -96,6 +97,7 @@ export class Clazz extends Node {
             fill: 'black'
         });
         label.textContent = this.label;
+        this.$labelView = label;
 
         let group = this.createShape({ tag: 'g', id: this.id, transform: 'translate(0 0)' });
         group.appendChild(nodeShape);
@@ -124,7 +126,7 @@ export class Clazz extends Node {
 
                 let attrSvg = attr.getSVG();
                 attr.$owner = this;
-                
+
                 attrSvg.setAttributeNS(null, 'x', '' + (pos.x + 10));
                 attrSvg.setAttributeNS(null, 'y', '' + y);
 
@@ -212,60 +214,120 @@ export class Clazz extends Node {
 
         if (changed) {
             this[type] = newProperties;
-            this.getSize().y = this.labelHeight + ((this.attributesObj.length + this.methodsObj.length) * this.attrHeight) 
+            this.getSize().y = this.labelHeight + ((this.attributesObj.length + this.methodsObj.length) * this.attrHeight)
                 + this.attrHeight;
 
         }
         return changed;
     }
 
-    public addProperty(value : string, type : string) : void{
-        if(!this[type] || !value || value.length === 0){
+    public addProperty(value: string, type: string): void {
+        if (!this[type] || !value || value.length === 0) {
             return;
         }
 
-        for(let valueOfType of this[type]){
-            if(valueOfType.toString() === value){
+        for (let valueOfType of this[type]) {
+            if (valueOfType.toString() === value) {
                 return;
             }
         }
 
         let extractedValue;
-        if((<any>type).startsWith('attribute')){
+        if ((<any>type).startsWith('attribute')) {
             extractedValue = new Attribute(value);
         }
-        else if((<any>type).startsWith('method')){
+        else if ((<any>type).startsWith('method')) {
             extractedValue = new Method(value);
         }
 
         this[type].push(extractedValue);
-
-        this.getSize().y = this.labelHeight + ((this.attributesObj.length + this.methodsObj.length) * this.attrHeight) 
-            + this.attrHeight;
     }
 
-    public addAttribute(value : string) : void{
+    public addAttribute(value: string): void {
         this.addProperty(value, 'attributesObj');
     }
 
-    public addMethod(value : string) : void{
+    public addMethod(value: string): void {
         this.addProperty(value, 'methodsObj');
     }
 
-    public removeAttribute(attr: Attribute) : void{
+    public removeAttribute(attr: Attribute): void {
         let idx = this.attributesObj.indexOf(attr);
         this.attributesObj.splice(idx, 1);
-
-        this.getSize().y = this.labelHeight + ((this.attributesObj.length + this.methodsObj.length) * this.attrHeight) 
-            + this.attrHeight;
     }
 
-    public removeMethod(method: Method) : void{
+    public removeMethod(method: Method): void {
         let idx = this.methodsObj.indexOf(method);
         this.methodsObj.splice(idx, 1);
+    }
 
-        this.getSize().y = this.labelHeight + ((this.attributesObj.length + this.methodsObj.length) * this.attrHeight) 
+    public reDraw(drawOnlyIfSizeChanged?: boolean): void {
+        let oldSize = { width: this.getSize().x, height: this.getSize().y };
+        let newSize = this.reCalcSize();
+
+        if (drawOnlyIfSizeChanged) {
+            // size doenst changed, so nothing to redraw
+            if (oldSize.width === newSize.width && oldSize.height === newSize.height) {
+                return;
+            }
+        }
+
+        // redraw only this clazz
+        this.$owner.$view.removeChild(this.$view);
+        let newSvg = this.getSVG();
+        this.$owner.$view.appendChild(newSvg);
+        this.$view = newSvg;
+        EventBus.register(this, newSvg);
+
+        this.redrawEdges();
+    }
+
+    public updateLabel(newLabel: string): void {
+        this.label = newLabel;
+        this.$labelView.textContent = newLabel;
+
+        this.reDraw(true);
+    }
+
+    public reCalcSize(): Size {
+        // label
+        let newWidth = 150;
+        newWidth = Math.max(newWidth, Util.sizeOf(this.label, this).width+30);
+
+        // attributes
+        this.attributesObj.forEach(attrEl => {
+
+            let widthOfAttr;
+            if(attrEl.$view){
+                widthOfAttr = attrEl.$view.getBoundingClientRect().width;
+            }
+            else{
+                widthOfAttr = Util.sizeOf(attrEl.toString(), this).width;
+            }
+
+            newWidth = Math.max(newWidth, widthOfAttr+15);
+        });
+
+        // methods
+        this.methodsObj.forEach(methodEl => {
+            let widthOfMethod;
+            if(methodEl.$view){
+                widthOfMethod = methodEl.$view.getBoundingClientRect().width;
+            }
+            else{
+                widthOfMethod = Util.sizeOf(methodEl.toString(), this).width;
+            }
+
+            newWidth = Math.max(newWidth, widthOfMethod+15);
+        });
+
+        this.getSize().x = newWidth;
+        this.getSize().y = this.labelHeight + ((this.attributesObj.length + this.methodsObj.length) * this.attrHeight)
             + this.attrHeight;
+
+        let newSize = { width: newWidth, height: this.getSize().y };
+
+        return newSize;
     }
 
     private getModernStyle(): Element {

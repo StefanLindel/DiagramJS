@@ -117,8 +117,7 @@ export namespace PropertiesPanel {
             classNameInputText.setAttribute('value', clazz.label);
             
             classNameInputText.addEventListener('change', function(){
-                clazz.label = (<any>classNameInputText).value;
-                graph.layout();
+                clazz.updateLabel((<any>classNameInputText).value);
             });
 
             // get tab content of attributes
@@ -166,9 +165,11 @@ export namespace PropertiesPanel {
                         clazz.removeAttribute(attr);
                         tabContentAttr.removeChild(divEditAttr);
 
-                        graph.layout();
+                        clazz.reDraw();
                     }else{
                         attr.updateName(textBoxAttrName.value);
+
+                        clazz.reDraw(true);
                     }
                 });
 
@@ -187,6 +188,8 @@ export namespace PropertiesPanel {
 
                 selectAttrType.addEventListener('change', function(){
                     attr.updateType(selectAttrType.options[selectAttrType.selectedIndex].value);
+
+                    clazz.reDraw(true);
                 });
 
                 // create a button to delete the attribute
@@ -200,7 +203,7 @@ export namespace PropertiesPanel {
                     clazz.removeAttribute(attr);
                     tabContentAttr.removeChild(divEditAttr);
 
-                    graph.layout();
+                    clazz.reDraw();
                 });
 
                 divEditAttr.appendChild(selectAttrModifier);
@@ -243,21 +246,23 @@ export namespace PropertiesPanel {
                 });
 
                 // create name input
-                let textBoxAttrName = document.createElement('input');
-                textBoxAttrName.style.marginLeft = '5px';
-                textBoxAttrName.style.marginRight = '5px';
+                let textBoxMethodName = document.createElement('input');
+                textBoxMethodName.style.marginLeft = '5px';
+                textBoxMethodName.style.marginRight = '5px';
 
-                textBoxAttrName.type = 'text';
-                textBoxAttrName.value = method.name;
-                textBoxAttrName.addEventListener('change', function () {
+                textBoxMethodName.type = 'text';
+                textBoxMethodName.value = method.name;
+                textBoxMethodName.addEventListener('change', function () {
                     // remove method
-                    if (textBoxAttrName.value.length == 0) {
+                    if (textBoxMethodName.value.length == 0) {
                         clazz.removeMethod(method);
-                        tabContentAttr.removeChild(divEditMethod);
+                        tabContentMethods.removeChild(divEditMethod);
 
-                        graph.layout();
+                        clazz.reDraw();
                     } else {
-                        method.updateName(textBoxAttrName.value);
+                        method.updateName(textBoxMethodName.value);
+                        
+                        clazz.reDraw(true);
                     }
 
                 });
@@ -277,6 +282,8 @@ export namespace PropertiesPanel {
 
                 selectMethodType.addEventListener('change', function () {
                     method.updateType(selectMethodType.options[selectMethodType.selectedIndex].value);
+                    
+                    clazz.reDraw(true);
                 });
 
                 // create a button to delete the attribute
@@ -290,11 +297,11 @@ export namespace PropertiesPanel {
                     clazz.removeMethod(method);
                     tabContentMethods.removeChild(divEditMethod);
 
-                    graph.layout();
+                    clazz.reDraw();
                 });
 
                 divEditMethod.appendChild(selectMethodModifier);
-                divEditMethod.appendChild(textBoxAttrName);
+                divEditMethod.appendChild(textBoxMethodName);
                 divEditMethod.appendChild(selectMethodType);
                 divEditMethod.appendChild(btnDelete);
                 tabContentMethods.appendChild(divEditMethod);

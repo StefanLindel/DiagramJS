@@ -223,9 +223,9 @@ export class Graph extends Control {
         this.draw();
     }
 
-    public reLayout(): void {
-        this.getLayout().layout(this, this.$graphModel);
-        console.log('ReLayout');
+    public reDraw(): void {
+        console.log('reDraw');
+        this.draw();
     }
 
     public getEvents(): string[] {
