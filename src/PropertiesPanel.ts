@@ -4,6 +4,7 @@ import { Edge } from './elements/index';
 import { DiagramElement } from './elements/BaseElements';
 import { Graph } from './elements/Graph';
 import * as edges from './elements/edges';
+import Method from './elements/nodes/Method';
 
 export namespace PropertiesPanel {
 
@@ -217,6 +218,7 @@ export namespace PropertiesPanel {
             let tabContentMethods = document.getElementById('clazzMethods');
 
             // remove previous methods
+            let divAddMethod = document.getElementById('clazzMethodsAdd');
             while (tabContentMethods.firstChild) {
                 tabContentMethods.removeChild(tabContentMethods.firstChild);
             }
@@ -224,90 +226,125 @@ export namespace PropertiesPanel {
             let methods = clazz.getMethodsObj();
             for (let method of methods) {
 
+                let divEditMethod = this.createDivEditMethod(clazz, method, tabContentMethods);
+                tabContentMethods.appendChild(divEditMethod);
+            }
 
-                // wrap all inputs in one div
-                let divEditMethod = document.createElement('div');
-                divEditMethod.style.marginTop = '5px';
+            tabContentMethods.appendChild(divAddMethod);
 
-                // create modifier select 
-                let selectMethodModifier = document.createElement('select');
+            let that = this;
 
-                let modifierList: string[] = ['+', '-', '#'];
-                modifierList.forEach(modifier => {
-                    let modifierOption = document.createElement('option');
-                    modifierOption.value = modifier;
-                    modifierOption.innerHTML = modifier;
-                    selectMethodModifier.appendChild(modifierOption);
-                });
-                selectMethodModifier.value = method.modifier;
+            let btnAddMethod = document.getElementById('clazzMethodsAddMethodToClazz');
+            btnAddMethod.addEventListener('click', function(){
+                let modifier = <HTMLSelectElement>document.getElementById('clazzMethodsAddModifier');
+                let name = <HTMLInputElement>document.getElementById('clazzMethodsAddMethodName');
+                let type = <HTMLSelectElement>document.getElementById('clazzMethodsAddType');
 
-                selectMethodModifier.addEventListener('change', function () {
-                    method.updateModifier(selectMethodModifier.options[selectMethodModifier.selectedIndex].value);
-                });
+                if(!name.value || name.value.length == 0){
+                    // TODO: show message
+                    return;
+                }
 
-                // create name input
-                let textBoxMethodName = document.createElement('input');
-                textBoxMethodName.style.marginLeft = '5px';
-                textBoxMethodName.style.marginRight = '5px';
+                let methodValue : string = `${modifier.value} ${name.value} : ${type.value}`;
 
-                textBoxMethodName.type = 'text';
-                textBoxMethodName.value = method.name;
-                textBoxMethodName.addEventListener('change', function () {
-                    // remove method
-                    if (textBoxMethodName.value.length == 0) {
-                        clazz.removeMethod(method);
-                        tabContentMethods.removeChild(divEditMethod);
+                let newMethod = clazz.addMethod(methodValue);
+                let divEditNewMethod = that.createDivEditMethod(clazz, newMethod, tabContentMethods);
 
-                        clazz.reDraw();
-                    } else {
-                        method.updateName(textBoxMethodName.value);
-                        
-                        clazz.reDraw(true);
-                    }
+                // reset default values
+                modifier.value = '+';
+                name.value = '';
+                type.value = 'boolean';
 
-                });
+                tabContentMethods.insertBefore(divEditNewMethod, divAddMethod);
 
-                // create type select
-                let selectMethodType = document.createElement('select');
+                clazz.reDraw();
+            });
 
-                // TODO: make a dynamic list of all ever entered types
-                let typeList: string[] = ['boolean', 'byte', 'char', 'double', 'float', 'int', 'long', 'short', 'string'];
-                typeList.forEach(type => {
-                    let modifierOption = document.createElement('option');
-                    modifierOption.value = type;
-                    modifierOption.innerHTML = type;
-                    selectMethodType.appendChild(modifierOption);
-                });
-                selectMethodType.value = method.type;
+            return true;
+        }
 
-                selectMethodType.addEventListener('change', function () {
-                    method.updateType(selectMethodType.options[selectMethodType.selectedIndex].value);
-                    
-                    clazz.reDraw(true);
-                });
+        private createDivEditMethod(clazz : Clazz, method : Method, tabContentMethods : HTMLElement) : HTMLDivElement{
+            // wrap all inputs in one div
+            let divEditMethod = document.createElement('div');
+            divEditMethod.style.marginTop = '5px';
 
-                // create a button to delete the attribute
-                let btnDelete = document.createElement('button');
-                btnDelete.innerHTML = 'X';
-                btnDelete.title = 'Delete method';
-                btnDelete.style.marginLeft = '5px';
-                btnDelete.style.color = 'red';
+            // create modifier select 
+            let selectMethodModifier = document.createElement('select');
 
-                btnDelete.addEventListener('click', function () {
+            let modifierList: string[] = ['+', '-', '#'];
+            modifierList.forEach(modifier => {
+                let modifierOption = document.createElement('option');
+                modifierOption.value = modifier;
+                modifierOption.innerHTML = modifier;
+                selectMethodModifier.appendChild(modifierOption);
+            });
+            selectMethodModifier.value = method.modifier;
+
+            selectMethodModifier.addEventListener('change', function () {
+                method.updateModifier(selectMethodModifier.options[selectMethodModifier.selectedIndex].value);
+            });
+
+            // create name input
+            let textBoxMethodName = document.createElement('input');
+            textBoxMethodName.style.marginLeft = '5px';
+            textBoxMethodName.style.marginRight = '5px';
+
+            textBoxMethodName.type = 'text';
+            textBoxMethodName.value = method.name;
+            textBoxMethodName.addEventListener('change', function () {
+                // remove method
+                if (textBoxMethodName.value.length == 0) {
                     clazz.removeMethod(method);
                     tabContentMethods.removeChild(divEditMethod);
 
                     clazz.reDraw();
-                });
+                } else {
+                    method.updateName(textBoxMethodName.value);
+                    
+                    clazz.reDraw(true);
+                }
 
-                divEditMethod.appendChild(selectMethodModifier);
-                divEditMethod.appendChild(textBoxMethodName);
-                divEditMethod.appendChild(selectMethodType);
-                divEditMethod.appendChild(btnDelete);
-                tabContentMethods.appendChild(divEditMethod);
-            }
+            });
 
-            return true;
+            // create type select
+            let selectMethodType = document.createElement('select');
+
+            // TODO: make a dynamic list of all ever entered types
+            let typeList: string[] = ['boolean', 'byte', 'char', 'double', 'float', 'int', 'long', 'short', 'string'];
+            typeList.forEach(type => {
+                let modifierOption = document.createElement('option');
+                modifierOption.value = type;
+                modifierOption.innerHTML = type;
+                selectMethodType.appendChild(modifierOption);
+            });
+            selectMethodType.value = method.type;
+
+            selectMethodType.addEventListener('change', function () {
+                method.updateType(selectMethodType.options[selectMethodType.selectedIndex].value);
+                
+                clazz.reDraw(true);
+            });
+
+            // create a button to delete the attribute
+            let btnDelete = document.createElement('button');
+            btnDelete.innerHTML = 'X';
+            btnDelete.title = 'Delete method';
+            btnDelete.style.marginLeft = '5px';
+            btnDelete.style.color = 'red';
+
+            btnDelete.addEventListener('click', function () {
+                clazz.removeMethod(method);
+                tabContentMethods.removeChild(divEditMethod);
+
+                clazz.reDraw();
+            });
+
+            divEditMethod.appendChild(selectMethodModifier);
+            divEditMethod.appendChild(textBoxMethodName);
+            divEditMethod.appendChild(selectMethodType);
+            divEditMethod.appendChild(btnDelete);
+
+            return divEditMethod;
         }
     }
 
@@ -562,16 +599,60 @@ export namespace PropertiesPanel {
             div.id = this.getPropertiesView().toString().toLowerCase() + 'Methods';
             div.className = 'tabcontent';
 
+            // wrap all inputs in one div
+            let divEditMethod = document.createElement('div');
+            divEditMethod.id = div.id + 'Add';
+            divEditMethod.style.marginTop = '5px';
 
-            // text input for className
-            let textBoxMethod = document.createElement('input');
-            textBoxMethod.type = 'text';
-            textBoxMethod.id = 'methodname';
-            textBoxMethod.placeholder = 'Method name';
+            // create modifier select 
+            let selectMethodModifier = document.createElement('select');
+            selectMethodModifier.id = div.id + 'AddModifier';
 
-            div.appendChild(document.createTextNode('Method: '));
-            div.appendChild(textBoxMethod);
+            let modifierList: string[] = ['+', '-', '#'];
+            modifierList.forEach(modifier => {
+                let modifierOption = document.createElement('option');
+                modifierOption.value = modifier;
+                modifierOption.innerHTML = modifier;
+                selectMethodModifier.appendChild(modifierOption);
+            });
+            selectMethodModifier.value = modifierList[0];
 
+            // create name input
+            let textBoxMethodName = document.createElement('input');
+            textBoxMethodName.style.marginLeft = '5px';
+            textBoxMethodName.style.marginRight = '5px';
+            textBoxMethodName.id = div.id + 'AddMethodName';
+            textBoxMethodName.type = 'text';
+            textBoxMethodName.placeholder = 'Type new method';
+
+            // create type select
+            let selectMethodType = document.createElement('select');
+            selectMethodType.id = div.id + 'AddType';
+
+            // TODO: make a dynamic list of all ever entered types
+            let typeList: string[] = ['boolean', 'byte', 'char', 'double', 'float', 'int', 'long', 'short', 'string'];
+            typeList.forEach(type => {
+                let modifierOption = document.createElement('option');
+                modifierOption.value = type;
+                modifierOption.innerHTML = type;
+                selectMethodType.appendChild(modifierOption);
+            });
+
+            // create a button to delete the attribute
+            let btnAdd = document.createElement('button');
+            btnAdd.id = div.id + 'AddMethodToClazz';
+            btnAdd.innerHTML = '+';
+            btnAdd.title = 'Add method';
+            btnAdd.style.marginLeft = '5px';
+            btnAdd.style.color = 'green';
+
+            divEditMethod.appendChild(selectMethodModifier);
+            divEditMethod.appendChild(textBoxMethodName);
+            divEditMethod.appendChild(selectMethodType);
+            divEditMethod.appendChild(btnAdd);
+
+
+            div.appendChild(divEditMethod);
             this._divChildPanel.appendChild(div);
         }
     }

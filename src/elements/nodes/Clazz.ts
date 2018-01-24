@@ -221,7 +221,7 @@ export class Clazz extends Node {
         return changed;
     }
 
-    public addProperty(value: string, type: string): void {
+    public addProperty(value: string, type: string): any {
         if (!this[type] || !value || value.length === 0) {
             return;
         }
@@ -241,14 +241,16 @@ export class Clazz extends Node {
         }
 
         this[type].push(extractedValue);
+
+        return extractedValue;
     }
 
-    public addAttribute(value: string): void {
-        this.addProperty(value, 'attributesObj');
+    public addAttribute(value: string): Attribute {
+        return this.addProperty(value, 'attributesObj');
     }
 
-    public addMethod(value: string): void {
-        this.addProperty(value, 'methodsObj');
+    public addMethod(value: string): Method {
+        return this.addProperty(value, 'methodsObj');
     }
 
     public removeAttribute(attr: Attribute): void {
@@ -451,5 +453,11 @@ export class Clazz extends Node {
             }
         }
         return g;
+    }
+
+    public redrawEdges() {
+        for (let edge of this.edges) {
+            edge.redrawNewFn(this);
+        }
     }
 }

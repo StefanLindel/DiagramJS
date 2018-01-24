@@ -37,12 +37,14 @@ export class AddNode implements EventHandler {
         }
 
         if (element.id !== 'RootElement') {
+            console.log('element is not root: ' + element.id);
             return false;
         }
 
         switch (event.type) {
             case 'mousedown':
                 if (element.id === 'RootElement') {
+                    console.log('start dragging: element: ' + element.id);
                     this.start(event, element);
                 }
                 break;

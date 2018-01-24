@@ -1,8 +1,8 @@
-import {DiagramElement, Line, Point} from '../BaseElements';
-import {Node} from '../nodes';
-import {InfoText} from '../nodes/InfoText';
-import {Util} from '../../util';
-import {EventBus} from '../../EventBus';
+import { DiagramElement, Line, Point } from '../BaseElements';
+import { Node } from '../nodes';
+import { InfoText } from '../nodes/InfoText';
+import { Util } from '../../util';
+import { EventBus } from '../../EventBus';
 import * as edges from '../edges';
 
 export const enum Direction {
@@ -17,14 +17,15 @@ export class Edge extends DiagramElement {
     public $tNode: Node;
     public lineStyle: string;
     public $points: Line[] = [];
+    public $pointsNew: Point[] = [];
     info: InfoText;
     sourceInfo: InfoText;
     targetInfo: InfoText;
     $m: number;
     $n: number;
 
-    
-    protected $targetElement : Element;
+
+    protected $targetElement: Element;
 
     private static getShortestPointFromSource(source: Node, target: Node): Point {
         let result: Point;
@@ -87,11 +88,11 @@ export class Edge extends DiagramElement {
 
     public getSVG(): Element {
         let path = '';
-        if (this.$points.length > 0) {
+        if (this.$pointsNew.length > 0) {
             path = 'M';
         }
-        for (let i = 0; i < this.$points.length; i++) {
-            let point: Point = this.$points[i].target;
+        for (let i = 0; i < this.$pointsNew.length; i++) {
+            let point: Point = this.$pointsNew[i];
             if (i > 0) {
                 path += 'L';
             }
@@ -116,17 +117,17 @@ export class Edge extends DiagramElement {
         return [EventBus.ELEMENTCLICK, EventBus.EDITOR];
     }
 
-    public convertEdge(type: string, newId: string) : Edge{
-        if(!edges[type]){
+    public convertEdge(type: string, newId: string): Edge {
+        if (!edges[type]) {
             return this;
         }
-        
+
         let idxInSrc = this.$sNode.edges.indexOf(this);
         this.$sNode.edges.splice(idxInSrc, 1);
         let idxInTarget = this.$tNode.edges.indexOf(this);
         this.$tNode.edges.splice(idxInTarget, 1);
-        
-        let newEdge : Edge = new edges[type]();
+
+        let newEdge: Edge = new edges[type]();
         newEdge.withItem(this.$sNode, this.$tNode);
         newEdge.id = newId;
         newEdge.typ = type;
@@ -137,8 +138,92 @@ export class Edge extends DiagramElement {
     /**
      * TODO: Edges will be redraw from every single existing point!
      */
-    public redrawEdge() : void{
+    public redrawNewFn(startNode: Node): void {
 
+        if (!startNode) {
+            return;
+        }
+        // redraw the first point
+        // check which point is the near to startnode
+        let pointToCalcFrom: Point;
+        let pointToRedraw: Point;
+
+        if (this.source === startNode.id) {
+            pointToRedraw = this.$pointsNew[0];
+            pointToCalcFrom = this.$pointsNew[1];
+        } else if (this.target === startNode.id) {
+            pointToRedraw = this.$pointsNew[this.$pointsNew.length - 1];
+            pointToCalcFrom = this.$pointsNew[this.$pointsNew.length - 2];
+        }
+
+        // https://www.mathelounge.de/21534/schnittpunkt-einer-linie-mit-den-randern-eines-rechtecks
+        let h = startNode.getSize().y;
+        let w = startNode.getSize().x;
+
+        let x1: number = startNode.getPos().x + (w / 2);
+        let y1: number = startNode.getPos().y + (h / 2);
+
+        let x2: number = pointToCalcFrom.x;
+        let y2: number = pointToCalcFrom.y;
+
+        let newX: number = pointToRedraw.x;
+        let newY: number = pointToRedraw.y;
+
+        if (x2 > x1) {
+            newX = x1 + (w / 2);
+        }
+        else if (x2 < x1){
+            newX = x1 - (w / 2);
+        }
+        else{
+            newX = x1;
+        }
+
+        if((x2 - x1) != 0){
+            newY = ((y2 - y1) / (x2 - x1) * (newX - x1)) + y1;
+        }
+        else{
+            if(y1 > y2){
+                newY = startNode.getPos().y;
+            }
+            else{
+                newY = startNode.getPos().y + h;
+            }
+        }
+
+        // if the statement is not true, so the intersection is at the horizontal line
+        if (!((y1 - (h / 2) <= newY) && newY <= y1 + (h / 2))) {
+
+            if (y2 > y1) {
+                newY = y1 + (h / 2);
+            }
+            else {
+                newY = y1 - (h / 2);
+            }
+
+            if((x2 - x1) != 0){
+                let tmp = ((y2 - y1) / (x2 - x1));
+                newX = (newY + (tmp * x1) - y1) / tmp;
+            }
+            else{
+                newX = x1;
+            }
+        }
+
+        pointToRedraw.x = Math.ceil(newX);
+        pointToRedraw.y = Math.ceil(newY);
+
+        let path: string = 'M';
+
+        for (let i = 0; i < this.$pointsNew.length; i++) {
+            let point: Point = this.$pointsNew[i];
+            if (i > 0) {
+                path += 'L';
+            }
+            path += Math.floor(point.x) + ' ' + Math.floor(point.y) + ' ';
+        }
+
+        this.$view.setAttributeNS(null, 'd', path);
     }
 
     public redraw() {
@@ -245,7 +330,7 @@ export class Edge extends DiagramElement {
         // FIXME  this.$points = [ a, b ];
     }
 
-// INFOTEXT CALCULATE POSITION
+    // INFOTEXT CALCULATE POSITION
     public calc(board: Element): boolean {
         let result, options, linetyp, sourcePos: Point, targetPos: Point, divisor, startNode: Node, endNode: Node;
         startNode = <Node>this.$sNode.getShowed();
@@ -306,8 +391,8 @@ export class Edge extends DiagramElement {
         return true;
     }
 
-// many Edges SOME DOWN AND SOME RIGHT OR LEFT
-// INFOTEXT DONT SHOW IF NO PLACE
+    // many Edges SOME DOWN AND SOME RIGHT OR LEFT
+    // INFOTEXT DONT SHOW IF NO PLACE
 
     public addLineTo(x1: number, y1: number, x2?: number, y2?: number) {
         let start, end;
@@ -333,6 +418,7 @@ export class Edge extends DiagramElement {
 
     public clearPoints(): any {
         this.$points = [];
+        this.$pointsNew = [];
     }
 
     public addLine(x1: number, y1: number, x2?: number, y2?: number) {
@@ -449,7 +535,7 @@ export class Edge extends DiagramElement {
             item = this.$points[i];
             if (item.lineType === Line.FORMAT.PATH) {
                 value = document.createElement('div');
-                svg = Util.create({tag: 'svg'});
+                svg = Util.create({ tag: 'svg' });
                 svg.appendChild(item.getSVG());
                 value = svg.childNodes[0];
                 x = y = 0;
@@ -481,7 +567,7 @@ export class Edge extends DiagramElement {
                 Util.Range(min, max, item.target.x, item.target.y);
             }
         }
-        return {x: min.x, y: min.y, width: max.x - min.x, height: max.y - min.y};
+        return { x: min.x, y: min.y, width: max.x - min.x, height: max.y - min.y };
     }
 
     protected getDirection(a: Point, b: Point): Direction {
@@ -498,5 +584,11 @@ export class Edge extends DiagramElement {
             return Direction.Down;
         }
         return Direction.Down;
+    }
+
+    public addPoint(x: number, y: number): Point[] {
+        this.$pointsNew.push(new Point(x, y));
+
+        return this.$pointsNew;
     }
 }

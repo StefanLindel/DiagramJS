@@ -33,6 +33,7 @@ export class Drag implements EventHandler {
 
         switch (event.type) {
             case 'mousedown':
+            console.log('mousedown in drag with element: ' + element.id)
                 if ((!this.dragging) || (element.id !== 'RootElement')) {
                     this.element = element;
                     this.svgElement = <SVGSVGElement>element.$view;

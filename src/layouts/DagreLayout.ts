@@ -58,6 +58,7 @@ export class DagreLayout implements Layout {
                     edge.clearPoints();
                     for (let i = 0; i < size; i++) {
                         let point: SVGPoint = innerG.edge(e).points[i];
+                        edge.addPoint(point.x, point.y);
                         edge.addLine(point.x, point.y);
                         // if(oldPoint) {
                         //  edge.addLine(oldPoint.x, oldPoint.y, point.x, point.y);

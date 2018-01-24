@@ -594,7 +594,9 @@ h1 {
     padding: 5px 5px;
     border: 1px solid #ccc;
     border-top: none;
-    font-size: 12px;
+	font-size: 12px;
+	overflow: auto;
+	height: 190px;
 }
 
 .SVGEdge{
