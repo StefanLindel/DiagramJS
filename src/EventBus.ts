@@ -9,6 +9,7 @@ export interface EventHandler {
 export class EventBus {
     public static CREATE: string = 'Create';
     public static EDITOR: string = 'Editor';
+    public static OPENPROPERTIES: string = 'openProperties';
     public static ELEMENTMOUSEDOWN: string = 'ELEMENT:MOUSEDOWN';
     public static ELEMENTMOUSEUP: string = 'ELEMENT:MOUSEUP';
     public static ELEMENTMOUSELEAVE: string = 'ELEMENT:MOUSELEAVE';
@@ -24,6 +25,7 @@ export class EventBus {
     public static EVENTS: string[] = [
         EventBus.CREATE,
         EventBus.EDITOR,
+        EventBus.OPENPROPERTIES,
         EventBus.ELEMENTMOUSEDOWN,
         EventBus.ELEMENTMOUSEUP,
         EventBus.ELEMENTMOUSELEAVE,
@@ -51,7 +53,6 @@ export class EventBus {
         let pos: number;
         for (let event of events) {
             if (EventBus.EVENTS.indexOf(event) < 0) {
-                console.log('event dont know: ' + event);
             }
             pos = event.indexOf(':');
             if (pos > 0) {
@@ -63,18 +64,7 @@ export class EventBus {
         }
     }
 
-    // static registerSVG(diagramElement: DiagramElement) {
-    //    for (let type in EventBus.handlers.keys()) {
-    //       console.log(type);
-    //    }
-    // for (let event of eventTypes) {
-    //  diagramElement.$viewElement.addListener(event, EventBus.publish.bind(null, diagramElement));
-    // }
-    // }
-
     public static publish(element: DiagramElement, evt: Event) {
-        let event = evt || window.event;
-
         let handlers = EventBus.handlers[event.type];
         if (handlers) {
             for (let handler of handlers) {

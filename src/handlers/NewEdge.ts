@@ -130,8 +130,10 @@ export class NewEdge implements EventHandler {
             return;
         }
 
+        let edgeType = this.sourceNode.defaulEdgeType || 'Edge';
+
         let jsonData = {
-            type: 'Edge',
+            type: edgeType,
             source: this.sourceNode.label,
             target: targetNode.label
         };

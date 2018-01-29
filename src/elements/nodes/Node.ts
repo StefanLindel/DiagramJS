@@ -7,6 +7,7 @@ export class Node extends DiagramElement {
     // protected counter:number;
     // private status:string;
     public label: string;
+    public defaulEdgeType : string;
     $LEFT: number = 0;
     $RIGHT: number = 0;
     $TOP: number = 0;

@@ -6,6 +6,13 @@ export class StereoType extends Clazz{
     protected stereoType : string;
     protected $stereoTypeView : Element;
 
+    constructor(data : JSON | any){
+        super(data);
+
+        
+        this.withSize(this.getSize().x, (this.getSize().y + this.labelHeight/2));
+    }
+
     public getSVG() : Element{
 
         let pos: Point = this.getPos();

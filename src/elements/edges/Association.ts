@@ -1,5 +1,6 @@
 import { Edge } from './Edge';
 import { Direction } from './index';
+import { Node } from '../nodes/Node';
 
 export abstract class Association extends Edge {
 
@@ -32,67 +33,17 @@ export abstract class Association extends Edge {
         return group;
     }
 
-    public redraw() : void{
+    public redrawNewFn(startNode: Node) : void {
+
+        super.redrawNewFn(startNode);
+
         let targetNodePos = this.$tNode.getPos();
         let sourceNodePos = this.$sNode.getPos();
-
-        let targetNodeSize = this.$tNode.getSize();
-        let sourceNodeSize = this.$sNode.getSize();
-
-        let mx, my, lx, ly: number;
-
         let isSrcHigherThanTarget = false;
 
         if (targetNodePos.y < sourceNodePos.y) {
-            ly = targetNodePos.y + targetNodeSize.y;
-            my = sourceNodePos.y+20;
             isSrcHigherThanTarget = true;
         }
-        else {
-            ly = targetNodePos.y;
-            my = (sourceNodePos.y + sourceNodeSize.y) + 20;
-        }
-
-        mx = sourceNodePos.x + sourceNodeSize.x / 2;
-        lx = targetNodePos.x + targetNodeSize.x / 2;
-
-        let diff;
-        if (mx > targetNodePos.x + targetNodeSize.x && sourceNodePos.x <= targetNodePos.x + targetNodeSize.x) {
-            diff = (mx - (targetNodePos.x + targetNodeSize.x));
-            mx -= diff;
-        }
-
-        else if (sourceNodePos.x > targetNodePos.x + targetNodeSize.x) {
-            let diff = sourceNodePos.x - (targetNodePos.x + targetNodeSize.x);
-            mx = sourceNodePos.x;
-            lx += diff;
-
-            if (lx >= (targetNodePos.x + targetNodeSize.x)) {
-                lx = (targetNodePos.x + targetNodeSize.x);
-            }
-        }
-        else if (targetNodePos.x > mx && targetNodePos.x <= sourceNodePos.x + sourceNodeSize.x) {
-            diff = (lx - (sourceNodePos.x + sourceNodeSize.x));
-            mx += diff;
-        }
-
-        else if (sourceNodePos.x + sourceNodeSize.x < targetNodePos.x) {
-            let diff = targetNodePos.x - (sourceNodePos.x + sourceNodeSize.x);
-            mx = sourceNodePos.x + sourceNodeSize.x;
-            lx -= diff;
-
-            if (lx <= targetNodePos.x) {
-                lx = targetNodePos.x;
-            }
-        }
-
-        this.$view.setAttribute('d', `M${mx} ${my} L${lx} ${ly} Z`);
-
-        // reset points
-        this.clearPoints();
-        this.addLine(mx, my);
-        this.addLine(lx, ly);
-        
 
         let endPoint = this.$points[this.$points.length-1];
         let startX = endPoint.getPos().x;

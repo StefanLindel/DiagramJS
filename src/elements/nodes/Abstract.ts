@@ -7,6 +7,7 @@ export class Abstract extends StereoType{
 
     constructor(data : JSON | any){
         super(data);
+        this.defaulEdgeType = 'Generalisation';
 
         this.setStereoTyp(this.ABSTRACT);
     }

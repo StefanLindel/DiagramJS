@@ -69,8 +69,10 @@ export class Select implements EventHandler {
             this.resetLastSelectedElements();
 
             // mark the border with orange
-            this.lastSelectedNode = <Element>element.$view.childNodes[0];
-            this.lastSelectedNode.setAttributeNS(null, 'class', 'SVGClazz-selected');
+            if(element instanceof Node){
+                this.lastSelectedNode = <Element>element.$view.childNodes[0];
+            }
+            Util.addClass(this.lastSelectedNode, 'SVGClazz-selected');
         }
 
         if (event.target['id'] === 'background' || element === this.model) {
@@ -96,7 +98,7 @@ export class Select implements EventHandler {
 
             // mark the border with orange
             this.lastSelectedNode = <Element>element.$view.childNodes[0];
-            this.lastSelectedNode.setAttributeNS(null, 'class', 'SVGClazz-selected');
+            Util.addClass(this.lastSelectedNode, 'SVGClazz-selected');
 
             this.editShape.setAttributeNS(null, 'visibility', 'visible');
             this.deleteShape.setAttributeNS(null, 'visibility', 'visible');
@@ -109,7 +111,7 @@ export class Select implements EventHandler {
             let y = e.getPos().y;
 
             this.editShape.setAttributeNS(null, 'transform', `rotate(-45, ${x + 20}, ${y + 20}) translate(${x} ${y})`);
-            this.editShape.onclick = e => element.$view.dispatchEvent(new Event('editor'));
+            this.editShape.onclick = e => element.$view.dispatchEvent(new Event('openproperties'));
 
             this.deleteShape.setAttributeNS(null, 'transform', `translate(${x} ${y + 34 + this.padding})`);
             this.deleteShape.onclick = e => this.model.removeElement(element.id);
@@ -241,7 +243,7 @@ export class Select implements EventHandler {
     private resetLastSelectedElements() {
         // reset the last one
         if (this.lastSelectedNode) {
-            this.lastSelectedNode.setAttributeNS(null, 'class', 'SVGClazz');
+            Util.removeClass(this.lastSelectedNode, 'SVGClazz-selected');
         }
 
         if (this.lastSelectedEdge) {

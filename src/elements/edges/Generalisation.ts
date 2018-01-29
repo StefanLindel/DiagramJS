@@ -1,15 +1,17 @@
 import { Edge } from './Edge';
+import { Node } from '../nodes/Node';
+import { Point } from '../BaseElements';
 
 export class Generalisation extends Edge {
 
     public getSVG(): Element {
-        let startPoint = this.$points[0];
-        let startX = startPoint.getPos().x;
-        let startY = startPoint.getPos().y;
+        let startPoint = this.$pointsNew[0];
+        let startX = startPoint.x;
+        let startY = startPoint.y;
 
         
         // set the startpoint lower
-        startPoint.target.y = startY+12;
+        startPoint.y = startY+12;
 
         let line = super.getSVG();
 
@@ -32,81 +34,49 @@ export class Generalisation extends Edge {
         return group;
     }
 
-    public redraw() : void {
+    public redrawNewFn(startNode: Node) : void {
+
+        super.redrawNewFn(startNode);
+
+        console.log("redrawEdges in generalisation");
 
         let targetNodePos = this.$tNode.getPos();
         let sourceNodePos = this.$sNode.getPos();
-
-        let targetNodeSize = this.$tNode.getSize();
-        let sourceNodeSize = this.$sNode.getSize();
-
-        let mx, my, lx, ly: number;
-
         let isSrcHigherThanTarget = false;
 
         if (targetNodePos.y < sourceNodePos.y) {
-            ly = targetNodePos.y + targetNodeSize.y;
-            my = sourceNodePos.y-14;
             isSrcHigherThanTarget = true;
         }
-        else {
-            ly = targetNodePos.y;
-            my = (sourceNodePos.y + sourceNodeSize.y) + 12;
-        }
 
-        mx = sourceNodePos.x + sourceNodeSize.x / 2;
-        lx = targetNodePos.x + targetNodeSize.x / 2;
-
-        let diff;
-        if (mx > targetNodePos.x + targetNodeSize.x && sourceNodePos.x <= targetNodePos.x + targetNodeSize.x) {
-            diff = (mx - (targetNodePos.x + targetNodeSize.x));
-            mx -= diff;
-        }
-
-        else if (sourceNodePos.x > targetNodePos.x + targetNodeSize.x) {
-            let diff = sourceNodePos.x - (targetNodePos.x + targetNodeSize.x);
-            mx = sourceNodePos.x;
-            lx += diff;
-
-            if (lx >= (targetNodePos.x + targetNodeSize.x)) {
-                lx = (targetNodePos.x + targetNodeSize.x);
-            }
-        }
-
-        else if (targetNodePos.x > mx && targetNodePos.x <= sourceNodePos.x + sourceNodeSize.x) {
-            diff = (lx - (sourceNodePos.x + sourceNodeSize.x));
-            mx += diff;
-        }
-
-        else if (sourceNodePos.x + sourceNodeSize.x < targetNodePos.x) {
-            let diff = targetNodePos.x - (sourceNodePos.x + sourceNodeSize.x);
-            mx = sourceNodePos.x + sourceNodeSize.x;
-            lx -= diff;
-
-            if (lx <= targetNodePos.x) {
-                lx = targetNodePos.x;
-            }
-        }
-
-        this.$view.setAttribute('d', `M${mx} ${my} L${lx} ${ly} Z`);
-
-        // reset points
-        this.clearPoints();
-        this.addLine(mx, my);
-        this.addLine(lx, ly);
-        
-
-        let startPoint = this.$points[0];
-        let startX = startPoint.getPos().x;
-        let startY = startPoint.getPos().y;
+        let startPoint = this.$pointsNew[0];
+        let startX = startPoint.x;
+        let startY = startPoint.y;
 
         let path;
         if(isSrcHigherThanTarget){
             path = `M${startX} ${startY+12} L${startX+10} ${startY} L${startX-10} ${startY} Z`;
+            startPoint.y +=12;
         }
         else{
             path = `M${startX} ${startY-10} L${startX+10} ${startY} L${startX-10} ${startY} Z`;
+            startPoint.y -=12;
         }
+
+        // redraw the edge with the new position
+        let pathOriginal: string = 'M';
+
+        for (let i = 0; i < this.$pointsNew.length; i++) {
+            let point: Point = this.$pointsNew[i];
+            if (i > 0) {
+                pathOriginal += 'L';
+            }
+            pathOriginal += Math.floor(point.x) + ' ' + Math.floor(point.y) + ' ';
+        }
+
+
+        // remove the pre last point (pointToCalcFrom), if there are at least 3 points
+
+        this.$view.setAttributeNS(null, 'd', pathOriginal);
 
 
         this.$targetElement.setAttributeNS(null, 'd', path);

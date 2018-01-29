@@ -125,10 +125,46 @@ export class Graph extends Control {
         a.download = name;
         a.click();
     }
+
+    public exportSVG(){
+        let oDOM = this.$graphModel.$view.cloneNode(true);
+        this.read_Element(oDOM, this.$graphModel.$view)
+        this.save('image/svg+xml', this.serializeXmlNode(oDOM), 'download.svg');
+    }
+
+    //https://stackoverflow.com/questions/15181452/how-to-save-export-inline-svg-styled-with-css-from-browser-to-image-file
+    private ContainerElements = ["svg","g"];
+    private RelevantStyles = {"rect":["fill","stroke","stroke-width"],"path":["fill","stroke","stroke-width"],"circle":["fill","stroke","stroke-width"],"line":["stroke","stroke-width"],"text":["fill","font-size","text-anchor"],"polygon":["stroke","fill"]};
+
+    public read_Element(parent : any, OrigData : any){
+
+        var Children = parent.childNodes;
+        var OrigChildDat = OrigData.childNodes;     
+
+        for (var cd = 0; cd < Children.length; cd++){
+            var Child = Children[cd];
+
+            var TagName = Child.tagName;
+            if (this.ContainerElements.indexOf(TagName) != -1){
+                this.read_Element(Child, OrigChildDat[cd])
+            } else if (TagName in this.RelevantStyles){
+                var StyleDef = window.getComputedStyle(OrigChildDat[cd]);
+
+                var StyleString = "";
+                for (var st = 0; st < this.RelevantStyles[TagName].length; st++){
+                    StyleString += this.RelevantStyles[TagName][st] + ":" + StyleDef.getPropertyValue(this.RelevantStyles[TagName][st]) + "; ";
+                }
+
+                Child.setAttribute("style",StyleString);
+            }
+        }
+
+    }
+
     public saveAs(typ: string) {
         typ = typ.toLowerCase();
         if (typ === 'svg') {
-            this.save('image/svg+xml', this.serializeXmlNode(this.$graphModel.$view), 'download.svg');
+            this.exportSVG();
         } else if (typ === 'png') {
             this.exportPNG();
         // } else if (typ === "html") {
@@ -224,7 +260,6 @@ export class Graph extends Control {
     }
 
     public reDraw(): void {
-        console.log('reDraw');
         this.draw();
     }
 
@@ -351,9 +386,9 @@ export class Graph extends Control {
                 let mousewheel = 'onwheel' in document.createElement('div') ? 'wheel' : document.onmousewheel !== undefined ? 'mousewheel' : 'DOMMouseScroll';
                 EventBus.subscribe(new Zoom(), mousewheel);
             }
-            if (features.editor) {
-                EventBus.subscribe(new Editor(this), 'dblclick', 'editor');
-            }
+            // if (features.editor) {
+            //     EventBus.subscribe(new Editor(this), 'dblclick', 'editor');
+            // }
             if (features.drag) {
                 EventBus.subscribe(new Drag(this), 'mousedown', 'mouseup', 'mousemove', 'mouseleave');
             }
@@ -369,7 +404,7 @@ export class Graph extends Control {
         // dispatcher.dispatch(PropertiesPanel.PropertiesPanel.PropertiesView.Edge);
         let dispatcher = new PropertiesPanel.PropertiesPanel.Dispatcher(this);
         dispatcher.dispatch(PropertiesPanel.PropertiesPanel.PropertiesView.Edge);
-        EventBus.subscribe(dispatcher, 'click');
+        EventBus.subscribe(dispatcher, 'dblclick', 'click', 'openproperties');
 
         EventBus.subscribe(new NewEdge(this), 'mousedown', 'mouseup', 'mousemove', 'mouseleave');
         EventBus.subscribe(new AddNode(this), 'mousedown', 'mouseup', 'mousemove', 'mouseleave');

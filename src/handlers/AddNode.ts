@@ -6,10 +6,12 @@ import {Util} from '../util';
 export class AddNode implements EventHandler {
 
     public MIN_SIZE_TO_ADD_NODE: number = 30;
+    public MIN_SIZE_TO_ADD_TEXT: number = 10;
     private graph: Graph;
     private svgRoot: SVGSVGElement;
     private svgRect: SVGSVGElement;
-    private svgRectWithText: SVGSVGElement;
+    private svgGroupAddNode: SVGSVGElement;
+    private svgTextAddNode: SVGSVGElement;
     private isRectDrawing: boolean;
     private isDrawToLeft: boolean;
     private isDrawToTop: boolean;
@@ -37,14 +39,12 @@ export class AddNode implements EventHandler {
         }
 
         if (element.id !== 'RootElement') {
-            console.log('element is not root: ' + element.id);
             return false;
         }
 
         switch (event.type) {
             case 'mousedown':
                 if (element.id === 'RootElement') {
-                    console.log('start dragging: element: ' + element.id);
                     this.start(event, element);
                 }
                 break;
@@ -52,6 +52,7 @@ export class AddNode implements EventHandler {
                 this.drawRect(event, element);
                 break;
             case 'mouseleave':
+                this.removeRect();
                 break;
             case 'mouseup':
                 this.addNode();
@@ -111,28 +112,36 @@ export class AddNode implements EventHandler {
                 class: 'SVGAddNode'
             });
 
-            let textAddNode = Util.createShape({
-                tag: 'text',
-                x: this.x + 33,
-                y: (this.y - 10),
-                'text-anchor': 'middle',
-                'alignment-baseline': 'central',
-                'font-family': 'Verdana',
-                'font-size': 12,
-                fill: 'black'
-            });
-            textAddNode.textContent = 'Create new';
-
             let group = Util.createShape({tag: 'g', id: 'groupAddNode', transform: 'translate(0 0)'});
             group.appendChild(rectAddNode);
-            group.appendChild(textAddNode);
 
-            // let shape = Util.createShape(rectAddNode);
             this.svgRoot.appendChild(group);
             this.svgRect = rectAddNode;
-            this.svgRectWithText = group;
+            this.svgGroupAddNode = group;
         }
         else {
+
+            let svgRectBBox = this.svgRect.getBBox();
+
+            // if rect is big enough, show text as helper
+            if((svgRectBBox.width > this.MIN_SIZE_TO_ADD_TEXT 
+            || svgRectBBox.height > this.MIN_SIZE_TO_ADD_TEXT) && !this.svgTextAddNode){
+
+                let textAddNode = Util.createShape({
+                    tag: 'text',
+                    x: this.x + 120,
+                    y: (this.y - 10),
+                    'text-anchor': 'middle',
+                    'alignment-baseline': 'central',
+                    'font-family': 'Verdana',
+                    'font-size': 12,
+                    fill: 'black'
+                });
+                textAddNode.textContent = 'Hold on and move\nto create a new class';
+                
+                this.svgGroupAddNode.appendChild(textAddNode);
+                this.svgTextAddNode = textAddNode;
+            }
 
             if (this.isDrawToLeft) {
                 this.svgRect.setAttributeNS(null, 'x', evt.layerX);
@@ -149,6 +158,8 @@ export class AddNode implements EventHandler {
             // set color
             if (this.isBigEnoughForAddNode) {
                 this.svgRect.setAttributeNS(null, 'class', 'SVGAddNode-ready');
+
+                // draw text
             }
             else {
                 this.svgRect.setAttributeNS(null, 'class', 'SVGAddNode');
@@ -160,13 +171,17 @@ export class AddNode implements EventHandler {
         this.isRectDrawing = false;
         this.isBigEnoughForAddNode = false;
 
-        if (this.svgRectWithText) {
-            this.svgRoot.removeChild(this.svgRectWithText);
-            this.svgRectWithText = null;
+        if (this.svgGroupAddNode) {
+            this.svgRoot.removeChild(this.svgGroupAddNode);
+            this.svgGroupAddNode = undefined;
         }
 
         if (this.svgRect) {
-            this.svgRect = null;
+            this.svgRect = undefined;
+        }
+
+        if (this.svgTextAddNode) {
+            this.svgTextAddNode = undefined;
         }
     }
 

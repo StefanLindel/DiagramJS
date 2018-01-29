@@ -468,17 +468,20 @@ export class Util {
     }
 
     public static hasClass(element: Element, cls: string) {
-        return element.className.indexOf(cls) > 0;
+        let className = element.getAttribute('class');
+        return className.indexOf(cls) > 0;
     }
     public static addClass(element: Element, cls: string) {
         if (!Util.hasClass(element, cls)) {
-            element.className = element.className + ' ' + cls;
+            let className = element.getAttribute('class');
+            element.setAttributeNS(null, 'class', className + ' ' + cls);
         }
     }
     public static removeClass(element: Element, cls: string) {
         if (Util.hasClass(element, cls)) {
             let reg = new RegExp('(\\s|^)' + cls + '(\\s|$)');
-            element.className = element.className.replace(reg, ' ').trim();
+            let className = element.getAttribute('class');
+            element.setAttributeNS(null, 'class', className.replace(reg, ' ').trim());
         }
     }
 }

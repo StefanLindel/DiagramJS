@@ -114,7 +114,7 @@ export class Edge extends DiagramElement {
     }
 
     public getEvents(): string[] {
-        return [EventBus.ELEMENTCLICK, EventBus.EDITOR];
+        return [EventBus.ELEMENTCLICK, EventBus.EDITOR, EventBus.OPENPROPERTIES];
     }
 
     public convertEdge(type: string, newId: string): Edge {
@@ -135,9 +135,6 @@ export class Edge extends DiagramElement {
         return newEdge;
     }
 
-    /**
-     * TODO: Edges will be redraw from every single existing point!
-     */
     public redrawNewFn(startNode: Node): void {
 
         if (!startNode) {
@@ -145,16 +142,66 @@ export class Edge extends DiagramElement {
         }
         // redraw the first point
         // check which point is the near to startnode
-        let pointToCalcFrom: Point;
-        let pointToRedraw: Point;
+        let endPoint: Point;
+        let recalcPoint: Point;
+        let endPointIdx : number;
 
         if (this.source === startNode.id) {
-            pointToRedraw = this.$pointsNew[0];
-            pointToCalcFrom = this.$pointsNew[1];
+            recalcPoint = this.$pointsNew[0];
+            endPointIdx = 1;
         } else if (this.target === startNode.id) {
-            pointToRedraw = this.$pointsNew[this.$pointsNew.length - 1];
-            pointToCalcFrom = this.$pointsNew[this.$pointsNew.length - 2];
+            recalcPoint = this.$pointsNew[this.$pointsNew.length - 1];
+            endPointIdx = this.$pointsNew.length - 2;
         }
+        
+        endPoint = this.$pointsNew[endPointIdx];
+
+        // calculate and set new position of point to redraw
+        this.calcIntersection(startNode, recalcPoint, endPoint);
+
+        // so recalc and redrawthe other node to the startnode
+        if(this.$pointsNew.length > 2 && this.target === startNode.id && endPoint.y > (startNode.getPos().y + startNode.getSize().y)){
+
+            this.$pointsNew.splice(endPointIdx, 1);
+        }
+
+        if(this.target === startNode.id && this.$pointsNew.length == 2){
+            
+            this.calcIntersection(this.$sNode, endPoint, recalcPoint);
+        }
+
+
+
+        
+        if(this.$pointsNew.length > 2 && this.source === startNode.id && startNode.getPos().y > endPoint.y){
+
+            this.$pointsNew.splice(endPointIdx, 1);
+        }
+
+        if(this.source === startNode.id && this.$pointsNew.length == 2){
+            
+            this.calcIntersection(this.$tNode, endPoint, recalcPoint);
+        }
+
+
+        // redraw the edge with the new position
+        let path: string = 'M';
+
+        for (let i = 0; i < this.$pointsNew.length; i++) {
+            let point: Point = this.$pointsNew[i];
+            if (i > 0) {
+                path += 'L';
+            }
+            path += Math.floor(point.x) + ' ' + Math.floor(point.y) + ' ';
+        }
+
+
+        // remove the pre last point (pointToCalcFrom), if there are at least 3 points
+
+        this.$view.setAttributeNS(null, 'd', path);
+    }
+
+    private calcIntersection(startNode : Node, recalcPoint : Point, endPoint : Point) : Point{
 
         // https://www.mathelounge.de/21534/schnittpunkt-einer-linie-mit-den-randern-eines-rechtecks
         let h = startNode.getSize().y;
@@ -163,11 +210,11 @@ export class Edge extends DiagramElement {
         let x1: number = startNode.getPos().x + (w / 2);
         let y1: number = startNode.getPos().y + (h / 2);
 
-        let x2: number = pointToCalcFrom.x;
-        let y2: number = pointToCalcFrom.y;
+        let x2: number = endPoint.x;
+        let y2: number = endPoint.y;
 
-        let newX: number = pointToRedraw.x;
-        let newY: number = pointToRedraw.y;
+        let newX: number = recalcPoint.x;
+        let newY: number = recalcPoint.y;
 
         if (x2 > x1) {
             newX = x1 + (w / 2);
@@ -210,30 +257,18 @@ export class Edge extends DiagramElement {
             }
         }
 
-        pointToRedraw.x = Math.ceil(newX);
-        pointToRedraw.y = Math.ceil(newY);
+        recalcPoint.x = Math.ceil(newX);
+        recalcPoint.y = Math.ceil(newY);
 
-        let path: string = 'M';
-
-        for (let i = 0; i < this.$pointsNew.length; i++) {
-            let point: Point = this.$pointsNew[i];
-            if (i > 0) {
-                path += 'L';
-            }
-            path += Math.floor(point.x) + ' ' + Math.floor(point.y) + ' ';
-        }
-
-        this.$view.setAttributeNS(null, 'd', path);
+        return null;
     }
 
+    // Obsolete function
     public redraw() {
         // let a = this.getShortestPathIntersection(this.$sNode, this.$tNode.getPos());
         // let b = this.getShortestPathIntersection(this.$tNode, this.$sNode.getPos());
 
         // this.$view.setAttribute('d', `M${a.x} ${a.y} L${b.x} ${b.y}`);
-
-        // TODO: setup points, not only the path of view
-
 
 
         let targetNodePos = this.$tNode.getPos();

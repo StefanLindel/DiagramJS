@@ -7,6 +7,7 @@ export class Interface extends StereoType{
 
     constructor(data : JSON | any){
         super(data);
+        this.defaulEdgeType = 'Implements';
 
         this.setStereoTyp(this.INTERFACE);
     }

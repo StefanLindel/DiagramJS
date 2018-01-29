@@ -5,6 +5,7 @@ import { DiagramElement } from './elements/BaseElements';
 import { Graph } from './elements/Graph';
 import * as edges from './elements/edges';
 import Method from './elements/nodes/Method';
+import Attribute from './elements/nodes/Attribute';
 
 export namespace PropertiesPanel {
 
@@ -17,9 +18,9 @@ export namespace PropertiesPanel {
 
     export class Dispatcher implements EventHandler {
         private _blankView: BlankView;
-        private _graph : Graph;
+        private _graph: Graph;
 
-        constructor(graph:Graph) {
+        constructor(graph: Graph) {
             this._blankView = new BlankView();
             this._graph = graph;
         }
@@ -31,6 +32,10 @@ export namespace PropertiesPanel {
 
         public getCurrentView(): PropertiesView {
             return this._blankView.getCurrentView();
+        }
+
+        public openProperties() : void{
+            this._blankView.openProperties();
         }
 
         private createView(view: PropertiesView): APanel {
@@ -54,11 +59,20 @@ export namespace PropertiesPanel {
         public handle(event: Event, element: DiagramElement): boolean {
             this.handleSelectNodeEvent(event, element);
             this.handleSelectEdgeEvent(event, element);
+            this.handleOpenProperties(event, element);
 
             return true;
         }
         public isEnable(): boolean {
             return true;
+        }
+
+        private handleOpenProperties(event: Event, element: DiagramElement){
+            if(event.type === 'openproperties' || event.type === 'dblclick'){
+
+                event.stopPropagation();
+                this.openProperties();
+            }
         }
 
         private handleSelectEdgeEvent(event: Event, element: DiagramElement) {
@@ -75,7 +89,7 @@ export namespace PropertiesPanel {
             // add eventlistener to combobox of edge type
             let cBoxEdgeType = <any>document.getElementById('edgeTypeSelect');
             cBoxEdgeType.value = edge.typ;
-            cBoxEdgeType.addEventListener('change', function(){
+            cBoxEdgeType.addEventListener('change', function () {
                 let selectedType = cBoxEdgeType.options[cBoxEdgeType.selectedIndex].value;
 
                 let newEdge = edge.convertEdge(selectedType, g.$graphModel.getNewId(selectedType));
@@ -108,6 +122,8 @@ export namespace PropertiesPanel {
                 return false;
             }
 
+            
+            let that = this;
             let graph = this._graph;
             let clazz = <Clazz>element;
             this.dispatch(PropertiesView.Clazz);
@@ -116,15 +132,16 @@ export namespace PropertiesPanel {
             // outsource this code in own handler
             let classNameInputText = document.getElementById('className');
             classNameInputText.setAttribute('value', clazz.label);
-            
-            classNameInputText.addEventListener('change', function(){
+
+            classNameInputText.addEventListener('change', function () {
                 clazz.updateLabel((<any>classNameInputText).value);
             });
 
-            // get tab content of attributes
-            let tabContentAttr = document.getElementById('clazzAttributes');
+            // # # # HANDLE ATTRIBUTES # # # 
+            let tabContentAttr = document.getElementById('clazzattribute');
 
             // remove previous attributes
+            let divAddAttr = document.getElementById('clazzattributeAdd');
             while (tabContentAttr.firstChild) {
                 tabContentAttr.removeChild(tabContentAttr.firstChild);
             }
@@ -134,91 +151,46 @@ export namespace PropertiesPanel {
 
             let attributes = clazz.getAttributesObj();
             for (let attr of attributes) {
-                // wrap all inputs in one div
-                let divEditAttr = document.createElement('div');
-                divEditAttr.style.marginTop = '5px';
 
-                // create modifier select 
-                let selectAttrModifier = document.createElement('select');
-
-                let modifierList : string[] = ['+', '-', '#'];
-                modifierList.forEach(modifier => {
-                    let modifierOption = document.createElement('option');
-                    modifierOption.value = modifier;
-                    modifierOption.innerHTML = modifier;
-                    selectAttrModifier.appendChild(modifierOption);
-                });
-                selectAttrModifier.value = attr.modifier;
-
-                selectAttrModifier.addEventListener('change', function(){
-                    attr.updateModifier(selectAttrModifier.options[selectAttrModifier.selectedIndex].value);
-                });
-
-                // create name input
-                let textBoxAttrName = document.createElement('input');
-                textBoxAttrName.style.marginLeft = '5px';
-                textBoxAttrName.style.marginRight = '5px';
-
-                textBoxAttrName.type = 'text';
-                textBoxAttrName.value = attr.name;
-                textBoxAttrName.addEventListener('change', function(){
-                    if(textBoxAttrName.value.length == 0){
-                        clazz.removeAttribute(attr);
-                        tabContentAttr.removeChild(divEditAttr);
-
-                        clazz.reDraw();
-                    }else{
-                        attr.updateName(textBoxAttrName.value);
-
-                        clazz.reDraw(true);
-                    }
-                });
-
-                // create type select
-                let selectAttrType = document.createElement('select');
-
-                // TODO: make a dynamic list of all ever entered types
-                let typeList : string[] = ['boolean', 'byte', 'char', 'double', 'float', 'int', 'long', 'short', 'string'];
-                typeList.forEach(type => {
-                    let modifierOption = document.createElement('option');
-                    modifierOption.value = type;
-                    modifierOption.innerHTML = type;
-                    selectAttrType.appendChild(modifierOption);
-                });
-                selectAttrType.value = attr.type;
-
-                selectAttrType.addEventListener('change', function(){
-                    attr.updateType(selectAttrType.options[selectAttrType.selectedIndex].value);
-
-                    clazz.reDraw(true);
-                });
-
-                // create a button to delete the attribute
-                let btnDelete = document.createElement('button');
-                btnDelete.innerHTML = 'X';
-                btnDelete.title = 'Delete attribute';
-                btnDelete.style.marginLeft = '5px';
-                btnDelete.style.color = 'red';
-
-                btnDelete.addEventListener('click', function(){
-                    clazz.removeAttribute(attr);
-                    tabContentAttr.removeChild(divEditAttr);
-
-                    clazz.reDraw();
-                });
-
-                divEditAttr.appendChild(selectAttrModifier);
-                divEditAttr.appendChild(textBoxAttrName);
-                divEditAttr.appendChild(selectAttrType);
-                divEditAttr.appendChild(btnDelete);
+                let divEditAttr = this.createDivEditAttribute(clazz, attr, tabContentAttr);
                 tabContentAttr.appendChild(divEditAttr);
             }
 
-            // get tab content of attributes
-            let tabContentMethods = document.getElementById('clazzMethods');
+            tabContentAttr.appendChild(divAddAttr);
+
+            let btnAddAttr = document.getElementById('clazzattributeBtnAddattribute');
+            btnAddAttr.addEventListener('click', function () {
+                let modifier = <HTMLSelectElement>document.getElementById('clazzattributeAddModifier');
+                let name = <HTMLInputElement>document.getElementById('clazzattributeAddName');
+                let type = <HTMLSelectElement>document.getElementById('clazzattributeAddType');
+
+                if (!name.value || name.value.length == 0) {
+                    // TODO: show message
+                    return;
+                }
+
+                let attrValue: string = `${modifier.value} ${name.value} : ${type.value}`;
+
+                let newAttribute = clazz.addAttribute(attrValue);
+                let divEditNewAttr = that.createDivEditAttribute(clazz, newAttribute, tabContentAttr);
+
+                // reset default values
+                modifier.value = '+';
+                name.value = '';
+                type.value = 'boolean';
+
+                tabContentAttr.insertBefore(divEditNewAttr, divAddAttr);
+
+                clazz.reDraw();
+            });
+            // # # # END HANDLE ATTRIBUTES # # #
+
+
+            // # # # HANDLE METHODS # # #
+            let tabContentMethods = document.getElementById('clazzmethod');
 
             // remove previous methods
-            let divAddMethod = document.getElementById('clazzMethodsAdd');
+            let divAddMethod = document.getElementById('clazzmethodAdd');
             while (tabContentMethods.firstChild) {
                 tabContentMethods.removeChild(tabContentMethods.firstChild);
             }
@@ -232,20 +204,19 @@ export namespace PropertiesPanel {
 
             tabContentMethods.appendChild(divAddMethod);
 
-            let that = this;
 
-            let btnAddMethod = document.getElementById('clazzMethodsAddMethodToClazz');
-            btnAddMethod.addEventListener('click', function(){
-                let modifier = <HTMLSelectElement>document.getElementById('clazzMethodsAddModifier');
-                let name = <HTMLInputElement>document.getElementById('clazzMethodsAddMethodName');
-                let type = <HTMLSelectElement>document.getElementById('clazzMethodsAddType');
+            let btnAddMethod = document.getElementById('clazzmethodBtnAddmethod');
+            btnAddMethod.addEventListener('click', function () {
+                let modifier = <HTMLSelectElement>document.getElementById('clazzmethodAddModifier');
+                let name = <HTMLInputElement>document.getElementById('clazzmethodAddName');
+                let type = <HTMLSelectElement>document.getElementById('clazzmethodAddType');
 
-                if(!name.value || name.value.length == 0){
+                if (!name.value || name.value.length == 0) {
                     // TODO: show message
                     return;
                 }
 
-                let methodValue : string = `${modifier.value} ${name.value} : ${type.value}`;
+                let methodValue: string = `${modifier.value} ${name.value} : ${type.value}`;
 
                 let newMethod = clazz.addMethod(methodValue);
                 let divEditNewMethod = that.createDivEditMethod(clazz, newMethod, tabContentMethods);
@@ -259,11 +230,94 @@ export namespace PropertiesPanel {
 
                 clazz.reDraw();
             });
+            // # # # END HANDLE METHODS # # # 
 
             return true;
         }
 
-        private createDivEditMethod(clazz : Clazz, method : Method, tabContentMethods : HTMLElement) : HTMLDivElement{
+        private createDivEditAttribute(clazz: Clazz, attr: Attribute, tabContentAttr: HTMLElement): HTMLDivElement {
+            let divEditAttr = document.createElement('div');
+            divEditAttr.style.marginTop = '5px';
+
+            // create modifier select 
+            let selectAttrModifier = document.createElement('select');
+
+            let modifierList: string[] = ['+', '-', '#'];
+            modifierList.forEach(modifier => {
+                let modifierOption = document.createElement('option');
+                modifierOption.value = modifier;
+                modifierOption.innerHTML = modifier;
+                selectAttrModifier.appendChild(modifierOption);
+            });
+            selectAttrModifier.value = attr.modifier;
+
+            selectAttrModifier.addEventListener('change', function () {
+                attr.updateModifier(selectAttrModifier.options[selectAttrModifier.selectedIndex].value);
+            });
+
+            // create name input
+            let textBoxAttrName = document.createElement('input');
+            textBoxAttrName.style.marginLeft = '5px';
+            textBoxAttrName.style.marginRight = '5px';
+
+            textBoxAttrName.type = 'text';
+            textBoxAttrName.value = attr.name;
+            textBoxAttrName.addEventListener('change', function () {
+                if (textBoxAttrName.value.length == 0) {
+                    clazz.removeAttribute(attr);
+                    tabContentAttr.removeChild(divEditAttr);
+
+                    clazz.reDraw();
+                } else {
+                    attr.updateName(textBoxAttrName.value);
+
+                    clazz.reDraw(true);
+                }
+            });
+
+            // create type select
+            let selectAttrType = document.createElement('select');
+
+            // TODO: make a dynamic list of all ever entered types
+            let typeList: string[] = ['boolean', 'byte', 'char', 'double', 'float', 'int', 'long', 'short', 'string'];
+            typeList.forEach(type => {
+                let modifierOption = document.createElement('option');
+                modifierOption.value = type;
+                modifierOption.innerHTML = type;
+                selectAttrType.appendChild(modifierOption);
+            });
+            selectAttrType.value = attr.type;
+
+            selectAttrType.addEventListener('change', function () {
+                attr.updateType(selectAttrType.options[selectAttrType.selectedIndex].value);
+
+                clazz.reDraw(true);
+            });
+
+            // create a button to delete the attribute
+            let btnDelete = document.createElement('button');
+            btnDelete.innerHTML = 'X';
+            btnDelete.title = 'Delete attribute';
+            btnDelete.style.marginLeft = '5px';
+            btnDelete.style.color = 'red';
+
+            btnDelete.addEventListener('click', function () {
+                clazz.removeAttribute(attr);
+                tabContentAttr.removeChild(divEditAttr);
+
+                clazz.reDraw();
+            });
+
+            divEditAttr.appendChild(selectAttrModifier);
+            divEditAttr.appendChild(textBoxAttrName);
+            divEditAttr.appendChild(selectAttrType);
+            divEditAttr.appendChild(btnDelete);
+
+            return divEditAttr;
+        }
+
+
+        private createDivEditMethod(clazz: Clazz, method: Method, tabContentMethods: HTMLElement): HTMLDivElement {
             // wrap all inputs in one div
             let divEditMethod = document.createElement('div');
             divEditMethod.style.marginTop = '5px';
@@ -300,7 +354,7 @@ export namespace PropertiesPanel {
                     clazz.reDraw();
                 } else {
                     method.updateName(textBoxMethodName.value);
-                    
+
                     clazz.reDraw(true);
                 }
 
@@ -321,7 +375,7 @@ export namespace PropertiesPanel {
 
             selectMethodType.addEventListener('change', function () {
                 method.updateType(selectMethodType.options[selectMethodType.selectedIndex].value);
-                
+
                 clazz.reDraw(true);
             });
 
@@ -352,7 +406,7 @@ export namespace PropertiesPanel {
 
         protected _divMainPanel: HTMLDivElement;
         protected _divChildPanel: HTMLDivElement;
-        protected _hideProp: boolean;
+        protected _isHidden: boolean;
         private _currentView: PropertiesView;
         private _currentPanel: APanel;
 
@@ -386,7 +440,7 @@ export namespace PropertiesPanel {
 
         private hideproperties(evt: Event): void {
 
-            if (this._hideProp == true) {
+            if (this._isHidden == false) {
                 document.getElementById("properties").className = "properties-hidden";
                 document.getElementById("classProp").className = "propertiespanel-hidden";
                 let btn = document.getElementById('btnHidePropertiesPanel');
@@ -402,7 +456,7 @@ export namespace PropertiesPanel {
                 btn.title = 'Hide properties';
 
             }
-            this._hideProp = !this._hideProp;
+            this._isHidden = !this._isHidden;
         }
 
         public show(panel: APanel): void {
@@ -421,6 +475,16 @@ export namespace PropertiesPanel {
             this._divMainPanel.appendChild(this._divChildPanel);
 
             panel.showFirstTab();
+        }
+
+        public openProperties(){
+            this._isHidden = false;
+            document.getElementById("properties").className = "properties";
+            document.getElementById("classProp").className = "propertiespanel";
+
+            let btn = document.getElementById('btnHidePropertiesPanel');
+            btn.innerHTML = '&#8897;';
+            btn.title = 'Hide properties';
         }
 
         public getCurrentView(): PropertiesView {
@@ -442,13 +506,13 @@ export namespace PropertiesPanel {
             this._divChildPanel = document.createElement('div');
             this._divChildPanel.id = 'properties';
 
-            if(document.getElementById("classProp").className.indexOf('hidden') > -1){
+            if (document.getElementById("classProp").className.indexOf('hidden') > -1) {
                 this._divChildPanel.className = 'properties-hidden';
             }
-            else{
+            else {
                 this._divChildPanel.className = 'properties';
             }
-            
+
 
             this._divTabbedPanel = document.createElement('div');
             this._divTabbedPanel.id = 'classtabproperties';
@@ -466,11 +530,12 @@ export namespace PropertiesPanel {
             return this._divChildPanel;
         }
 
-        protected createTabElement(id: string, value: string): HTMLButtonElement {
+        protected createTabElement(id: string, tabText: string, tabValue : string): HTMLButtonElement {
             let tabElementBtn = document.createElement('button');
             tabElementBtn.id = id;
             tabElementBtn.className = 'tablinks';
-            tabElementBtn.innerText = value;
+            tabElementBtn.innerText = tabText;
+            tabElementBtn.value = tabValue
 
             tabElementBtn.onclick = e => this.openTab(id);
 
@@ -483,7 +548,7 @@ export namespace PropertiesPanel {
                 tabs[i].className = tabs[i].className.replace('active', '');
             }
 
-            let tab = document.getElementById(clickedId);
+            let tab = <HTMLButtonElement>document.getElementById(clickedId);
             tab.className += ' active';
 
 
@@ -494,14 +559,14 @@ export namespace PropertiesPanel {
             }
 
             // display active tab content
-            document.getElementById(this.getPropertiesView().toString().toLowerCase() + tab.innerText)
+            document.getElementById(this.getPropertiesView().toString().toLowerCase() + tab.value.toString())
                 .style.display = 'block';
 
         }
 
-        public showFirstTab():void{
+        public showFirstTab(): void {
             let tabs = document.getElementsByClassName('tablinks');
-            if(tabs && tabs.length > 0){
+            if (tabs && tabs.length > 0) {
                 this.openTab(tabs[0].id);
             }
         }
@@ -515,9 +580,9 @@ export namespace PropertiesPanel {
 
         public init(): void {
             // create and append tab elements
-            this._divTabbedPanel.appendChild(this.createTabElement('generalClassPropBtn', 'General'));
-            this._divTabbedPanel.appendChild(this.createTabElement('attrClassPropBtn', 'Attributes'));
-            this._divTabbedPanel.appendChild(this.createTabElement('methodClassPropBtn', 'Methods'));
+            this._divTabbedPanel.appendChild(this.createTabElement('generalClassPropBtn', 'General', 'general'));
+            this._divTabbedPanel.appendChild(this.createTabElement('attrClassPropBtn', 'Attributes', 'attribute'));
+            this._divTabbedPanel.appendChild(this.createTabElement('methodClassPropBtn', 'Methods', 'method'));
 
             this.createTabGeneralContent();
             this.createTabAttrContent();
@@ -531,7 +596,7 @@ export namespace PropertiesPanel {
         private createTabGeneralContent(): void {
 
             let div = document.createElement('div');
-            div.id = this.getPropertiesView().toString().toLowerCase() + 'General';
+            div.id = this.getPropertiesView().toString().toLowerCase() + 'general';
             div.className = 'tabcontent';
 
             let divTable = document.createElement('div');
@@ -539,7 +604,7 @@ export namespace PropertiesPanel {
 
             let divTableBody = document.createElement('div');
             divTableBody.className = 'divTableBody';
-            
+
 
 
             // ROW1: clazz name
@@ -577,57 +642,49 @@ export namespace PropertiesPanel {
 
         private createTabAttrContent(): void {
 
-            let div = document.createElement('div');
-            div.id = this.getPropertiesView().toString().toLowerCase() + 'Attributes';
-            div.className = 'tabcontent';
-
-            // text input for className
-            let textBoxAttr = document.createElement('input');
-            textBoxAttr.type = 'text';
-            textBoxAttr.id = 'attrname';
-            textBoxAttr.placeholder = 'Attr name';
-
-            div.appendChild(document.createTextNode('Attribute: '));
-            div.appendChild(textBoxAttr);
-
-            this._divChildPanel.appendChild(div);
+            this.createtabPropertyContent('attribute');
         }
 
         private createTabMethodContent(): void {
 
+            this.createtabPropertyContent('method');
+        }
+
+        private createtabPropertyContent(propertyType: string): void {
+
             let div = document.createElement('div');
-            div.id = this.getPropertiesView().toString().toLowerCase() + 'Methods';
+            div.id = this.getPropertiesView().toString().toLowerCase() + propertyType;
             div.className = 'tabcontent';
 
             // wrap all inputs in one div
-            let divEditMethod = document.createElement('div');
-            divEditMethod.id = div.id + 'Add';
-            divEditMethod.style.marginTop = '5px';
+            let divEditProperty = document.createElement('div');
+            divEditProperty.id = div.id + 'Add';
+            divEditProperty.style.marginTop = '5px';
 
             // create modifier select 
-            let selectMethodModifier = document.createElement('select');
-            selectMethodModifier.id = div.id + 'AddModifier';
+            let selectPropertyModifier = document.createElement('select');
+            selectPropertyModifier.id = div.id + 'AddModifier';
 
             let modifierList: string[] = ['+', '-', '#'];
             modifierList.forEach(modifier => {
                 let modifierOption = document.createElement('option');
                 modifierOption.value = modifier;
                 modifierOption.innerHTML = modifier;
-                selectMethodModifier.appendChild(modifierOption);
+                selectPropertyModifier.appendChild(modifierOption);
             });
-            selectMethodModifier.value = modifierList[0];
+            selectPropertyModifier.value = modifierList[0];
 
             // create name input
-            let textBoxMethodName = document.createElement('input');
-            textBoxMethodName.style.marginLeft = '5px';
-            textBoxMethodName.style.marginRight = '5px';
-            textBoxMethodName.id = div.id + 'AddMethodName';
-            textBoxMethodName.type = 'text';
-            textBoxMethodName.placeholder = 'Type new method';
+            let textBoxPropertyName = document.createElement('input');
+            textBoxPropertyName.style.marginLeft = '5px';
+            textBoxPropertyName.style.marginRight = '5px';
+            textBoxPropertyName.id = div.id + 'AddName';
+            textBoxPropertyName.type = 'text';
+            textBoxPropertyName.placeholder = 'Add new ' + propertyType;
 
             // create type select
-            let selectMethodType = document.createElement('select');
-            selectMethodType.id = div.id + 'AddType';
+            let selectPropertyType = document.createElement('select');
+            selectPropertyType.id = div.id + 'AddType';
 
             // TODO: make a dynamic list of all ever entered types
             let typeList: string[] = ['boolean', 'byte', 'char', 'double', 'float', 'int', 'long', 'short', 'string'];
@@ -635,24 +692,24 @@ export namespace PropertiesPanel {
                 let modifierOption = document.createElement('option');
                 modifierOption.value = type;
                 modifierOption.innerHTML = type;
-                selectMethodType.appendChild(modifierOption);
+                selectPropertyType.appendChild(modifierOption);
             });
 
             // create a button to delete the attribute
             let btnAdd = document.createElement('button');
-            btnAdd.id = div.id + 'AddMethodToClazz';
+            btnAdd.id = div.id + 'BtnAdd' + propertyType;
             btnAdd.innerHTML = '+';
-            btnAdd.title = 'Add method';
+            btnAdd.title = 'Add ' + propertyType;
             btnAdd.style.marginLeft = '5px';
             btnAdd.style.color = 'green';
 
-            divEditMethod.appendChild(selectMethodModifier);
-            divEditMethod.appendChild(textBoxMethodName);
-            divEditMethod.appendChild(selectMethodType);
-            divEditMethod.appendChild(btnAdd);
+            divEditProperty.appendChild(selectPropertyModifier);
+            divEditProperty.appendChild(textBoxPropertyName);
+            divEditProperty.appendChild(selectPropertyType);
+            divEditProperty.appendChild(btnAdd);
 
 
-            div.appendChild(divEditMethod);
+            div.appendChild(divEditProperty);
             this._divChildPanel.appendChild(div);
         }
     }
@@ -664,7 +721,7 @@ export namespace PropertiesPanel {
 
         public init(): void {
             // create and append tab elements
-            this._divTabbedPanel.appendChild(this.createTabElement('generalEdgePropBtn', 'General'));
+            this._divTabbedPanel.appendChild(this.createTabElement('generalEdgePropBtn', 'General', 'general'));
 
             this.createTabGeneralEdgeContent();
         }
@@ -674,7 +731,7 @@ export namespace PropertiesPanel {
 
         private createTabGeneralEdgeContent(): any {
             let div = document.createElement('div');
-            div.id = this.getPropertiesView().toString().toLowerCase() + 'General';
+            div.id = this.getPropertiesView().toString().toLowerCase() + 'general';
             div.className = 'tabcontent';
 
             let divTable = document.createElement('div');
@@ -682,7 +739,7 @@ export namespace PropertiesPanel {
 
             let divTableBody = document.createElement('div');
             divTableBody.className = 'divTableBody';
-            
+
 
             // ROW 1: edge type 
             let divRowEdgeType = document.createElement('div');
@@ -701,13 +758,13 @@ export namespace PropertiesPanel {
             selectEdgeType.id = 'edgeTypeSelect';
             selectEdgeType.className = 'col2';
 
-            let edgeTypes : string[] = new Array();
+            let edgeTypes: string[] = new Array();
 
-            for(let type in edges){
-                if(type.toString() === 'Association'
+            for (let type in edges) {
+                if (type.toString() === 'Association'
                     || type.toString() === 'Dependency'
-                    || type.toString() === 'Unidirectional'){
-                        continue;
+                    || type.toString() === 'Unidirectional') {
+                    continue;
                 }
 
                 edgeTypes.push(type);
@@ -715,7 +772,7 @@ export namespace PropertiesPanel {
 
             edgeTypes.sort();
 
-            for(let type of edgeTypes){
+            for (let type of edgeTypes) {
                 let selectOption = document.createElement('option');
                 selectOption.value = type;
                 selectOption.innerHTML = type;
@@ -728,7 +785,7 @@ export namespace PropertiesPanel {
             divRowEdgeType.appendChild(divRowEdgeTypeCellSelect);
             divTableBody.appendChild(divRowEdgeType);
 
-            
+
             // ROW 2: edge label 
             let divRowEdgeLabel = document.createElement('div');
             divRowEdgeLabel.className = 'divTableRow';

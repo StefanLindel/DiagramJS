@@ -76,6 +76,17 @@ body {
 
 g, path {
 	cursor: pointer;
+
+}
+
+path:hover{
+	stroke-width: 5;
+	stroke: #FFA033;
+}
+
+g:hover .SVGClazz{
+	stroke:rgb(255, 160, 51);
+	stroke-width: 3;
 }
 
 .diagram {
@@ -504,8 +515,6 @@ h1 {
 	filter: drop-shadow(5px 5px 2px black);
 }
 
-.draggable {}
-
 .draggable:hover {
 	border: 1px dashed black;
 	-moz-border-radius: 8px;
@@ -616,8 +625,8 @@ h1 {
 }
 
 .SVGClazz-selected{
-	stroke: #FFA033;
-	fill: rgb(255, 241, 225);
+	stroke: #FFA033 !important;
+	fill: rgb(255, 241, 225) !important;
 }
 
 .SVGClazz-drawedge{
@@ -648,7 +657,7 @@ h1 {
 .SVGAddNode-ready{
 	stroke: rgb(0, 162, 0);
 	stroke-width: 1;
-	fill: rgba(0, 162, 0, 0.125);
+	fill: rgba(0, 162, 0, 0.250);
 }
 
 
