@@ -69,6 +69,16 @@ export class Graph extends Control {
             'stroke-width': 1,
             fill: 'none'
         });
+
+        const rect = Util.createShape({
+            tag: 'rect',
+            x: 0,
+            y: 0,
+            width: 40,
+            height: 40,
+            fill: 'white'
+        });
+        pattern.appendChild(rect);
         pattern.appendChild(cross);
         defs.appendChild(pattern);
         return defs;
@@ -127,14 +137,20 @@ export class Graph extends Control {
     }
 
     public exportSVG(){
+        let wellFormatedSvgDom = this.getSvgWithStyleAttributes();
+        this.save('image/svg+xml', this.serializeXmlNode(wellFormatedSvgDom), 'download.svg');
+    }
+
+    public getSvgWithStyleAttributes() : Node{
         let oDOM = this.$graphModel.$view.cloneNode(true);
         this.read_Element(oDOM, this.$graphModel.$view)
-        this.save('image/svg+xml', this.serializeXmlNode(oDOM), 'download.svg');
+
+        return oDOM;
     }
 
     //https://stackoverflow.com/questions/15181452/how-to-save-export-inline-svg-styled-with-css-from-browser-to-image-file
     private ContainerElements = ["svg","g"];
-    private RelevantStyles = {"rect":["fill","stroke","stroke-width"],"path":["fill","stroke","stroke-width"],"circle":["fill","stroke","stroke-width"],"line":["stroke","stroke-width"],"text":["fill","font-size","text-anchor"],"polygon":["stroke","fill"]};
+    private RelevantStyles = {"rect":["fill","stroke","stroke-width"],"path":["fill","stroke","stroke-width"],"circle":["fill","stroke","stroke-width"],"line":["stroke","stroke-width"],"text":["fill","font-size","text-anchor", 'font-family'],"polygon":["stroke","fill"]};
 
     public read_Element(parent : any, OrigData : any){
 
@@ -187,16 +203,43 @@ export class Graph extends Control {
         return xmlNode.outerHTML;
     }
 
+    public getSize() : Size{
+        let width : number;
+        let height : number;
+        width = +this.root.getAttribute('width');
+        height = +this.root.getAttribute('height');
+
+        return {width: width, height:height};
+    }
+
     public exportPDF():void{
         if(!window['jsPDF']){
             console.log('jspdf n.a.');
             return;
         }
+        let typ = 'image/svg+xml';
+        let xmlNode = this.serializeXmlNode(this.getSvgWithStyleAttributes());
+        let url = window.URL.createObjectURL(new Blob([xmlNode], {type: typ}));
 
-        let pdf = new window['jsPDF']();
 
-        pdf.text('Hello world!', 10, 10);
-        pdf.save('TestHelloWorld.pdf');
+        let canvas, context, a, image = new Image();
+        let size = this.getSize();
+
+        image.onload = function(){
+            canvas = document.createElement('canvas');
+            canvas.width = size.width;
+            canvas.height = size.height;
+            context = canvas.getContext('2d');
+            context.drawImage(image, 0, 0);
+
+            let pdf = new window['jsPDF']();
+
+            pdf.addImage(canvas.toDataURL('image/jpeg'), 'jpeg', 15, 40, 180, 160);
+            pdf.save('download.pdf');
+
+        };
+
+        image.src = url;
     }
 /*
     Graph.prototype.ExportPDF = function () {
@@ -211,18 +254,27 @@ export class Graph extends Control {
     };*/
     public exportPNG(): void {
         let canvas, context, a, image = new Image();
-        image.src = 'data:image/svg+xml;base64,' + Util.utf8$to$b64(this.serializeXmlNode(this.$graphModel.$view));
-        image.onload = function () {
+        let xmlNode = this.serializeXmlNode(this.getSvgWithStyleAttributes());
+        let typ = 'image/svg+xml';
+        let url = window.URL.createObjectURL(new Blob([xmlNode], {type: typ}));
+
+        let size = this.getSize();
+
+        image.onload = function(){
             canvas = document.createElement('canvas');
-            canvas.width = image.width;
-            canvas.height = image.height;
+            canvas.width = size.width;
+            canvas.height = size.height;
             context = canvas.getContext('2d');
             context.drawImage(image, 0, 0);
+
             a = document.createElement('a');
             a.download = "download.png";
             a.href = canvas.toDataURL('image/png');
-            a.click();
+            a.click()
         };
+
+        image.src = url;
+
     }
 
     public load(json: JSON | Object, owner ?: Control): any {
@@ -291,7 +343,7 @@ export class Graph extends Control {
                 }
             }
         }
-        Util.setSize(this.root, max.x+30, max.y);
+        Util.setSize(this.root, max.x+60, max.y+30);
         if (model.edges) {
             for (let id in model.edges) {
                 let edge = model.edges[id];
@@ -312,8 +364,8 @@ export class Graph extends Control {
         let background = Util.createShape({
             tag: 'rect',
             id: 'background',
-            width: 1280,
-            height: 800,
+            width: 5000,
+            height: 5000,
             x: 0,
             y: 0,
             stroke: '#999',
@@ -321,9 +373,6 @@ export class Graph extends Control {
             fill: 'url(#raster)'
         });
         root.appendChild(background);
-
-        // not neccessary
-        // canvas.appendChild(this.$graphModel.getSVG());
     }
 
     private getLayout(): Layout {

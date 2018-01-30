@@ -1,21 +1,20 @@
 import { Edge } from './Edge';
 import { Node } from '../nodes/Node';
 import { Point } from '../BaseElements';
+import { Direction } from '../index';
 
 export class Generalisation extends Edge {
 
+    public TARGET_ELEMENT_HEIGHT : number = 12;
+    protected $targetElement: Element;
+
     public getSVG(): Element {
         let startPoint = this.$pointsNew[0];
-        let startX = startPoint.x;
-        let startY = startPoint.y;
 
+        let direction : Direction = this.getDirectionOfTargetSymbol(this.$sNode, startPoint);
+        let path = this.calcCorrectPath(startPoint, direction);
         
-        // set the startpoint lower
-        startPoint.y = startY+12;
-
         let line = super.getSVG();
-
-        let path = `M${startX} ${startY+2} L${startX+10} ${startY + 12} L${startX-10} ${startY+12} Z`;
 
         // draw white filled arrow
         let attr = {
@@ -36,50 +35,56 @@ export class Generalisation extends Edge {
 
     public redrawNewFn(startNode: Node) : void {
 
-        super.redrawNewFn(startNode);
+        // redraw the edge
+        super.redrawNewFn(startNode, true);
 
-        console.log("redrawEdges in generalisation");
+        // redraw the generalisation symbol
+        // first of all, get the correct direction
+        // get source node and the nearest point to source node
+        let startPoint : Point = this.$pointsNew[0];
+        let direction : Direction = Direction.Up;
 
-        let targetNodePos = this.$tNode.getPos();
-        let sourceNodePos = this.$sNode.getPos();
-        let isSrcHigherThanTarget = false;
+        // caclulate the path of target symbol only, if the dragged node is source or there are only 2 points left
+        if(this.source === startNode.id || this.$pointsNew.length == 2){
 
-        if (targetNodePos.y < sourceNodePos.y) {
-            isSrcHigherThanTarget = true;
+            direction = this.getDirectionOfTargetSymbol(this.$sNode, startPoint);
+
+            let path = this.calcCorrectPath(startPoint, direction);
+            this.$targetElement.setAttributeNS(null, 'd', path);
         }
 
-        let startPoint = this.$pointsNew[0];
+        // draw the correct line with diamond
+        this.redrawPoints();
+    }
+
+    protected calcCorrectPath(startPoint : Point, direction : Direction) : string{
         let startX = startPoint.x;
         let startY = startPoint.y;
 
         let path;
-        if(isSrcHigherThanTarget){
-            path = `M${startX} ${startY+12} L${startX+10} ${startY} L${startX-10} ${startY} Z`;
-            startPoint.y +=12;
+
+        switch(direction){
+            case Direction.Up:
+            path = `M${startX} ${startY+3} L${startX+this.TARGET_ELEMENT_HEIGHT} ${startY+this.TARGET_ELEMENT_HEIGHT} L${startX-this.TARGET_ELEMENT_HEIGHT} ${startY+this.TARGET_ELEMENT_HEIGHT} Z`;
+            startPoint.y = startPoint.y+12;
+            break;
+            case Direction.Right:
+            path = `M${startX-3} ${startY} L${startX-this.TARGET_ELEMENT_HEIGHT} ${startY+this.TARGET_ELEMENT_HEIGHT} L${startX-this.TARGET_ELEMENT_HEIGHT} ${startY-this.TARGET_ELEMENT_HEIGHT} Z`;
+            startPoint.x = startPoint.x-12;
+            break;
+            case Direction.Left:
+            path = `M${startX+3} ${startY} L${startX+this.TARGET_ELEMENT_HEIGHT} ${startY-this.TARGET_ELEMENT_HEIGHT} L${startX+this.TARGET_ELEMENT_HEIGHT} ${startY+this.TARGET_ELEMENT_HEIGHT} Z`;
+            startPoint.x = startPoint.x+12;
+            break;
+            case Direction.Down:
+            path = `M${startX} ${startY-3} L${startX+this.TARGET_ELEMENT_HEIGHT} ${startY-this.TARGET_ELEMENT_HEIGHT} L${startX-this.TARGET_ELEMENT_HEIGHT} ${startY-this.TARGET_ELEMENT_HEIGHT} Z`;
+            startPoint.y = startPoint.y-12;
+            break;
+            default :
+            break;
         }
-        else{
-            path = `M${startX} ${startY-10} L${startX+10} ${startY} L${startX-10} ${startY} Z`;
-            startPoint.y -=12;
-        }
 
-        // redraw the edge with the new position
-        let pathOriginal: string = 'M';
-
-        for (let i = 0; i < this.$pointsNew.length; i++) {
-            let point: Point = this.$pointsNew[i];
-            if (i > 0) {
-                pathOriginal += 'L';
-            }
-            pathOriginal += Math.floor(point.x) + ' ' + Math.floor(point.y) + ' ';
-        }
-
-
-        // remove the pre last point (pointToCalcFrom), if there are at least 3 points
-
-        this.$view.setAttributeNS(null, 'd', pathOriginal);
-
-
-        this.$targetElement.setAttributeNS(null, 'd', path);
+        return path;
     }
 
 }

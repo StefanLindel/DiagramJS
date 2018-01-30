@@ -535,8 +535,8 @@ h1 {
     padding-bottom: 5px;
     padding-right: 5px;
     position: fixed;
-    bottom:5px;
-    right: 5px;
+    bottom: 0px;
+    right: 0px;
     transition: height 0.5s;
     z-index: 100;
 }

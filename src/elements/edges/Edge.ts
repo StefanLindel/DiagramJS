@@ -24,56 +24,10 @@ export class Edge extends DiagramElement {
     $m: number;
     $n: number;
 
-
-    protected $targetElement: Element;
-
     private static getShortestPointFromSource(source: Node, target: Node): Point {
         let result: Point;
 
         return result;
-    }
-
-    private static getShortestPathIntersection(node: Node, point: Point): Point {
-        let x = point.x;
-        let y = point.y;
-
-        let minX = node.getPos().x - node.getSize().x / 2;
-        let minY = node.getPos().y - node.getSize().y / 2;
-        let maxX = minX + node.getSize().x;
-        let maxY = minY + node.getSize().y;
-
-        let midX = (minX + maxX) / 2;
-        let midY = (minY + maxY) / 2;
-        let m = (midY - y) / (midX - x);
-
-        if (x <= midX) { // check "left" side
-            let minXy = m * (minX - x) + y;
-            if (minY < minXy && minXy < maxY) {
-                return new Point(minX, minXy);
-            }
-        }
-
-        if (x >= midX) { // check "right" side
-            let maxXy = m * (maxX - x) + y;
-            if (minY < maxXy && maxXy < maxY) {
-                return new Point(maxX, maxXy);
-            }
-        }
-
-        if (y <= midY) { // check "top" side
-            let minYx = (minY - y) / m + x;
-            if (minX < minYx && minYx < maxX) {
-                return new Point(minYx, minY);
-            }
-        }
-
-        if (y >= midY) { // check "bottom" side
-            let maxYx = (maxY - y) / m + x;
-            if (minX < maxYx && maxYx < maxX) {
-                return new Point(maxYx, maxY);
-            }
-        }
-        return new Point();
     }
 
     public withItem(source: Node, target: Node): Edge {
@@ -135,7 +89,7 @@ export class Edge extends DiagramElement {
         return newEdge;
     }
 
-    public redrawNewFn(startNode: Node): void {
+    public redrawNewFn(startNode: Node, dontDrawPoints?: boolean): void {
 
         if (!startNode) {
             return;
@@ -144,7 +98,7 @@ export class Edge extends DiagramElement {
         // check which point is the near to startnode
         let endPoint: Point;
         let recalcPoint: Point;
-        let endPointIdx : number;
+        let endPointIdx: number;
 
         if (this.source === startNode.id) {
             recalcPoint = this.$pointsNew[0];
@@ -153,37 +107,42 @@ export class Edge extends DiagramElement {
             recalcPoint = this.$pointsNew[this.$pointsNew.length - 1];
             endPointIdx = this.$pointsNew.length - 2;
         }
-        
+
         endPoint = this.$pointsNew[endPointIdx];
 
         // calculate and set new position of point to redraw
         this.calcIntersection(startNode, recalcPoint, endPoint);
 
-        // so recalc and redrawthe other node to the startnode
-        if(this.$pointsNew.length > 2 && this.target === startNode.id && endPoint.y > (startNode.getPos().y + startNode.getSize().y)){
+        // so recalc and redraw the other node to the startnode
+        if (this.$pointsNew.length > 2 && this.target === startNode.id && endPoint.y > (startNode.getPos().y + startNode.getSize().y)) {
 
             this.$pointsNew.splice(endPointIdx, 1);
         }
 
-        if(this.target === startNode.id && this.$pointsNew.length == 2){
-            
+        if (this.target === startNode.id && this.$pointsNew.length == 2) {
+
             this.calcIntersection(this.$sNode, endPoint, recalcPoint);
         }
 
 
 
-        
-        if(this.$pointsNew.length > 2 && this.source === startNode.id && startNode.getPos().y > endPoint.y){
+
+        if (this.$pointsNew.length > 2 && this.source === startNode.id && startNode.getPos().y > endPoint.y) {
 
             this.$pointsNew.splice(endPointIdx, 1);
         }
 
-        if(this.source === startNode.id && this.$pointsNew.length == 2){
-            
+        if (this.source === startNode.id && this.$pointsNew.length == 2) {
+
             this.calcIntersection(this.$tNode, endPoint, recalcPoint);
         }
 
+        if (!dontDrawPoints) {
+            this.redrawPoints();
+        }
+    }
 
+    protected redrawPoints(): void {
         // redraw the edge with the new position
         let path: string = 'M';
 
@@ -195,13 +154,10 @@ export class Edge extends DiagramElement {
             path += Math.floor(point.x) + ' ' + Math.floor(point.y) + ' ';
         }
 
-
-        // remove the pre last point (pointToCalcFrom), if there are at least 3 points
-
         this.$view.setAttributeNS(null, 'd', path);
     }
 
-    private calcIntersection(startNode : Node, recalcPoint : Point, endPoint : Point) : Point{
+    private calcIntersection(startNode: Node, recalcPoint: Point, endPoint: Point): Point {
 
         // https://www.mathelounge.de/21534/schnittpunkt-einer-linie-mit-den-randern-eines-rechtecks
         let h = startNode.getSize().y;
@@ -219,21 +175,21 @@ export class Edge extends DiagramElement {
         if (x2 > x1) {
             newX = x1 + (w / 2);
         }
-        else if (x2 < x1){
+        else if (x2 < x1) {
             newX = x1 - (w / 2);
         }
-        else{
+        else {
             newX = x1;
         }
 
-        if((x2 - x1) != 0){
+        if ((x2 - x1) != 0) {
             newY = ((y2 - y1) / (x2 - x1) * (newX - x1)) + y1;
         }
-        else{
-            if(y1 > y2){
+        else {
+            if (y1 > y2) {
                 newY = startNode.getPos().y;
             }
-            else{
+            else {
                 newY = startNode.getPos().y + h;
             }
         }
@@ -248,11 +204,11 @@ export class Edge extends DiagramElement {
                 newY = y1 - (h / 2);
             }
 
-            if((x2 - x1) != 0){
+            if ((x2 - x1) != 0) {
                 let tmp = ((y2 - y1) / (x2 - x1));
                 newX = (newY + (tmp * x1) - y1) / tmp;
             }
-            else{
+            else {
                 newX = x1;
             }
         }
@@ -605,20 +561,55 @@ export class Edge extends DiagramElement {
         return { x: min.x, y: min.y, width: max.x - min.x, height: max.y - min.y };
     }
 
-    protected getDirection(a: Point, b: Point): Direction {
-        if (b.x < a.x) {
+    protected getDirection(start: Point, end: Point): Direction {
+        if (end.x < start.x) {
             return Direction.Left;
         }
-        if (b.x > a.x) {
+        if (end.x > start.x) {
             return Direction.Right;
         }
-        if (b.y < a.y) {
+        if (end.y < start.y) {
             return Direction.Up;
         }
-        if (b.y > a.y) {
+        if (end.y > start.y) {
             return Direction.Down;
         }
         return Direction.Down;
+    }
+
+    protected getDirectionOfTargetSymbol(node: Node, pointNearNode: Point): Direction {
+
+        /*
+            Example to calculate the direction of nearest point to Node
+
+            node
+         x1_ _ _ _
+          |       |
+          |       |. pointNearNode
+          |       |
+          |_ _ _ x2
+
+          the calculation would return Direction.Left
+        */
+
+        let x1: Point = node.getPos();
+        let x2: Point = new Point((x1.x + node.getSize().x), (x1.y + node.getSize().y));
+        let direction: Direction = Direction.Down;
+
+        if (x1.y >= pointNearNode.y) {
+            direction = Direction.Down;
+        }
+        if (x2.y <= pointNearNode.y) {
+            direction = Direction.Up;
+        }
+        if (x1.x >= pointNearNode.x) {
+            direction = Direction.Right;
+        }
+        if (x2.x <= pointNearNode.x) {
+            direction = Direction.Left;
+        }
+
+        return direction;
     }
 
     public addPoint(x: number, y: number): Point[] {
