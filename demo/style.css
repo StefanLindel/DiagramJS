@@ -194,7 +194,7 @@ h1 {
 	fill: #ff9c9c;
 }
 
-#edit:hover circle {
+#addEdge:hover circle {
 	stroke: #333;
 	fill: #fff68f;
 }

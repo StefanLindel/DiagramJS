@@ -279,7 +279,7 @@ export namespace PropertiesPanel {
             let selectAttrType = document.createElement('select');
 
             // TODO: make a dynamic list of all ever entered types
-            let typeList: string[] = ['boolean', 'byte', 'char', 'double', 'float', 'int', 'long', 'short', 'string'];
+            let typeList: string[] = ['boolean', 'byte', 'char', 'double', 'float', 'int', 'long', 'short', 'String'];
             typeList.forEach(type => {
                 let modifierOption = document.createElement('option');
                 modifierOption.value = type;
@@ -364,7 +364,7 @@ export namespace PropertiesPanel {
             let selectMethodType = document.createElement('select');
 
             // TODO: make a dynamic list of all ever entered types
-            let typeList: string[] = ['boolean', 'byte', 'char', 'double', 'float', 'int', 'long', 'short', 'string'];
+            let typeList: string[] = ['boolean', 'byte', 'char', 'double', 'float', 'int', 'long', 'short', 'String', 'void'];
             typeList.forEach(type => {
                 let modifierOption = document.createElement('option');
                 modifierOption.value = type;
@@ -711,7 +711,11 @@ export namespace PropertiesPanel {
             selectPropertyType.id = div.id + 'AddType';
 
             // TODO: make a dynamic list of all ever entered types
-            let typeList: string[] = ['boolean', 'byte', 'char', 'double', 'float', 'int', 'long', 'short', 'string'];
+            let typeList: string[] = ['boolean', 'byte', 'char', 'double', 'float', 'int', 'long', 'short', 'String'];
+            if(propertyType.startsWith('method')){
+                typeList.push('void');
+            }
+
             typeList.forEach(type => {
                 let modifierOption = document.createElement('option');
                 modifierOption.value = type;

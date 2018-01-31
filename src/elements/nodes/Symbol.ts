@@ -141,6 +141,16 @@ export class SymbolLibary {
                 svg.id = group['id'];
             }
         }
+
+        if(node['tooltip']){
+            const tooltipTitleAttr = {
+                tag: 'title'
+            };
+            let tooltipTitle = Util.createShape(tooltipTitleAttr);
+            tooltipTitle.textContent = node['tooltip'];
+            svg.appendChild(tooltipTitle);
+        }
+
         if (node['background']) {
             const attrCircle = {
                 tag: 'circle',
@@ -316,7 +326,7 @@ export class SymbolLibary {
         SymbolLibary.drawButton(node);
         SymbolLibary.drawDropdown(node);
         SymbolLibary.drawClassicon(node);
-        SymbolLibary.drawEdgeicon(node);
+        SymbolLibary.drawClassWithEdgeicon(node);
     }
 
     public static drawHamburger(node: DiagramElement): DiagramElement {
@@ -688,23 +698,39 @@ export class SymbolLibary {
         });
     }
 
-    public static drawEdgeicon(node: DiagramElement): DiagramElement {
-        let btnX, btnY, btnWidth, btnHeight;
+    public static drawClassWithEdgeicon(node: DiagramElement): DiagramElement {
 
-        btnX = node.getPos().x || 0;
-        btnY = node.getPos().y || 0;
-        btnWidth = node.getSize().x || 30;
-        btnHeight = node.getSize().y || 35;
+        let btnX = 0, btnY = 0, btnWidth = 0, btnHeight = 0;
         return SO.create({
             x: btnX,
             y: btnY,
+            id: node['id'],
             width: btnWidth,
             height: btnHeight,
             items: [
                 {
                     tag: 'path',
                     d: 'M2,10 20,10 20,35 2,35 Z M2,17 20,17 M20,10 28,5 28,9 M 28.5,4.7 24,4',
-                    style: 'fill:none;stroke:#000000;transform:scale(0.4);'
+                    style: 'fill:none;stroke:#000000;transform:scale(0.8);'
+                }
+            ]
+        });
+    }
+
+    public static drawEdgeicon(node: DiagramElement): DiagramElement {
+
+        let btnX = 0, btnY = 0, btnWidth = 0, btnHeight = 0;
+        return SO.create({
+            x: btnX,
+            y: btnY,
+            id: node['id'],
+            width: btnWidth,
+            height: btnHeight,
+            items: [
+                {
+                    tag: 'path',
+                    d: 'M10,30 30,10 M19,10 30,10 30,21',
+                    style: 'fill:none;stroke:#555;stroke-width:2;'
                 }
             ]
         });

@@ -2,6 +2,7 @@ import {EventHandler} from '../EventBus';
 import {DiagramElement} from '../elements/BaseElements';
 import {Graph} from '../elements/Graph';
 import {Util} from '../util';
+import { Node } from '../elements/nodes/index';
 
 export class AddNode implements EventHandler {
 
@@ -30,7 +31,8 @@ export class AddNode implements EventHandler {
 
     public handle(event: Event, element: DiagramElement): boolean {
 
-        if ((<KeyboardEvent>event).ctrlKey) {
+        if(!this.graph.isActiveHandler('AddNode')){
+            
             return true;
         }
 
@@ -46,6 +48,8 @@ export class AddNode implements EventHandler {
             case 'mousedown':
                 if (element.id === 'RootElement') {
                     this.start(event, element);
+                    
+                    this.graph.setActiveHandler('AddNode');
                 }
                 break;
             case 'mousemove':
@@ -53,9 +57,12 @@ export class AddNode implements EventHandler {
                 break;
             case 'mouseleave':
                 this.removeRect();
+                
+                this.graph.releaseActiveHandler();
                 break;
             case 'mouseup':
                 this.addNode();
+                this.graph.releaseActiveHandler();
                 break;
 
             default:

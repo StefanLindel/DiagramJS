@@ -4,6 +4,7 @@ import { Util } from '../util';
 import { Clazz } from '../elements/nodes/Clazz';
 import { EventHandler } from '../EventBus';
 import { Edge } from '../elements/index';
+import { Node } from '../elements/nodes/index';
 
 export class NewEdge implements EventHandler {
     private graph: Graph;
@@ -31,17 +32,16 @@ export class NewEdge implements EventHandler {
             this.svgRoot = <SVGSVGElement><any>document.getElementById('root');
         }
 
-        if (!(<KeyboardEvent>event).ctrlKey) {
+        if (!((<KeyboardEvent>event).ctrlKey || this.graph.isActiveHandler('NewEdge', true))) {
             this.removeLine();
             return true;
         }
 
-        // draw a new edge
-
         switch (event.type) {
             case 'mousedown':
-                if (element instanceof Clazz) {
+                if (element instanceof Node) {
                     this.start(event, element);
+                    this.graph.setActiveHandler('NewEdge');
                 }
                 break;
 
@@ -49,9 +49,11 @@ export class NewEdge implements EventHandler {
                 this.drawEdge(event, element);
                 break;
             case 'mouseleave':
+                this.graph.releaseActiveHandler();
                 break;
             case 'mouseup':
                 this.setNewEdgeToNode(event);
+                this.graph.releaseActiveHandler();
                 break;
 
             default: break;
@@ -83,8 +85,10 @@ export class NewEdge implements EventHandler {
 
 
             let shape = Util.createShape(attr);
-            this.svgRoot.appendChild(shape);
             this.svgLine = shape;
+            
+            this.svgRoot.appendChild(shape);
+            this.svgRoot.appendChild(this.sourceNode.$view);
         }
         else {
 
@@ -95,7 +99,7 @@ export class NewEdge implements EventHandler {
             let targetNode = this.graph.$graphModel.getNodeByPosition(evt.layerX, evt.layerY);
 
             // if some targetnode is available, so highlight the node
-            if(targetNode){
+            if (targetNode) {
 
                 // reset the last one
                 if (this.lastHighlightedNode !== <Element>targetNode.$view.childNodes[0] && this.lastHighlightedNode) {
@@ -105,14 +109,14 @@ export class NewEdge implements EventHandler {
                 this.lastHighlightedNode = <Element>targetNode.$view.childNodes[0];
                 this.lastHighlightedNode.setAttributeNS(null, 'class', 'SVGClazz-drawedge');
             }
-            else if(this.lastHighlightedNode) {
+            else if (this.lastHighlightedNode) {
                 this.lastHighlightedNode.setAttributeNS(null, 'class', 'SVGClazz');
             }
         }
     }
 
     private removeLine(): void {
-        this.isEdgeDrawing = false;        
+        this.isEdgeDrawing = false;
 
         if (this.svgLine) {
             this.svgRoot.removeChild(this.svgLine);
@@ -152,10 +156,10 @@ export class NewEdge implements EventHandler {
         this.isEdgeDrawing = true;
         this.sourceNode = element as Clazz;
 
-        this.x = evt.layerX;
-        this.y = evt.layerY;
+        this.x = this.sourceNode.getPos().x + (this.sourceNode.getSize().x / 2);
+        this.y = this.sourceNode.getPos().y + (this.sourceNode.getSize().y / 2);
 
-        // highlight the start node
+        // TODO: highlight the start node
 
     }
 }

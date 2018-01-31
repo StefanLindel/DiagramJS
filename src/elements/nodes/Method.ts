@@ -44,12 +44,42 @@ export default class Method extends DiagramElement{
         }
 
         else{
-            let dataSplitted = data.split(' ');
+            // e.g. setName() : string or name:string
+            let dataSplitted = data.split(':');
 
-            if(dataSplitted){
-                this.modifier = dataSplitted[0];
-                this.name = dataSplitted[1] || '';
-                this.type = dataSplitted[3] || '';
+            if(dataSplitted && dataSplitted.length === 2){
+
+                // modifer (and or) name
+                let modifierAndNameSplitted = dataSplitted[0].trim();
+
+                // first char is +, - or #
+                let firstChar = modifierAndNameSplitted[0];
+                if(firstChar === '+' || firstChar === '-' || firstChar === '#'){
+                    this.modifier = firstChar;
+                    this.name = modifierAndNameSplitted.substring(1, modifierAndNameSplitted.length).trim();
+                }
+                else{
+                    this.name = modifierAndNameSplitted;
+                }
+
+                this.type = dataSplitted[1] || 'void';
+            }
+            // set default return type of void
+            else{
+                // modifer (and or) name
+                let modifierAndNameSplitted = data.trim();
+
+                // first char is +, - or #
+                let firstChar = modifierAndNameSplitted[0];
+                if(firstChar === '+' || firstChar === '-' || firstChar === '#'){
+                    this.modifier = firstChar;
+                    this.name = modifierAndNameSplitted.substring(1, modifierAndNameSplitted.length).trim();
+                }
+                else{
+                    this.name = modifierAndNameSplitted;
+                }
+
+                this.type = 'void';
             }
         }
     }

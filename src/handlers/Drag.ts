@@ -10,6 +10,7 @@ export class Drag implements EventHandler {
     private element: DiagramElement;
     private svgRoot: SVGSVGElement;
     private svgElement: SVGSVGElement;
+    private nodeToDrag: Node;
     private dragging = false;
     private reinsert = false;
     private mouseOffset = new Point();
@@ -21,9 +22,7 @@ export class Drag implements EventHandler {
     }
 
     public handle(event: Event, element: DiagramElement): boolean {
-        // event.stopPropagation();
-
-        if ((<KeyboardEvent>event).ctrlKey) {
+        if (!this.graph.isActiveHandler('Drag')) {
             return true;
         }
 
@@ -33,16 +32,20 @@ export class Drag implements EventHandler {
 
         switch (event.type) {
             case 'mousedown':
-                if ((!this.dragging) || (element.id !== 'RootElement')) {
+                if ((!this.dragging) && (element.id !== 'RootElement')) {
                     this.element = element;
                     this.svgElement = <SVGSVGElement>element.$view;
+                    this.nodeToDrag = <Node>element;
                     this.start(event, element);
+                    this.graph.setActiveHandler('Drag');
                 }
                 break;
             case 'mouseup':
                 if (this.dragging) {
                     this.reset();
                 }
+                this.graph.releaseActiveHandler();
+
                 break;
             case 'mousemove':
                 if (this.dragging) {
@@ -53,6 +56,7 @@ export class Drag implements EventHandler {
                 if (this.dragging) {
                     this.reset();
                 }
+                this.graph.releaseActiveHandler();
                 break;
             default:
                 break;
@@ -90,57 +94,30 @@ export class Drag implements EventHandler {
     private drag(evt: Event | any, element: DiagramElement) {
         if (this.reinsert) {
             if (this.element.id !== 'RootElement') {
-                if ((<SVGSVGElement>this.svgRoot.lastChild).id !== this.svgElement.id) {
-                    let childToDrag;
-                    for (let childCount = 0; childCount < this.svgRoot.childElementCount; childCount++) {
-                        let child = <SVGSVGElement>this.svgRoot.childNodes[childCount];
-                        if (child.id === this.svgElement.id) {
-                            childToDrag = child;
-                            break;
-                        }
-                    }
-
-                    this.svgRoot.appendChild(childToDrag);
-                    // this.svgRoot.appendChild(this.svgElement);
-                }
-            }
-            this.reinsert = false;
-
-            let dragEvent = new Event('drag');
-            element.$view.dispatchEvent(dragEvent);
-        }
-        if (element.id === 'RootElement') {
-            if (element.id !== this.element.id) {
-                return;
-            }
-            let model = <GraphModel>this.element;
-            const x = evt.clientX - this.mouseOffset.x;
-            const y = evt.clientY - this.mouseOffset.y;
-            const newOrigin = (<Graph>model.$owner).options.origin.add(new Point(x, y));
-
-            if (this.svgRoot.getAttribute('viewBox')) {
-                let values = this.svgRoot.getAttribute('viewBox').split(' ');
-                const newViewBox = `${newOrigin.x * -1} ${newOrigin.y * -1} ${values[2]} ${values[3]}`;
-                this.svgRoot.setAttribute('viewBox', newViewBox);
+                // nesseccary to set the dragged object on top of svg children
+                this.svgRoot.appendChild(this.svgElement);
             }
         }
-        else {
-            evt.stopPropagation();
+        this.reinsert = false;
 
-            let node = <Node>element;
-            const translation = this.svgElement.getAttributeNS(null, 'transform').slice(10, -1).split(' ');
-            const sx = parseInt(translation[0]);
-            let sy = 0;
-            if (translation.length > 1) {
-                sy = parseInt(translation[1]);
-            }
+        let dragEvent = new Event('drag');
+        element.$view.dispatchEvent(dragEvent);
 
-            const transX = sx + evt.clientX - this.mouseOffset.x;
-            const transY = sy + evt.clientY - this.mouseOffset.y;
-            this.svgElement.setAttributeNS(null, 'transform', 'translate(' + transX + ' ' + transY + ')');
-            node.getPos().addNum(transX - sx, transY - sy);
-            node.redrawEdges();
+        evt.stopPropagation();
+
+        const translation = this.svgElement.getAttributeNS(null, 'transform').slice(10, -1).split(' ');
+        const sx = parseInt(translation[0]);
+        let sy = 0;
+        if (translation.length > 1) {
+            sy = parseInt(translation[1]);
         }
+
+        const transX = sx + evt.clientX - this.mouseOffset.x;
+        const transY = sy + evt.clientY - this.mouseOffset.y;
+        this.svgElement.setAttributeNS(null, 'transform', 'translate(' + transX + ' ' + transY + ')');
+        this.nodeToDrag.getPos().addNum(transX - sx, transY - sy);
+        this.nodeToDrag.redrawEdges();
+
         this.mouseOffset.x = evt.clientX;
         this.mouseOffset.y = evt.clientY;
     }

@@ -10,7 +10,7 @@ import {Util} from '../util';
 import {Control} from '../Control';
 import Data from '../Data';
 import {EventBus} from '../EventBus';
-import {Editor, Drag, Select, Zoom, NewEdge, AddNode} from '../handlers';
+import {Drag, Select, Zoom, NewEdge, AddNode} from '../handlers';
 import Options from '../Options';
 import {ImportFile} from '../handlers/ImportFile';
 import {SymbolLibary} from './nodes/Symbol';
@@ -76,7 +76,7 @@ export class Graph extends Control {
             y: 0,
             width: 40,
             height: 40,
-            fill: 'white'
+            fill: 'none'
         });
         pattern.appendChild(rect);
         pattern.appendChild(cross);
@@ -433,18 +433,39 @@ export class Graph extends Control {
             this.canvas.setAttribute('class', 'diagram');
             document.body.appendChild(this.canvas);
         }
-        EventBus.subscribe(new ImportFile(this), 'dragover', 'dragleave', 'drop');
+    }
+
+    private $activeHandler: string = '';
+
+    public setActiveHandler(handler: string) : void{
+        this.$activeHandler = handler;
+    }
+
+    public isActiveHandler(handler: string, notEmpty?: boolean) : boolean{
+        if(notEmpty){
+            return this.$activeHandler == handler;
+        }
+        return this.$activeHandler == handler || this.$activeHandler == '' || this.$activeHandler == undefined;
+    }
+
+    public releaseActiveHandler() : void{
+        this.$activeHandler = '';
+    }
+
+    public getActiveHandler(): string{
+        return this.$activeHandler;
     }
 
     private initFeatures(features: any) {
+
+        EventBus.subscribe(new ImportFile(this), 'dragover', 'dragleave', 'drop');
+        EventBus.subscribe(new NewEdge(this), 'mousedown', 'mouseup', 'mousemove', 'mouseleave');
+
         if (features) {
             if (features.zoom) {
                 let mousewheel = 'onwheel' in document.createElement('div') ? 'wheel' : document.onmousewheel !== undefined ? 'mousewheel' : 'DOMMouseScroll';
                 EventBus.subscribe(new Zoom(), mousewheel);
             }
-            // if (features.editor) {
-            //     EventBus.subscribe(new Editor(this), 'dblclick', 'editor');
-            // }
             if (features.drag) {
                 EventBus.subscribe(new Drag(this), 'mousedown', 'mouseup', 'mousemove', 'mouseleave');
             }
@@ -461,8 +482,6 @@ export class Graph extends Control {
         let dispatcher = new PropertiesPanel.PropertiesPanel.Dispatcher(this);
         dispatcher.dispatch(PropertiesPanel.PropertiesPanel.PropertiesView.Edge);
         EventBus.subscribe(dispatcher, 'dblclick', 'click', 'openproperties');
-
-        EventBus.subscribe(new NewEdge(this), 'mousedown', 'mouseup', 'mousemove', 'mouseleave');
         EventBus.subscribe(new AddNode(this), 'mousedown', 'mouseup', 'mousemove', 'mouseleave');
     }
 }

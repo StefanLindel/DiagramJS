@@ -65,10 +65,10 @@ export class EventBus {
     }
 
     public static publish(element: DiagramElement, evt: Event) {
-        let handlers = EventBus.handlers[event.type];
+        let handlers = EventBus.handlers[evt.type];
         if (handlers) {
             for (let handler of handlers) {
-                handler.handle(event, element);
+                handler.handle(evt, element);
             }
         }
     }

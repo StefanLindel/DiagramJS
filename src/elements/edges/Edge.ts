@@ -68,7 +68,7 @@ export class Edge extends DiagramElement {
     }
 
     public getEvents(): string[] {
-        return [EventBus.ELEMENTCLICK, EventBus.EDITOR, EventBus.OPENPROPERTIES];
+        return [EventBus.ELEMENTCLICK, EventBus.ELEMENTDBLCLICK, EventBus.EDITOR, EventBus.OPENPROPERTIES];
     }
 
     public convertEdge(type: string, newId: string): Edge {
