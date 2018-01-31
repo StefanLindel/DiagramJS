@@ -64,7 +64,7 @@ export class Input extends Control {
         } else {
             if (!inputField) {
                 this.setView(document.createElement('input'));
-                this.viewData = this.initViewDataProperties(this.viewData);
+                this.$viewData = this.initViewDataProperties(this.$viewData);
                 // append viewListener
                 // this.$view.addEventListener('change', this.$viewListener);
                 if (typeof(data) !== 'string') {
@@ -73,7 +73,7 @@ export class Input extends Control {
                             continue;
                         }
                         // this.$view[attr] = data[attr];
-                        this.viewData.setValue(attr, data[attr]);
+                        this.$viewData.setValue(attr, data[attr]);
                     }
                 } else {
                     if (this.type) {
@@ -93,7 +93,7 @@ export class Input extends Control {
                     }
                 }
                 if (this.$model) {
-                    PropertyBinder.bind(this.viewData, this.$model, 'value', this.lastProperty);
+                    PropertyBinder.bind(this.$viewData, this.$model, 'value', this.lastProperty);
                 }
 
                 this.$owner.appendChild(this);
@@ -109,7 +109,7 @@ export class Input extends Control {
         if (this.property && entity) {
             if (entity.id === this.property.split('.')[0]) {
                 this.$model = entity;
-                PropertyBinder.bind(this.viewData, this.$model, 'value', this.lastProperty);
+                PropertyBinder.bind(this.$viewData, this.$model, 'value', this.lastProperty);
                 // entity.addListener(this, this.lastProperty);
             }
         }
@@ -197,9 +197,9 @@ export class Input extends Control {
             return;
         }
         if (type === 'radio') {
-            this.viewData.setValue('checked', null);
+            this.$viewData.setValue('checked', null);
         } else {
-            this.viewData.removeKey('checked');
+            this.$viewData.removeKey('checked');
         }
     }
 }

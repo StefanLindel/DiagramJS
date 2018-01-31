@@ -203,24 +203,23 @@ export class Graph extends Control {
         return xmlNode.outerHTML;
     }
 
-    public getSize() : Size{
-        let width : number;
-        let height : number;
+    public getSize(): Size{
+        let width: number;
+        let height: number;
         width = +this.root.getAttribute('width');
         height = +this.root.getAttribute('height');
 
-        return {width: width, height:height};
+        return {width: width, height: height};
     }
 
-    public exportPDF():void{
-        if(!window['jsPDF']){
+    public exportPDF(): void {
+        if (!window['jsPDF']) {
             console.log('jspdf n.a.');
             return;
         }
         let typ = 'image/svg+xml';
         let xmlNode = this.serializeXmlNode(this.getSvgWithStyleAttributes());
         let url = window.URL.createObjectURL(new Blob([xmlNode], {type: typ}));
-
 
         let canvas, context, a, image = new Image();
         let size = this.getSize();
@@ -268,9 +267,9 @@ export class Graph extends Control {
             context.drawImage(image, 0, 0);
 
             a = document.createElement('a');
-            a.download = "download.png";
+            a.download = 'download.png';
             a.href = canvas.toDataURL('image/png');
-            a.click()
+            a.click();
         };
 
         image.src = url;
@@ -343,7 +342,7 @@ export class Graph extends Control {
                 }
             }
         }
-        Util.setSize(this.root, max.x+60, max.y+30);
+        Util.setSize(this.root, max.x + 60, max.y + 30);
         if (model.edges) {
             for (let id in model.edges) {
                 let edge = model.edges[id];
@@ -351,6 +350,14 @@ export class Graph extends Control {
                 EventBus.register(edge, svg);
                 root.appendChild(svg);
             }
+        }
+    }
+
+    public generate() {
+        let data, result = Util.toJson(this.$graphModel);
+        data = JSON.stringify(result, null, '\t');
+        if (window['java'] && typeof window['java'].generate === 'function') {
+            window['java'].generate(data);
         }
     }
 

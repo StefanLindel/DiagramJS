@@ -22,7 +22,7 @@ export class InfoText extends Node {
             }
             this.id = info.id;
         }
-        this.isDraggable = true;
+        this.$isDraggable = true;
     }
 
     public getSVG(draw ?: boolean): HTMLElement {

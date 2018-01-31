@@ -10,7 +10,7 @@ export abstract class Control {
     public property: string;
     public id: string;
     public $view: Element;
-    public viewData: Data;
+    public $viewData: Data;
 
     protected $model: Data;
     protected $viewListener: EventListenerOrEventListenerObject;
@@ -27,7 +27,7 @@ export abstract class Control {
     constructor() {
         // e.g. this.properties.push("key");
         // this.properties.push("property");
-        this.viewData = this.initViewDataProperties(this.viewData);
+        this.$viewData = this.initViewDataProperties(this.$viewData);
     }
 
     public initViewDataProperties(oldData?: Data): Data {
@@ -70,7 +70,7 @@ export abstract class Control {
         if (this.$viewListener) {
             element.addEventListener('change', this.$viewListener);
         }
-        this.viewData = this.initViewDataProperties(this.viewData);
+        this.$viewData = this.initViewDataProperties(this.$viewData);
         return element;
     }
 
@@ -104,7 +104,7 @@ export abstract class Control {
         }
         if (data.hasOwnProperty('prop')) {
             for (let key in data.prop) {
-                let oldValue = this.viewData.getValue(key);
+                let oldValue = this.$viewData.getValue(key);
                 if (this.$view) {
                     this.updateElement(key, oldValue, data.prop[key]);
                 }
@@ -163,13 +163,13 @@ export abstract class Control {
                     }
                 }
 
-                //  || oldValue !== this.viewData.getValue(key)
+                //  || oldValue !== this.$viewData.getValue(key)
                 if (newValue == oldValue) {
                     // no match, so update should be wrong...
                     continue;
                 }
-                const viewDataOldValue = this.viewData.getValue(key);
-                if (entity == this.viewData) {
+                const viewDataOldValue = this.$viewData.getValue(key);
+                if (entity == this.$viewData) {
 
                     // this.getViewData().setValue(key, newValue);
                     if (this.$view) {
@@ -193,7 +193,7 @@ export abstract class Control {
                 // if rem is invalid, or if the change is already applied, don't do anything..
                 //                  continue;
                 //            }
-                // delete this.viewData.getValue(key);
+                // delete this.$viewData.getValue(key);
                 // this.saveViewInData();
                 this.updateElement(key, null, null);
                 // this.$view.removeAttribute(key);
@@ -239,33 +239,33 @@ export abstract class Control {
         if (oldValue === newValue) {
             return;
         }
-        if (oldValue === this.viewData.getValue(property)) {
+        if (oldValue === this.$viewData.getValue(property)) {
             return;
         }
         // Set NewData to ViewData and Fire PC
-        this.viewData.setValue(property, newValue);
+        this.$viewData.setValue(property, newValue);
 
 //
 //
-//         // if (entity == this.viewData) {
+//         // if (entity == this.$viewData) {
 //             // if the ViewData is changed, we want to change the $view
 //             // if (this.entity) {
-//                 alert("entity = viewData: " + this.getStandardProperty() + ", " +  property + ", newVal: " + newValue + ", oldVal: " + oldValue);
+//                 alert("entity = $viewData: " + this.getStandardProperty() + ", " +  property + ", newVal: " + newValue + ", oldVal: " + oldValue);
 //                 if (this.getStandardProperty() == property && this.entity.hasProperty(property)) {
 //                     this.getRoot().setValue(this.entity, property, newValue, oldValue);
 //                 }
 //             // }
 //         // } else {
-//             // the entity is changed, so we want tell it to the viewData
-//             // if (this.viewData) {
+//             // the entity is changed, so we want tell it to the $viewData
+//             // if (this.$viewData) {
 //                 alert("entity = Data: " +  property);
-//                 // this.getRoot().setValue(this.viewData, property, newValue, oldValue);
-//                 this.viewData.setValue(property, newValue);
+//                 // this.getRoot().setValue(this.$viewData, property, newValue, oldValue);
+//                 this.$viewData.setValue(property, newValue);
 //             // }
 //         // }
 // >>>>>>> addOldFunctions
-        if (this.viewData) {
-            this.viewData.setValue(property, newValue);
+        if (this.$viewData) {
+            this.$viewData.setValue(property, newValue);
         }
         if (this.$model) {
             this.$model.setValue(property, newValue);
@@ -298,28 +298,28 @@ export abstract class Control {
 //        if (oldValue == newValue) {
 //            return;
 //        }
-//        if (oldValue == this.viewData.getValue(property)) {
+//        if (oldValue == this.$viewData.getValue(property)) {
 //            return;
 //        }
 //        // Set NewData to ViewData and Fire PC
-//        this.viewData.setValue(property, newValue);
+//        this.$viewData.setValue(property, newValue);
 //
 //
 //
-//         // if ($graphModel == this.viewData) {
+//         // if ($graphModel == this.$viewData) {
 //             // if the ViewData is changed, we want to change the $view
 //             // if (this.$graphModel) {
-//                 alert("$graphModel = viewData: " + this.getStandardProperty() + ", " +  property + ", newVal: " + newValue + ", oldVal: " + oldValue);
+//                 alert("$graphModel = $viewData: " + this.getStandardProperty() + ", " +  property + ", newVal: " + newValue + ", oldVal: " + oldValue);
 //                 if (this.getStandardProperty() == property && this.$graphModel.hasProperty(property)) {
 //                     this.getRoot().setValue(this.$graphModel, property, newValue, oldValue);
 //                 }
 //             // }
 //         // } else {
-//             // the $graphModel is changed, so we want tell it to the viewData
-//             // if (this.viewData) {
+//             // the $graphModel is changed, so we want tell it to the $viewData
+//             // if (this.$viewData) {
 //                 alert("$graphModel = Data: " +  property);
-//                 // this.getRoot().setValue(this.viewData, property, newValue, oldValue);
-//                 this.viewData.setValue(property, newValue);
+//                 // this.getRoot().setValue(this.$viewData, property, newValue, oldValue);
+//                 this.$viewData.setValue(property, newValue);
 //             // }
 //         // }
 
@@ -373,7 +373,7 @@ export abstract class Control {
         if (object) {
             object.addListener(this, this.lastProperty);
             this.$model = object;
-            this.updateElement(this.lastProperty, this.viewData.getValue(this.lastProperty), object.prop[this.lastProperty]);
+            this.updateElement(this.lastProperty, this.$viewData.getValue(this.lastProperty), object.prop[this.lastProperty]);
         }
     }
 
@@ -424,13 +424,13 @@ export abstract class Control {
         if (!this.$view) {
             return;
         }
-        const keys: string[] = this.viewData.getKeys();
+        const keys: string[] = this.$viewData.getKeys();
         for (let i = 0; i < keys.length; i++) {
             let attr = keys[i];
             if (this.$view[attr] === null) {
                 continue;
             }
-            this.viewData.setValue(attr, this.$view[attr]);
+            this.$viewData.setValue(attr, this.$view[attr]);
         }
     }
 

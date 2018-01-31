@@ -1,11 +1,12 @@
-import { Clazz } from './elements/nodes/Clazz';
-import { EventHandler } from './EventBus';
-import { Edge } from './elements/index';
-import { DiagramElement } from './elements/BaseElements';
-import { Graph } from './elements/Graph';
+import {Clazz} from './elements/nodes/Clazz';
+import {EventHandler} from './EventBus';
+import {Edge} from './elements/index';
+import {DiagramElement} from './elements/BaseElements';
+import {Graph} from './elements/Graph';
 import * as edges from './elements/edges';
 import Method from './elements/nodes/Method';
 import Attribute from './elements/nodes/Attribute';
+import {Button} from "./elements/nodes";
 
 export namespace PropertiesPanel {
 
@@ -21,7 +22,7 @@ export namespace PropertiesPanel {
         private _graph: Graph;
 
         constructor(graph: Graph) {
-            this._blankView = new BlankView();
+            this._blankView = new BlankView(graph);
             this._graph = graph;
         }
 
@@ -34,8 +35,20 @@ export namespace PropertiesPanel {
             return this._blankView.getCurrentView();
         }
 
-        public openProperties() : void{
+        public openProperties(): void {
             this._blankView.openProperties();
+        }
+
+        public handle(event: Event, element: DiagramElement): boolean {
+            this.handleSelectNodeEvent(event, element);
+            this.handleSelectEdgeEvent(event, element);
+            this.handleOpenProperties(event, element);
+
+            return true;
+        }
+
+        public isEnable(): boolean {
+            return true;
         }
 
         private createView(view: PropertiesView): APanel {
@@ -56,19 +69,8 @@ export namespace PropertiesPanel {
             return panel;
         }
 
-        public handle(event: Event, element: DiagramElement): boolean {
-            this.handleSelectNodeEvent(event, element);
-            this.handleSelectEdgeEvent(event, element);
-            this.handleOpenProperties(event, element);
-
-            return true;
-        }
-        public isEnable(): boolean {
-            return true;
-        }
-
-        private handleOpenProperties(event: Event, element: DiagramElement){
-            if(event.type === 'openproperties' || event.type === 'dblclick'){
+        private handleOpenProperties(event: Event, element: DiagramElement) {
+            if (event.type === 'openproperties' || event.type === 'dblclick') {
 
                 event.stopPropagation();
                 this.openProperties();
@@ -122,7 +124,6 @@ export namespace PropertiesPanel {
                 return false;
             }
 
-            
             let that = this;
             let graph = this._graph;
             let clazz = <Clazz>element;
@@ -137,7 +138,7 @@ export namespace PropertiesPanel {
                 clazz.updateLabel((<any>classNameInputText).value);
             });
 
-            // # # # HANDLE ATTRIBUTES # # # 
+            // ### HANDLE ATTRIBUTES ###
             let tabContentAttr = document.getElementById('clazzattribute');
 
             // remove previous attributes
@@ -184,7 +185,6 @@ export namespace PropertiesPanel {
                 clazz.reDraw();
             });
             // # # # END HANDLE ATTRIBUTES # # #
-
 
             // # # # HANDLE METHODS # # #
             let tabContentMethods = document.getElementById('clazzmethod');
@@ -403,60 +403,18 @@ export namespace PropertiesPanel {
     }
 
     export class BlankView {
-
         protected _divMainPanel: HTMLDivElement;
         protected _divChildPanel: HTMLDivElement;
         protected _isHidden: boolean;
         private _currentView: PropertiesView;
         private _currentPanel: APanel;
+        private propertiesPanel: HTMLDivElement;
+        private generalPanel: HTMLDivElement;
+        private graph: Graph;
 
-        constructor() {
+        constructor(graph: Graph) {
+            this.graph = graph;
             this.initMainPanel();
-        }
-
-        private initMainPanel(): void {
-            if (document.getElementById('classProp')) {
-                return;
-            }
-
-            // main div to display any properties, class, object, etc.
-            this._divMainPanel = document.createElement('div');
-            this._divMainPanel.id = 'classProp'
-            this._divMainPanel.className = 'propertiespanel-hidden';
-            this._divMainPanel.innerHTML = 'Properties';
-
-            // button to display and hide the properties of e.g. a class
-            let btnProperties = document.createElement('button');
-            btnProperties.id = 'btnHidePropertiesPanel';
-            btnProperties.title = 'Show properties';
-            btnProperties.className = 'btnHideProp';
-            btnProperties.innerHTML = '&#8896;';
-            btnProperties.style.cssFloat = 'right';
-            btnProperties.onclick = e => this.hideproperties(e);
-
-            this._divMainPanel.appendChild(btnProperties);
-            document.body.appendChild(this._divMainPanel);
-        }
-
-        private hideproperties(evt: Event): void {
-
-            if (this._isHidden == false) {
-                document.getElementById("properties").className = "properties-hidden";
-                document.getElementById("classProp").className = "propertiespanel-hidden";
-                let btn = document.getElementById('btnHidePropertiesPanel');
-                btn.innerHTML = '&#8896;';
-                btn.title = 'Show properties';
-
-            }
-            else {
-                document.getElementById("properties").className = "properties";
-                document.getElementById("classProp").className = "propertiespanel";
-                let btn = document.getElementById('btnHidePropertiesPanel');
-                btn.innerHTML = '&#8897;';
-                btn.title = 'Hide properties';
-
-            }
-            this._isHidden = !this._isHidden;
         }
 
         public show(panel: APanel): void {
@@ -464,7 +422,7 @@ export namespace PropertiesPanel {
             if (this._divChildPanel) {
                 let previousView = document.getElementById(this._divChildPanel.id);
                 if (previousView) {
-                    this._divMainPanel.removeChild(previousView);
+                    this.propertiesPanel.removeChild(previousView);
                 }
             }
 
@@ -472,12 +430,12 @@ export namespace PropertiesPanel {
             this._currentPanel = panel;
             this._currentView = panel.getPropertiesView();
             this._divChildPanel = panel.getPanel();
-            this._divMainPanel.appendChild(this._divChildPanel);
+            this.propertiesPanel.appendChild(this._divChildPanel);
 
             panel.showFirstTab();
         }
 
-        public openProperties(){
+        public openProperties() {
             this._isHidden = false;
             document.getElementById("properties").className = "properties";
             document.getElementById("classProp").className = "propertiespanel";
@@ -493,6 +451,73 @@ export namespace PropertiesPanel {
 
         public getCurrentPanel(): APanel {
             return this._currentPanel;
+        }
+
+        private initMainPanel(): void {
+            if (document.getElementById('classProp')) {
+                return;
+            }
+
+            // main div to display any properties, class, object, etc.
+            this._divMainPanel = document.createElement('div');
+            this.propertiesPanel = document.createElement('div');
+            this.generalPanel = document.createElement('div');
+
+            //this._divMainPanel.appendChild(this.generalPanel);
+            this._divMainPanel.appendChild(this.propertiesPanel);
+
+            this.generalPanel.id = 'classProp'
+            this.generalPanel.className = 'propertiespanel-hidden';
+            this.generalPanel.innerHTML = 'General';
+
+            this.propertiesPanel.id = 'classProp'
+            this.propertiesPanel.className = 'propertiespanel-hidden';
+            this.propertiesPanel.innerHTML = 'Properties';
+
+            // DIRTY
+            let button: HTMLButtonElement = document.createElement('button');
+            button.innerHTML = 'Generate';
+            let that = this;
+            button.addEventListener('click', function(e) { that.generate(e);} );
+            this.propertiesPanel.appendChild(button);
+
+            // button to display and hide the properties of e.g. a class
+            let btnProperties = document.createElement('button');
+            btnProperties.id = 'btnHidePropertiesPanel';
+            btnProperties.title = 'Show properties';
+            btnProperties.className = 'btnHideProp';
+            btnProperties.innerHTML = '&#8896;';
+            btnProperties.style.cssFloat = 'right';
+            btnProperties.onclick = e => this.hideproperties(e);
+
+            this.propertiesPanel.appendChild(btnProperties);
+            document.body.appendChild(this._divMainPanel);
+        }
+
+        private generate(event: any ): void {
+            console.log(event);
+            this.graph.generate();
+
+        }
+
+        private hideproperties(evt: Event): void {
+
+            if (this._isHidden === false) {
+                document.getElementById("properties").className = "properties-hidden";
+                document.getElementById("classProp").className = "propertiespanel-hidden";
+                let btn = document.getElementById('btnHidePropertiesPanel');
+                btn.innerHTML = '&#8896;';
+                btn.title = 'Show properties';
+            }
+            else {
+                document.getElementById("properties").className = "properties";
+                document.getElementById("classProp").className = "propertiespanel";
+                let btn = document.getElementById('btnHidePropertiesPanel');
+                btn.innerHTML = '&#8897;';
+                btn.title = 'Hide properties';
+
+            }
+            this._isHidden = !this._isHidden;
         }
 
     }
@@ -530,7 +555,14 @@ export namespace PropertiesPanel {
             return this._divChildPanel;
         }
 
-        protected createTabElement(id: string, tabText: string, tabValue : string): HTMLButtonElement {
+        public showFirstTab(): void {
+            let tabs = document.getElementsByClassName('tablinks');
+            if (tabs && tabs.length > 0) {
+                this.openTab(tabs[0].id);
+            }
+        }
+
+        protected createTabElement(id: string, tabText: string, tabValue: string): HTMLButtonElement {
             let tabElementBtn = document.createElement('button');
             tabElementBtn.id = id;
             tabElementBtn.className = 'tablinks';
@@ -562,13 +594,6 @@ export namespace PropertiesPanel {
             document.getElementById(this.getPropertiesView().toString().toLowerCase() + tab.value.toString())
                 .style.display = 'block';
 
-        }
-
-        public showFirstTab(): void {
-            let tabs = document.getElementsByClassName('tablinks');
-            if (tabs && tabs.length > 0) {
-                this.openTab(tabs[0].id);
-            }
         }
     }
 
@@ -604,7 +629,6 @@ export namespace PropertiesPanel {
 
             let divTableBody = document.createElement('div');
             divTableBody.className = 'divTableBody';
-
 
 
             // ROW1: clazz name
@@ -725,6 +749,7 @@ export namespace PropertiesPanel {
 
             this.createTabGeneralEdgeContent();
         }
+
         public getPropertiesView(): PropertiesView {
             return PropertiesView.Edge;
         }
@@ -837,7 +862,6 @@ export namespace PropertiesPanel {
             divRowEdgeSrcNode.appendChild(divRowEdgeSrcNodeCellText);
             divRowEdgeSrcNode.appendChild(divRowEdgeSrcNodeCellInput);
             divTableBody.appendChild(divRowEdgeSrcNode);
-
 
 
             // ROW4: target node

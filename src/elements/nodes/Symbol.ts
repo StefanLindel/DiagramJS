@@ -273,9 +273,9 @@ export class SymbolLibary {
                 this.removeChild(svg.choicebox);
             }
             svg.status = 'close';
-            svg.tool.size.height = svg.tool.heightMin;
+            svg.tool.$size.height = svg.tool.heightMin;
             // typ.Util.setSize(g, g.tool.width + g.tool.x, g.tool.height + g.tool.y);
-            Util.setSize(svg, svg.tool.size.x, svg.tool.size.y);
+            Util.setSize(svg, svg.tool.$size.x, svg.tool.$size.y);
         };
         svg.open = function () {
             if (this.tagName === 'svg') {
@@ -285,7 +285,7 @@ export class SymbolLibary {
                 this.appendChild(svg.choicebox);
             }
             svg.status = 'open';
-            svg.tool.size.height = svg.tool.heightMax;
+            svg.tool.$size.height = svg.tool.heightMax;
             Util.setSize(svg, svg.tool.width, svg.tool.height);
             // typ.Util.setSize(g, g.tool.width + g.tool.x + 10, g.tool.height + g.tool.y + 10);
         };

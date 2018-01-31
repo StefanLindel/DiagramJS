@@ -26,16 +26,16 @@ interface GraphElement {
 
 export abstract class DiagramElement extends Control implements GraphElement {
     public id: string;
-    protected isDraggable: boolean = true;
-    private pos: Point = new Point();
-    private size: Point = new Point();
+    protected $isDraggable: boolean = true;
+    private $pos: Point = new Point();
+    private $size: Point = new Point();
 
     public getPos(): Point {
-        return this.pos;
+        return this.$pos;
     }
 
     public getSize(): Point {
-        return this.size;
+        return this.$size;
     }
 
     public getCenter(): Point {
@@ -78,13 +78,13 @@ export abstract class DiagramElement extends Control implements GraphElement {
 
     public withPos(x: number, y: number): DiagramElement {
         if (x && y) {
-            this.pos = new Point(x, y);
+            this.$pos = new Point(x, y);
         } else {
             if (typeof(x) !== 'undefined' && x !== null) {
-                this.pos.x = x;
+                this.$pos.x = x;
             }
             if (typeof(y) !== 'undefined' && y !== null) {
-                this.pos.y = y;
+                this.$pos.y = y;
             }
         }
         return this;
@@ -92,13 +92,13 @@ export abstract class DiagramElement extends Control implements GraphElement {
 
     public withSize(width: number, height: number): DiagramElement {
         if (width && height) {
-            this.size = new Point(width, height);
+            this.$size = new Point(width, height);
         } else {
             if (typeof(width) !== 'undefined') {
-                this.size.x = width;
+                this.$size.x = width;
             }
             if (typeof(height) !== 'undefined') {
-                this.size.y = height;
+                this.$size.y = height;
             }
         }
         return this;
