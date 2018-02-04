@@ -14,7 +14,7 @@ export abstract class Association extends Edge {
         let direction: Direction = this.getDirectionOfTargetSymbol(this.$tNode, startPoint);
         let path = this.calcCorrectPath(startPoint, direction);
         
-        let line = super.getSVG();
+        let group = super.getSVG();
 
         // draw white filled diamond
         let attr = {
@@ -26,13 +26,11 @@ export abstract class Association extends Edge {
 
         this.$diamond = this.createShape(attr);
 
-        let group = this.createShape({ tag: 'g' });
-        group.appendChild(line);
         group.appendChild(this.$diamond);
         return group;
     }
 
-    public redrawNewFn(startNode: Node): void {
+    public redrawNewFn(startNode: Node, dontDrawPoints?: boolean): void {
         // redraw the edge
         super.redrawNewFn(startNode, true);
 

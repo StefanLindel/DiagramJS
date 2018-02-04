@@ -21,6 +21,8 @@ export namespace PropertiesPanel {
         private _blankView: BlankView;
         private _graph: Graph;
 
+        private _selectedElement : DiagramElement;
+
         constructor(graph: Graph) {
             this._blankView = new BlankView(graph);
             this._graph = graph;
@@ -40,9 +42,18 @@ export namespace PropertiesPanel {
         }
 
         public handle(event: Event, element: DiagramElement): boolean {
+
+            this.handleOpenProperties(event, element);
+
+            // the same element was clicked. do nothing
+            if(this._selectedElement && this._selectedElement.id === element.id){
+                return true;
+            }
+
+            this._selectedElement = element;
+
             this.handleSelectNodeEvent(event, element);
             this.handleSelectEdgeEvent(event, element);
-            this.handleOpenProperties(event, element);
 
             return true;
         }
@@ -86,6 +97,7 @@ export namespace PropertiesPanel {
 
             let edge = <Edge>element;
             this.dispatch(PropertiesView.Edge);
+            this._blankView.setPropertiesHeaderText('Properties of Edge: ' + edge.$sNode.label + '---' + edge.$tNode.label);
 
             let g = this._graph;
             // add eventlistener to combobox of edge type
@@ -94,12 +106,11 @@ export namespace PropertiesPanel {
             cBoxEdgeType.addEventListener('change', function () {
                 let selectedType = cBoxEdgeType.options[cBoxEdgeType.selectedIndex].value;
 
-                let newEdge = edge.convertEdge(selectedType, g.$graphModel.getNewId(selectedType));
+                let newEdge = edge.convertEdge(selectedType, g.$graphModel.getNewId(selectedType), true);
                 delete g.$graphModel.edges[edge.id];
                 g.$graphModel.edges[newEdge.id] = newEdge;
 
                 edge = newEdge;
-                g.layout();
             });
 
             // show label
@@ -128,6 +139,7 @@ export namespace PropertiesPanel {
             let graph = this._graph;
             let clazz = <Clazz>element;
             this.dispatch(PropertiesView.Clazz);
+            this._blankView.setPropertiesHeaderText('Properties of Class: ' + clazz.label);
 
             // set class name of node in propertiespanel
             // outsource this code in own handler
@@ -251,7 +263,7 @@ export namespace PropertiesPanel {
             });
             selectAttrModifier.value = attr.modifier;
 
-            selectAttrModifier.addEventListener('change', function () {
+            selectAttrModifier.addEventListener('input', function () {
                 attr.updateModifier(selectAttrModifier.options[selectAttrModifier.selectedIndex].value);
             });
 
@@ -262,35 +274,22 @@ export namespace PropertiesPanel {
 
             textBoxAttrName.type = 'text';
             textBoxAttrName.value = attr.name;
-            textBoxAttrName.addEventListener('change', function () {
-                if (textBoxAttrName.value.length == 0) {
-                    clazz.removeAttribute(attr);
-                    tabContentAttr.removeChild(divEditAttr);
-
-                    clazz.reDraw();
-                } else {
+            textBoxAttrName.addEventListener('input', function () {
                     attr.updateName(textBoxAttrName.value);
-
                     clazz.reDraw(true);
-                }
             });
 
             // create type select
-            let selectAttrType = document.createElement('select');
+            let dataListTypes = document.getElementById('dataTypes');
+            let selectAttrType = document.createElement('input');
+            if(dataListTypes){
+                selectAttrType.setAttribute('list', dataListTypes.id);
+            }
 
-            // TODO: make a dynamic list of all ever entered types
-            let typeList: string[] = ['boolean', 'byte', 'char', 'double', 'float', 'int', 'long', 'short', 'String'];
-            typeList.forEach(type => {
-                let modifierOption = document.createElement('option');
-                modifierOption.value = type;
-                modifierOption.innerHTML = type;
-                selectAttrType.appendChild(modifierOption);
-            });
             selectAttrType.value = attr.type;
 
-            selectAttrType.addEventListener('change', function () {
-                attr.updateType(selectAttrType.options[selectAttrType.selectedIndex].value);
-
+            selectAttrType.addEventListener('input', function () {
+                attr.updateType(selectAttrType.value);
                 clazz.reDraw(true);
             });
 
@@ -334,7 +333,7 @@ export namespace PropertiesPanel {
             });
             selectMethodModifier.value = method.modifier;
 
-            selectMethodModifier.addEventListener('change', function () {
+            selectMethodModifier.addEventListener('input', function () {
                 method.updateModifier(selectMethodModifier.options[selectMethodModifier.selectedIndex].value);
             });
 
@@ -345,37 +344,23 @@ export namespace PropertiesPanel {
 
             textBoxMethodName.type = 'text';
             textBoxMethodName.value = method.name;
-            textBoxMethodName.addEventListener('change', function () {
-                // remove method
-                if (textBoxMethodName.value.length == 0) {
-                    clazz.removeMethod(method);
-                    tabContentMethods.removeChild(divEditMethod);
-
-                    clazz.reDraw();
-                } else {
-                    method.updateName(textBoxMethodName.value);
-
-                    clazz.reDraw(true);
-                }
-
+            textBoxMethodName.addEventListener('input', function () {
+                method.updateName(textBoxMethodName.value);
+                clazz.reDraw(true);
             });
+
 
             // create type select
-            let selectMethodType = document.createElement('select');
+            let dataListTypes = document.getElementById('dataTypes');
+            let selectMethodType = document.createElement('input');
+            if(dataListTypes){
+                selectMethodType.setAttribute('list', dataListTypes.id);
+            }
 
-            // TODO: make a dynamic list of all ever entered types
-            let typeList: string[] = ['boolean', 'byte', 'char', 'double', 'float', 'int', 'long', 'short', 'String', 'void'];
-            typeList.forEach(type => {
-                let modifierOption = document.createElement('option');
-                modifierOption.value = type;
-                modifierOption.innerHTML = type;
-                selectMethodType.appendChild(modifierOption);
-            });
             selectMethodType.value = method.type;
 
-            selectMethodType.addEventListener('change', function () {
-                method.updateType(selectMethodType.options[selectMethodType.selectedIndex].value);
-
+            selectMethodType.addEventListener('input', function () {
+                method.updateType(selectMethodType.value);
                 clazz.reDraw(true);
             });
 
@@ -417,7 +402,7 @@ export namespace PropertiesPanel {
             this.initMainPanel();
         }
 
-        public show(panel: APanel): void {
+        public show(panel: APanel, showTabWithValue?: string): void {
             // remove the previous properties view
             if (this._divChildPanel) {
                 let previousView = document.getElementById(this._divChildPanel.id);
@@ -432,7 +417,12 @@ export namespace PropertiesPanel {
             this._divChildPanel = panel.getPanel();
             this.propertiesPanel.appendChild(this._divChildPanel);
 
-            panel.showFirstTab();
+            if(showTabWithValue){
+                panel.showTab(showTabWithValue);
+            }
+            else{
+                panel.showFirstTab();
+            }
         }
 
         public openProperties() {
@@ -440,9 +430,17 @@ export namespace PropertiesPanel {
             document.getElementById("properties").className = "properties";
             document.getElementById("classProp").className = "propertiespanel";
 
-            let btn = document.getElementById('btnHidePropertiesPanel');
+            let btn = document.getElementById('propClassHeaderButtonDisplay');
             btn.innerHTML = '&#8897;';
             btn.title = 'Hide properties';
+        }
+
+        public setPropertiesHeaderText(text: string) : void{
+            let divHeaderLabel = document.getElementById('classPropHeaderLabel');
+
+            if(divHeaderLabel){
+                divHeaderLabel.innerHTML = text;
+            }
         }
 
         public getCurrentView(): PropertiesView {
@@ -472,25 +470,35 @@ export namespace PropertiesPanel {
 
             this.propertiesPanel.id = 'classProp'
             this.propertiesPanel.className = 'propertiespanel-hidden';
-            this.propertiesPanel.innerHTML = 'Properties';
 
-            // DIRTY
-            let button: HTMLButtonElement = document.createElement('button');
-            button.innerHTML = 'Generate';
-            let that = this;
-            button.addEventListener('click', function(e) { that.generate(e);} );
-            this.propertiesPanel.appendChild(button);
+            let propertiesHeader = document.createElement('div');
+            propertiesHeader.id = 'classPropHeader';
+            propertiesHeader.style.display = 'inline';
+
+            let propHeaderLabel = document.createElement('div');
+            propHeaderLabel.id = 'classPropHeaderLabel';
+            propHeaderLabel.innerHTML = 'Properties';
+            propHeaderLabel.style.display = 'inherit';
+
+            // // DIRTY
+            // let button: HTMLButtonElement = document.createElement('button');
+            // button.innerHTML = 'Generate';
+            // let that = this;
+            // button.addEventListener('click', function(e) { that.generate(e);} );
+            // this.propertiesPanel.appendChild(button);
 
             // button to display and hide the properties of e.g. a class
-            let btnProperties = document.createElement('button');
-            btnProperties.id = 'btnHidePropertiesPanel';
-            btnProperties.title = 'Show properties';
-            btnProperties.className = 'btnHideProp';
-            btnProperties.innerHTML = '&#8896;';
-            btnProperties.style.cssFloat = 'right';
-            btnProperties.onclick = e => this.hideproperties(e);
+            let btnPropClassHeaderDisplay = document.createElement('button');
+            btnPropClassHeaderDisplay.id = 'propClassHeaderButtonDisplay';
+            btnPropClassHeaderDisplay.title = 'Show properties';
+            btnPropClassHeaderDisplay.className = 'btnHideProp';
+            btnPropClassHeaderDisplay.innerHTML = '&#8896;';
+            btnPropClassHeaderDisplay.style.cssFloat = 'right';
+            btnPropClassHeaderDisplay.onclick = e => this.hideproperties(e);
 
-            this.propertiesPanel.appendChild(btnProperties);
+            propertiesHeader.appendChild(propHeaderLabel);
+            propertiesHeader.appendChild(btnPropClassHeaderDisplay);
+            this.propertiesPanel.appendChild(propertiesHeader);
             document.body.appendChild(this._divMainPanel);
         }
 
@@ -505,14 +513,14 @@ export namespace PropertiesPanel {
             if (this._isHidden === false) {
                 document.getElementById("properties").className = "properties-hidden";
                 document.getElementById("classProp").className = "propertiespanel-hidden";
-                let btn = document.getElementById('btnHidePropertiesPanel');
+                let btn = document.getElementById('propClassHeaderButtonDisplay');
                 btn.innerHTML = '&#8896;';
                 btn.title = 'Show properties';
             }
             else {
                 document.getElementById("properties").className = "properties";
                 document.getElementById("classProp").className = "propertiespanel";
-                let btn = document.getElementById('btnHidePropertiesPanel');
+                let btn = document.getElementById('propClassHeaderButtonDisplay');
                 btn.innerHTML = '&#8897;';
                 btn.title = 'Hide properties';
 
@@ -562,6 +570,16 @@ export namespace PropertiesPanel {
             }
         }
 
+        public showTab(btnValue: string): void {
+            let tabs = document.getElementsByClassName('tablinks');
+            for (let index = 0; index < tabs.length; index++) {
+                let tab = tabs[index];
+                if((<any>tab).value === btnValue){
+                    this.openTab(tab.id);
+                }
+            }
+        }
+
         protected createTabElement(id: string, tabText: string, tabValue: string): HTMLButtonElement {
             let tabElementBtn = document.createElement('button');
             tabElementBtn.id = id;
@@ -599,11 +617,31 @@ export namespace PropertiesPanel {
 
     export class ClassPanel extends APanel {
 
+        private _dataTypes : HTMLDataListElement;
+
         constructor() {
             super();
         }
 
         public init(): void {
+
+            // init datatypes datalist
+            // TODO: make a dynamic list of all ever entered types
+            let typeList: string[] = ['boolean', 'byte', 'char', 'double', 'float', 'int', 'long', 'short', 'String', 'void'];
+
+            this._dataTypes = document.createElement('datalist');
+            this._dataTypes.id = 'dataTypes';
+
+            typeList.forEach(type => {
+                let modifierOption = document.createElement('option');
+                modifierOption.value = type;
+                modifierOption.innerHTML = type;
+                this._dataTypes.appendChild(modifierOption);
+            });
+
+            this._divTabbedPanel.appendChild(this._dataTypes);
+
+
             // create and append tab elements
             this._divTabbedPanel.appendChild(this.createTabElement('generalClassPropBtn', 'General', 'general'));
             this._divTabbedPanel.appendChild(this.createTabElement('attrClassPropBtn', 'Attributes', 'attribute'));
@@ -707,21 +745,9 @@ export namespace PropertiesPanel {
             textBoxPropertyName.placeholder = 'Add new ' + propertyType;
 
             // create type select
-            let selectPropertyType = document.createElement('select');
+            let selectPropertyType = document.createElement('input');
             selectPropertyType.id = div.id + 'AddType';
-
-            // TODO: make a dynamic list of all ever entered types
-            let typeList: string[] = ['boolean', 'byte', 'char', 'double', 'float', 'int', 'long', 'short', 'String'];
-            if(propertyType.startsWith('method')){
-                typeList.push('void');
-            }
-
-            typeList.forEach(type => {
-                let modifierOption = document.createElement('option');
-                modifierOption.value = type;
-                modifierOption.innerHTML = type;
-                selectPropertyType.appendChild(modifierOption);
-            });
+            selectPropertyType.setAttribute('list', this._dataTypes.id);
 
             // create a button to delete the attribute
             let btnAdd = document.createElement('button');

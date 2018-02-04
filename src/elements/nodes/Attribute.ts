@@ -58,7 +58,7 @@ export default class Attribute extends DiagramElement{
                     this.name = modifierAndNameSplitted;
                 }
 
-                this.type = dataSplitted[1] || 'string';
+                this.type = dataSplitted[1].trim() || 'string';
             }
         }
     }
@@ -100,8 +100,7 @@ export default class Attribute extends DiagramElement{
 
         let attrSvg = Util.createShape(attrText);
         attrSvg.textContent = this.toString();
-        attrSvg.setAttributeNS(null, 'class', 'SVGClazzProperty SVGClazzAttribute');
-        
+ 
         this.$view = attrSvg;
 
         return attrSvg;

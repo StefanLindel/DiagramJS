@@ -14,7 +14,7 @@ export class Generalisation extends Edge {
         let direction : Direction = this.getDirectionOfTargetSymbol(this.$sNode, startPoint);
         let path = this.calcCorrectPath(startPoint, direction);
         
-        let line = super.getSVG();
+        let group = super.getSVG();
 
         // draw white filled arrow
         let attr = {
@@ -27,13 +27,11 @@ export class Generalisation extends Edge {
 
         this.$targetElement = this.createShape(attr);
 
-        let group = this.createShape({ tag: 'g' });
-        group.appendChild(line);
         group.appendChild(this.$targetElement);
         return group;
     }
 
-    public redrawNewFn(startNode: Node) : void {
+    public redrawNewFn(startNode: Node, dontDrawPoints?: boolean) : void {
 
         // redraw the edge
         super.redrawNewFn(startNode, true);

@@ -1,7 +1,7 @@
-import {EventHandler} from '../EventBus';
-import {DiagramElement} from '../elements/BaseElements';
-import {Graph} from '../elements/Graph';
-import {Util} from '../util';
+import { EventHandler } from '../EventBus';
+import { DiagramElement } from '../elements/BaseElements';
+import { Graph } from '../elements/Graph';
+import { Util } from '../util';
 import { Node } from '../elements/nodes/index';
 
 export class AddNode implements EventHandler {
@@ -13,6 +13,7 @@ export class AddNode implements EventHandler {
     private svgRect: SVGSVGElement;
     private svgGroupAddNode: SVGSVGElement;
     private svgTextAddNode: SVGSVGElement;
+    private svgTextRectAddNode: SVGSVGElement;
     private isRectDrawing: boolean;
     private isDrawToLeft: boolean;
     private isDrawToTop: boolean;
@@ -31,11 +32,12 @@ export class AddNode implements EventHandler {
 
     public handle(event: Event, element: DiagramElement): boolean {
 
-        if(!this.graph.isActiveHandler('AddNode')){
-            
+        if (!this.graph.isActiveHandler('AddNode')) {
+
             return true;
         }
 
+        //TODO: is this neccessary?
         if (this.svgRoot !== <SVGSVGElement><any>document.getElementById('root')) {
             this.svgRoot = <SVGSVGElement><any>document.getElementById('root');
         }
@@ -48,7 +50,7 @@ export class AddNode implements EventHandler {
             case 'mousedown':
                 if (element.id === 'RootElement') {
                     this.start(event, element);
-                    
+
                     this.graph.setActiveHandler('AddNode');
                 }
                 break;
@@ -57,7 +59,7 @@ export class AddNode implements EventHandler {
                 break;
             case 'mouseleave':
                 this.removeRect();
-                
+
                 this.graph.releaseActiveHandler();
                 break;
             case 'mouseup':
@@ -119,7 +121,7 @@ export class AddNode implements EventHandler {
                 class: 'SVGAddNode'
             });
 
-            let group = Util.createShape({tag: 'g', id: 'groupAddNode', transform: 'translate(0 0)'});
+            let group = Util.createShape({ tag: 'g', id: 'groupAddNode', transform: 'translate(0 0)' });
             group.appendChild(rectAddNode);
 
             this.svgRoot.appendChild(group);
@@ -131,8 +133,8 @@ export class AddNode implements EventHandler {
             let svgRectBBox = this.svgRect.getBBox();
 
             // if rect is big enough, show text as helper
-            if((svgRectBBox.width > this.MIN_SIZE_TO_ADD_TEXT 
-            || svgRectBBox.height > this.MIN_SIZE_TO_ADD_TEXT) && !this.svgTextAddNode){
+            if ((svgRectBBox.width > this.MIN_SIZE_TO_ADD_TEXT
+                || svgRectBBox.height > this.MIN_SIZE_TO_ADD_TEXT) && !this.svgTextAddNode) {
 
                 let textAddNode = Util.createShape({
                     tag: 'text',
@@ -144,10 +146,27 @@ export class AddNode implements EventHandler {
                     'font-size': 12,
                     fill: 'black'
                 });
-                textAddNode.textContent = 'Hold on and move\nto create a new class';
-                
+                textAddNode.textContent = 'Hold on and move to create a new class';
                 this.svgGroupAddNode.appendChild(textAddNode);
+
+
+                //TODO: get correct size of text node
+                let sizeClientRect: ClientRect = textAddNode.getBoundingClientRect();
+
+                let rectBackgroundForText = Util.createShape({
+                    tag: 'rect',
+                    x: this.x,
+                    y: (this.y - 15),
+                    width: sizeClientRect.width + 10,
+                    height: sizeClientRect.height,
+                    fill: '#DDD',
+                    'stroke-width': 0
+                });
+
+                this.svgTextRectAddNode = rectBackgroundForText;
                 this.svgTextAddNode = textAddNode;
+                this.svgGroupAddNode.appendChild(rectBackgroundForText);
+                this.svgGroupAddNode.appendChild(textAddNode);
             }
 
             if (this.isDrawToLeft) {
@@ -190,6 +209,10 @@ export class AddNode implements EventHandler {
         if (this.svgTextAddNode) {
             this.svgTextAddNode = undefined;
         }
+
+        if (this.svgTextRectAddNode) {
+            this.svgTextRectAddNode = undefined;
+        }
     }
 
     private addNode(): void {
@@ -200,7 +223,8 @@ export class AddNode implements EventHandler {
         }
 
         this.removeRect();
-        this.graph.addElement('Clazz');
+        let node = this.graph.addElementWithValues('Clazz', { x: this.x, y: this.y });
+        this.graph.drawElement(node);
     }
 
     private start(evt: Event | any, element: DiagramElement): void {

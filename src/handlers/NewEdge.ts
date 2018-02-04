@@ -122,6 +122,10 @@ export class NewEdge implements EventHandler {
             this.svgRoot.removeChild(this.svgLine);
             this.svgLine = null;
         }
+
+        if (this.lastHighlightedNode) {
+            this.lastHighlightedNode.setAttributeNS(null, 'class', 'SVGClazz');
+        }
     }
 
     private setNewEdgeToNode(event: Event | any): void {
@@ -134,6 +138,9 @@ export class NewEdge implements EventHandler {
             return;
         }
 
+        this.removeLine();
+
+        // TODO: show combobox of all available edge types
         let edgeType = this.sourceNode.defaulEdgeType || 'Edge';
 
         let jsonData = {
@@ -142,10 +149,8 @@ export class NewEdge implements EventHandler {
             target: targetNode.label
         };
 
-        this.removeLine();
-
-        this.graph.$graphModel.addEdge(<any>jsonData);
-        this.graph.layout();
+        let newEdge = this.graph.$graphModel.addEdge(<any>jsonData, true);
+        this.graph.drawElement(newEdge);
     }
 
     private start(evt: Event | any, element: DiagramElement): void {

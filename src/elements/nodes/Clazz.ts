@@ -7,6 +7,7 @@ import Method from './Method';
 import { Size } from '../index';
 
 export class Clazz extends Node {
+
     protected labelHeight = 25;
     protected labelFontSize = 14;
     protected attrHeight = 25;
@@ -67,6 +68,7 @@ export class Clazz extends Node {
         if (this.style === 'modern') {
             return this.getModernStyle();
         }
+
         const pos: Point = this.getPos();
         const size: Point = this.getSize();
 
@@ -121,6 +123,10 @@ export class Clazz extends Node {
 
             group.appendChild(separatorLabelAttr);
 
+            let groupOfAttributes = this.createShape({tag: 'g', id: (this.id + 'Attributes')});
+            groupOfAttributes.setAttributeNS(null, 'class', 'SVGClazzProperty SVGClazzAttribute');
+            group.appendChild(groupOfAttributes);
+
             let y = pos.y + this.labelHeight + this.attrHeight / 2;
             for (let attr of this.attributesObj) {
 
@@ -130,7 +136,7 @@ export class Clazz extends Node {
                 attrSvg.setAttributeNS(null, 'x', '' + (pos.x + 10));
                 attrSvg.setAttributeNS(null, 'y', '' + y);
 
-                group.appendChild(attrSvg);
+                groupOfAttributes.appendChild(attrSvg);
                 y += this.attrHeight;
             }
         }
@@ -154,6 +160,10 @@ export class Clazz extends Node {
 
             group.appendChild(separatorAttrMethods);
 
+            let groupOfMethods = this.createShape({tag: 'g', id: (this.id + 'Methods')});
+            groupOfMethods.setAttributeNS(null, 'class', 'SVGClazzProperty SVGClazzMethod');
+            group.appendChild(groupOfMethods);
+
             y += this.attrHeight / 2;
             for (let method of this.methodsObj) {
 
@@ -163,7 +173,7 @@ export class Clazz extends Node {
                 methodSvg.setAttributeNS(null, 'x', '' + (pos.x + 10));
                 methodSvg.setAttributeNS(null, 'y', '' + y);
 
-                group.appendChild(methodSvg);
+                groupOfMethods.appendChild(methodSvg);
                 y += this.attrHeight;
             }
         }

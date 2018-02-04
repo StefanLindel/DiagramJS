@@ -1,5 +1,5 @@
-import {Util} from '../util';
-import {Control} from '../Control';
+import { Util } from '../util';
+import { Control } from '../Control';
 
 export interface Size {
     width: number;
@@ -13,7 +13,7 @@ interface GraphElement {
 
     getCenter(): Point;
 
-    getSVG(): Element ;
+    getSVG(): Element;
 
     getCanvas(): Element;
 
@@ -24,7 +24,12 @@ interface GraphElement {
     load(data: any): any;
 }
 
-export abstract class DiagramElement extends Control implements GraphElement {
+export interface ExtendedGraphElement {
+    getAlreadyDisplayingSVG(): Element;
+}
+
+export abstract class DiagramElement extends Control implements GraphElement, ExtendedGraphElement {
+
     public id: string;
     protected $isDraggable: boolean = true;
     private $pos: Point = new Point();
@@ -76,14 +81,23 @@ export abstract class DiagramElement extends Control implements GraphElement {
         return null;
     }
 
+    public getAlreadyDisplayingSVG(): Element {
+        
+        return document.getElementById(this.id) || this.getSVG();
+    }
+    
+    public load(data: any) {
+        
+    }
+
     public withPos(x: number, y: number): DiagramElement {
         if (x && y) {
             this.$pos = new Point(x, y);
         } else {
-            if (typeof(x) !== 'undefined' && x !== null) {
+            if (typeof (x) !== 'undefined' && x !== null) {
                 this.$pos.x = x;
             }
-            if (typeof(y) !== 'undefined' && y !== null) {
+            if (typeof (y) !== 'undefined' && y !== null) {
                 this.$pos.y = y;
             }
         }
@@ -94,10 +108,10 @@ export abstract class DiagramElement extends Control implements GraphElement {
         if (width && height) {
             this.$size = new Point(width, height);
         } else {
-            if (typeof(width) !== 'undefined') {
+            if (typeof (width) !== 'undefined') {
                 this.$size.x = width;
             }
-            if (typeof(height) !== 'undefined') {
+            if (typeof (height) !== 'undefined') {
                 this.$size.y = height;
             }
         }
@@ -126,7 +140,7 @@ export class Point {
     x: number = 0;
     y: number = 0;
 
-//    pos:string = '';
+    //    pos:string = '';
 
     constructor(x?: number, y?: number, pos?: string) {
         this.x = Math.ceil(x || 0);
@@ -208,7 +222,7 @@ export class Point {
 
 // 				######################################################### Line #########################################################
 export class Line extends DiagramElement {
-    public static FORMAT = {SOLID: 'SOLID', DOTTED: 'DOTTED', PATH: 'PATH'};
+    public static FORMAT = { SOLID: 'SOLID', DOTTED: 'DOTTED', PATH: 'PATH' };
     public source: Point;
     public target: Point;
     public color: string;

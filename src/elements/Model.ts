@@ -59,6 +59,22 @@ export class GraphModel extends DiagramElement {
         return false;
     }
 
+    public addElementWithValues(type: string, optionalValues: Object): DiagramElement {
+        type = Util.toPascalCase(type);
+        let id = this.getNewId(type);
+        let element = <DiagramElement>this.getElement(type, id, {});
+
+        if(optionalValues){
+            if(optionalValues.hasOwnProperty('x') && optionalValues.hasOwnProperty('y')){
+                let x = optionalValues['x'];
+                let y = optionalValues['y'];
+                element.withPos(x, y);
+            }
+        }
+
+        return element;
+    }
+
     public removeAllElements(): void {
 
         for (let idx in this.nodes) {
@@ -169,7 +185,7 @@ export class GraphModel extends DiagramElement {
         return null;
     }
 
-    public addEdge(edge: any): Edge {
+    public addEdge(edge: any, withPosOfNodes?: boolean): Edge {
         let type = edge.type || 'Edge';
         type = Util.toPascalCase(type);
         let id = this.getNewId(type);
@@ -189,6 +205,24 @@ export class GraphModel extends DiagramElement {
             this.addNode(target);
         }
         newEdge.withItem(source, target);
+
+        if(withPosOfNodes){
+            let srcX = source.getPos().x + (source.getSize().x / 2);
+            let srcY = source.getPos().y + (source.getSize().y / 2);
+    
+            let targetX = target.getPos().x + (target.getSize().x / 2);
+            let targetY = target.getPos().y + (target.getSize().y / 2);
+    
+            // sort them by y coordinate
+            if(srcY < targetY){
+                newEdge.addPoint(srcX, srcY);
+                newEdge.addPoint(targetX, targetY);
+            }
+            else{
+                newEdge.addPoint(targetX, targetY);
+                newEdge.addPoint(srcX, srcY);
+            }
+        }
 
         return newEdge;
     }

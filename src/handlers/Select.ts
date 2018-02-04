@@ -81,7 +81,7 @@ export class Select implements EventHandler {
             // const x = pos.x + size.x / 2 + this.padding;
             // const y = pos.y - size.y / 2 + this.padding / 2;
 
-            let x = (e.getPos().x + e.getSize().x) + 10;
+            let x = (e.getPos().x + e.getSize().x) + 5;
             let y = e.getPos().y;
 
             this.deleteShape.setAttributeNS(null, 'transform', `translate(${x} ${y + this.padding})`);
@@ -111,10 +111,13 @@ export class Select implements EventHandler {
             divInlineEdit.appendChild(inputText);
             document.body.appendChild(divInlineEdit);
 
+
+            inputText.addEventListener('focusout', function(evt){
+                that.removeLastInlineEdit();
+            });
+
             let g = this.graph;
-
             let propertyTypes: string[] = ['boolean', 'byte', 'char', 'double', 'float', 'int', 'long', 'short', 'String', 'void'];
-
             inputText.addEventListener('keydown', function (evt) {
 
                 let keyCode = (<any>evt).which;

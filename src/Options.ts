@@ -12,7 +12,10 @@ interface Options {
         drag?: boolean,
         palette?: boolean,
         select?: boolean,
-        zoom?: boolean
+        zoom?: boolean,
+        addnode?: boolean,
+        properties?: boolean,
+        import?: boolean
     };
 }
 

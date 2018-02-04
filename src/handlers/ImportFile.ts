@@ -64,8 +64,8 @@ export class ImportFile implements EventHandler {
 
                 canvasElement.removeChild(canvasElement.firstChild);
 
-                rootElement = null;
-                canvasElement = null;
+                // rootElement = null;
+                // canvasElement = null;
 
                 if (that.graph) {
                     that.graph.clearModel();

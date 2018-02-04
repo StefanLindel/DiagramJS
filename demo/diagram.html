@@ -13,7 +13,7 @@
 <body>
 	<div class="toolbar">
 		<h1 class="logo">DiagramJS</h1>
-		<button id="layoutBtn">AUTO-LAYOUT</button>
+		<button id="layoutBtn" style="margin-left: 195px;margin-top: 12px;">AUTO-LAYOUT</button>
 	</div>
 	<div class="diagram" id="canvas"></div>
 	<script language="javascript">
@@ -62,7 +62,9 @@
 		var options = {
 			canvas: 'canvas',
 			origin: new Point(150, 45),
-			layout: "DagreLayout",
+			layout: 'DagreLayout',
+			minWidth: 800,
+			minHeight: 600,
 			features: {
 				drag: true,
 				editor: true,

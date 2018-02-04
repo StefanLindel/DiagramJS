@@ -4,6 +4,8 @@ import { InfoText } from '../nodes/InfoText';
 import { Util } from '../../util';
 import { EventBus } from '../../EventBus';
 import * as edges from '../edges';
+import { Graph } from '../Graph';
+import { Generalisation, Association } from '../edges';
 
 export const enum Direction {
     Up, Down, Left, Right
@@ -64,14 +66,17 @@ export class Edge extends DiagramElement {
 
         this.$view = shape;
 
-        return shape;
+        let group = Util.createShape({tag: 'g', id: this.id});
+        group.appendChild(shape);
+
+        return group;
     }
 
     public getEvents(): string[] {
         return [EventBus.ELEMENTCLICK, EventBus.ELEMENTDBLCLICK, EventBus.EDITOR, EventBus.OPENPROPERTIES];
     }
 
-    public convertEdge(type: string, newId: string): Edge {
+    public convertEdge(type: string, newId: string, redraw?:boolean): Edge {
         if (!edges[type]) {
             return this;
         }
@@ -85,6 +90,34 @@ export class Edge extends DiagramElement {
         newEdge.withItem(this.$sNode, this.$tNode);
         newEdge.id = newId;
         newEdge.typ = type;
+        newEdge.lineStyle = this.lineStyle;
+        newEdge.$owner = this.$owner;
+
+        this.$pointsNew.forEach(point => {
+            newEdge.addPoint(point.x, point.y);
+        });
+
+
+        if(!redraw){
+            return newEdge;
+        }
+
+        let oldSvg = this.getAlreadyDisplayingSVG();
+        let graph = <Graph>this.getRoot();
+        let svgRoot: Element;
+        if(graph){
+            svgRoot = graph.root;
+        }
+        else{
+            svgRoot = document.getElementById('root');
+        }
+
+        svgRoot.removeChild(oldSvg);
+        svgRoot.appendChild(newEdge.getSVG());
+
+        // redraw the edge from both sides to get the correct display
+        newEdge.redrawNewFn(newEdge.$sNode, true);
+        newEdge.redrawNewFn(newEdge.$tNode);
 
         return newEdge;
     }

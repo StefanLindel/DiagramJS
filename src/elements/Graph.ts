@@ -15,6 +15,8 @@ import Options from '../Options';
 import {ImportFile} from '../handlers/ImportFile';
 import {SymbolLibary} from './nodes/Symbol';
 import {CSS} from '../CSS';
+import { DiagramElement } from './index';
+import { Edge } from './edges';
 
 export class Graph extends Control {
     canvas: HTMLElement;
@@ -297,12 +299,20 @@ export class Graph extends Control {
         return;
     }
 
-    public addElement(type: string): boolean {
+    public addElement(type: string, optionalValues?: any): boolean {
         let success = this.$graphModel.addElement(type);
         if (success === true) {
             this.layout();
         }
         return success;
+    }
+
+    public addElementWithValues(type: string, optionalValues?: Object, layout?: boolean) : DiagramElement{
+        let element = this.$graphModel.addElementWithValues(type, optionalValues);
+        if (element && layout) {
+            this.layout();
+        }
+        return element;
     }
 
     public layout() {
@@ -323,6 +333,10 @@ export class Graph extends Control {
         let model = this.$graphModel;
         let root = this.root;
         let max: Point = new Point();
+        if(this.options){
+            max.x = this.options.minWidth || 0;
+            max.y = this.options.minHeight || 0;
+        }
 
         if (model.nodes) {
             for (let id in model.nodes) {
@@ -342,7 +356,7 @@ export class Graph extends Control {
                 }
             }
         }
-        Util.setSize(this.root, max.x + 60, max.y + 30);
+        Util.setSize(this.root, max.x + 60, max.y + 40);
         if (model.edges) {
             for (let id in model.edges) {
                 let edge = model.edges[id];
@@ -351,6 +365,27 @@ export class Graph extends Control {
                 root.appendChild(svg);
             }
         }
+    }
+
+    public drawElement(element: DiagramElement) : void{
+        if(!element){
+            return;
+        }
+
+        let svg = element.getSVG();
+        this.root.appendChild(svg);
+
+        if(element instanceof Edge){
+            let edge = <Edge>element;
+            edge.redrawNewFn(edge.$sNode);
+            let srcSvg = element.$sNode.getAlreadyDisplayingSVG();
+            let targetSvg = element.$tNode.getAlreadyDisplayingSVG();
+
+            this.root.appendChild(srcSvg);
+            this.root.appendChild(targetSvg);
+        }
+
+        EventBus.register(element, svg);
     }
 
     public generate() {

@@ -76,17 +76,18 @@ body {
 
 g, path {
 	cursor: pointer;
-
 }
 
 path:hover{
 	stroke-width: 5;
 	stroke: #FFA033;
+    transition: 0.3s;
 }
 
 g:hover .SVGClazz{
 	stroke:rgb(255, 160, 51);
 	stroke-width: 3;
+    transition: 0.3s;
 }
 
 .diagram {
@@ -129,7 +130,6 @@ h1 {
 	top: 0;
 	left: 0;
 	right: 0;
-	padding-left: 220px;
 	z-index: 3;
 	background: rgb(245, 245, 245);
 	-webkit-box-shadow: 0 -3px 20px 5px rgba(0, 0, 0, 0.5);
@@ -526,8 +526,9 @@ h1 {
 }
 
 .propertiespanel, .propertiespanel-hidden{
-    border: 1px solid black;
-    background-color: #ccc;
+    border: 2px solid #888;
+	background-color: #ccc;
+	border-top-left-radius: 10px;
     width: 500px;
     height: 250px;
     padding-left: 5px;
@@ -622,6 +623,7 @@ h1 {
 	stroke-width: 2;
 	stroke: black;
 	fill: white;
+    transition: 0.3s;
 }
 
 .SVGClazz-selected{

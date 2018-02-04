@@ -62,7 +62,7 @@ export default class Method extends DiagramElement{
                     this.name = modifierAndNameSplitted;
                 }
 
-                this.type = dataSplitted[1] || 'void';
+                this.type = dataSplitted[1].trim() || 'void';
             }
             // set default return type of void
             else{
@@ -127,7 +127,6 @@ export default class Method extends DiagramElement{
 
         let methodSvg = Util.createShape(methodText);
         methodSvg.textContent = this.toString();
-        methodSvg.setAttributeNS(null, 'class', 'SVGClazzProperty SVGClazzMethod');
         
         this.$view = methodSvg;
 
