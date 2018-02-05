@@ -1,4 +1,4 @@
-import { EventHandler } from '../EventBus';
+import { EventHandler, EventBus } from '../EventBus';
 import { DiagramElement, Point } from '../elements/BaseElements';
 import { GraphModel } from '../elements/Model';
 import { Node } from '../elements/nodes';
@@ -10,7 +10,6 @@ export class Drag implements EventHandler {
     private element: DiagramElement;
     private svgRoot: SVGSVGElement;
     private svgElement: SVGSVGElement;
-    private nodeToDrag: Node;
     private dragging = false;
     private reinsert = false;
     private mouseOffset = new Point();
@@ -22,7 +21,7 @@ export class Drag implements EventHandler {
     }
 
     public handle(event: Event, element: DiagramElement): boolean {
-        if (!this.graph.isActiveHandler('Drag')) {
+        if (!this.canHandle()) {
             return true;
         }
 
@@ -35,16 +34,15 @@ export class Drag implements EventHandler {
                 if ((!this.dragging) && (element.id !== 'RootElement')) {
                     this.element = element;
                     this.svgElement = <SVGSVGElement>element.$view;
-                    this.nodeToDrag = <Node>element;
                     this.start(event, element);
-                    this.graph.setActiveHandler('Drag');
+                    this.setActive(true);
                 }
                 break;
             case 'mouseup':
                 if (this.dragging) {
                     this.reset();
                 }
-                this.graph.releaseActiveHandler();
+                this.setActive(false);
 
                 break;
             case 'mousemove':
@@ -56,7 +54,7 @@ export class Drag implements EventHandler {
                 if (this.dragging) {
                     this.reset();
                 }
-                this.graph.releaseActiveHandler();
+                this.setActive(false);
                 break;
             default:
                 break;
@@ -64,14 +62,22 @@ export class Drag implements EventHandler {
         return true;
     }
 
-    public isEnable(): boolean {
-        return true;
+    public canHandle(): boolean {
+        return EventBus.isHandlerActiveOrFree(Drag.name);
+    }
+
+    public setActive(active: boolean): void {
+        if(active){
+            EventBus.setActiveHandler(Drag.name);
+        }
+        else{
+            EventBus.releaseActiveHandler();
+        }
     }
 
     private reset() {
         this.dragging = false;
         this.svgElement.style.cursor = 'pointer';
-        this.svgRoot.style.cursor = 'default';
     }
 
     private start(evt: Event | any, element: Control) {
@@ -79,19 +85,13 @@ export class Drag implements EventHandler {
         this.dragging = true;
         this.mouseOffset.x = evt.clientX;
         this.mouseOffset.y = evt.clientY;
-
-        if (this.element.id === 'RootElement') {
-            this.svgRoot.style.cursor = 'move';
-            this.svgRoot.style.cursor = 'grabbing';
-            this.svgRoot.style.cursor = '-moz-grabbin';
-            this.svgRoot.style.cursor = '-webkit-grabbing';
-        }
-        else {
-            this.reinsert = true;
-        }
+        this.reinsert = true;
+        
+        this.svgElement.style.cursor = 'move';
     }
 
     private drag(evt: Event | any, element: DiagramElement) {
+
         if (this.reinsert) {
             if (this.element.id !== 'RootElement') {
                 // nesseccary to set the dragged object on top of svg children
@@ -115,11 +115,13 @@ export class Drag implements EventHandler {
         const transX = sx + evt.clientX - this.mouseOffset.x;
         const transY = sy + evt.clientY - this.mouseOffset.y;
         this.svgElement.setAttributeNS(null, 'transform', 'translate(' + transX + ' ' + transY + ')');
-        this.nodeToDrag.getPos().addNum(transX - sx, transY - sy);
-        this.nodeToDrag.redrawEdges();
+        this.element.getPos().addNum(transX - sx, transY - sy);
+
+        if(this.element instanceof Node){
+            (<Node>this.element).redrawEdges();
+        }
 
         this.mouseOffset.x = evt.clientX;
         this.mouseOffset.y = evt.clientY;
     }
-
 }

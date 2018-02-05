@@ -5,7 +5,7 @@ export class Implements extends Generalisation {
     public getSVG(): Element {
         let group = super.getSVG();
 
-        this.$view.setAttributeNS(null, 'stroke-dasharray', '3, 3');
+        this.$pathSvg.setAttributeNS(null, 'stroke-dasharray', '3, 3');
 
         return group;
     }

@@ -1,4 +1,4 @@
-import { EventHandler } from '../EventBus';
+import { EventHandler, EventBus } from '../EventBus';
 import { DiagramElement } from '../elements/BaseElements';
 import { Graph } from '../elements/Graph';
 import { Util } from '../util';
@@ -26,13 +26,22 @@ export class AddNode implements EventHandler {
         this.graph = graph;
     }
 
-    public isEnable(): boolean {
-        return true;
+    public canHandle(): boolean {
+        return EventBus.isHandlerActiveOrFree(AddNode.name);
+    }
+
+    public setActive(active: boolean): void {
+        if(active){
+            EventBus.setActiveHandler(AddNode.name);
+        }
+        else{
+            EventBus.releaseActiveHandler();
+        }
     }
 
     public handle(event: Event, element: DiagramElement): boolean {
 
-        if (!this.graph.isActiveHandler('AddNode')) {
+        if (!this.canHandle()) {
 
             return true;
         }
@@ -51,7 +60,7 @@ export class AddNode implements EventHandler {
                 if (element.id === 'RootElement') {
                     this.start(event, element);
 
-                    this.graph.setActiveHandler('AddNode');
+                    this.setActive(true);
                 }
                 break;
             case 'mousemove':
@@ -59,12 +68,11 @@ export class AddNode implements EventHandler {
                 break;
             case 'mouseleave':
                 this.removeRect();
-
-                this.graph.releaseActiveHandler();
+                this.setActive(false);
                 break;
             case 'mouseup':
                 this.addNode();
-                this.graph.releaseActiveHandler();
+                this.setActive(false);
                 break;
 
             default:
@@ -196,6 +204,8 @@ export class AddNode implements EventHandler {
     private removeRect(): void {
         this.isRectDrawing = false;
         this.isBigEnoughForAddNode = false;
+
+        this.svgRoot.style.cursor = 'default';
 
         if (this.svgGroupAddNode) {
             this.svgRoot.removeChild(this.svgGroupAddNode);

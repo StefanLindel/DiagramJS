@@ -20,8 +20,6 @@ export class Generalisation extends Edge {
         let attr = {
             tag: 'path',
             d: path,
-            stroke: 'black',
-            'stroke-width': '3',
             fill: 'white'
           };
 

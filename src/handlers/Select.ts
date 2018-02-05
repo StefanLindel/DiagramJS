@@ -4,7 +4,7 @@ import { Edge } from '../elements/edges';
 import { Util } from '../util';
 import { GraphModel } from '../elements/Model';
 import { SymbolLibary } from '../elements/nodes/Symbol';
-import { EventHandler } from '../EventBus';
+import { EventHandler, EventBus } from '../EventBus';
 import { Clazz } from '../main';
 import { Graph } from '../elements/Graph';
 
@@ -43,7 +43,7 @@ export class Select implements EventHandler {
 
             // mark the border with orange
             if(element instanceof Node){
-                this.lastSelectedNode = <Element>element.$view.childNodes[0];
+                this.lastSelectedNode = <Element>element.$view;
             }
             Util.addClass(this.lastSelectedNode, 'SVGClazz-selected');
         }
@@ -71,15 +71,13 @@ export class Select implements EventHandler {
             this.resetLastSelectedElements();
 
             // mark the border with orange
-            this.lastSelectedNode = <Element>element.$view.childNodes[0];
+            this.lastSelectedNode = <Element>element.$view;
             Util.addClass(this.lastSelectedNode, 'SVGClazz-selected');
 
             this.deleteShape.setAttributeNS(null, 'visibility', 'visible');
             this.addEdgeShape.setAttributeNS(null, 'visibility', 'visible');
             const pos = e.getPos();
             const size = e.getSize();
-            // const x = pos.x + size.x / 2 + this.padding;
-            // const y = pos.y - size.y / 2 + this.padding / 2;
 
             let x = (e.getPos().x + e.getSize().x) + 5;
             let y = e.getPos().y;
@@ -87,10 +85,9 @@ export class Select implements EventHandler {
             this.deleteShape.setAttributeNS(null, 'transform', `translate(${x} ${y + this.padding})`);
             this.deleteShape.onclick = e => this.model.removeElement(element.id);
 
-            let that = this;
             this.addEdgeShape.setAttributeNS(null, 'transform', `translate(${x} ${y + 40 + this.padding})`);
             this.addEdgeShape.onmousedown = function(){
-                that.graph.setActiveHandler('NewEdge');
+                EventBus.setActiveHandler('NewEdge');
                 element.$view.dispatchEvent(new Event('mousedown'));
             };
 
@@ -112,6 +109,7 @@ export class Select implements EventHandler {
             document.body.appendChild(divInlineEdit);
 
 
+            let that = this;
             inputText.addEventListener('focusout', function(evt){
                 that.removeLastInlineEdit();
             });
@@ -215,7 +213,7 @@ export class Select implements EventHandler {
             let edge = <Edge>element;
             this.lastSelectedEdge = edge.$view;
 
-            this.lastSelectedEdge.setAttributeNS(null, 'class', 'SVGEdge-selected');
+            Util.addClass(this.lastSelectedEdge, 'SVGEdge-selected');
         }
         return true;
     }
@@ -227,7 +225,7 @@ export class Select implements EventHandler {
         }
 
         if (this.lastSelectedEdge) {
-            this.lastSelectedEdge.setAttributeNS(null, 'class', 'SVGEdge');
+            Util.removeClass(this.lastSelectedEdge, 'SVGEdge-selected');
         }
 
         this.removeLastInlineEdit();
@@ -244,7 +242,16 @@ export class Select implements EventHandler {
         }
     }
 
-    public isEnable() : boolean{
-        return true;
+    public canHandle(): boolean {
+        return EventBus.isHandlerActiveOrFree(Select.name);
+    }
+
+    public setActive(active: boolean): void {
+        if(active){
+            EventBus.setActiveHandler(Select.name);
+        }
+        else{
+            EventBus.releaseActiveHandler();
+        }
     }
 }

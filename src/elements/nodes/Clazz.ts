@@ -80,8 +80,7 @@ export class Clazz extends Node {
             height: size.y,
             width: size.x,
             rx: 10,
-            ry: 10,
-            class: 'SVGClazz'
+            ry: 10
         });
 
 
@@ -101,7 +100,7 @@ export class Clazz extends Node {
         label.textContent = this.label;
         this.$labelView = label;
 
-        let group = this.createShape({ tag: 'g', id: this.id, transform: 'translate(0 0)' });
+        let group = this.createShape({ tag: 'g', id: this.id, class: 'SVGClazz', transform: 'translate(0 0)' });
         group.appendChild(nodeShape);
         group.appendChild(label);
 

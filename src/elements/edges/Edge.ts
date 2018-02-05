@@ -20,6 +20,7 @@ export class Edge extends DiagramElement {
     public lineStyle: string;
     public $points: Line[] = [];
     public $pointsNew: Point[] = [];
+    public $pathSvg: Element;
     info: InfoText;
     sourceInfo: InfoText;
     targetInfo: InfoText;
@@ -59,15 +60,15 @@ export class Edge extends DiagramElement {
             tag: 'path',
             id: this.id,
             d: path,
-            fill: 'none',
-            class: 'SVGEdge'
+            fill: 'none'
         };
         let shape = this.createShape(attr);
 
-        this.$view = shape;
-
-        let group = Util.createShape({tag: 'g', id: this.id});
+        let group = Util.createShape({ tag: 'g', id: this.id, class: 'SVGEdge' });
         group.appendChild(shape);
+
+        this.$pathSvg = shape;
+        this.$view = group;
 
         return group;
     }
@@ -76,7 +77,7 @@ export class Edge extends DiagramElement {
         return [EventBus.ELEMENTCLICK, EventBus.ELEMENTDBLCLICK, EventBus.EDITOR, EventBus.OPENPROPERTIES];
     }
 
-    public convertEdge(type: string, newId: string, redraw?:boolean): Edge {
+    public convertEdge(type: string, newId: string, redraw?: boolean): Edge {
         if (!edges[type]) {
             return this;
         }
@@ -98,26 +99,33 @@ export class Edge extends DiagramElement {
         });
 
 
-        if(!redraw){
+        if (!redraw) {
             return newEdge;
         }
 
         let oldSvg = this.getAlreadyDisplayingSVG();
         let graph = <Graph>this.getRoot();
         let svgRoot: Element;
-        if(graph){
+        if (graph) {
             svgRoot = graph.root;
         }
-        else{
+        else {
             svgRoot = document.getElementById('root');
         }
+        let newEdgeSvg = newEdge.getSVG();
 
         svgRoot.removeChild(oldSvg);
-        svgRoot.appendChild(newEdge.getSVG());
+        svgRoot.appendChild(newEdgeSvg);
 
         // redraw the edge from both sides to get the correct display
-        newEdge.redrawNewFn(newEdge.$sNode, true);
-        newEdge.redrawNewFn(newEdge.$tNode);
+        // if the type is edge, so the path can be redraw.
+        // if not, so the inherited class redraw the path with his own logic
+
+        let dontDrawPath: boolean = (type !== 'Edge');
+        newEdge.redrawNewFn(newEdge.$sNode, dontDrawPath);
+        newEdge.redrawNewFn(newEdge.$tNode, dontDrawPath);
+
+        EventBus.register(newEdge, newEdgeSvg);
 
         return newEdge;
     }
@@ -187,7 +195,7 @@ export class Edge extends DiagramElement {
             path += Math.floor(point.x) + ' ' + Math.floor(point.y) + ' ';
         }
 
-        this.$view.setAttributeNS(null, 'd', path);
+        this.$pathSvg.setAttributeNS(null, 'd', path);
     }
 
     private calcIntersection(startNode: Node, recalcPoint: Point, endPoint: Point): Point {
@@ -254,104 +262,7 @@ export class Edge extends DiagramElement {
 
     // Obsolete function
     public redraw() {
-        // let a = this.getShortestPathIntersection(this.$sNode, this.$tNode.getPos());
-        // let b = this.getShortestPathIntersection(this.$tNode, this.$sNode.getPos());
-
-        // this.$view.setAttribute('d', `M${a.x} ${a.y} L${b.x} ${b.y}`);
-
-
-        let targetNodePos = this.$tNode.getPos();
-        let sourceNodePos = this.$sNode.getPos();
-
-        let targetNodeSize = this.$tNode.getSize();
-        let sourceNodeSize = this.$sNode.getSize();
-
-        let mx, my, lx, ly: number;
-
-        if (targetNodePos.y < sourceNodePos.y) {
-            ly = targetNodePos.y + targetNodeSize.y;
-            my = sourceNodePos.y;
-        }
-        else {
-            ly = targetNodePos.y;
-            my = sourceNodePos.y + sourceNodeSize.y;
-        }
-
-        mx = sourceNodePos.x + sourceNodeSize.x / 2;
-        lx = targetNodePos.x + targetNodeSize.x / 2;
-
-        let diff;
-        if (mx > targetNodePos.x + targetNodeSize.x && sourceNodePos.x <= targetNodePos.x + targetNodeSize.x) {
-            diff = (mx - (targetNodePos.x + targetNodeSize.x));
-            mx -= diff;
-            // lx += diff;
-
-            this.$view.setAttribute('d', `M${mx} ${my} L${lx} ${ly} Z`);
-
-            // reset points
-            this.clearPoints();
-            this.addLine(mx, my);
-            this.addLine(lx, ly);
-            return;
-        }
-
-        if (sourceNodePos.x > targetNodePos.x + targetNodeSize.x) {
-            let diff = sourceNodePos.x - (targetNodePos.x + targetNodeSize.x);
-            mx = sourceNodePos.x;
-            lx += diff;
-
-            if (lx >= (targetNodePos.x + targetNodeSize.x)) {
-                lx = (targetNodePos.x + targetNodeSize.x);
-            }
-
-            this.$view.setAttribute('d', `M${mx} ${my} L${lx} ${ly} Z`);
-
-            // reset points
-            this.clearPoints();
-            this.addLine(mx, my);
-            this.addLine(lx, ly);
-            return;
-        }
-
-        if (targetNodePos.x > mx && targetNodePos.x <= sourceNodePos.x + sourceNodeSize.x) {
-            diff = (lx - (sourceNodePos.x + sourceNodeSize.x));
-            mx += diff;
-            // lx = sourceNodePos.x+sourceNodeSize.x;
-
-            this.$view.setAttribute('d', `M${mx} ${my} L${lx} ${ly} Z`);
-
-            // reset points
-            this.clearPoints();
-            this.addLine(mx, my);
-            this.addLine(lx, ly);
-            return;
-        }
-
-        if (sourceNodePos.x + sourceNodeSize.x < targetNodePos.x) {
-            let diff = targetNodePos.x - (sourceNodePos.x + sourceNodeSize.x);
-            mx = sourceNodePos.x + sourceNodeSize.x;
-            lx -= diff;
-
-            if (lx <= targetNodePos.x) {
-                lx = targetNodePos.x;
-            }
-
-            this.$view.setAttribute('d', `M${mx} ${my} L${lx} ${ly} Z`);
-
-            // reset points
-            this.clearPoints();
-            this.addLine(mx, my);
-            this.addLine(lx, ly);
-            return;
-        }
-
-        this.$view.setAttribute('d', `M${mx} ${my} L${lx} ${ly} Z`);
-
-        // reset points
-        this.clearPoints();
-        this.addLine(mx, my);
-        this.addLine(lx, ly);
-        // FIXME  this.$points = [ a, b ];
+        this.redrawNewFn(this.$sNode);
     }
 
     // INFOTEXT CALCULATE POSITION

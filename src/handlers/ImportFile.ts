@@ -1,20 +1,30 @@
 import {Graph} from '../elements/Graph';
-import {EventHandler} from '../EventBus';
+import {EventHandler, EventBus} from '../EventBus';
 import {DiagramElement} from '../elements/BaseElements';
 import {Util} from '../util';
 
 export class ImportFile implements EventHandler {
+
     private graph: Graph;
 
     constructor(graph: Graph) {
         this.graph = graph;
     }
 
-    public isEnable(): boolean {
-        return true;
+    public setActive(active: boolean): void {
+        if(active){
+            EventBus.setActiveHandler(ImportFile.name);
+        }
+        else{
+            EventBus.releaseActiveHandler();
+        }
     }
 
-    handle(event: Event, element: DiagramElement): boolean {
+    public canHandle(): boolean {
+        return EventBus.isHandlerActiveOrFree(ImportFile.name);
+    }
+
+    public handle(event: Event, element: DiagramElement): boolean {
         if (event instanceof DragEvent === false) {
             return false;
         }

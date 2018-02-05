@@ -1,9 +1,10 @@
-import {DiagramElement} from './elements/BaseElements';
-import {Control} from './Control';
+import { DiagramElement } from './elements/BaseElements';
+import { Control } from './Control';
 
 export interface EventHandler {
+    canHandle(): boolean;
     handle(event: Event, element: DiagramElement): boolean;
-    isEnable(): boolean;
+    setActive(active: boolean): void;
 }
 
 export class EventBus {
@@ -41,6 +42,32 @@ export class EventBus {
 
     private static handlers = {};
 
+
+    private static $activeHandler: string = '';
+
+    public static setActiveHandler(handler: string): void {
+        this.$activeHandler = handler;
+    }
+
+    public static isHandlerActiveOrFree(handler: string, notEmpty?: boolean): boolean {
+        if (notEmpty) {
+            return this.$activeHandler == handler;
+        }
+        return this.$activeHandler == handler || this.$activeHandler == '' || this.$activeHandler == undefined;
+    }
+
+    public static isAnyHandlerActive(): boolean {
+        return !(this.$activeHandler === '' || this.$activeHandler == undefined);
+    }
+
+    public static releaseActiveHandler(): void {
+        this.$activeHandler = '';
+    }
+
+    public static getActiveHandler(): string {
+        return this.$activeHandler;
+    }
+
     static register(control: Control, view: Element) {
         let events: string[];
         if (typeof control['getEvents'] === 'function') {
@@ -56,10 +83,9 @@ export class EventBus {
             }
             pos = event.indexOf(':');
             if (pos > 0) {
-                // TODO: solve problem with firefox: window.event is undefined
-                view.addEventListener(event.substr(pos + 1).toLowerCase(), function(evt){EventBus.publish(<DiagramElement>control, evt);});
+                view.addEventListener(event.substr(pos + 1).toLowerCase(), function (evt) { EventBus.publish(<DiagramElement>control, evt); });
             } else {
-                view.addEventListener(event.substr(pos + 1).toLowerCase(), function(evt){EventBus.publish(<DiagramElement>control, evt);});
+                view.addEventListener(event.substr(pos + 1).toLowerCase(), function (evt) { EventBus.publish(<DiagramElement>control, evt); });
             }
         }
     }

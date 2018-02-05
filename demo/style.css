@@ -78,18 +78,6 @@ g, path {
 	cursor: pointer;
 }
 
-path:hover{
-	stroke-width: 5;
-	stroke: #FFA033;
-    transition: 0.3s;
-}
-
-g:hover .SVGClazz{
-	stroke:rgb(255, 160, 51);
-	stroke-width: 3;
-    transition: 0.3s;
-}
-
 .diagram {
 	position: absolute;
 	padding: 5px;
@@ -614,32 +602,46 @@ h1 {
 	stroke: black;
 }
 
+.SVGEdge:hover{
+	stroke-width: 5;
+	stroke: #FFA033;
+    transition: 0.3s;
+}
+
 .SVGEdge-selected{
 	stroke-width: 3;
 	stroke: #FFA033;
 }
 
-.SVGClazz{
+.SVGClazz > rect{
 	stroke-width: 2;
 	stroke: black;
 	fill: white;
     transition: 0.3s;
 }
 
-.SVGClazz-selected{
+.SVGClazz:hover > rect{
+	stroke:rgb(255, 160, 51);
+	stroke-width: 3;
+    transition: 0.3s;
+}
+
+.SVGClazz-selected > rect{
 	stroke: #FFA033 !important;
 	fill: rgb(255, 241, 225) !important;
 }
 
-.SVGClazz-drawedge{
+.SVGClazz-drawedge > rect{
 	stroke: rgb(0, 162, 0);
 	fill: rgba(0, 162, 0, 0.125);
+    transition: 0.3s;
 }
 
 .SVGClazzProperty{
 	font-family: 'Verdana';
 	font-size: 12px;
 	fill: black;
+	cursor: inherit;
 }
 
 .SVGClazzMethod{

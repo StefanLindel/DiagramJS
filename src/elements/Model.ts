@@ -85,18 +85,21 @@ export class GraphModel extends DiagramElement {
     public removeElement(id: string): boolean {
         if (this.nodes[id]) {
             let node = this.nodes[id];
+            
+            (<Graph>this.$owner).removeElement(node);
             delete this.nodes[id];
             for (let edge of node.edges) {
+                (<Graph>this.$owner).removeElement(edge);
                 delete this.edges[edge.id];
             }
         }
         else if (this.edges[id]) {
+            (<Graph>this.$owner).removeElement(this.edges[id]);
             delete this.edges[id];
         }
         else {
             return false;
         }
-        (<Graph>this.$owner).layout();
         return true;
     }
 
@@ -212,16 +215,9 @@ export class GraphModel extends DiagramElement {
     
             let targetX = target.getPos().x + (target.getSize().x / 2);
             let targetY = target.getPos().y + (target.getSize().y / 2);
-    
-            // sort them by y coordinate
-            if(srcY < targetY){
-                newEdge.addPoint(srcX, srcY);
-                newEdge.addPoint(targetX, targetY);
-            }
-            else{
-                newEdge.addPoint(targetX, targetY);
-                newEdge.addPoint(srcX, srcY);
-            }
+
+            newEdge.addPoint(srcX, srcY);
+            newEdge.addPoint(targetX, targetY);
         }
 
         return newEdge;

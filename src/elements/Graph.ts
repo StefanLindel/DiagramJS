@@ -10,7 +10,7 @@ import {Util} from '../util';
 import {Control} from '../Control';
 import Data from '../Data';
 import {EventBus} from '../EventBus';
-import {Drag, Select, Zoom, NewEdge, AddNode} from '../handlers';
+import {Drag, Select, Zoom, NewEdge, AddNode, PropertiesDispatcher} from '../handlers';
 import Options from '../Options';
 import {ImportFile} from '../handlers/ImportFile';
 import {SymbolLibary} from './nodes/Symbol';
@@ -388,6 +388,19 @@ export class Graph extends Control {
         EventBus.register(element, svg);
     }
 
+    public removeElement(element: DiagramElement) : void{
+        if(!element){
+            return;
+        }
+
+        let alreadyDisplayingSvg = element.getAlreadyDisplayingSVG();
+        if(!this.root.contains(alreadyDisplayingSvg)){
+            return;
+        }
+
+        this.root.removeChild(element.getAlreadyDisplayingSVG());
+    }
+
     public generate() {
         let data, result = Util.toJson(this.$graphModel);
         data = JSON.stringify(result, null, '\t');
@@ -470,27 +483,6 @@ export class Graph extends Control {
         }
     }
 
-    private $activeHandler: string = '';
-
-    public setActiveHandler(handler: string) : void{
-        this.$activeHandler = handler;
-    }
-
-    public isActiveHandler(handler: string, notEmpty?: boolean) : boolean{
-        if(notEmpty){
-            return this.$activeHandler == handler;
-        }
-        return this.$activeHandler == handler || this.$activeHandler == '' || this.$activeHandler == undefined;
-    }
-
-    public releaseActiveHandler() : void{
-        this.$activeHandler = '';
-    }
-
-    public getActiveHandler(): string{
-        return this.$activeHandler;
-    }
-
     private initFeatures(features: any) {
 
         EventBus.subscribe(new ImportFile(this), 'dragover', 'dragleave', 'drop');
@@ -512,11 +504,10 @@ export class Graph extends Control {
             }
         }
 
-        // var dispatcher = new PropertiesPanel.PropertiesPanel.Dispatcher();
-        // dispatcher.dispatch(PropertiesPanel.PropertiesPanel.PropertiesView.Edge);
-        let dispatcher = new PropertiesPanel.PropertiesPanel.Dispatcher(this);
+        let dispatcher = new PropertiesDispatcher(this);
         dispatcher.dispatch(PropertiesPanel.PropertiesPanel.PropertiesView.Edge);
         EventBus.subscribe(dispatcher, 'dblclick', 'click', 'openproperties');
+
         EventBus.subscribe(new AddNode(this), 'mousedown', 'mouseup', 'mousemove', 'mouseleave');
     }
 }

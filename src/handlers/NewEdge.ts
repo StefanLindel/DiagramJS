@@ -2,7 +2,7 @@ import { DiagramElement } from '../elements/BaseElements';
 import { Graph } from '../elements/Graph';
 import { Util } from '../util';
 import { Clazz } from '../elements/nodes/Clazz';
-import { EventHandler } from '../EventBus';
+import { EventHandler, EventBus } from '../EventBus';
 import { Edge } from '../elements/index';
 import { Node } from '../elements/nodes/index';
 
@@ -11,19 +11,28 @@ export class NewEdge implements EventHandler {
     private svgRoot: SVGSVGElement;
     private svgLine: SVGSVGElement;
     private isEdgeDrawing: boolean;
-    private sourceNode: Clazz;
+    private sourceNode: Node;
     private x: number;
     private y: number;
 
-    private lastHighlightedNode: Element;
+    private lastTargetNode: Node;
 
     constructor(graph: Graph) {
         this.svgRoot = <SVGSVGElement><any>document.getElementById('root');
         this.graph = graph;
     }
 
-    public isEnable(): boolean {
-        return true;
+    public setActive(active: boolean): void {
+        if (active) {
+            EventBus.setActiveHandler(NewEdge.name);
+        }
+        else {
+            EventBus.releaseActiveHandler();
+        }
+    }
+
+    public canHandle(): boolean {
+        return EventBus.isHandlerActiveOrFree(NewEdge.name);
     }
 
     public handle(event: Event, element: DiagramElement): boolean {
@@ -32,7 +41,7 @@ export class NewEdge implements EventHandler {
             this.svgRoot = <SVGSVGElement><any>document.getElementById('root');
         }
 
-        if (!((<KeyboardEvent>event).ctrlKey || this.graph.isActiveHandler('NewEdge', true))) {
+        if (!((<KeyboardEvent>event).ctrlKey || EventBus.isHandlerActiveOrFree('NewEdge', true))) {
             this.removeLine();
             return true;
         }
@@ -41,7 +50,7 @@ export class NewEdge implements EventHandler {
             case 'mousedown':
                 if (element instanceof Node) {
                     this.start(event, element);
-                    this.graph.setActiveHandler('NewEdge');
+                    this.setActive(true);
                 }
                 break;
 
@@ -49,11 +58,11 @@ export class NewEdge implements EventHandler {
                 this.drawEdge(event, element);
                 break;
             case 'mouseleave':
-                this.graph.releaseActiveHandler();
+                this.setActive(false);
                 break;
             case 'mouseup':
                 this.setNewEdgeToNode(event);
-                this.graph.releaseActiveHandler();
+                this.setActive(false);
                 break;
 
             default: break;
@@ -76,17 +85,15 @@ export class NewEdge implements EventHandler {
 
             let attr = {
                 tag: 'path',
-                id: 'newLine',
+                id: 'newEdgePath',
                 d: path,
-                stroke: 'black',
-                'stroke-width': '2',
-                fill: 'none'
+                class: 'SVGEdge'
             };
 
 
             let shape = Util.createShape(attr);
             this.svgLine = shape;
-            
+
             this.svgRoot.appendChild(shape);
             this.svgRoot.appendChild(this.sourceNode.$view);
         }
@@ -102,15 +109,15 @@ export class NewEdge implements EventHandler {
             if (targetNode) {
 
                 // reset the last one
-                if (this.lastHighlightedNode !== <Element>targetNode.$view.childNodes[0] && this.lastHighlightedNode) {
-                    this.lastHighlightedNode.setAttributeNS(null, 'class', 'SVGClazz');
+                if (this.lastTargetNode && this.lastTargetNode.id !== targetNode.id) {
+                    this.lastTargetNode.$view.setAttributeNS(null, 'class', 'SVGClazz');
                 }
 
-                this.lastHighlightedNode = <Element>targetNode.$view.childNodes[0];
-                this.lastHighlightedNode.setAttributeNS(null, 'class', 'SVGClazz-drawedge');
+                this.lastTargetNode = targetNode;
+                this.lastTargetNode.$view.setAttributeNS(null, 'class', 'SVGClazz-drawedge');
             }
-            else if (this.lastHighlightedNode) {
-                this.lastHighlightedNode.setAttributeNS(null, 'class', 'SVGClazz');
+            else if (this.lastTargetNode) {
+                this.lastTargetNode.$view.setAttributeNS(null, 'class', 'SVGClazz');
             }
         }
     }
@@ -123,8 +130,8 @@ export class NewEdge implements EventHandler {
             this.svgLine = null;
         }
 
-        if (this.lastHighlightedNode) {
-            this.lastHighlightedNode.setAttributeNS(null, 'class', 'SVGClazz');
+        if (this.lastTargetNode) {
+            this.lastTargetNode.$view.setAttributeNS(null, 'class', 'SVGClazz');
         }
     }
 

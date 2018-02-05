@@ -20,8 +20,6 @@ export abstract class Association extends Edge {
         let attr = {
             tag: 'path',
             d: path,
-            stroke: 'black',
-            'stroke-width': '3'
         };
 
         this.$diamond = this.createShape(attr);
