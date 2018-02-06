@@ -11,7 +11,7 @@ export abstract class Association extends Edge {
 
         let startPoint = this.$pointsNew[this.$pointsNew.length - 1];
 
-        let direction: Direction = this.getDirectionOfTargetSymbol(this.$tNode, startPoint);
+        let direction: Direction = this.getDirectionOfPointToNode(this.$tNode, startPoint);
         let path = this.calcCorrectPath(startPoint, direction);
         
         let group = super.getSVG();
@@ -41,7 +41,7 @@ export abstract class Association extends Edge {
         // caclulate the path of target symbol only, if the dragged node is source or there are only 2 points left
         if (this.target === startNode.id || this.$pointsNew.length == 2) {
 
-            direction = this.getDirectionOfTargetSymbol(this.$tNode, startPoint);
+            direction = this.getDirectionOfPointToNode(this.$tNode, startPoint);
 
             let path = this.calcCorrectPath(startPoint, direction);
             this.$diamond.setAttributeNS(null, 'd', path);

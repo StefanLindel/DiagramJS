@@ -1,8 +1,8 @@
 'use strict';
-import {CSS} from './CSS';
-import {Node} from './elements/nodes/Node';
-import {DiagramElement, Point} from './elements/BaseElements';
-import {Control} from './Control';
+import { CSS } from './CSS';
+import { Node } from './elements/nodes/Node';
+import { DiagramElement, Point } from './elements/BaseElements';
+import { Control } from './Control';
 
 export class Util {
     static getRandomInt(min: number, max: number): number {
@@ -198,22 +198,26 @@ export class Util {
         return css;
     }
 
-    static sizeOf(item: any, model: Node, node?: Node) {
+    static sizeOf(item: any, model?: Node, node?: Node) {
         let board, rect, root;
+        let addBoard: boolean;
         if (!item) {
             return;
         }
-        root = <DiagramElement>model.getRoot();
-        board = root.$view;
-        let addBoard: boolean = false;
+        if (model) {
+            root = <DiagramElement>model.getRoot();
+            board = root.$view;
+            addBoard = false;
+        }
+
         if (!board) {
             addBoard = true;
-            board = Util.createShape({tag: 'svg', id: 'root', width: 200, height: 200});
+            board = Util.createShape({ tag: 'svg', id: 'root', width: 200, height: 200 });
             document.body.appendChild(board);
         }
         if (board.tagName === 'svg') {
             if (typeof item === 'string') {
-                item = Util.create({tag: 'text', $font: true, value: item});
+                item = Util.create({ tag: 'text', $font: true, value: item });
                 item.setAttribute('width', '5px');
             }
         } else if (typeof item === 'string') {
@@ -251,14 +255,14 @@ export class Util {
         return '#000';
     }
 
-    public static utf8$to$b64(str: string) : string {
+    public static utf8$to$b64(str: string): string {
         return window.btoa(encodeURIComponent(str))
     }
 
     public static showSVG(control: DiagramElement) {
         let svg = Util.create({
             tag: 'svg',
-            style: {left: control.getPos().x, top: control.getPos().y, position: 'absolute'}
+            style: { left: control.getPos().x, top: control.getPos().y, position: 'absolute' }
         });
         let child = control.getSVG();
         if (child) {

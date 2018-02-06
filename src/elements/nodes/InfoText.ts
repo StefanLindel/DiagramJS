@@ -1,15 +1,15 @@
 // 				######################################################### Info #########################################################
-import {Point} from '../BaseElements';
-import {Util} from '../../util';
-import {Node} from './Node';
-import {EventBus} from '../../EventBus';
+import { Point } from '../BaseElements';
+import { Util } from '../../util';
+import { Node } from './Node';
+import { EventBus } from '../../EventBus';
 
 export class InfoText extends Node {
     custom: boolean;
     private cardinality: string;
     private $angle: number;
 
-    constructor(info: any, counter: number) {
+    constructor(info: any) {
         super(info);
         if (typeof (info) === 'string') {
             this.id = info;
@@ -25,111 +25,109 @@ export class InfoText extends Node {
         this.$isDraggable = true;
     }
 
-    public getSVG(draw ?: boolean): HTMLElement {
-        let text: string = this.getText(), child, group: Element, i: number, items: Array<string> = text.split('\n');
+    public getSVG(): Element {
+        let text: string = this.getText();
+        let items: Array<string> = text.split('\n');
+        let firstChild: Element;
+        let textHeight: number;
+
         if (text.length < 1) {
             return null;
         }
-        if (items.length > 1) {
-            group = Util.create({tag: 'g', class: 'draggable', rotate: this.$angle, model: this});
-            for (i = 0; i < items.length; i += 1) {
-                let pos: Point = this.getPos();
-                child = Util.create({
-                    tag: 'text',
-                    $font: true,
-                    'text-anchor': 'left',
-                    x: pos.x,
-                    y: pos.y
-                    + (this.getSize().y * i)
-                });
-                child.appendChild(document.createTextNode(items[i]));
-                group.appendChild(child);
-            }
-            let newEvent: Event = new Event(EventBus.CREATE);
-            newEvent['eventtype'] = EventBus.CREATE;
-            newEvent['source'] = this;
-            newEvent['$graphModel'] = group;
-            if (group !== null) {
-                newEvent['id'] = (<any>group).getId();
-            }
-            this.fireEvent(newEvent);
-            return <HTMLElement>group;
-        }
+
+        let group = Util.create({ tag: 'g', 'stroke-width': 0, transform: 'translate(0, 0)' });
+
         let pos: Point = this.getPos();
-        group = Util.create({
-            tag: 'text',
-            $font: true,
-            'text-anchor': 'left',
-            x: pos.x,
-            y: pos.y,
-            value: text,
-            id: this.id,
-            class: 'draggable InfoText',
-            rotate: this.$angle,
-            model: this
-        });
-        let newEvent: Event = new Event(EventBus.CREATE);
-        newEvent['eventtype'] = EventBus.CREATE;
-        newEvent['source'] = this;
-        newEvent['$graphModel'] = group;
-        if (group !== null) {
-            newEvent['id'] = (<any>group).getId();
+        let maxSize = new Point(0, 0);
+        for (let i = 0; i < items.length; i += 1) {
+
+            let nextPosY: number = pos.y + (maxSize.y * i);
+
+            let child = Util.create({
+                tag: 'text',
+                'text-anchor': 'left',
+                x: pos.x,
+                y: nextPosY
+            });
+            child.textContent = items[i];
+            group.appendChild(child);
+
+            // calculate size
+            let sizeOfText: ClientRect = Util.sizeOf(items[i]);
+            maxSize.x = Math.max(maxSize.x, sizeOfText.width);
+            maxSize.y += sizeOfText.height;
+
+            if (i == 0) {
+                firstChild = child;
+                textHeight = sizeOfText.height;
+            }
         }
-        this.fireEvent(newEvent);
-        return <HTMLElement>group;
+
+        this.withSize(maxSize.x, maxSize.y);
+
+        let rectBackground = Util.createShape({
+            tag: 'rect',
+            x: pos.x,
+            y: pos.y - textHeight,
+            width: this.getSize().x,
+            height: this.getSize().y,
+            fill: '#DDD',
+            'stroke-width': 0
+        });
+
+        group.insertBefore(rectBackground, firstChild);
+
+        this.$view = group;
+
+        return group;
     }
 
-    public drawHTML(draw?: boolean): HTMLElement {
-        let text: string = this.getText(), info: HTMLElement;
-        info = <HTMLElement>Util.create({tag: 'div', $font: true, model: this, class: 'EdgeInfo', value: text});
-        if (this.$angle !== 0) {
-            let style: any = info.style;
-            style.transform = 'rotate(' + this.$angle + 'deg)';
-            style.msTransform = style.MozTransform = style.WebkitTransform = style.OTransform = 'rotate(' + this.$angle + 'deg)';
+    public redraw(newPos: Point): void {
+
+        if (!newPos) return;
+
+        let oldPos = this.getPos();
+
+        // get difference between new and the old position
+        let diffPos = new Point();
+        diffPos.x = newPos.x - oldPos.x;
+        diffPos.y = newPos.y - oldPos.y;
+
+        // get translate information
+        let translation = this.$view.getAttributeNS(null, 'transform').slice(10, -1).split(' ');
+        let sx = parseInt(translation[0]);
+        let sy = 0;
+        if (translation.length > 1) {
+            sy = parseInt(translation[1]);
         }
-        let pos: Point = this.getPos();
-        let newEvent: Event = new Event(EventBus.CREATE);
-        newEvent['eventtype'] = EventBus.CREATE;
-        newEvent['source'] = this;
-        newEvent['$graphModel'] = info;
-        Util.setPos(info, pos.x, pos.y);
-        this.fireEvent(newEvent);
-        return info;
+
+        // set new traslation values
+        let newTransX = (sx + diffPos.x);
+        let newTransY = (sy + diffPos.y);
+        this.$view.setAttributeNS(null, 'transform', 'translate(' + newTransX + ' ' + newTransY + ')');
+
+        // set new position of svg
+        this.getPos().x = newPos.x;
+        this.getPos().y = newPos.y;
     }
 
     public getText(): string {
-        let isProperty: boolean, isCardinality: boolean, infoTxt: string = '', graph: any = this.$owner;
-        isCardinality = graph.typ === 'classdiagram' && graph.options.CardinalityInfo;
-        isProperty = graph.options.propertyinfo;
+        let infoTxt: string = '';
 
-        if (isProperty && this.property) {
+        if (this.property) {
             infoTxt = this.property;
         }
-        if (isCardinality && this.cardinality) {
+        if (this.cardinality) {
             if (infoTxt.length > 0) {
                 infoTxt += '\n';
             }
-            if (this.cardinality.toLowerCase() === 'one') {
-                infoTxt += '0..1';
-            } else if (this.cardinality.toLowerCase() === 'many') {
-                infoTxt += '0..*';
-            }
+            infoTxt += this.cardinality;
         }
-        if (this['counter'] > 0) {
-            infoTxt += ' (' + this['counter'] + ')';
-        }
+
         return infoTxt;
     }
 
-    public initInfo(): string {
-        let root: any = this.$owner.getRoot();
-        if (!root.$graphModel.options.CardinalityInfo && !root.$graphModel.options.propertyinfo) {
-            return null;
-        }
-        let infoTxt: string = this.getText();
-        if (infoTxt.length > 0) {
-            Util.sizeOf(infoTxt, root, this);
-        }
-        return infoTxt;
+    public getEvents(): string[] {
+        return [EventBus.ELEMENTCLICK, EventBus.ELEMENTDBLCLICK, EventBus.OPENPROPERTIES];
     }
 }

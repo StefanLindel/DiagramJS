@@ -142,11 +142,10 @@ export class PropertiesDispatcher implements EventHandler {
         this._blankView.setPropertiesHeaderText('Properties of Class: ' + clazz.label);
 
         // set class name of node in propertiespanel
-        // outsource this code in own handler
         let classNameInputText = document.getElementById('className');
         classNameInputText.setAttribute('value', clazz.label);
 
-        classNameInputText.addEventListener('change', function () {
+        classNameInputText.addEventListener('input', function () {
             clazz.updateLabel((<any>classNameInputText).value);
         });
 
@@ -158,9 +157,6 @@ export class PropertiesDispatcher implements EventHandler {
         while (tabContentAttr.firstChild) {
             tabContentAttr.removeChild(tabContentAttr.firstChild);
         }
-
-        // TODO: attributes and methods got the same code to display the edit tab
-        // put this together
 
         let attributes = clazz.getAttributesObj();
         for (let attr of attributes) {

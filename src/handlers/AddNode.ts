@@ -158,7 +158,7 @@ export class AddNode implements EventHandler {
                 this.svgGroupAddNode.appendChild(textAddNode);
 
 
-                //TODO: get correct size of text node
+                // get correct size of text node
                 let sizeClientRect: ClientRect = textAddNode.getBoundingClientRect();
 
                 let rectBackgroundForText = Util.createShape({

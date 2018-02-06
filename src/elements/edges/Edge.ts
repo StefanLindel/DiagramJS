@@ -64,8 +64,22 @@ export class Edge extends DiagramElement {
         };
         let shape = this.createShape(attr);
 
+
+
+        // LET'S GET DIRTY
+        this.sourceInfo = new InfoText({ id: 'srcInfoTest', cardinality: '0..n', property: 'testtehujbljadst' });
+        this.sourceInfo.withSize(50, 40);
+        this.sourceInfo.$owner = this;
+
+        let calcPos = this.calcInfoPosNew(this.sourceInfo, this.$sNode);
+        this.sourceInfo.withPos(calcPos.x, calcPos.y);
+
+        let srcInfoSvg = this.sourceInfo.getSVG();
+        EventBus.register(this.sourceInfo, srcInfoSvg);
+
         let group = Util.createShape({ tag: 'g', id: this.id, class: 'SVGEdge' });
         group.appendChild(shape);
+        group.appendChild(srcInfoSvg);
 
         this.$pathSvg = shape;
         this.$view = group;
@@ -154,8 +168,8 @@ export class Edge extends DiagramElement {
         // calculate and set new position of point to redraw
         this.calcIntersection(startNode, recalcPoint, endPoint);
 
-        // so recalc and redraw the other node to the startnode
-        if (this.$pointsNew.length > 2 && this.target === startNode.id && endPoint.y > (startNode.getPos().y + startNode.getSize().y)) {
+        // remove the 2nd point next to startnode, if the node was dragged upper the point
+        if (this.$pointsNew.length > 2 && this.target === startNode.id && endPoint.y > (startNode.getPos().y + (startNode.getSize().y / 2))) {
 
             this.$pointsNew.splice(endPointIdx, 1);
         }
@@ -168,7 +182,7 @@ export class Edge extends DiagramElement {
 
 
 
-        if (this.$pointsNew.length > 2 && this.source === startNode.id && startNode.getPos().y > endPoint.y) {
+        if (this.$pointsNew.length > 2 && this.source === startNode.id && (startNode.getPos().y + (startNode.getSize().y / 2) > endPoint.y)) {
 
             this.$pointsNew.splice(endPointIdx, 1);
         }
@@ -177,6 +191,18 @@ export class Edge extends DiagramElement {
 
             this.calcIntersection(this.$tNode, endPoint, recalcPoint);
         }
+
+        // calculate the infotext of source
+        if(this.sourceInfo){
+            let newPosOfSrc = this.calcInfoPosNew(this.sourceInfo, this.$sNode);
+            this.sourceInfo.redraw(newPosOfSrc);
+        }
+
+        if(this.targetInfo){
+            let newPosOfTarget = this.calcInfoPosNew(this.targetInfo, this.$tNode);
+            this.targetInfo.redraw(newPosOfTarget);
+        }
+
 
         if (!dontDrawPoints) {
             this.redrawPoints();
@@ -260,6 +286,76 @@ export class Edge extends DiagramElement {
         return null;
     }
 
+    protected calcInfoPosNew(infoTxt: InfoText, node: Node): Point {
+
+        if(!infoTxt || !node) return null;
+
+        // 1. step: get direction
+        let startPoint: Point;
+        let nextToStartPoint: Point;
+        if (this.source === node.id) {
+            startPoint = this.$pointsNew[0];
+            nextToStartPoint = this.$pointsNew[1];
+        }
+        else if (this.target === node.id) {
+            startPoint = this.$pointsNew[this.$pointsNew.length - 1];
+            nextToStartPoint = this.$pointsNew[this.$pointsNew.length - 2];
+        }
+
+        let direction: Direction = this.getDirectionOfPointToNode(node, startPoint);
+
+        let x: number;
+        let y: number;
+
+        switch (direction) {
+            case Direction.Up:
+                // compare x-coordinates from start- and nextToStart point
+                if(startPoint.x >= nextToStartPoint.x){
+                    x = startPoint.x + 5;
+                }
+                else{
+                    x = startPoint.x - (infoTxt.getSize().x);
+                }
+                y = startPoint.y + (infoTxt.getSize().y / 2);
+                break;
+            case Direction.Right:
+                // compare y-coordinates from start- and nextToStart point
+                if(startPoint.y >= nextToStartPoint.y){
+                    y = startPoint.y + (infoTxt.getSize().y / 2);
+                }
+                else{
+                    y = startPoint.y - (infoTxt.getSize().y / 2);
+                }
+                x = startPoint.x - (infoTxt.getSize().x) - 5;
+                break;
+            case Direction.Left:
+                // compare y-coordinates from start- and nextToStart point
+                if(startPoint.y >= nextToStartPoint.y){
+                    y = startPoint.y + (infoTxt.getSize().y / 2);
+                }
+                else{
+                    y = startPoint.y - (infoTxt.getSize().y / 2);
+                }
+                x = startPoint.x + 5;
+                break;
+            case Direction.Down:
+                // compare x-coordinates from start- and nextToStart point
+                if(startPoint.x >= nextToStartPoint.x){
+                    x = startPoint.x + 5;
+                }
+                else{
+                    x = startPoint.x - (infoTxt.getSize().x);
+                }
+                y = startPoint.y - (infoTxt.getSize().y / 2) - 5;
+                break;
+            default:
+                break;
+        }
+
+        // assign calculated position to infotext
+        return new Point(x, y);
+    }
+
     // Obsolete function
     public redraw() {
         this.redrawNewFn(this.$sNode);
@@ -325,9 +421,6 @@ export class Edge extends DiagramElement {
         }
         return true;
     }
-
-    // many Edges SOME DOWN AND SOME RIGHT OR LEFT
-    // INFOTEXT DONT SHOW IF NO PLACE
 
     public addLineTo(x1: number, y1: number, x2?: number, y2?: number) {
         let start, end;
@@ -505,23 +598,7 @@ export class Edge extends DiagramElement {
         return { x: min.x, y: min.y, width: max.x - min.x, height: max.y - min.y };
     }
 
-    protected getDirection(start: Point, end: Point): Direction {
-        if (end.x < start.x) {
-            return Direction.Left;
-        }
-        if (end.x > start.x) {
-            return Direction.Right;
-        }
-        if (end.y < start.y) {
-            return Direction.Up;
-        }
-        if (end.y > start.y) {
-            return Direction.Down;
-        }
-        return Direction.Down;
-    }
-
-    protected getDirectionOfTargetSymbol(node: Node, pointNearNode: Point): Direction {
+    protected getDirectionOfPointToNode(node: Node, pointNearNode: Point): Direction {
 
         /*
             Example to calculate the direction of nearest point to Node

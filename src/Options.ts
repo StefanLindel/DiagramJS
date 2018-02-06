@@ -7,6 +7,7 @@ interface Options {
     minHeight?: number;
     layout?: string;
     origin?: Point;       // x and y offset of rendered diagram
+    CardinalityInfo?: string;
     features?: {
         editor?: boolean,
         drag?: boolean,

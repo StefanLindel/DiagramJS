@@ -7,6 +7,7 @@ import { SymbolLibary } from '../elements/nodes/Symbol';
 import { EventHandler, EventBus } from '../EventBus';
 import { Clazz } from '../main';
 import { Graph } from '../elements/Graph';
+import { InfoText } from '../elements/nodes/InfoText';
 
 export class Select implements EventHandler {
 
@@ -58,7 +59,7 @@ export class Select implements EventHandler {
             return true;
         }
 
-        if (element instanceof Node && event.type === 'click') {
+        if (element instanceof Node && !(element instanceof InfoText) && event.type === 'click') {
             let e = <Node>element;
             if (document.getElementById('trashcan') === null) {
                 this.svgRoot.appendChild(this.deleteShape);
@@ -68,16 +69,8 @@ export class Select implements EventHandler {
                 this.svgRoot.appendChild(this.addEdgeShape);
             }
 
-            this.resetLastSelectedElements();
-
-            // mark the border with orange
-            this.lastSelectedNode = <Element>element.$view;
-            Util.addClass(this.lastSelectedNode, 'SVGClazz-selected');
-
             this.deleteShape.setAttributeNS(null, 'visibility', 'visible');
             this.addEdgeShape.setAttributeNS(null, 'visibility', 'visible');
-            const pos = e.getPos();
-            const size = e.getSize();
 
             let x = (e.getPos().x + e.getSize().x) + 5;
             let y = e.getPos().y;
@@ -91,13 +84,23 @@ export class Select implements EventHandler {
                 element.$view.dispatchEvent(new Event('mousedown'));
             };
 
+        }
+        if(element instanceof Clazz && event.type === 'click'){
+            let clazz = <Clazz>element;
+            this.resetLastSelectedElements();
+
+            // mark the border with orange
+            this.lastSelectedNode = <Element>element.$view;
+            Util.addClass(this.lastSelectedNode, 'SVGClazz-selected');
+
+
             // draw textbox to edit clazz in one line
             let divInlineEdit = document.createElement('div');
             divInlineEdit.id = 'inlineEdit';
             divInlineEdit.style.position = 'absolute';
-            divInlineEdit.style.top = (e.getPos().y + e.getSize().y) + 57 + 'px';
-            divInlineEdit.style.left = e.getPos().x + 4 + 'px';
-            divInlineEdit.style.width = e.getSize().x + 'px';
+            divInlineEdit.style.top = (clazz.getPos().y + clazz.getSize().y) + 57 + 'px';
+            divInlineEdit.style.left = clazz.getPos().x + 4 + 'px';
+            divInlineEdit.style.width = clazz.getSize().x + 'px';
             divInlineEdit.style.zIndex = '42';
 
             let inputText = document.createElement('input');
@@ -119,8 +122,6 @@ export class Select implements EventHandler {
             inputText.addEventListener('keydown', function (evt) {
 
                 let keyCode = (<any>evt).which;
-                let clazz = <Clazz>e;
-
                 let inputValue = <any>inputText.value;
 
                 if (inputValue.endsWith(':') && !document.getElementById('selectPropertyType')) {
@@ -176,8 +177,8 @@ export class Select implements EventHandler {
 
                 // reset size
                 divInlineEdit.style.top = (clazz.getPos().y + clazz.getSize().y) + 57 + 'px';
-                divInlineEdit.style.left = e.getPos().x + 4 + 'px';
-                divInlineEdit.style.width = e.getSize().x + 'px';
+                divInlineEdit.style.left = clazz.getPos().x + 4 + 'px';
+                divInlineEdit.style.width = clazz.getSize().x + 'px';
 
                 inputText.value = '';
 
@@ -199,6 +200,7 @@ export class Select implements EventHandler {
                 this.svgRoot.appendChild(this.deleteShape);
             }
             this.deleteShape.setAttributeNS(null, 'visibility', 'visible');
+            this.addEdgeShape.setAttributeNS(null, 'visibility', 'hidden');
 
             let x: number, y: number;
 
@@ -215,6 +217,11 @@ export class Select implements EventHandler {
 
             Util.addClass(this.lastSelectedEdge, 'SVGEdge-selected');
         }
+
+        if(element instanceof InfoText){
+            console.log('InfoText');
+        }
+
         return true;
     }
 

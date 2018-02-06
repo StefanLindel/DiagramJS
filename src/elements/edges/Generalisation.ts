@@ -11,7 +11,7 @@ export class Generalisation extends Edge {
     public getSVG(): Element {
         let startPoint = this.$pointsNew[0];
 
-        let direction : Direction = this.getDirectionOfTargetSymbol(this.$sNode, startPoint);
+        let direction : Direction = this.getDirectionOfPointToNode(this.$sNode, startPoint);
         let path = this.calcCorrectPath(startPoint, direction);
         
         let group = super.getSVG();
@@ -43,7 +43,7 @@ export class Generalisation extends Edge {
         // caclulate the path of target symbol only, if the dragged node is source or there are only 2 points left
         if(this.source === startNode.id || this.$pointsNew.length == 2){
 
-            direction = this.getDirectionOfTargetSymbol(this.$sNode, startPoint);
+            direction = this.getDirectionOfPointToNode(this.$sNode, startPoint);
 
             let path = this.calcCorrectPath(startPoint, direction);
             this.$targetElement.setAttributeNS(null, 'd', path);
