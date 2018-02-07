@@ -17,6 +17,7 @@ export class Select implements EventHandler {
     private model: GraphModel;
     private graph: Graph;
     private padding = 5;
+    private active : boolean;
 
     private lastSelectedNode: Element;
     private lastSelectedEdge: Element;
@@ -35,31 +36,30 @@ export class Select implements EventHandler {
             this.svgRoot = <SVGSVGElement><any>document.getElementById('root');
         }
 
-        event.stopPropagation();
+        // event.stopPropagation();
         if (event.type === 'drag') {
             this.deleteShape.setAttributeNS(null, 'visibility', 'hidden');
             this.addEdgeShape.setAttributeNS(null, 'visibility', 'hidden');
 
-            this.resetLastSelectedElements();
+            // this.resetLastSelectedElements();
 
             // mark the border with orange
-            if(element instanceof Node){
+            if (element instanceof Node) {
                 this.lastSelectedNode = <Element>element.$view;
             }
             Util.addClass(this.lastSelectedNode, 'SVGClazz-selected');
+            event.stopPropagation();
         }
 
-        if (event.target['id'] === 'background' || element === this.model) {
-
+        if ((event.target['id'] === 'background' || element === this.model) && (event.type === 'mouseup' || event.type === 'click')) {
+            console.log(event.type + ' TEST');
             this.resetLastSelectedElements();
 
             this.deleteShape.setAttributeNS(null, 'visibility', 'hidden');
             this.addEdgeShape.setAttributeNS(null, 'visibility', 'hidden');
-
-            return true;
         }
 
-        if (element instanceof Node && !(element instanceof InfoText) && event.type === 'click') {
+        if (element instanceof Node && !(element instanceof InfoText) && (event.type === 'mouseup' || event.type === 'click') ) {
             let e = <Node>element;
             if (document.getElementById('trashcan') === null) {
                 this.svgRoot.appendChild(this.deleteShape);
@@ -85,14 +85,22 @@ export class Select implements EventHandler {
             };
 
         }
-        if(element instanceof Clazz && event.type === 'click'){
-            let clazz = <Clazz>element;
+        if (element instanceof Clazz && (event.type === 'mousemove') && this.active) {
+            console.log(event.type + 'STOP: ' + this.active);
             this.resetLastSelectedElements();
+            event.stopPropagation();
+
+            return true;
+        }
+
+        if (element instanceof Clazz && (event.type === 'mouseup' || event.type === 'click')) {
+            let clazz = <Clazz>element;
 
             // mark the border with orange
             this.lastSelectedNode = <Element>element.$view;
             Util.addClass(this.lastSelectedNode, 'SVGClazz-selected');
 
+            this.active = true;
 
             // draw textbox to edit clazz in one line
             let divInlineEdit = document.createElement('div');
@@ -191,7 +199,7 @@ export class Select implements EventHandler {
             });
 
             (<any>divInlineEdit.children[0]).focus();
-
+            event.stopPropagation();
             return true;
         }
 
@@ -243,6 +251,7 @@ export class Select implements EventHandler {
         let lastInlineEdit = document.getElementById('inlineEdit');
         if (lastInlineEdit) {
             document.body.removeChild(lastInlineEdit);
+            this.active = false;
 
             // its not supported in internet explorer
             // lastInlineEdit.remove();

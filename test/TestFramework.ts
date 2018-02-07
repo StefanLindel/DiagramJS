@@ -13,12 +13,11 @@ export default class TestFramework {
         this.root = root;
         this.cases = [];
         const caseNames: string[] = Object.keys(cases);
-        for (var i = 0; i < caseNames.length; i++) {
+        for (let i = 0; i < caseNames.length; i++) {
             const testCase = cases[caseNames[i]];
             this.cases.push(testCase);
         }
     }
-
 
     public run() {
         // await Promise.resolve(() => {
@@ -45,8 +44,15 @@ export default class TestFramework {
         // );
     }
 
-    public getErrors(){
+    public getErrors() {
         return this.errors;
+    }
+
+    public report() {
+        return {
+            'valid': this.valid,
+            'failing': this.failing
+        };
     }
 
     private executeAndWait(promise: boolean, caseInstance: any) {
@@ -58,12 +64,5 @@ export default class TestFramework {
         }
         caseInstance.cleanup();
         // });
-    }
-
-    public report() {
-        return {
-            'valid': this.valid,
-            'failing': this.failing
-        };
     }
 }

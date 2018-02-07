@@ -83,8 +83,6 @@ export class Clazz extends Node {
             ry: 10
         });
 
-
-
         // = = = LABEL = = =
         let label = this.createShape({
             tag: 'text',
@@ -107,18 +105,16 @@ export class Clazz extends Node {
         // = = = ATTRIBUTES = = =
         if (this.attributesObj.length > 0) {
 
-
             // line to separate label from attributes
             const separatorLabelAttr = this.createShape({
                 tag: 'line',
-                x1: pos.x,                   //line doesn't overlap the full shape
+                x1: pos.x,                   // line doesn't overlap the full shape
                 y1: pos.y + this.labelHeight,
-                x2: pos.x + size.x,        //line doesn't overlap the full shape
+                x2: pos.x + size.x,        // line doesn't overlap the full shape
                 y2: pos.y + this.labelHeight,
-                stroke: 'rgb(0, 0, 0)',        //black
+                stroke: 'rgb(0, 0, 0)',        // black
                 'stroke-width': 2
             });
-
 
             group.appendChild(separatorLabelAttr);
 

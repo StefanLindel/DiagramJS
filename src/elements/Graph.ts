@@ -337,7 +337,7 @@ export class Graph extends Control {
         let model = this.$graphModel;
         let root = this.root;
         let max: Point = new Point();
-        if(this.options){
+        if (this.options) {
             max.x = this.options.minWidth || 0;
             max.y = this.options.minHeight || 0;
         }
@@ -372,7 +372,7 @@ export class Graph extends Control {
     }
 
     public drawElement(element: DiagramElement) : void{
-        if(!element){
+        if (!element) {
             return;
         }
 
@@ -490,10 +490,10 @@ export class Graph extends Control {
     private initFeatures(features: any) {
 
         if (features) {
-            if(features.import){
+            if (features.newedge) {
                 EventBus.subscribe(new NewEdge(this), 'mousedown', 'mouseup', 'mousemove', 'mouseleave');
             }
-            if(features.import){
+            if (features.import) {
                 EventBus.subscribe(new ImportFile(this), 'dragover', 'dragleave', 'drop');
             }
             if (features.zoom) {
@@ -504,20 +504,20 @@ export class Graph extends Control {
                 EventBus.subscribe(new Drag(this), 'mousedown', 'mouseup', 'mousemove', 'mouseleave');
             }
             if (features.select) {
-                EventBus.subscribe(new Select(this.$graphModel, this), 'click', 'drag');
+                EventBus.subscribe(new Select(this.$graphModel, this), 'click', 'mousemove');
             }
             if (features.palette) {
                 let palette = new Palette(this);
             }
-            if(features.toolbar){
+            if (features.toolbar) {
                 new Toolbar(this).show();
             }
-            if(features.properties){
+            if (features.properties) {
                 let dispatcher = new PropertiesDispatcher(this);
                 dispatcher.dispatch(PropertiesPanel.PropertiesPanel.PropertiesView.Edge);
-                EventBus.subscribe(dispatcher, 'dblclick', 'click', 'openproperties');
+                EventBus.subscribe(dispatcher, 'dblclick', 'mouseup', 'click', 'openproperties');
             }
-            if(features.addnode){
+            if (features.addnode) {
                 EventBus.subscribe(new AddNode(this), 'mousedown', 'mouseup', 'mousemove', 'mouseleave');
             }
         }

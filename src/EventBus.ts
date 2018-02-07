@@ -92,9 +92,15 @@ export class EventBus {
 
     public static publish(element: DiagramElement, evt: Event) {
         let handlers = EventBus.handlers[evt.type];
+        console.log(evt.type + ': ' + element.id + ': ' + evt.currentTarget + ': ' + evt.target);
+        if (evt.type === 'mousedown') {
+            console.log(handlers);
+        }
         if (handlers) {
             for (let handler of handlers) {
-                handler.handle(evt, element);
+                if (handler.handle(evt, element) === false) {
+                    break;
+                }
             }
         }
     }
