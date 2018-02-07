@@ -1,13 +1,15 @@
-// 				######################################################### Info #########################################################
 import { Point } from '../BaseElements';
 import { Util } from '../../util';
 import { Node } from './Node';
 import { EventBus } from '../../EventBus';
 
 export class InfoText extends Node {
-    custom: boolean;
-    private cardinality: string;
-    private $angle: number;
+
+    public cardinality: string;
+    private heightOfOneTextItem: number;
+    private $cardinalitySvg: Element;
+    private $propertySvg: Element;
+    private $rectBackground: Element;
 
     constructor(info: any) {
         super(info);
@@ -20,69 +22,152 @@ export class InfoText extends Node {
             if (info.cardinality) {
                 this.cardinality = info.cardinality;
             }
-            this.id = info.id;
+            this.id = 'InfoText' + info.id;
         }
         this.$isDraggable = true;
+
+        let calcSize = this.calcSize();
+        this.withSize(calcSize.x, calcSize.y);
     }
 
-    public getSVG(): Element {
+    private calcSize(): Point {
         let text: string = this.getText();
         let items: Array<string> = text.split('\n');
-        let firstChild: Element;
-        let textHeight: number;
 
-        if (text.length < 1) {
-            return null;
-        }
-
-        let group = Util.create({ tag: 'g', 'stroke-width': 0, transform: 'translate(0, 0)' });
-
-        let pos: Point = this.getPos();
         let maxSize = new Point(0, 0);
         for (let i = 0; i < items.length; i += 1) {
-
-            let nextPosY: number = pos.y + (maxSize.y * i);
-
-            let child = Util.create({
-                tag: 'text',
-                'text-anchor': 'left',
-                x: pos.x,
-                y: nextPosY
-            });
-            child.textContent = items[i];
-            group.appendChild(child);
-
             // calculate size
             let sizeOfText: ClientRect = Util.sizeOf(items[i]);
             maxSize.x = Math.max(maxSize.x, sizeOfText.width);
             maxSize.y += sizeOfText.height;
 
-            if (i == 0) {
-                firstChild = child;
-                textHeight = sizeOfText.height;
-            }
+            this.heightOfOneTextItem = sizeOfText.height;
         }
 
-        this.withSize(maxSize.x, maxSize.y);
+        return maxSize;
+    }
 
-        let rectBackground = Util.createShape({
+    public updateCardinality(cardinality: string): void {
+        this.cardinality = cardinality;
+
+        let calcSize = this.calcSize();
+        this.withSize(calcSize.x, calcSize.y);
+
+        if (this.$rectBackground) {
+            this.$rectBackground.setAttributeNS(null, 'width', '' + calcSize.x);
+            this.$rectBackground.setAttributeNS(null, 'height', '' + calcSize.y);
+        }
+
+        if (this.$cardinalitySvg) {
+            this.$cardinalitySvg.textContent = cardinality;
+        }
+        else if (!this.$view) {
+            let svg = this.getSVG();
+            this.$owner.$view.appendChild(svg);
+        }
+        else if (!this.$cardinalitySvg) {
+            let pos: Point = this.getPos();
+            let y = pos.y;
+            if (this.$propertySvg) {
+                y += this.heightOfOneTextItem;
+            }
+
+            this.$cardinalitySvg = Util.createShape({
+                tag: 'text',
+                x: pos.x,
+                y: y,
+                'text-anchor': 'left'
+            });
+            this.$cardinalitySvg.textContent = this.cardinality;
+            this.$view.appendChild(this.$cardinalitySvg);
+        }
+    }
+
+    public updateProperty(property: string): void {
+        this.property = property;
+
+        let calcSize = this.calcSize();
+        this.withSize(calcSize.x, calcSize.y);
+
+        if (this.$rectBackground) {
+            this.$rectBackground.setAttributeNS(null, 'width', '' + calcSize.x);
+            this.$rectBackground.setAttributeNS(null, 'height', '' + calcSize.y);
+        }
+
+        if (this.$propertySvg) {
+            this.$propertySvg.textContent = property;
+        }
+        else if (!this.$view) {
+            let svg = this.getSVG();
+            this.$owner.$view.appendChild(svg);
+        }
+        else if (!this.$propertySvg) {
+            let pos: Point = this.getPos();
+            let y = pos.y;
+            if (this.$cardinalitySvg) {
+                this.$cardinalitySvg.setAttributeNS(null, 'y', '' + (y + this.heightOfOneTextItem));
+            }
+
+            this.$propertySvg = Util.createShape({
+                tag: 'text',
+                x: pos.x,
+                y: y,
+                'text-anchor': 'left'
+            });
+            this.$propertySvg.textContent = this.cardinality;
+            this.$view.appendChild(this.$propertySvg);
+        }
+    }
+
+    public getSVG(): Element {
+        let pos: Point = this.getPos();
+        let group = Util.create({ tag: 'g', id: this.id, class: 'SVGEdgeInfo', transform: 'translate(0, 0)' });
+
+        // append rect as background for text items
+        this.$rectBackground = Util.createShape({
             tag: 'rect',
             x: pos.x,
-            y: pos.y - textHeight,
+            y: pos.y - this.heightOfOneTextItem + 3,
             width: this.getSize().x,
             height: this.getSize().y,
             fill: '#DDD',
             'stroke-width': 0
         });
+        group.appendChild(this.$rectBackground);
 
-        group.insertBefore(rectBackground, firstChild);
+        let y = pos.y;
+        if (this.property) {
+            // property
+            this.$propertySvg = Util.createShape({
+                tag: 'text',
+                x: pos.x,
+                y: y,
+                'text-anchor': 'left'
+            });
+            this.$propertySvg.textContent = this.property;
+            group.appendChild(this.$propertySvg);
+
+            y += this.heightOfOneTextItem;
+        }
+
+        // cardinality
+        if (this.cardinality) {
+            this.$cardinalitySvg = Util.createShape({
+                tag: 'text',
+                x: pos.x,
+                y: y,
+                'text-anchor': 'left'
+            });
+            this.$cardinalitySvg.textContent = this.cardinality;
+            group.appendChild(this.$cardinalitySvg);
+        }
 
         this.$view = group;
 
         return group;
     }
 
-    public redraw(newPos: Point): void {
+    public redrawFromEdge(newPos: Point): void {
 
         if (!newPos) return;
 

@@ -195,18 +195,28 @@ export class GraphModel extends DiagramElement {
 
         let newEdge = <Edge>this.getElement(type, id, edge);
         newEdge.typ = type;
-        let source: Node = this.findNodeByLabel(edge.source);
-        if (!source) {
-            source = new Node({ label: edge.source });
-            source.init(this);
-            this.addNode(source);
+
+        let source: Node;
+        let sourceAsString: string = edge.source.id || edge.source;
+        if(sourceAsString){
+            source = this.findNodeByLabel(sourceAsString);
+            if (!source) {
+                source = <Node>this.getElement('Clazz', this.getNewId('Clazz'), { name: edge.source });
+                source.init(this);
+            }
         }
-        let target: Node = this.findNodeByLabel(edge.target);
-        if (!target) {
-            target = new Node({ label: edge.target });
-            target.init(this);
-            this.addNode(target);
+
+        let target: Node;
+        let targetAsString: string = edge.target.id || edge.target;
+        if(targetAsString){
+            target = this.findNodeByLabel(targetAsString);
+            if (!target) {
+                target = <Node>this.getElement('Clazz', this.getNewId('Clazz'), { name: edge.target });
+                target.init(this);
+            }
         }
+        
+
         newEdge.withItem(source, target);
 
         if(withPosOfNodes){

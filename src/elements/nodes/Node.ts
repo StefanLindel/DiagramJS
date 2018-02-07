@@ -15,6 +15,10 @@ export class Node extends DiagramElement {
 
     constructor(data: JSON|string|Object|any) {
         super();
+
+        // default size
+        this.withSize(150, 25);
+
         if (data) {
             if (data['x'] && data['y']) {
                 this.withPos(data['x'], data['y']);
@@ -66,7 +70,7 @@ export class Node extends DiagramElement {
 
     public redrawEdges() {
         for (let edge of this.edges) {
-            edge.redraw();
+            edge.redraw(this);
         }
     }
 }

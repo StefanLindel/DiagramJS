@@ -17,6 +17,7 @@ import {SymbolLibary} from './nodes/Symbol';
 import {CSS} from '../CSS';
 import { DiagramElement } from './index';
 import { Edge } from './edges';
+import { Toolbar } from '../Toolbar';
 
 export class Graph extends Control {
     canvas: HTMLElement;
@@ -51,6 +52,9 @@ export class Graph extends Control {
         this.$graphModel.init(this);
         this.$graphModel.load(json);
         this.initFeatures(this.options.features);
+
+        this.addLayerToolBar();
+        
         EventBus.register(this,  this.canvas);
     }
 
@@ -104,7 +108,7 @@ export class Graph extends Control {
 
         this.layerToolBar = Util.createShape({
             tag: 'svg',
-            id: 'root',
+            id: 'rootExportBar',
             width: '80px',
             height: z + 'px',
             x: '100px',
@@ -377,7 +381,7 @@ export class Graph extends Control {
 
         if(element instanceof Edge){
             let edge = <Edge>element;
-            edge.redrawNewFn(edge.$sNode);
+            edge.redraw(edge.$sNode);
             let srcSvg = element.$sNode.getAlreadyDisplayingSVG();
             let targetSvg = element.$tNode.getAlreadyDisplayingSVG();
 
@@ -485,10 +489,13 @@ export class Graph extends Control {
 
     private initFeatures(features: any) {
 
-        EventBus.subscribe(new ImportFile(this), 'dragover', 'dragleave', 'drop');
-        EventBus.subscribe(new NewEdge(this), 'mousedown', 'mouseup', 'mousemove', 'mouseleave');
-
         if (features) {
+            if(features.import){
+                EventBus.subscribe(new NewEdge(this), 'mousedown', 'mouseup', 'mousemove', 'mouseleave');
+            }
+            if(features.import){
+                EventBus.subscribe(new ImportFile(this), 'dragover', 'dragleave', 'drop');
+            }
             if (features.zoom) {
                 let mousewheel = 'onwheel' in document.createElement('div') ? 'wheel' : document.onmousewheel !== undefined ? 'mousewheel' : 'DOMMouseScroll';
                 EventBus.subscribe(new Zoom(), mousewheel);
@@ -502,12 +509,17 @@ export class Graph extends Control {
             if (features.palette) {
                 let palette = new Palette(this);
             }
+            if(features.toolbar){
+                new Toolbar(this).show();
+            }
+            if(features.properties){
+                let dispatcher = new PropertiesDispatcher(this);
+                dispatcher.dispatch(PropertiesPanel.PropertiesPanel.PropertiesView.Edge);
+                EventBus.subscribe(dispatcher, 'dblclick', 'click', 'openproperties');
+            }
+            if(features.addnode){
+                EventBus.subscribe(new AddNode(this), 'mousedown', 'mouseup', 'mousemove', 'mouseleave');
+            }
         }
-
-        let dispatcher = new PropertiesDispatcher(this);
-        dispatcher.dispatch(PropertiesPanel.PropertiesPanel.PropertiesView.Edge);
-        EventBus.subscribe(dispatcher, 'dblclick', 'click', 'openproperties');
-
-        EventBus.subscribe(new AddNode(this), 'mousedown', 'mouseup', 'mousemove', 'mouseleave');
     }
 }

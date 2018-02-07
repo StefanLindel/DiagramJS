@@ -131,7 +131,7 @@ export class DagreLayoutMin implements Layout {
                 continue;
             }
             e = edges[i];
-            e.calc(graph.canvas);
+            // OBSOLETE method:  e.calc(graph.canvas);
         }
         graph.draw();
     }

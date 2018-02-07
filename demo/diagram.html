@@ -11,10 +11,6 @@
 </head>
 
 <body>
-	<div class="toolbar">
-		<h1 class="logo">DiagramJS</h1>
-		<button id="layoutBtn" style="margin-left: 195px;margin-top: 12px;">AUTO-LAYOUT</button>
-	</div>
 	<div class="diagram" id="canvas"></div>
 	<script language="javascript">
 		var data = {
@@ -51,11 +47,25 @@
 				}
 			],
 			edges: [
-				{ type: 'Edge', source: 'Order', target: 'Product' },
+				{ type: 'Generalisation', 
+					source: 
+					{
+						id: 'Order',
+						cardinality: '1',
+						property: 'blub'
+					},
+					target: 
+					{
+						id: 'Product',
+						cardinality: '0..n',
+						property: 'asd'
+					}
+				},
 				{ type: 'Edge', source: 'User', target: 'Order' },
 				{ type: 'Edge', source: 'User', target: 'Account' },
-				{ type: 'Edge', source: 'Order', target: 'Payment' },
-				{ type: 'Edge', source: 'Payment', target: 'Account' }
+				{ source: 'Order', target: 'Payment' },
+				{ type: 'Edge', source: 'Payment', target: 'Account' },
+				{ source: 'A', target: 'B' }
 			]
 		};
 
@@ -70,19 +80,17 @@
 				editor: true,
 				palette: true,
 				select: true,
-				zoom: true
+				zoom: true,
+				addnode: true,
+				properties: true,
+				import: true,
+				toolbar: true,
+				newedge: true
 			}
 		};
 
 		var dia = new Graph(data, options);
-
-		document.getElementById('layoutBtn').onclick = function () {
-			dia.layout();
-		};
-
-		//(function() {
 		dia.layout();
-	//})();
 	</script>
 </body>
 

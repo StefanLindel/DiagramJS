@@ -613,6 +613,14 @@ h1 {
 	stroke: #FFA033;
 }
 
+.SVGEdgeInfo{
+	font-family: 'Verdana';
+	font-size: 12px;
+	fill: black;
+	cursor: inherit;
+	stroke-width: 0;
+}
+
 .SVGClazz > rect{
 	stroke-width: 2;
 	stroke: black;

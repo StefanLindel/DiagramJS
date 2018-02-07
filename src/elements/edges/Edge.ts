@@ -21,16 +21,80 @@ export class Edge extends DiagramElement {
     public $points: Line[] = [];
     public $pointsNew: Point[] = [];
     public $pathSvg: Element;
-    info: InfoText;
-    sourceInfo: InfoText;
-    targetInfo: InfoText;
+    public info: InfoText;
+    public sourceInfo: InfoText;
+    public targetInfo: InfoText;
     $m: number;
     $n: number;
 
-    private static getShortestPointFromSource(source: Node, target: Node): Point {
-        let result: Point;
+    constructor(data: JSON | string | Object | any) {
+        super();
 
-        return result;
+        this.withData(data);
+    }
+
+    public withData(data: JSON | string | Object | any) : Edge{
+
+        if(!data){
+            return this;
+        }
+
+        if(data.source && typeof data.source !== 'string'){
+            this.sourceInfo = new InfoText(data.source);
+            this.sourceInfo.$owner = this;
+        }
+
+        if(data.target && typeof data.target !== 'string'){
+            this.targetInfo = new InfoText(data.target);
+            this.targetInfo.$owner = this;
+        }
+
+        return this;
+    }
+
+    public updateSrcCardinality(cardinality: string): void{
+        this.sourceInfo = this.updateCardinality(this.$sNode, this.sourceInfo, cardinality);
+    }
+
+    public updateTargetCardinality(cardinality: string): void{
+        this.targetInfo = this.updateCardinality(this.$tNode, this.targetInfo, cardinality);
+    }
+
+    private updateCardinality(node: Node, infoText: InfoText, cardinality: string): InfoText{
+        if(!infoText){
+            infoText = new InfoText({'cardinality': cardinality});
+
+            let calcPos = this.calcInfoPosNew(infoText, node);
+            infoText.withPos(calcPos.x, calcPos.y);
+            this.$view.appendChild(infoText.getSVG());
+
+            return infoText;
+        }
+        infoText.updateCardinality(cardinality);
+
+        return infoText;
+    }
+
+    public updateSrcProperty(property: string): void{
+        this.sourceInfo = this.updateProperty(this.$sNode, this.sourceInfo, property);
+    }
+
+    public updateTargetProperty(property: string): void{
+        this.targetInfo = this.updateProperty(this.$tNode, this.targetInfo, property);
+    }
+
+    private updateProperty(node: Node, infoText: InfoText, property: string): InfoText{
+        if(!infoText){
+            infoText = new InfoText({'property': property});
+
+            let calcPos = this.calcInfoPosNew(infoText, node);
+            infoText.withPos(calcPos.x, calcPos.y);
+            this.$view.appendChild(infoText.getSVG());
+
+            return infoText;
+        }
+        infoText.updateProperty(property);
+        return infoText;
     }
 
     public withItem(source: Node, target: Node): Edge {
@@ -64,22 +128,19 @@ export class Edge extends DiagramElement {
         };
         let shape = this.createShape(attr);
 
-
-
-        // LET'S GET DIRTY
-        this.sourceInfo = new InfoText({ id: 'srcInfoTest', cardinality: '0..n', property: 'testtehujbljadst' });
-        this.sourceInfo.withSize(50, 40);
-        this.sourceInfo.$owner = this;
-
-        let calcPos = this.calcInfoPosNew(this.sourceInfo, this.$sNode);
-        this.sourceInfo.withPos(calcPos.x, calcPos.y);
-
-        let srcInfoSvg = this.sourceInfo.getSVG();
-        EventBus.register(this.sourceInfo, srcInfoSvg);
-
         let group = Util.createShape({ tag: 'g', id: this.id, class: 'SVGEdge' });
         group.appendChild(shape);
-        group.appendChild(srcInfoSvg);
+
+        if(this.sourceInfo){        
+            let calcPos = this.calcInfoPosNew(this.sourceInfo, this.$sNode);
+            this.sourceInfo.withPos(calcPos.x, calcPos.y);
+            group.appendChild(this.sourceInfo.getSVG());
+        }
+        if(this.targetInfo){
+            let calcPos = this.calcInfoPosNew(this.targetInfo, this.$tNode);
+            this.targetInfo.withPos(calcPos.x, calcPos.y);
+            group.appendChild(this.targetInfo.getSVG());
+        }
 
         this.$pathSvg = shape;
         this.$view = group;
@@ -107,6 +168,9 @@ export class Edge extends DiagramElement {
         newEdge.typ = type;
         newEdge.lineStyle = this.lineStyle;
         newEdge.$owner = this.$owner;
+        newEdge.sourceInfo = this.sourceInfo;
+        newEdge.targetInfo = this.targetInfo;
+        newEdge.info = this.info;
 
         this.$pointsNew.forEach(point => {
             newEdge.addPoint(point.x, point.y);
@@ -136,15 +200,15 @@ export class Edge extends DiagramElement {
         // if not, so the inherited class redraw the path with his own logic
 
         let dontDrawPath: boolean = (type !== 'Edge');
-        newEdge.redrawNewFn(newEdge.$sNode, dontDrawPath);
-        newEdge.redrawNewFn(newEdge.$tNode, dontDrawPath);
+        newEdge.redraw(newEdge.$sNode, dontDrawPath);
+        newEdge.redraw(newEdge.$tNode, dontDrawPath);
 
         EventBus.register(newEdge, newEdgeSvg);
 
         return newEdge;
     }
 
-    public redrawNewFn(startNode: Node, dontDrawPoints?: boolean): void {
+    public redraw(startNode: Node, dontDrawPoints?: boolean): void {
 
         if (!startNode) {
             return;
@@ -193,14 +257,14 @@ export class Edge extends DiagramElement {
         }
 
         // calculate the infotext of source
-        if(this.sourceInfo){
+        if (this.sourceInfo) {
             let newPosOfSrc = this.calcInfoPosNew(this.sourceInfo, this.$sNode);
-            this.sourceInfo.redraw(newPosOfSrc);
+            this.sourceInfo.redrawFromEdge(newPosOfSrc);
         }
 
-        if(this.targetInfo){
+        if (this.targetInfo) {
             let newPosOfTarget = this.calcInfoPosNew(this.targetInfo, this.$tNode);
-            this.targetInfo.redraw(newPosOfTarget);
+            this.targetInfo.redrawFromEdge(newPosOfTarget);
         }
 
 
@@ -288,7 +352,7 @@ export class Edge extends DiagramElement {
 
     protected calcInfoPosNew(infoTxt: InfoText, node: Node): Point {
 
-        if(!infoTxt || !node) return null;
+        if (!infoTxt || !node) return null;
 
         // 1. step: get direction
         let startPoint: Point;
@@ -310,40 +374,40 @@ export class Edge extends DiagramElement {
         switch (direction) {
             case Direction.Up:
                 // compare x-coordinates from start- and nextToStart point
-                if(startPoint.x >= nextToStartPoint.x){
+                if (startPoint.x >= nextToStartPoint.x) {
                     x = startPoint.x + 5;
                 }
-                else{
+                else {
                     x = startPoint.x - (infoTxt.getSize().x);
                 }
-                y = startPoint.y + (infoTxt.getSize().y / 2);
+                y = startPoint.y + (infoTxt.getSize().y / 2) + 5;
                 break;
             case Direction.Right:
                 // compare y-coordinates from start- and nextToStart point
-                if(startPoint.y >= nextToStartPoint.y){
+                if (startPoint.y >= nextToStartPoint.y) {
                     y = startPoint.y + (infoTxt.getSize().y / 2);
                 }
-                else{
+                else {
                     y = startPoint.y - (infoTxt.getSize().y / 2);
                 }
                 x = startPoint.x - (infoTxt.getSize().x) - 5;
                 break;
             case Direction.Left:
                 // compare y-coordinates from start- and nextToStart point
-                if(startPoint.y >= nextToStartPoint.y){
+                if (startPoint.y >= nextToStartPoint.y) {
                     y = startPoint.y + (infoTxt.getSize().y / 2);
                 }
-                else{
+                else {
                     y = startPoint.y - (infoTxt.getSize().y / 2);
                 }
                 x = startPoint.x + 5;
                 break;
             case Direction.Down:
                 // compare x-coordinates from start- and nextToStart point
-                if(startPoint.x >= nextToStartPoint.x){
+                if (startPoint.x >= nextToStartPoint.x) {
                     x = startPoint.x + 5;
                 }
-                else{
+                else {
                     x = startPoint.x - (infoTxt.getSize().x);
                 }
                 y = startPoint.y - (infoTxt.getSize().y / 2) - 5;
@@ -356,246 +420,9 @@ export class Edge extends DiagramElement {
         return new Point(x, y);
     }
 
-    // Obsolete function
-    public redraw() {
-        this.redrawNewFn(this.$sNode);
-    }
-
-    // INFOTEXT CALCULATE POSITION
-    public calc(board: Element): boolean {
-        let result, options, linetyp, sourcePos: Point, targetPos: Point, divisor, startNode: Node, endNode: Node;
-        startNode = <Node>this.$sNode.getShowed();
-        endNode = <Node>this.$tNode.getShowed();
-
-        divisor = (endNode.getCenter().x - startNode.getCenter().x);
-        this.$points = [];
-        if (divisor === 0) {
-            if (startNode === endNode) {
-                /* OwnAssoc */
-                return false;
-            }
-            // Must be UP_DOWN or DOWN_UP
-            if (startNode.getCenter().y < endNode.getCenter().y) {
-                // UP_DOWN
-                sourcePos = startNode.getCenterPosition(Point.DOWN);
-                targetPos = endNode.getCenterPosition(Point.UP);
-            } else {
-                sourcePos = startNode.getCenterPosition(Point.UP);
-                targetPos = endNode.getCenterPosition(Point.DOWN);
-            }
-        } else {
-            // add switch from option or model
-            options = this.$owner['options'];
-            if (options) {
-                linetyp = options.linetyp;
-            }
-            result = false;
-            if (linetyp === 'square') {
-                result = this.calcSquareLine();
-            }
-            if (!result) {
-                this.$m = (endNode.getCenter().y - startNode.getCenter().y) / divisor;
-                this.$n = startNode.getCenter().y - (startNode.getCenter().x * this.$m);
-                sourcePos = Util.getPosition(this.$m, this.$n, startNode, endNode.getCenter());
-                targetPos = Util.getPosition(this.$m, this.$n, endNode, sourcePos);
-            }
-        }
-        if (sourcePos && targetPos) {
-            if (this.sourceInfo) {
-                this.calcInfoPos(sourcePos, startNode, this.sourceInfo);
-            }
-            if (this.targetInfo) {
-                this.calcInfoPos(targetPos, endNode, this.targetInfo);
-            }
-            startNode['$' + sourcePos.getPosition()] += 1;
-            endNode['$' + targetPos.getPosition()] += 1;
-
-            const line: Line = new Line(this.lineStyle);
-            line.init(this);
-            line.source = sourcePos;
-            line.target = targetPos;
-            this.$points.push(line);
-            if (this.info) {
-                this.info.withPos((sourcePos.x + targetPos.x) / 2, (sourcePos.y + targetPos.y) / 2);
-            }
-        }
-        return true;
-    }
-
-    public addLineTo(x1: number, y1: number, x2?: number, y2?: number) {
-        let start, end;
-        if (!x2 && !y2) {
-            if (this.$points.length > 0) {
-                start = this.$points[this.$points.length - 1].target;
-                end = new Point(start.x + x1, start.y + y1);
-            } else {
-                start = new Point(x1, y1);
-                end = new Point(x1, y1);
-            }
-        } else {
-            start = new Point(x1, y1);
-            end = new Point(start.x + x2, start.y + y2);
-        }
-        const line: Line = new Line(this.lineStyle);
-        line.init(this);
-        line.source = start;
-        line.target = end;
-        this.$points.push(line);
-        // this.$points.push(new Line(start, end, this.$lineStyle, this.style));
-    }
-
     public clearPoints(): any {
         this.$points = [];
         this.$pointsNew = [];
-    }
-
-    public addLine(x1: number, y1: number, x2?: number, y2?: number) {
-        let start: Point, end: Point;
-        if (!x2 && !y2) {
-            if (this.$points.length > 0) {
-                start = this.$points[this.$points.length - 1].target;
-                end = new Point(x1, y1);
-            } else {
-                start = new Point(x1, y1);
-                end = start;
-            }
-        } else {
-            start = new Point(x1, y1);
-            end = new Point(x2, y2);
-        }
-        const line: Line = new Line(this.lineStyle);
-        line.init(this);
-        line.source = start;
-        line.target = end;
-        this.$points.push(line);
-    }
-
-    public calcInfoPos(linePos: Point, item: Node, info: InfoText) {
-        // Manuell move the InfoTag
-        let newY: number, newX: number, spaceA: number = 20, spaceB: number = 0, step: number = 15;
-        let owner: any = item.$owner;
-        if (owner.options && !owner.options.rotatetext) {
-            spaceA = 20;
-            spaceB = 10;
-        }
-        if (info.custom || info.getText().length < 1) {
-            return;
-        }
-        newY = linePos.y;
-        newX = linePos.x;
-        let size: Point = info.getSize();
-        if (linePos.getPosition() === Point.UP) {
-            newY = newY - size.y - spaceA;
-            if (this.$m !== 0) {
-                newX = (newY - this.$n) / this.$m + spaceB + (item.$TOP * step);
-            }
-        } else if (linePos.getPosition() === Point.DOWN) {
-            newY = newY + spaceA;
-            if (this.$m !== 0) {
-                newX = (newY - this.$n) / this.$m + spaceB + (item.$DOWN * step);
-            }
-        } else if (linePos.getPosition() === Point.LEFT) {
-            newX = newX - size.x - (item.$LEFT * step) - spaceA;
-            if (this.$m !== 0) {
-                newY = (this.$m * newX) + this.$n;
-            }
-        } else if (linePos.getPosition() === Point.RIGHT) {
-            newX += (item.$RIGHT * step) + spaceA;
-            if (this.$m !== 0) {
-                newY = (this.$m * newX) + this.$n;
-            }
-        }
-        info.withPos(Math.ceil(newX), Math.ceil(newY));
-    }
-
-    public calcSquareLine() {
-        // 1. Case		/------\
-        // 			|...T...|
-        // 			\-------/
-        // 		|---------|
-        // 		|
-        // 	/-------\
-        // 	|...S...|
-        // 	\-------/
-        let startPos: Point = this.$sNode.getPos();
-        let startSize: Point = this.$sNode.getSize();
-        let endPos: Point = this.$tNode.getPos();
-        let endSize: Point = this.$tNode.getSize();
-        if (startPos.y - 40 > endPos.y + endSize.y) { // oberseite von source and unterseite von target
-            this.addLineTo(startPos.x + startSize.x / 2, startPos.y, 0, -20);
-            this.addLine(endPos.x + endSize.x / 2, endPos.y + endSize.y + 20);
-            this.addLineTo(0, -20);
-            return true;
-        }
-        if (endPos.y - 40 > startPos.y + startSize.y) { // oberseite von source and unterseite von target
-            // Case 1 the other way round
-            this.addLineTo(startPos.x + startSize.x / 2, startPos.y + startSize.y, 0, +20);
-            this.addLine(endPos.x + endSize.x / 2, endPos.y - 20);
-            this.addLineTo(0, 20);
-            return true;
-        }
-        // 3. Case ,falls s (source) komplett unter t (target) ist
-        // beide oberseiten
-        // 3. Case
-        // 		 |--------
-        // 		/---\	 |
-        // 		| T |	/---\
-        // 		\---/	| S |
-        // 				-----
-        // or
-        // 		-------|
-        // 		|	 /---\
-        // 	/----\	 | T |
-        // 	| S	 |	 \---/
-        // 	------
-        //
-        this.addLineTo(startPos.x + startSize.x / 2, startPos.y, 0, -20);
-        this.addLine(endPos.x + endSize.x / 2, endPos.y - 20);
-        this.addLineTo(0, 20);
-        return true;
-    }
-
-    public calcOffset() {
-        let i: number, z: number, x: number, y: number;
-        let min: Point = new Point(999999999, 999999999), max: Point = new Point(0, 0);
-        let item: Line, svg, value: any;
-        for (i = 0; i < this.$points.length; i += 1) {
-            item = this.$points[i];
-            if (item.lineType === Line.FORMAT.PATH) {
-                value = document.createElement('div');
-                svg = Util.create({ tag: 'svg' });
-                svg.appendChild(item.getSVG());
-                value = svg.childNodes[0];
-                x = y = 0;
-                if (!value.pathSegList) {
-                    continue;
-                }
-                for (z = 0; z < value.pathSegList.length; z += 1) {
-                    let child: any = value.pathSegList[z];
-                    switch (child.pathSegType) {
-                        case SVGPathSeg.PATHSEG_MOVETO_ABS:
-                        case SVGPathSeg.PATHSEG_LINETO_ABS:
-                        case SVGPathSeg.PATHSEG_ARC_ABS:
-                        case SVGPathSeg.PATHSEG_CURVETO_CUBIC_ABS:
-                            x = child.x;
-                            y = child.y;
-                            break;
-                        case SVGPathSeg.PATHSEG_MOVETO_REL:
-                        case SVGPathSeg.PATHSEG_LINETO_REL:
-                        case SVGPathSeg.PATHSEG_CURVETO_CUBIC_REL:
-                        case SVGPathSeg.PATHSEG_ARC_REL:
-                            x = x + child.x;
-                            y = y + child.y;
-                            break;
-                    }
-                    Util.Range(min, max, x, y);
-                }
-            } else {
-                Util.Range(min, max, item.source.x, item.source.y);
-                Util.Range(min, max, item.target.x, item.target.y);
-            }
-        }
-        return { x: min.x, y: min.y, width: max.x - min.x, height: max.y - min.y };
     }
 
     protected getDirectionOfPointToNode(node: Node, pointNearNode: Point): Direction {

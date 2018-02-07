@@ -9,6 +9,7 @@ import {Point} from './elements/BaseElements';
 import {Graph} from './elements/Graph';
 import {Bridge} from './Bridge';
 import {Util} from './util';
+import {Toolbar} from './Toolbar';
 import * as nodes  from './elements/nodes';
 import * as edges from './elements/edges';
 

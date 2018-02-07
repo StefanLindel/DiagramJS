@@ -121,6 +121,40 @@ export class PropertiesDispatcher implements EventHandler {
         let inputTypeEdgeSrc = document.getElementById('edgeSrcInput');
         inputTypeEdgeSrc.setAttribute('value', edge.$sNode.label);
 
+        // show source property
+        let inputEdgeSrcProperty = document.getElementById('edgeSrcProperty');
+        inputEdgeSrcProperty.addEventListener('input', function(evt){
+            edge.updateSrcProperty((<HTMLInputElement>inputEdgeSrcProperty).value);
+        });
+
+        // show source cardinality
+        let inputEdgeSrcCardinality = document.getElementById('edgeSrcCardinality');
+        inputEdgeSrcCardinality.addEventListener('input', function(evt){
+            edge.updateSrcCardinality((<HTMLInputElement>inputEdgeSrcCardinality).value);
+        });
+
+        if(edge.sourceInfo){
+            inputEdgeSrcProperty.setAttribute('value', edge.sourceInfo.property);
+            inputEdgeSrcCardinality.setAttribute('value', edge.sourceInfo.cardinality);
+        }
+
+        // show target property
+        let inputEdgeTargetProperty = document.getElementById('edgeTargetProperty');
+        inputEdgeTargetProperty.addEventListener('input', function(evt){
+            edge.updateTargetProperty((<HTMLInputElement>inputEdgeTargetProperty).value);
+        });
+
+        // show target cardinality
+        let inputEdgeTargetCardinality = document.getElementById('edgeTargetCardinality');
+        inputEdgeTargetCardinality.addEventListener('input', function(evt){
+            edge.updateTargetCardinality((<HTMLInputElement>inputEdgeTargetCardinality).value);
+        });
+
+        if(edge.targetInfo){
+            inputEdgeTargetProperty.setAttribute('value', edge.targetInfo.property);
+            inputEdgeTargetCardinality.setAttribute('value', edge.targetInfo.cardinality);
+        }
+
         // show target node
         let inputTypeEdgeTarget = document.getElementById('edgeTargetInput');
         inputTypeEdgeTarget.setAttribute('value', edge.$tNode.label);

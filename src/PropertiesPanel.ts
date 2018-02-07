@@ -523,16 +523,78 @@ export namespace PropertiesPanel {
             divTableBody.appendChild(divRowEdgeSrcNode);
 
 
-            // ROW4: target node
+
+
+
+
+            // ROW4: source node property
+            let divRowEdgeSrcNodeProperty = document.createElement('div');
+            divRowEdgeSrcNodeProperty.className = 'divTableRow';
+
+            // ROW 4 -> Cell1 text Source property
+            let divRowEdgeSrcNodePropertyCellText = document.createElement('div');
+            divRowEdgeSrcNodePropertyCellText.className = 'divTableCell';
+            divRowEdgeSrcNodePropertyCellText.innerHTML = 'Source Property:';
+
+            // ROW 4 -> Cell2 input Source Node property
+            let divRowEdgeSrcNodePropertyCellInput = document.createElement('div');
+            divRowEdgeSrcNodePropertyCellInput.className = 'divTableCell';
+
+            let textBoxEdgeSrcProperty = document.createElement('input');
+            textBoxEdgeSrcProperty.type = 'text';
+            textBoxEdgeSrcProperty.id = 'edgeSrcProperty';
+            textBoxEdgeSrcProperty.placeholder = 'Add source property';
+            textBoxEdgeSrcProperty.className = 'col2';
+
+            divRowEdgeSrcNodePropertyCellInput.appendChild(textBoxEdgeSrcProperty);
+
+            divRowEdgeSrcNodeProperty.appendChild(divRowEdgeSrcNodePropertyCellText);
+            divRowEdgeSrcNodeProperty.appendChild(divRowEdgeSrcNodePropertyCellInput);
+            divTableBody.appendChild(divRowEdgeSrcNodeProperty);
+
+
+
+
+            // ROW5: source node cardinality
+            let divRowEdgeSrcNodeCardinality = document.createElement('div');
+            divRowEdgeSrcNodeCardinality.className = 'divTableRow';
+
+            // ROW5 -> Cell1 text Source Cardinality
+            let divRowEdgeSrcNodeCardinalityCellText = document.createElement('div');
+            divRowEdgeSrcNodeCardinalityCellText.className = 'divTableCell';
+            divRowEdgeSrcNodeCardinalityCellText.innerHTML = 'Source Cardinality:';
+
+            // ROW5 -> Cell2 input Source Node Cardinality
+            let divRowEdgeSrcNodeCardinalityCellInput = document.createElement('div');
+            divRowEdgeSrcNodeCardinalityCellInput.className = 'divTableCell';
+
+            let textBoxEdgeSrcCardinality = document.createElement('input');
+            textBoxEdgeSrcCardinality.type = 'text';
+            textBoxEdgeSrcCardinality.id = 'edgeSrcCardinality';
+            textBoxEdgeSrcCardinality.placeholder = 'Add source cardinality';
+            textBoxEdgeSrcCardinality.className = 'col2';
+
+            divRowEdgeSrcNodeCardinalityCellInput.appendChild(textBoxEdgeSrcCardinality);
+
+            divRowEdgeSrcNodeCardinality.appendChild(divRowEdgeSrcNodeCardinalityCellText);
+            divRowEdgeSrcNodeCardinality.appendChild(divRowEdgeSrcNodeCardinalityCellInput);
+            divTableBody.appendChild(divRowEdgeSrcNodeCardinality);
+
+
+
+
+
+            // ### TARGET ###
+            // ROW6: target node
             let divRowEdgeTargetNode = document.createElement('div');
             divRowEdgeTargetNode.className = 'divTableRow';
 
-            // ROW 4 -> Cell1 text Target Node
+            // ROW6 -> Cell1 text Target Node
             let divRowEdgeTargetNodeCellText = document.createElement('div');
             divRowEdgeTargetNodeCellText.className = 'divTableCell';
-            divRowEdgeTargetNodeCellText.innerHTML = 'Source:';
+            divRowEdgeTargetNodeCellText.innerHTML = 'Target:';
 
-            // ROW 4 -> Cell2 input Target Node
+            // ROW6 -> Cell2 input Target Node
             let divRowEdgeTargetNodeCellInput = document.createElement('div');
             divRowEdgeTargetNodeCellInput.className = 'divTableCell';
 
@@ -550,8 +612,65 @@ export namespace PropertiesPanel {
             divRowEdgeTargetNode.appendChild(divRowEdgeTargetNodeCellInput);
             divTableBody.appendChild(divRowEdgeTargetNode);
 
-            divTable.appendChild(divTableBody);
 
+            
+            // ROW7: target node property
+            let divRowEdgeTargetNodeProperty = document.createElement('div');
+            divRowEdgeTargetNodeProperty.className = 'divTableRow';
+
+            // ROW7 -> Cell1 text target property
+            let divRowEdgeTargetNodePropertyCellText = document.createElement('div');
+            divRowEdgeTargetNodePropertyCellText.className = 'divTableCell';
+            divRowEdgeTargetNodePropertyCellText.innerHTML = 'Source Property:';
+
+            // ROW7 -> Cell2 input target Node property
+            let divRowEdgeTargetNodePropertyCellInput = document.createElement('div');
+            divRowEdgeTargetNodePropertyCellInput.className = 'divTableCell';
+
+            let textBoxEdgeTargetProperty = document.createElement('input');
+            textBoxEdgeTargetProperty.type = 'text';
+            textBoxEdgeTargetProperty.id = 'edgeTargetProperty';
+            textBoxEdgeTargetProperty.placeholder = 'Add target property';
+            textBoxEdgeTargetProperty.className = 'col2';
+
+            divRowEdgeTargetNodePropertyCellInput.appendChild(textBoxEdgeTargetProperty);
+
+            divRowEdgeTargetNodeProperty.appendChild(divRowEdgeTargetNodePropertyCellText);
+            divRowEdgeTargetNodeProperty.appendChild(divRowEdgeTargetNodePropertyCellInput);
+            divTableBody.appendChild(divRowEdgeTargetNodeProperty);
+
+
+
+
+
+            // ROW8: target node cardinality
+            let divRowEdgeTargetNodeCardinality = document.createElement('div');
+            divRowEdgeTargetNodeCardinality.className = 'divTableRow';
+
+            // ROW8 -> Cell1 text target Cardinality
+            let divRowEdgeTargetNodeCardinalityCellText = document.createElement('div');
+            divRowEdgeTargetNodeCardinalityCellText.className = 'divTableCell';
+            divRowEdgeTargetNodeCardinalityCellText.innerHTML = 'Target Cardinality:';
+
+            // ROW8 -> Cell2 input target Node Cardinality
+            let divRowEdgeTargetNodeCardinalityCellInput = document.createElement('div');
+            divRowEdgeTargetNodeCardinalityCellInput.className = 'divTableCell';
+
+            let textBoxEdgeTargetCardinality = document.createElement('input');
+            textBoxEdgeTargetCardinality.type = 'text';
+            textBoxEdgeTargetCardinality.id = 'edgeTargetCardinality';
+            textBoxEdgeTargetCardinality.placeholder = 'Add target cardinality';
+            textBoxEdgeTargetCardinality.className = 'col2';
+
+            divRowEdgeTargetNodeCardinalityCellInput.appendChild(textBoxEdgeTargetCardinality);
+
+            divRowEdgeTargetNodeCardinality.appendChild(divRowEdgeTargetNodeCardinalityCellText);
+            divRowEdgeTargetNodeCardinality.appendChild(divRowEdgeTargetNodeCardinalityCellInput);
+            divTableBody.appendChild(divRowEdgeTargetNodeCardinality);
+
+
+
+            divTable.appendChild(divTableBody);
             div.appendChild(divTable);
             this._divChildPanel.appendChild(div);
         }

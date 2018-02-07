@@ -1,13 +1,11 @@
-'use strict';
 import {Point} from './elements/BaseElements';
 
-interface Options {
+export default interface Options {
     canvas?: string;
     minWidth?: number;
     minHeight?: number;
     layout?: string;
     origin?: Point;       // x and y offset of rendered diagram
-    CardinalityInfo?: string;
     features?: {
         editor?: boolean,
         drag?: boolean,
@@ -16,8 +14,8 @@ interface Options {
         zoom?: boolean,
         addnode?: boolean,
         properties?: boolean,
-        import?: boolean
+        import?: boolean,
+        toolbar?: boolean,
+        newedge?: boolean
     };
 }
-
-export default Options;

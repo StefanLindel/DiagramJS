@@ -28,9 +28,9 @@ export abstract class Association extends Edge {
         return group;
     }
 
-    public redrawNewFn(startNode: Node, dontDrawPoints?: boolean): void {
+    public redraw(startNode: Node, dontDrawPoints?: boolean): void {
         // redraw the edge
-        super.redrawNewFn(startNode, true);
+        super.redraw(startNode, true);
 
         // redraw the generalisation symbol
         // first of all, get the correct direction

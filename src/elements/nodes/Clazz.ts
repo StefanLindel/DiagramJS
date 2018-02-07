@@ -466,7 +466,7 @@ export class Clazz extends Node {
 
     public redrawEdges() {
         for (let edge of this.edges) {
-            edge.redrawNewFn(this);
+            edge.redraw(this);
         }
     }
 }
