@@ -8,10 +8,10 @@ import { Size } from '../index';
 
 export class Clazz extends Node {
 
-    protected labelHeight = 25;
-    protected labelFontSize = 14;
-    protected attrHeight = 25;
-    protected attrFontSize = 12;
+    protected $labelHeight = 25;
+    protected $labelFontSize = 14;
+    protected $attrHeight = 25;
+    protected $attrFontSize = 12;
 
     protected attributesObj: Attribute[] = [];
     protected methodsObj: Method[] = [];
@@ -22,7 +22,7 @@ export class Clazz extends Node {
         if (!json) {
             json = {};
         }
-        let y = this.labelHeight;
+        let y = this.$labelHeight;
         this.label = json.name || json.label || ('New ' + this.property);
 
         let width: number = 150;
@@ -33,7 +33,7 @@ export class Clazz extends Node {
                 let attrObj = new Attribute(attr);
                 attrObj.$owner = this;
                 this.attributesObj.push(attrObj);
-                y += this.attrHeight;
+                y += this.$attrHeight;
                 width = Math.max(width, Util.sizeOf(attrObj.toString(), this).width);
             }
         }
@@ -44,10 +44,10 @@ export class Clazz extends Node {
                 methodObj.$owner = this;
                 this.methodsObj.push(methodObj);
 
-                y += this.attrHeight;
+                y += this.$attrHeight;
                 width = Math.max(width, Util.sizeOf(methodObj.toString(), this).width);
             }
-            y += this.attrHeight;
+            y += this.$attrHeight;
         }
         this.withSize(width, y);
         return this;
@@ -80,11 +80,11 @@ export class Clazz extends Node {
         let label = this.createShape({
             tag: 'text',
             x: pos.x + size.x / 2,
-            y: pos.y + this.labelHeight / 2,
+            y: pos.y + this.$labelHeight / 2,
             'text-anchor': 'middle',
             'alignment-baseline': 'central',
             'font-family': 'Verdana',
-            'font-size': this.labelFontSize,
+            'font-size': this.$labelFontSize,
             'font-weight': 'bold',
             fill: 'black'
         });
@@ -102,9 +102,9 @@ export class Clazz extends Node {
             const separatorLabelAttr = this.createShape({
                 tag: 'line',
                 x1: pos.x,                   // line doesn't overlap the full shape
-                y1: pos.y + this.labelHeight,
+                y1: pos.y + this.$labelHeight,
                 x2: pos.x + size.x,        // line doesn't overlap the full shape
-                y2: pos.y + this.labelHeight,
+                y2: pos.y + this.$labelHeight,
                 stroke: 'rgb(0, 0, 0)',        // black
                 'stroke-width': 2
             });
@@ -115,7 +115,7 @@ export class Clazz extends Node {
             groupOfAttributes.setAttributeNS(null, 'class', 'SVGClazzProperty SVGClazzAttribute');
             group.appendChild(groupOfAttributes);
 
-            let y = pos.y + this.labelHeight + this.attrHeight / 2;
+            let y = pos.y + this.$labelHeight + this.$attrHeight / 2;
             for (let attr of this.attributesObj) {
 
                 let attrSvg = attr.getSVG();
@@ -125,22 +125,22 @@ export class Clazz extends Node {
                 attrSvg.setAttributeNS(null, 'y', '' + y);
 
                 groupOfAttributes.appendChild(attrSvg);
-                y += this.attrHeight;
+                y += this.$attrHeight;
             }
         }
 
         // = = = METHODS = = =
-        let height = this.attributesObj.length * this.attrHeight;
-        let y = pos.y + this.labelHeight + height + this.attrHeight / 2;
+        let height = this.attributesObj.length * this.$attrHeight;
+        let y = pos.y + this.$labelHeight + height + this.$attrHeight / 2;
         if (this.methodsObj.length > 0) {
 
             // line to separate label from attributes
             const separatorAttrMethods = this.createShape({
                 tag: 'line',
                 x1: pos.x,                   //line doesn't overlap the full shape
-                y1: pos.y + this.labelHeight + (this.attrHeight * this.attributesObj.length),
+                y1: pos.y + this.$labelHeight + (this.$attrHeight * this.attributesObj.length),
                 x2: pos.x + size.x,        //line doesn't overlap the full shape
-                y2: pos.y + this.labelHeight + (this.attrHeight * this.attributesObj.length),
+                y2: pos.y + this.$labelHeight + (this.$attrHeight * this.attributesObj.length),
                 stroke: 'rgb(0, 0, 0)',        //black
                 'stroke-width': 2
             });
@@ -152,7 +152,7 @@ export class Clazz extends Node {
             groupOfMethods.setAttributeNS(null, 'class', 'SVGClazzProperty SVGClazzMethod');
             group.appendChild(groupOfMethods);
 
-            y += this.attrHeight / 2;
+            y += this.$attrHeight / 2;
             for (let method of this.methodsObj) {
 
                 let methodSvg = method.getSVG();
@@ -162,7 +162,7 @@ export class Clazz extends Node {
                 methodSvg.setAttributeNS(null, 'y', '' + y);
 
                 groupOfMethods.appendChild(methodSvg);
-                y += this.attrHeight;
+                y += this.$attrHeight;
             }
         }
 
@@ -256,19 +256,6 @@ export class Clazz extends Node {
         }
 
         this.reDraw(true);
-
-        // // if size has changed, so set the correct width to rect
-        // let newSizeHasChanged: [boolean, Size] = this.hasSizeChanged();
-        // if(newSizeHasChanged[0] && this.$view.hasChildNodes()){
-        //     let newSize: Size = newSizeHasChanged[1];
-
-        //     // get rect, first child of view
-        //     let rect = <Element>this.$view.childNodes[0];
-        //     rect.setAttributeNS(null, 'width', '' + newSize.width);
-        //     rect.setAttributeNS(null, 'height', '' + newSize.height);
-
-        //     this.redrawEdges();
-        // }
     }
 
     public reCalcSize(): Size {
@@ -303,9 +290,10 @@ export class Clazz extends Node {
             newWidth = Math.max(newWidth, widthOfMethod + 15);
         });
 
+        // TODO: height has to be calculated by font-size
         this.getSize().x = newWidth;
-        this.getSize().y = this.labelHeight + ((this.attributesObj.length + this.methodsObj.length) * this.attrHeight)
-            + this.attrHeight;
+        this.getSize().y = this.$labelHeight + ((this.attributesObj.length + this.methodsObj.length) * this.$attrHeight)
+            + this.$attrHeight;
 
         let newSize = { width: newWidth, height: this.getSize().y };
 
@@ -313,7 +301,7 @@ export class Clazz extends Node {
     }
 
     public redrawEdges() {
-        for (let edge of this.edges) {
+        for (let edge of this.$edges) {
             edge.redraw(this);
         }
     }

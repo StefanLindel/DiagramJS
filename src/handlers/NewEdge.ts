@@ -148,7 +148,7 @@ export class NewEdge implements EventHandler {
         this.removeLine();
 
         // TODO: show combobox of all available edge types
-        let edgeType = this.sourceNode.defaulEdgeType || 'Edge';
+        let edgeType = this.sourceNode.$defaulEdgeType || 'Edge';
 
         let jsonData = {
             type: edgeType,

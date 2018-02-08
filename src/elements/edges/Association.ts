@@ -9,7 +9,7 @@ export abstract class Association extends Edge {
 
     public getSVG(): Element {
 
-        let startPoint = this.$pointsNew[this.$pointsNew.length - 1];
+        let startPoint = this.$points[this.$points.length - 1];
 
         let direction: Direction = this.getDirectionOfPointToNode(this.$tNode, startPoint);
         let path = this.calcCorrectPath(startPoint, direction);
@@ -35,11 +35,11 @@ export abstract class Association extends Edge {
         // redraw the generalisation symbol
         // first of all, get the correct direction
         // get source node and the nearest point to source node
-        let startPoint: Point = this.$pointsNew[this.$pointsNew.length - 1];
+        let startPoint: Point = this.$points[this.$points.length - 1];
         let direction: Direction = Direction.Down;
 
         // caclulate the path of target symbol only, if the dragged node is source or there are only 2 points left
-        if (this.target === startNode.id || this.$pointsNew.length == 2) {
+        if (this.target === startNode.id || this.$points.length == 2) {
 
             direction = this.getDirectionOfPointToNode(this.$tNode, startPoint);
 

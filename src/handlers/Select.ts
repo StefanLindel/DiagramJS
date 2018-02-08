@@ -29,6 +29,7 @@ export class Select implements EventHandler {
     }
 
     public handle(event: Event, element: DiagramElement): boolean {
+        // TODO: is this neccessary?
         if (this.svgRoot !== <SVGSVGElement><any>document.getElementById('root')) {
             this.svgRoot = <SVGSVGElement><any>document.getElementById('root');
         }

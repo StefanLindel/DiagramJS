@@ -177,6 +177,10 @@ export class Util {
         return navigator.userAgent.indexOf('Opera') > -1;
     }
 
+    static isChrome(): boolean {
+        return navigator.userAgent.indexOf('Chrome') > -1;
+    }
+
     static getEventX(event: Event | any): number {
         return (this.isIE) ? window.event['clientX'] : event.pageX;
     }

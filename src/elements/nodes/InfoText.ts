@@ -6,7 +6,7 @@ import { EventBus } from '../../EventBus';
 export class InfoText extends Node {
 
     public cardinality: string;
-    private heightOfOneTextItem: number;
+    private $heightOfOneTextItem: number;
     private $cardinalitySvg: Element;
     private $propertySvg: Element;
     private $rectBackground: Element;
@@ -41,7 +41,7 @@ export class InfoText extends Node {
             maxSize.x = Math.max(maxSize.x, sizeOfText.width);
             maxSize.y += sizeOfText.height;
 
-            this.heightOfOneTextItem = sizeOfText.height;
+            this.$heightOfOneTextItem = sizeOfText.height;
         }
 
         return maxSize;
@@ -69,7 +69,7 @@ export class InfoText extends Node {
             let pos: Point = this.getPos();
             let y = pos.y;
             if (this.$propertySvg) {
-                y += this.heightOfOneTextItem;
+                y += this.$heightOfOneTextItem;
             }
 
             this.$cardinalitySvg = Util.createShape({
@@ -105,7 +105,7 @@ export class InfoText extends Node {
             let pos: Point = this.getPos();
             let y = pos.y;
             if (this.$cardinalitySvg) {
-                this.$cardinalitySvg.setAttributeNS(null, 'y', '' + (y + this.heightOfOneTextItem));
+                this.$cardinalitySvg.setAttributeNS(null, 'y', '' + (y + this.$heightOfOneTextItem));
             }
 
             this.$propertySvg = Util.createShape({
@@ -127,7 +127,7 @@ export class InfoText extends Node {
         this.$rectBackground = Util.createShape({
             tag: 'rect',
             x: pos.x,
-            y: pos.y - this.heightOfOneTextItem + 3,
+            y: pos.y - this.$heightOfOneTextItem + 3,
             width: this.getSize().x,
             height: this.getSize().y,
             fill: '#DDD',
@@ -147,7 +147,7 @@ export class InfoText extends Node {
             this.$propertySvg.textContent = this.property;
             group.appendChild(this.$propertySvg);
 
-            y += this.heightOfOneTextItem;
+            y += this.$heightOfOneTextItem;
         }
 
         // cardinality

@@ -2,12 +2,12 @@ import {DiagramElement} from '../BaseElements';
 import {Edge} from '../edges';
 
 export class Node extends DiagramElement {
-    edges: Edge[] = [];
-    maxWidth: number = 250;
+    $edges: Edge[] = [];
+    $maxWidth: number = 250;
     // protected counter:number;
     // private status:string;
     public label: string;
-    public defaulEdgeType : string;
+    public $defaulEdgeType : string;
     $LEFT: number = 0;
     $RIGHT: number = 0;
     $TOP: number = 0;
@@ -69,7 +69,7 @@ export class Node extends DiagramElement {
     }
 
     public redrawEdges() {
-        for (let edge of this.edges) {
+        for (let edge of this.$edges) {
             edge.redraw(this);
         }
     }

@@ -102,13 +102,13 @@ export class PropertiesDispatcher implements EventHandler {
         let g = this._graph;
         // add eventlistener to combobox of edge type
         let cBoxEdgeType = <any>document.getElementById('edgeTypeSelect');
-        cBoxEdgeType.value = edge.typ;
+        cBoxEdgeType.value = edge.type;
         cBoxEdgeType.addEventListener('change', function () {
             let selectedType = cBoxEdgeType.options[cBoxEdgeType.selectedIndex].value;
 
             let newEdge = edge.convertEdge(selectedType, g.$graphModel.getNewId(selectedType), true);
-            delete g.$graphModel.edges[edge.id];
-            g.$graphModel.edges[newEdge.id] = newEdge;
+            // delete g.$graphModel.edges[edge.id];
+            // g.$graphModel.edges[newEdge.id] = newEdge;
 
             edge = newEdge;
         });

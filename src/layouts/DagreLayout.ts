@@ -17,29 +17,25 @@ export class DagreLayout implements Layout {
             return {};
         });
 
-        if (model.nodes) {
-            for (let id in model.nodes) {
-                let node: Node = model.nodes[id];
-                g.setNode(id, { width: node.getSize().x, height: node.getSize().y });
-            }
+        for (let node of model.nodes) {
+            g.setNode(node.id, { width: node.getSize().x, height: node.getSize().y });
         }
 
-        if (model.edges) {
-            for (let id in model.edges) {
-                let edge: Edge = model.edges[id];
-                g.setEdge(edge.$sNode.id, edge.$tNode.id);
-            }
+        for (let edge of model.edges) {
+            g.setEdge(edge.$sNode.id, edge.$tNode.id);
         }
+
         window['dagre'].layout(g);
 
-        g.nodes().forEach(function (v: string) {
-            if (model.nodes[v]) {
-                model.nodes[v].withPos(g.node(v).x - g.node(v).width / 2, g.node(v).y - g.node(v).height / 2);
+        g.nodes().forEach(function (nodeId: string) {
+            for (let node of model.nodes) {
+                if (node.id === nodeId) {
+                    node.withPos(g.node(nodeId).x - g.node(nodeId).width / 2, g.node(nodeId).y - g.node(nodeId).height / 2);
+                }
             }
         });
         g.edges().forEach(function (e: any) {
-            for (let id in model.edges) {
-                let edge: Edge = model.edges[id];
+            for (let edge of model.edges) {
                 if (edge.$sNode.id === e.v && edge.$tNode.id === e.w) {
                     let size = g.edge(e).points.length;
                     edge.clearPoints();

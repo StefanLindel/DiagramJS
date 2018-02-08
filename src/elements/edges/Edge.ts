@@ -14,12 +14,11 @@ export const enum Direction {
 export class Edge extends DiagramElement {
     public source: string;
     public target: string;
-    public typ: string;
+    public type: string;
     public $sNode: Node;
     public $tNode: Node;
     public lineStyle: string;
-    public $points: Line[] = [];
-    public $pointsNew: Point[] = [];
+    public $points: Point[] = [];
     public $pathSvg: Element;
     public info: InfoText;
     public sourceInfo: InfoText;
@@ -33,18 +32,18 @@ export class Edge extends DiagramElement {
         this.withData(data);
     }
 
-    public withData(data: JSON | string | Object | any) : Edge{
+    public withData(data: JSON | string | Object | any): Edge {
 
-        if(!data){
+        if (!data) {
             return this;
         }
 
-        if(data.source && typeof data.source !== 'string'){
+        if (data.source && typeof data.source !== 'string') {
             this.sourceInfo = new InfoText(data.source);
             this.sourceInfo.$owner = this;
         }
 
-        if(data.target && typeof data.target !== 'string'){
+        if (data.target && typeof data.target !== 'string') {
             this.targetInfo = new InfoText(data.target);
             this.targetInfo.$owner = this;
         }
@@ -52,17 +51,17 @@ export class Edge extends DiagramElement {
         return this;
     }
 
-    public updateSrcCardinality(cardinality: string): void{
+    public updateSrcCardinality(cardinality: string): void {
         this.sourceInfo = this.updateCardinality(this.$sNode, this.sourceInfo, cardinality);
     }
 
-    public updateTargetCardinality(cardinality: string): void{
+    public updateTargetCardinality(cardinality: string): void {
         this.targetInfo = this.updateCardinality(this.$tNode, this.targetInfo, cardinality);
     }
 
-    private updateCardinality(node: Node, infoText: InfoText, cardinality: string): InfoText{
-        if(!infoText){
-            infoText = new InfoText({'cardinality': cardinality});
+    private updateCardinality(node: Node, infoText: InfoText, cardinality: string): InfoText {
+        if (!infoText) {
+            infoText = new InfoText({ 'cardinality': cardinality });
 
             let calcPos = this.calcInfoPosNew(infoText, node);
             infoText.withPos(calcPos.x, calcPos.y);
@@ -75,17 +74,17 @@ export class Edge extends DiagramElement {
         return infoText;
     }
 
-    public updateSrcProperty(property: string): void{
+    public updateSrcProperty(property: string): void {
         this.sourceInfo = this.updateProperty(this.$sNode, this.sourceInfo, property);
     }
 
-    public updateTargetProperty(property: string): void{
+    public updateTargetProperty(property: string): void {
         this.targetInfo = this.updateProperty(this.$tNode, this.targetInfo, property);
     }
 
-    private updateProperty(node: Node, infoText: InfoText, property: string): InfoText{
-        if(!infoText){
-            infoText = new InfoText({'property': property});
+    private updateProperty(node: Node, infoText: InfoText, property: string): InfoText {
+        if (!infoText) {
+            infoText = new InfoText({ 'property': property });
 
             let calcPos = this.calcInfoPosNew(infoText, node);
             infoText.withPos(calcPos.x, calcPos.y);
@@ -98,8 +97,8 @@ export class Edge extends DiagramElement {
     }
 
     public withItem(source: Node, target: Node): Edge {
-        source.edges.push(this);
-        target.edges.push(this);
+        source.$edges.push(this);
+        target.$edges.push(this);
         this.$sNode = source;
         this.$tNode = target;
         this.source = source.id;
@@ -109,11 +108,11 @@ export class Edge extends DiagramElement {
 
     public getSVG(): Element {
         let path = '';
-        if (this.$pointsNew.length > 0) {
+        if (this.$points.length > 0) {
             path = 'M';
         }
-        for (let i = 0; i < this.$pointsNew.length; i++) {
-            let point: Point = this.$pointsNew[i];
+        for (let i = 0; i < this.$points.length; i++) {
+            let point: Point = this.$points[i];
             if (i > 0) {
                 path += 'L';
             }
@@ -131,12 +130,12 @@ export class Edge extends DiagramElement {
         let group = Util.createShape({ tag: 'g', id: this.id, class: 'SVGEdge' });
         group.appendChild(shape);
 
-        if(this.sourceInfo){        
+        if (this.sourceInfo) {
             let calcPos = this.calcInfoPosNew(this.sourceInfo, this.$sNode);
             this.sourceInfo.withPos(calcPos.x, calcPos.y);
             group.appendChild(this.sourceInfo.getSVG());
         }
-        if(this.targetInfo){
+        if (this.targetInfo) {
             let calcPos = this.calcInfoPosNew(this.targetInfo, this.$tNode);
             this.targetInfo.withPos(calcPos.x, calcPos.y);
             group.appendChild(this.targetInfo.getSVG());
@@ -157,22 +156,22 @@ export class Edge extends DiagramElement {
             return this;
         }
 
-        let idxInSrc = this.$sNode.edges.indexOf(this);
-        this.$sNode.edges.splice(idxInSrc, 1);
-        let idxInTarget = this.$tNode.edges.indexOf(this);
-        this.$tNode.edges.splice(idxInTarget, 1);
+        let idxInSrc = this.$sNode.$edges.indexOf(this);
+        this.$sNode.$edges.splice(idxInSrc, 1);
+        let idxInTarget = this.$tNode.$edges.indexOf(this);
+        this.$tNode.$edges.splice(idxInTarget, 1);
 
         let newEdge: Edge = new edges[type]();
         newEdge.withItem(this.$sNode, this.$tNode);
         newEdge.id = newId;
-        newEdge.typ = type;
+        newEdge.type = type;
         newEdge.lineStyle = this.lineStyle;
         newEdge.$owner = this.$owner;
         newEdge.sourceInfo = this.sourceInfo;
         newEdge.targetInfo = this.targetInfo;
         newEdge.info = this.info;
 
-        this.$pointsNew.forEach(point => {
+        this.$points.forEach(point => {
             newEdge.addPoint(point.x, point.y);
         });
 
@@ -192,7 +191,12 @@ export class Edge extends DiagramElement {
         }
         let newEdgeSvg = newEdge.getSVG();
 
-        svgRoot.removeChild(oldSvg);
+        // update model
+        graph.$graphModel.removeElement(this.id);
+        graph.$graphModel.edges.push(newEdge);
+
+        // update graph
+        graph.removeElement(this);
         svgRoot.appendChild(newEdgeSvg);
 
         // redraw the edge from both sides to get the correct display
@@ -220,25 +224,25 @@ export class Edge extends DiagramElement {
         let endPointIdx: number;
 
         if (this.source === startNode.id) {
-            recalcPoint = this.$pointsNew[0];
+            recalcPoint = this.$points[0];
             endPointIdx = 1;
         } else if (this.target === startNode.id) {
-            recalcPoint = this.$pointsNew[this.$pointsNew.length - 1];
-            endPointIdx = this.$pointsNew.length - 2;
+            recalcPoint = this.$points[this.$points.length - 1];
+            endPointIdx = this.$points.length - 2;
         }
 
-        endPoint = this.$pointsNew[endPointIdx];
+        endPoint = this.$points[endPointIdx];
 
         // calculate and set new position of point to redraw
         this.calcIntersection(startNode, recalcPoint, endPoint);
 
         // remove the 2nd point next to startnode, if the node was dragged upper the point
-        if (this.$pointsNew.length > 2 && this.target === startNode.id && endPoint.y > (startNode.getPos().y + (startNode.getSize().y / 2))) {
+        if (this.$points.length > 2 && this.target === startNode.id && endPoint.y > (startNode.getPos().y + (startNode.getSize().y / 2))) {
 
-            this.$pointsNew.splice(endPointIdx, 1);
+            this.$points.splice(endPointIdx, 1);
         }
 
-        if (this.target === startNode.id && this.$pointsNew.length == 2) {
+        if (this.target === startNode.id && this.$points.length == 2) {
 
             this.calcIntersection(this.$sNode, endPoint, recalcPoint);
         }
@@ -246,12 +250,12 @@ export class Edge extends DiagramElement {
 
 
 
-        if (this.$pointsNew.length > 2 && this.source === startNode.id && (startNode.getPos().y + (startNode.getSize().y / 2) > endPoint.y)) {
+        if (this.$points.length > 2 && this.source === startNode.id && (startNode.getPos().y + (startNode.getSize().y / 2) > endPoint.y)) {
 
-            this.$pointsNew.splice(endPointIdx, 1);
+            this.$points.splice(endPointIdx, 1);
         }
 
-        if (this.source === startNode.id && this.$pointsNew.length == 2) {
+        if (this.source === startNode.id && this.$points.length == 2) {
 
             this.calcIntersection(this.$tNode, endPoint, recalcPoint);
         }
@@ -277,8 +281,8 @@ export class Edge extends DiagramElement {
         // redraw the edge with the new position
         let path: string = 'M';
 
-        for (let i = 0; i < this.$pointsNew.length; i++) {
-            let point: Point = this.$pointsNew[i];
+        for (let i = 0; i < this.$points.length; i++) {
+            let point: Point = this.$points[i];
             if (i > 0) {
                 path += 'L';
             }
@@ -358,12 +362,12 @@ export class Edge extends DiagramElement {
         let startPoint: Point;
         let nextToStartPoint: Point;
         if (this.source === node.id) {
-            startPoint = this.$pointsNew[0];
-            nextToStartPoint = this.$pointsNew[1];
+            startPoint = this.$points[0];
+            nextToStartPoint = this.$points[1];
         }
         else if (this.target === node.id) {
-            startPoint = this.$pointsNew[this.$pointsNew.length - 1];
-            nextToStartPoint = this.$pointsNew[this.$pointsNew.length - 2];
+            startPoint = this.$points[this.$points.length - 1];
+            nextToStartPoint = this.$points[this.$points.length - 2];
         }
 
         let direction: Direction = this.getDirectionOfPointToNode(node, startPoint);
@@ -422,7 +426,7 @@ export class Edge extends DiagramElement {
 
     public clearPoints(): any {
         this.$points = [];
-        this.$pointsNew = [];
+        this.$points = [];
     }
 
     protected getDirectionOfPointToNode(node: Node, pointNearNode: Point): Direction {
@@ -461,8 +465,8 @@ export class Edge extends DiagramElement {
     }
 
     public addPoint(x: number, y: number): Point[] {
-        this.$pointsNew.push(new Point(x, y));
+        this.$points.push(new Point(x, y));
 
-        return this.$pointsNew;
+        return this.$points;
     }
 }

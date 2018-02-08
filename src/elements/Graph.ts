@@ -318,9 +318,7 @@ export class Graph extends Control {
         let maxX = 0;
         let minX = 9000;
 
-        for (let idx in this.$graphModel.nodes) {
-            let node = this.$graphModel.nodes[idx];
-
+        for (let node of this.$graphModel.nodes) {
             maxX = Math.max(maxX, node.getPos().x);
             minX = Math.min(minX, node.getPos().x);
         }
@@ -373,34 +371,30 @@ export class Graph extends Control {
             max.y = this.options.minHeight || 0;
         }
 
-        if (model.nodes) {
-            for (let id in model.nodes) {
-                let node = model.nodes[id];
-                let svg = node.getSVG();
-                EventBus.register(node, svg);
-                root.appendChild(svg);
+        for (let node of model.nodes) {
+            let svg = node.getSVG();
+            EventBus.register(node, svg);
+            root.appendChild(svg);
 
-                let temp: number;
-                temp = node.getPos().x + node.getSize().x;
-                if (temp > max.x) {
-                    max.x = temp;
-                }
-                temp = node.getPos().y + node.getSize().y;
-                if (temp > max.y) {
-                    max.y = temp;
-                }
+            let temp: number;
+            temp = node.getPos().x + node.getSize().x;
+            if (temp > max.x) {
+                max.x = temp;
             }
+            temp = node.getPos().y + node.getSize().y;
+            if (temp > max.y) {
+                max.y = temp;
+            }
+
         }
         Util.setAttributeSize(this.root, max.x + 60, max.y + 40);
 
-        if (model.edges) {
-            for (let id in model.edges) {
-                let edge = model.edges[id];
-                let svg = edge.getSVG();
-                EventBus.register(edge, svg);
-                root.appendChild(svg);
-            }
+        for (let edge of model.edges) {
+            let svg = edge.getSVG();
+            EventBus.register(edge, svg);
+            root.appendChild(svg);
         }
+
     }
 
     public drawElement(element: DiagramElement): void {
@@ -452,7 +446,9 @@ export class Graph extends Control {
         this.root.removeChild(element.getAlreadyDisplayingSVG());
     }
 
-    public generate() {
+    public generate(workspace: string) {
+        this.$graphModel.workspace = workspace;
+
         let data, result = Util.toJson(this.$graphModel);
         data = JSON.stringify(result, null, '\t');
         if (window['java'] && typeof window['java'].generate === 'function') {

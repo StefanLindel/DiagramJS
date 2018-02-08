@@ -90,7 +90,6 @@ export namespace PropertiesPanel {
             this.propertiesPanel = document.createElement('div');
             this.generalPanel = document.createElement('div');
 
-            //this._divMainPanel.appendChild(this.generalPanel);
             this._divMainPanel.appendChild(this.propertiesPanel);
 
             this.generalPanel.id = 'classProp'
@@ -109,13 +108,6 @@ export namespace PropertiesPanel {
             propHeaderLabel.innerHTML = 'Properties';
             propHeaderLabel.style.display = 'inherit';
 
-            // // DIRTY
-            // let button: HTMLButtonElement = document.createElement('button');
-            // button.innerHTML = 'Generate';
-            // let that = this;
-            // button.addEventListener('click', function(e) { that.generate(e);} );
-            // this.propertiesPanel.appendChild(button);
-
             // button to display and hide the properties of e.g. a class
             let btnPropClassHeaderDisplay = document.createElement('button');
             btnPropClassHeaderDisplay.id = 'propClassHeaderButtonDisplay';
@@ -129,12 +121,6 @@ export namespace PropertiesPanel {
             propertiesHeader.appendChild(btnPropClassHeaderDisplay);
             this.propertiesPanel.appendChild(propertiesHeader);
             document.body.appendChild(this._divMainPanel);
-        }
-
-        private generate(event: any ): void {
-            console.log(event);
-            this.graph.generate();
-
         }
 
         private hideproperties(evt: Event): void {

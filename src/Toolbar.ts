@@ -32,6 +32,22 @@ export class Toolbar {
         this.mainDiv.appendChild(h1Logo);
         this.mainDiv.appendChild(btnAutoLayout);
 
+        // delete all nodes
+        let btnDeleteAll = document.createElement('button');
+        btnDeleteAll.id = 'btnDeleteAll';
+        btnDeleteAll.textContent = 'Delete All';
+        btnDeleteAll.title = 'Delete all nodes from diagram';
+        btnDeleteAll.style.marginLeft = '20px';
+        btnDeleteAll.style.marginTop = '12px';
+
+        btnDeleteAll.onclick = () => 
+        {
+            let confirmDelete = confirm('All classes will be deleted!');
+            if(!confirmDelete) return;
+
+            this.graph.$graphModel.removeAllElements();
+        };
+        this.mainDiv.appendChild(btnDeleteAll);
 
         // Workspace and generate code stuff
         let divGenerate = document.createElement('div');
@@ -39,6 +55,7 @@ export class Toolbar {
         divGenerate.style.marginLeft = '20px';
 
         let inputGenerateWorkspace = document.createElement('input');
+        inputGenerateWorkspace.id = 'inputWorkspace';
         inputGenerateWorkspace.type = 'text';
         inputGenerateWorkspace.placeholder = 'Type your workspace for generated code...';
         inputGenerateWorkspace.style.marginRight = '5px';
@@ -46,8 +63,18 @@ export class Toolbar {
 
         let btnGenerate = document.createElement('button');
         btnGenerate.textContent = 'Generate';
+        btnGenerate.title = 'Generate code into your workspace';
 
-        btnGenerate.onclick = () => {this.graph.generate();};
+        btnGenerate.onclick = () => 
+        {
+            let workspace = inputGenerateWorkspace.value;
+            if(workspace.length === 0){
+                alert('No workspace set.\nEnter first your workspace');
+                inputGenerateWorkspace.focus();
+                return;
+            }
+            this.graph.generate(workspace);
+        };
 
         divGenerate.appendChild(inputGenerateWorkspace);
         divGenerate.appendChild(btnGenerate);

@@ -7,13 +7,13 @@ import { Util } from '../util';
 import { EventBus } from '../EventBus';
 
 export class GraphModel extends DiagramElement {
-    nodes: Object = {};
-    edges: Object = {};
-    private counter = 0;
+    nodes: Node[] = [];
+    edges: Edge[] = [];
+    workspace: string;
 
     public load(data?: any) {
         data = data || {};
-        this.property = data.type || 'classdiagram';
+        this.property = data.type || data.property || 'classdiagram';
         this.id = 'RootElement';
         if (data.nodes) {
             for (let node of data.nodes) {
@@ -28,9 +28,7 @@ export class GraphModel extends DiagramElement {
     }
 
     public getNodeByPosition(x: number, y: number) : Node{
-        for (let idx in this.nodes) {
-            let node = this.nodes[idx];
-
+        for (let node of this.nodes) {
             let posOfNode: Point = (<Node>node).getPos();
             let sizeOfNode: Point = (<Node>node).getSize();
 
@@ -78,28 +76,44 @@ export class GraphModel extends DiagramElement {
 
     public removeAllElements(): void {
 
-        for (let idx in this.nodes) {
-            this.removeElement(this.nodes[idx].id);
+        let nodesLength = this.nodes.length;
+        for (let i = 0; i < nodesLength; i++) {
+            this.removeElement(this.nodes[0].id);
         }
     }
 
+
     public removeElement(id: string): boolean {
-        if (this.nodes[id]) {
-            let node = this.nodes[id];
-            
-            (<Graph>this.$owner).removeElement(node);
-            delete this.nodes[id];
-            for (let edge of node.edges) {
-                (<Graph>this.$owner).removeElement(edge);
-                delete this.edges[edge.id];
+
+        let element = this.getDiagramElementById(id);
+        if(!element) return false;
+
+        (<Graph>this.$owner).removeElement(element);
+
+        if (element instanceof Node) {
+
+            let idxOfNode = this.nodes.indexOf(element);
+            if(idxOfNode > -1){
+                this.nodes.splice(idxOfNode, 1);
             }
+
+            for (let edge of element.$edges) {
+                (<Graph>this.$owner).removeElement(edge);
+
+                let idxOfEdge = this.edges.indexOf(edge);
+                if(idxOfEdge > -1){
+                    this.edges.splice(idxOfEdge, 1);
+                }
+            }
+
+            element.$edges = [];
         }
-        else if (this.edges[id]) {
-            (<Graph>this.$owner).removeElement(this.edges[id]);
-            delete this.edges[id];
-        }
-        else {
-            return false;
+        else if (element instanceof Edge) {
+
+            let idxOfEdge = this.edges.indexOf(element);
+            if(idxOfEdge > -1){
+                this.edges.splice(idxOfEdge, 1);
+            }
         }
         return true;
     }
@@ -162,7 +176,6 @@ export class GraphModel extends DiagramElement {
     }
 
     public getNewId(prefix?: string): string {
-        this.counter++;
         let id = (prefix ? prefix.toLowerCase() + '-' : '') + Math.floor(Math.random() * 100000);
         return id;
     }
@@ -174,22 +187,38 @@ export class GraphModel extends DiagramElement {
         return <Node>this.getElement(type, id, node);
     }
 
-    private findNodeById(id: string) {
-        if (this.nodes[id]) {
-            return this.nodes[id];
+    private getNodeById(id: string) : Node {
+
+        for(let node of this.nodes){
+            if (node.id === id) {
+                return node;
+            }
         }
-        return false;
+
+        return undefined;
     }
 
-    private findNodeByLabel(label: string): Node | null {
-        for (let index in this.nodes) {
-            let node = this.nodes[index];
-
+    private getNodeByLabel(label: string): Node {
+        for (let node of this.nodes) {
             if (node.label === label) {
                 return node;
             }
         }
-        return null;
+        return undefined;
+    }
+
+    public getEdgeById(id: string): Edge{
+        for (let edge of this.edges) {
+            if (edge.id === id) {
+                return edge;
+            }
+        }
+        return undefined;
+    }
+
+    public getDiagramElementById(id: string): DiagramElement{
+
+        return this.getNodeById(id) || this.getEdgeById(id);
     }
 
     public addEdge(edge: any, withPosOfNodes?: boolean): Edge {
@@ -198,12 +227,12 @@ export class GraphModel extends DiagramElement {
         let id = this.getNewId(type);
 
         let newEdge = <Edge>this.getElement(type, id, edge);
-        newEdge.typ = type;
+        newEdge.type = type;
 
         let source: Node;
         let sourceAsString: string = edge.source.id || edge.source;
         if(sourceAsString){
-            source = this.findNodeByLabel(sourceAsString);
+            source = this.getNodeByLabel(sourceAsString);
             if (!source) {
                 source = <Node>this.getElement('Clazz', this.getNewId('Clazz'), { name: edge.source });
                 source.init(this);
@@ -213,7 +242,7 @@ export class GraphModel extends DiagramElement {
         let target: Node;
         let targetAsString: string = edge.target.id || edge.target;
         if(targetAsString){
-            target = this.findNodeByLabel(targetAsString);
+            target = this.getNodeByLabel(targetAsString);
             if (!target) {
                 target = <Node>this.getElement('Clazz', this.getNewId('Clazz'), { name: edge.target });
                 target.init(this);
@@ -240,15 +269,15 @@ export class GraphModel extends DiagramElement {
     private getElement(type: string, id: string, data: Object): DiagramElement {
         const graph = <Graph>this.$owner;
         if (graph.nodeFactory[type]) {
-            let element: DiagramElement = new graph.nodeFactory[type](data);
+            let element: Node = new graph.nodeFactory[type](data);
             Util.initControl(this, element, type, id, data);
-            this.nodes[id] = element;
+            this.nodes.push(element);
             return element;
         }
         if (graph.edgeFactory[type]) {
-            let element: DiagramElement = new graph.edgeFactory[type](data);
+            let element: Edge = new graph.edgeFactory[type](data);
             Util.initControl(this, element, type, id, data);
-            this.edges[id] = element;
+            this.edges.push(element);
             return element;
         }
         return null;

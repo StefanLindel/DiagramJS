@@ -79,6 +79,20 @@ export class Drag implements EventHandler {
     private reset() {
         this.dragging = false;
         this.svgElement.style.cursor = 'pointer';
+
+        /*  WORKAROUND
+            Chrome got problem with the Node.appendChild() method.
+            Sometimes it works, sometimes not.
+            So the background is, in the drag method will the current element be appended
+            to front of the svg root.
+            If this happend, the click event won't fire.
+            So it will be fired manually.
+            This problem occurs only in chrome.
+        */
+        if(Util.isChrome()){
+            let clickEvt = Util.createCustomEvent('click');
+            this.svgElement.dispatchEvent(clickEvt);
+        }
     }
 
     private start(evt: Event | any, element: Control) {
