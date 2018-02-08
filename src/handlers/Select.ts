@@ -16,7 +16,6 @@ export class Select implements EventHandler {
     private addEdgeShape: SVGSVGElement;
     private graph: Graph;
     private padding = 5;
-    private active : boolean;
 
     private lastSelectedNode: Element;
     private lastSelectedEdge: Element;
@@ -34,19 +33,18 @@ export class Select implements EventHandler {
             this.svgRoot = <SVGSVGElement><any>document.getElementById('root');
         }
 
-        // event.stopPropagation();
+        event.stopPropagation();
         if (event.type === 'drag') {
             this.deleteShape.setAttributeNS(null, 'visibility', 'hidden');
             this.addEdgeShape.setAttributeNS(null, 'visibility', 'hidden');
 
-            // this.resetLastSelectedElements();
+            this.resetLastSelectedElements();
 
             // mark the border with orange
             if (element instanceof Node) {
                 this.lastSelectedNode = <Element>element.$view;
             }
             Util.addClass(this.lastSelectedNode, 'SVGClazz-selected');
-            event.stopPropagation();
         }
 
         if (event.target['id'] === 'background' || element === this.graph.$graphModel) {
@@ -55,9 +53,11 @@ export class Select implements EventHandler {
 
             this.deleteShape.setAttributeNS(null, 'visibility', 'hidden');
             this.addEdgeShape.setAttributeNS(null, 'visibility', 'hidden');
+
+            return true;
         }
 
-        if (element instanceof Node && !(element instanceof InfoText) && (event.type === 'mouseup' || event.type === 'click') ) {
+        if (element instanceof Node && !(element instanceof InfoText) && event.type === 'click') {
             let e = <Node>element;
             if (document.getElementById('trashcan') === null) {
                 this.svgRoot.appendChild(this.deleteShape);
@@ -77,28 +77,20 @@ export class Select implements EventHandler {
             this.deleteShape.onclick = e => this.graph.$graphModel.removeElement(element.id);
 
             this.addEdgeShape.setAttributeNS(null, 'transform', `translate(${x} ${y + 40 + this.padding})`);
-            this.addEdgeShape.onmousedown = function(){
+            this.addEdgeShape.onmousedown = function () {
                 EventBus.setActiveHandler('NewEdge');
                 element.$view.dispatchEvent(new Event('mousedown'));
             };
 
         }
-        if (element instanceof Clazz && (event.type === 'mousemove') && this.active) {
-            console.log(event.type + 'STOP: ' + this.active);
-            this.resetLastSelectedElements();
-            event.stopPropagation();
-
-            return true;
-        }
-
-        if (element instanceof Clazz && (event.type === 'mouseup' || event.type === 'click')) {
+        if (element instanceof Clazz && event.type === 'click') {
             let clazz = <Clazz>element;
+            this.resetLastSelectedElements();
 
             // mark the border with orange
             this.lastSelectedNode = <Element>element.$view;
             Util.addClass(this.lastSelectedNode, 'SVGClazz-selected');
 
-            this.active = true;
 
             // draw textbox to edit clazz in one line
             let divInlineEdit = document.createElement('div');
@@ -118,9 +110,9 @@ export class Select implements EventHandler {
             document.body.appendChild(divInlineEdit);
 
             inputText.addEventListener('focusout', (evt) => {
-                
+
                 // only if input is empty, remove the inline edit function
-                if(!inputText.value || inputText.value.length === 0){
+                if (!inputText.value || inputText.value.length === 0) {
                     this.removeLastInlineEdit();
                 }
             });
@@ -199,7 +191,7 @@ export class Select implements EventHandler {
             });
 
             (<any>divInlineEdit.children[0]).focus();
-            event.stopPropagation();
+
             return true;
         }
 
@@ -226,7 +218,7 @@ export class Select implements EventHandler {
             Util.addClass(this.lastSelectedEdge, 'SVGEdge-selected');
         }
 
-        if(element instanceof InfoText){
+        if (element instanceof InfoText) {
             console.log('InfoText');
         }
 
@@ -251,7 +243,6 @@ export class Select implements EventHandler {
         let lastInlineEdit = document.getElementById('inlineEdit');
         if (lastInlineEdit) {
             document.body.removeChild(lastInlineEdit);
-            this.active = false;
 
             // its not supported in internet explorer
             // lastInlineEdit.remove();
@@ -263,10 +254,10 @@ export class Select implements EventHandler {
     }
 
     public setActive(active: boolean): void {
-        if(active){
+        if (active) {
             EventBus.setActiveHandler(Select.name);
         }
-        else{
+        else {
             EventBus.releaseActiveHandler();
         }
     }
