@@ -48,7 +48,7 @@ export class Drag implements EventHandler {
                 break;
             case 'mousemove':
                 if (this.dragging) {
-                    this.drag(event, element);
+                    return this.drag(event, element);
                 }
                 break;
             case 'mouseleave':
@@ -87,16 +87,19 @@ export class Drag implements EventHandler {
         this.mouseOffset.x = evt.clientX;
         this.mouseOffset.y = evt.clientY;
         this.reinsert = true;
-        
         this.svgElement.style.cursor = 'move';
     }
 
-    private drag(evt: Event | any, element: DiagramElement) {
-
+    private drag(evt: Event | any, element: DiagramElement): boolean {
         if (this.reinsert) {
             if (this.element.id !== 'RootElement') {
                 // nesseccary to set the dragged object on top of svg children
                 this.svgRoot.appendChild(this.svgElement);
+
+                let dragEvent = new Event('click');
+                element.$view.dispatchEvent(dragEvent);
+
+                return false;
             }
 
             let dragEvent = Util.createCustomEvent('drag');
@@ -124,5 +127,7 @@ export class Drag implements EventHandler {
 
         this.mouseOffset.x = evt.clientX;
         this.mouseOffset.y = evt.clientY;
+
+        return true;
     }
 }

@@ -49,7 +49,8 @@ let webpackTestConfig = {
         filename: 'diagramTest.js',
         path: path.resolve(__dirname, "dist/test"),//`${__dirname}/dist`,
     },
-    // devtool: '#source-map',//'inline-source-map',//cheap-module-eval-source-map // eval-source-map
+    //devtool: '#source-map',//'inline-source-map',//cheap-module-eval-source-map // eval-source-map
+    devtool: 'inline-source-map',//cheap-module-eval-source-map // eval-source-map
     resolve: {
         extensions: ['.webpack.js', '.web.js', '.json', '.ts'] //'.js',
     },

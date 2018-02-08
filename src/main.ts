@@ -13,10 +13,12 @@ import {Toolbar} from './Toolbar';
 import * as nodes  from './elements/nodes';
 import * as edges from './elements/edges';
 
-window['Point'] = Point;
-window['Graph'] = Graph;
-window['bridge'] = new Bridge();
-window['Util'] = Util;
-window['Clazz'] = nodes.Clazz;
-window['Edge'] = edges.Edge;
-window['SymbolLibary'] = nodes.SymbolLibary;
+if (!window['Point']) {
+    window['Point'] = Point;
+    window['Graph'] = Graph;
+    window['bridge'] = new Bridge();
+    window['Util'] = Util;
+    window['Clazz'] = nodes.Clazz;
+    window['Edge'] = edges.Edge;
+    window['SymbolLibary'] = nodes.SymbolLibary;
+}
