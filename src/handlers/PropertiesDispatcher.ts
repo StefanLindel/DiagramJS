@@ -81,7 +81,7 @@ export class PropertiesDispatcher implements EventHandler {
     }
 
     private handleOpenProperties(event: Event, element: DiagramElement) {
-        if (event.type === 'openproperties' || event.type === 'dblclick') {
+        if (event.type === 'dblclick') {
 
             event.stopPropagation();
             this.openProperties();

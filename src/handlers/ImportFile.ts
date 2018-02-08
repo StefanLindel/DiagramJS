@@ -66,16 +66,14 @@ export class ImportFile implements EventHandler {
                 // CHANGE TO INTERNAL OBJECT
                 let rootElement = document.getElementById('root');
                 let canvasElement = document.getElementById('canvas');
-                let rootChildCount = rootElement.childElementCount;
 
-                for (let i = 0; i < rootChildCount; i++) {
+                while(rootElement.hasChildNodes()){
                     rootElement.removeChild(rootElement.firstChild);
                 }
 
-                canvasElement.removeChild(canvasElement.firstChild);
-
-                // rootElement = null;
-                // canvasElement = null;
+                while(canvasElement.hasChildNodes()){
+                    canvasElement.removeChild(canvasElement.firstChild);
+                }
 
                 if (that.graph) {
                     that.graph.clearModel();

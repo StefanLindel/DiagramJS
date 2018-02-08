@@ -64,6 +64,7 @@ export class GraphModel extends DiagramElement {
         let id = this.getNewId(type);
         let element = <DiagramElement>this.getElement(type, id, {});
 
+        // position
         if(optionalValues){
             if(optionalValues.hasOwnProperty('x') && optionalValues.hasOwnProperty('y')){
                 let x = optionalValues['x'];
@@ -152,6 +153,9 @@ export class GraphModel extends DiagramElement {
         });
         this.$view = graph.root;
         graph.canvas.appendChild(graph.root);
+
+        // add export toolbar
+        graph.addLayerToolBar();
 
         let mousewheel = 'onwheel' in document.createElement('div') ? 'wheel' : document.onmousewheel !== undefined ? 'mousewheel' : 'DOMMouseScroll';
         EventBus.register(this, this.$view);

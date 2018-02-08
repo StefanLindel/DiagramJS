@@ -4,6 +4,7 @@ import { GraphModel } from '../elements/Model';
 import { Node } from '../elements/nodes';
 import { Graph } from '../elements/Graph';
 import { Control } from '../Control';
+import { Util } from '../util';
 
 export class Drag implements EventHandler {
 
@@ -97,11 +98,11 @@ export class Drag implements EventHandler {
                 // nesseccary to set the dragged object on top of svg children
                 this.svgRoot.appendChild(this.svgElement);
             }
+
+            let dragEvent = Util.createCustomEvent('drag');
+            element.$view.dispatchEvent(dragEvent);
         }
         this.reinsert = false;
-
-        let dragEvent = new Event('drag');
-        element.$view.dispatchEvent(dragEvent);
 
         evt.stopPropagation();
 

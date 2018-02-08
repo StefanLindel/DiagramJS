@@ -2,19 +2,19 @@ import * as edges from './edges';
 import * as nodes from './nodes';
 import * as layouts from '../layouts';
 import Layout from '../layouts/Layout';
-import {GraphModel} from './Model';
+import { GraphModel } from './Model';
 import Palette from '../Palette';
 import * as PropertiesPanel from '../PropertiesPanel';
-import {Size, Point} from './BaseElements';
-import {Util} from '../util';
-import {Control} from '../Control';
+import { Size, Point } from './BaseElements';
+import { Util } from '../util';
+import { Control } from '../Control';
 import Data from '../Data';
-import {EventBus} from '../EventBus';
-import {Drag, Select, Zoom, NewEdge, AddNode, PropertiesDispatcher} from '../handlers';
+import { EventBus } from '../EventBus';
+import { Drag, Select, Zoom, NewEdge, AddNode, PropertiesDispatcher } from '../handlers';
 import Options from '../Options';
-import {ImportFile} from '../handlers/ImportFile';
-import {SymbolLibary} from './nodes/Symbol';
-import {CSS} from '../CSS';
+import { ImportFile } from '../handlers/ImportFile';
+import { SymbolLibary } from './nodes/Symbol';
+import { CSS } from '../CSS';
 import { DiagramElement } from './index';
 import { Edge } from './edges';
 import { Toolbar } from '../Toolbar';
@@ -54,12 +54,12 @@ export class Graph extends Control {
         this.initFeatures(this.options.features);
 
         this.addLayerToolBar();
-        
-        EventBus.register(this,  this.canvas);
+
+        EventBus.register(this, this.canvas);
     }
 
-    private static createPattern(): Element {
-        const defs = Util.createShape({tag: 'defs'});
+    private createPattern(): Element {
+        const defs = Util.createShape({ tag: 'defs' });
         const pattern = Util.createShape({
             tag: 'pattern',
             id: 'raster',
@@ -91,7 +91,7 @@ export class Graph extends Control {
     }
 
     public addLayerToolBar(): boolean {
-        if (this.layerToolBar) {
+        if (this.layerToolBar && document.getElementById(this.layerToolBar.id)) {
             return false;
         }
         let subElements = ['HTML', ['Save', 'PNG', 'SVG', 'HTML', 'PDF']];
@@ -122,7 +122,7 @@ export class Graph extends Control {
             // console.log((<any>event.currentTarget).value);
             that.saveAs(text);
         };
-        let btn = {id: 'Storage', type: 'Hamburger', x: 2, y: 8, width: 140, elements: subElements, activText: 'Localstorage', action: func};
+        let btn = { id: 'Storage', type: 'Hamburger', x: 2, y: 8, width: 140, elements: subElements, activText: 'Localstorage', action: func };
         let item = SymbolLibary.drawSVG(btn);
         this.layerToolBar.appendChild(item);
         //        buttons.push(item);
@@ -137,17 +137,19 @@ export class Graph extends Control {
 
     public save(typ: string, data: any, name: string) {
         let a = document.createElement('a');
-        a.href = window.URL.createObjectURL(new Blob([data], {type: typ}));
+        a.href = window.URL.createObjectURL(new Blob([data], { type: typ }));
         a.download = name;
+        document.body.appendChild(a);
         a.click();
+        document.body.removeChild(a);
     }
 
-    public exportSVG(){
+    public exportSVG() {
         let wellFormatedSvgDom = this.getSvgWithStyleAttributes();
         this.save('image/svg+xml', this.serializeXmlNode(wellFormatedSvgDom), 'download.svg');
     }
 
-    public getSvgWithStyleAttributes() : Node{
+    public getSvgWithStyleAttributes(): Node {
         let oDOM = this.$graphModel.$view.cloneNode(true);
         this.read_Element(oDOM, this.$graphModel.$view)
 
@@ -155,29 +157,29 @@ export class Graph extends Control {
     }
 
     //https://stackoverflow.com/questions/15181452/how-to-save-export-inline-svg-styled-with-css-from-browser-to-image-file
-    private ContainerElements = ["svg","g"];
-    private RelevantStyles = {"rect":["fill","stroke","stroke-width"],"path":["fill","stroke","stroke-width"],"circle":["fill","stroke","stroke-width"],"line":["stroke","stroke-width"],"text":["fill","font-size","text-anchor", 'font-family'],"polygon":["stroke","fill"]};
+    private ContainerElements = ["svg", "g"];
+    private RelevantStyles = { "rect": ["fill", "stroke", "stroke-width"], "path": ["fill", "stroke", "stroke-width"], "circle": ["fill", "stroke", "stroke-width"], "line": ["stroke", "stroke-width"], "text": ["fill", "font-size", "text-anchor", 'font-family'], "polygon": ["stroke", "fill"] };
 
-    public read_Element(parent : any, OrigData : any){
+    public read_Element(parent: any, OrigData: any) {
 
         var Children = parent.childNodes;
-        var OrigChildDat = OrigData.childNodes;     
+        var OrigChildDat = OrigData.childNodes;
 
-        for (var cd = 0; cd < Children.length; cd++){
+        for (var cd = 0; cd < Children.length; cd++) {
             var Child = Children[cd];
 
             var TagName = Child.tagName;
-            if (this.ContainerElements.indexOf(TagName) != -1){
+            if (this.ContainerElements.indexOf(TagName) != -1) {
                 this.read_Element(Child, OrigChildDat[cd])
-            } else if (TagName in this.RelevantStyles){
+            } else if (TagName in this.RelevantStyles) {
                 var StyleDef = window.getComputedStyle(OrigChildDat[cd]);
 
                 var StyleString = "";
-                for (var st = 0; st < this.RelevantStyles[TagName].length; st++){
+                for (var st = 0; st < this.RelevantStyles[TagName].length; st++) {
                     StyleString += this.RelevantStyles[TagName][st] + ":" + StyleDef.getPropertyValue(this.RelevantStyles[TagName][st]) + "; ";
                 }
 
-                Child.setAttribute("style",StyleString);
+                Child.setAttribute("style", StyleString);
             }
         }
 
@@ -189,10 +191,10 @@ export class Graph extends Control {
             this.exportSVG();
         } else if (typ === 'png') {
             this.exportPNG();
-        // } else if (typ === "html") {
+            // } else if (typ === "html") {
             //     this.ExportHTML();
 
-            } else if (typ === "pdf") {
+        } else if (typ === "pdf") {
             this.exportPDF();
             // } else if (typ === "eps") {
             // this.ExportEPS();
@@ -209,13 +211,13 @@ export class Graph extends Control {
         return xmlNode.outerHTML;
     }
 
-    public getSize(): Size{
+    public getSize(): Size {
         let width: number;
         let height: number;
         width = +this.root.getAttribute('width');
         height = +this.root.getAttribute('height');
 
-        return {width: width, height: height};
+        return { width: width, height: height };
     }
 
     public exportPDF(): void {
@@ -225,12 +227,12 @@ export class Graph extends Control {
         }
         let typ = 'image/svg+xml';
         let xmlNode = this.serializeXmlNode(this.getSvgWithStyleAttributes());
-        let url = window.URL.createObjectURL(new Blob([xmlNode], {type: typ}));
+        let url = window.URL.createObjectURL(new Blob([xmlNode], { type: typ }));
 
         let canvas, context, a, image = new Image();
         let size = this.getSize();
 
-        image.onload = function(){
+        image.onload = function () {
             canvas = document.createElement('canvas');
             canvas.width = size.width;
             canvas.height = size.height;
@@ -246,26 +248,26 @@ export class Graph extends Control {
 
         image.src = url;
     }
-/*
-    Graph.prototype.ExportPDF = function () {
-        var converter, pdf = new jsPDF('l','px',[this.model.width, this.model.height]);
-        converter = new svgConverter(this.board, pdf, {removeInvalid: false});
-        pdf.save('Download.pdf');
-    };
-    Graph.prototype.ExportEPS = function () {
-        var converter, doc = new svgConverter.jsEPS({inverting: true});
-        converter = new svgConverter(this.board, doc, {removeInvalid: false});
-        doc.save();
-    };*/
+    /*
+        Graph.prototype.ExportPDF = function () {
+            var converter, pdf = new jsPDF('l','px',[this.model.width, this.model.height]);
+            converter = new svgConverter(this.board, pdf, {removeInvalid: false});
+            pdf.save('Download.pdf');
+        };
+        Graph.prototype.ExportEPS = function () {
+            var converter, doc = new svgConverter.jsEPS({inverting: true});
+            converter = new svgConverter(this.board, doc, {removeInvalid: false});
+            doc.save();
+        };*/
     public exportPNG(): void {
         let canvas, context, a, image = new Image();
         let xmlNode = this.serializeXmlNode(this.getSvgWithStyleAttributes());
         let typ = 'image/svg+xml';
-        let url = window.URL.createObjectURL(new Blob([xmlNode], {type: typ}));
+        let url = window.URL.createObjectURL(new Blob([xmlNode], { type: typ }));
 
         let size = this.getSize();
 
-        image.onload = function(){
+        image.onload = function () {
             canvas = document.createElement('canvas');
             canvas.width = size.width;
             canvas.height = size.height;
@@ -275,14 +277,16 @@ export class Graph extends Control {
             a = document.createElement('a');
             a.download = 'download.png';
             a.href = canvas.toDataURL('image/png');
+            document.body.appendChild(a);
             a.click();
+            document.body.removeChild(a);
         };
 
         image.src = url;
 
     }
 
-    public load(json: JSON | Object, owner ?: Control): any {
+    public load(json: JSON | Object, owner?: Control): any {
         this.$graphModel = new GraphModel();
         this.$graphModel.init(this);
         this.$graphModel.load(json);
@@ -303,28 +307,55 @@ export class Graph extends Control {
         return;
     }
 
-    public addElement(type: string, optionalValues?: any): boolean {
+    public getNextFreePosition(): Point {
+
+        if (!this.$graphModel) {
+            return new Point(50, 50);
+        }
+
+        let point = new Point(0, 50);
+
+        let maxX = 0;
+        let minX = 9000;
+
+        for (let idx in this.$graphModel.nodes) {
+            let node = this.$graphModel.nodes[idx];
+
+            maxX = Math.max(maxX, node.getPos().x);
+            minX = Math.min(minX, node.getPos().x);
+        }
+
+        if (minX > 170) {
+            point.x = 10;
+        }
+        else {
+            point.x = maxX + 200;
+        }
+
+        return point;
+    }
+
+    public addElement(type: string, dontDraw?: boolean): boolean {
         let success = this.$graphModel.addElement(type);
         if (success === true) {
-            this.layout();
+            this.layout(dontDraw);
         }
         return success;
     }
 
-    public addElementWithValues(type: string, optionalValues?: Object, layout?: boolean) : DiagramElement{
+    public addElementWithValues(type: string, optionalValues?: Object, layout?: boolean, dontDraw?: boolean): DiagramElement {
         let element = this.$graphModel.addElementWithValues(type, optionalValues);
         if (element && layout) {
-            this.layout();
+            this.layout(dontDraw);
         }
         return element;
     }
 
-    public layout() {
+    public layout(dontDraw?: boolean) {
         this.getLayout().layout(this, this.$graphModel);
-        this.draw();
-    }
 
-    public reDraw(): void {
+        if (dontDraw) return;
+
         this.draw();
     }
 
@@ -337,7 +368,7 @@ export class Graph extends Control {
         let model = this.$graphModel;
         let root = this.root;
         let max: Point = new Point();
-        if(this.options){
+        if (this.options) {
             max.x = this.options.minWidth || 0;
             max.y = this.options.minHeight || 0;
         }
@@ -360,7 +391,8 @@ export class Graph extends Control {
                 }
             }
         }
-        Util.setSize(this.root, max.x + 60, max.y + 40);
+        Util.setAttributeSize(this.root, max.x + 60, max.y + 40);
+
         if (model.edges) {
             for (let id in model.edges) {
                 let edge = model.edges[id];
@@ -371,15 +403,30 @@ export class Graph extends Control {
         }
     }
 
-    public drawElement(element: DiagramElement) : void{
-        if(!element){
+    public drawElement(element: DiagramElement): void {
+        if (!element) {
             return;
         }
 
         let svg = element.getSVG();
         this.root.appendChild(svg);
 
-        if(element instanceof Edge){
+        // actualize root width size, if neccessary
+        // get current width of root
+        let rootSize = this.getSize();
+        let newWidth = element.getPos().x + element.getSize().x + 40;
+        let newHeight = element.getPos().y + element.getSize().y;
+
+        if (rootSize.width < newWidth) {
+            this.root.setAttributeNS(null, 'width', '' + newWidth);
+        }
+
+        if (rootSize.height < newHeight) {
+            this.root.setAttributeNS(null, 'height', '' + newHeight);
+        }
+
+        // draw edge
+        if (element instanceof Edge) {
             let edge = <Edge>element;
             edge.redraw(edge.$sNode);
             let srcSvg = element.$sNode.getAlreadyDisplayingSVG();
@@ -392,13 +439,13 @@ export class Graph extends Control {
         EventBus.register(element, svg);
     }
 
-    public removeElement(element: DiagramElement) : void{
-        if(!element){
+    public removeElement(element: DiagramElement): void {
+        if (!element) {
             return;
         }
 
         let alreadyDisplayingSvg = element.getAlreadyDisplayingSVG();
-        if(!this.root.contains(alreadyDisplayingSvg)){
+        if (!this.root.contains(alreadyDisplayingSvg)) {
             return;
         }
 
@@ -419,7 +466,7 @@ export class Graph extends Control {
             root.removeChild(root.firstChild);
         }
 
-        root.appendChild(Graph.createPattern());
+        root.appendChild(this.createPattern());
         let background = Util.createShape({
             tag: 'rect',
             id: 'background',
@@ -490,10 +537,10 @@ export class Graph extends Control {
     private initFeatures(features: any) {
 
         if (features) {
-            if(features.import){
+            if (features.newedge) {
                 EventBus.subscribe(new NewEdge(this), 'mousedown', 'mouseup', 'mousemove', 'mouseleave');
             }
-            if(features.import){
+            if (features.import) {
                 EventBus.subscribe(new ImportFile(this), 'dragover', 'dragleave', 'drop');
             }
             if (features.zoom) {
@@ -504,20 +551,20 @@ export class Graph extends Control {
                 EventBus.subscribe(new Drag(this), 'mousedown', 'mouseup', 'mousemove', 'mouseleave');
             }
             if (features.select) {
-                EventBus.subscribe(new Select(this.$graphModel, this), 'click', 'drag');
+                EventBus.subscribe(new Select(this), 'click', 'drag');
             }
             if (features.palette) {
                 let palette = new Palette(this);
             }
-            if(features.toolbar){
+            if (features.toolbar) {
                 new Toolbar(this).show();
             }
-            if(features.properties){
+            if (features.properties) {
                 let dispatcher = new PropertiesDispatcher(this);
                 dispatcher.dispatch(PropertiesPanel.PropertiesPanel.PropertiesView.Edge);
-                EventBus.subscribe(dispatcher, 'dblclick', 'click', 'openproperties');
+                EventBus.subscribe(dispatcher, 'dblclick', 'click');
             }
-            if(features.addnode){
+            if (features.addnode) {
                 EventBus.subscribe(new AddNode(this), 'mousedown', 'mouseup', 'mousemove', 'mouseleave');
             }
         }

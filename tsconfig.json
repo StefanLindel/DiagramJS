@@ -11,8 +11,14 @@
     "removeComments": true,
     "suppressImplicitAnyIndexErrors": true,
     "sourceMap": true,
-    "target": "es6",
-    "pretty": true
+    "target": "es5",
+    "pretty": true,
+    "lib": [
+      "es2015.core",
+      "es5",
+      "dom",
+      "scripthost"
+    ]
   },
 	"include": [
 		"src/**/*.ts"

@@ -14,15 +14,13 @@ export class Select implements EventHandler {
     private svgRoot: SVGSVGElement;
     private deleteShape: SVGSVGElement;
     private addEdgeShape: SVGSVGElement;
-    private model: GraphModel;
     private graph: Graph;
     private padding = 5;
 
     private lastSelectedNode: Element;
     private lastSelectedEdge: Element;
 
-    constructor(model: GraphModel, graph: Graph) {
-        this.model = model;
+    constructor(graph: Graph) {
         this.graph = graph;
         this.svgRoot = <SVGSVGElement><any>document.getElementById('root');
 
@@ -49,7 +47,7 @@ export class Select implements EventHandler {
             Util.addClass(this.lastSelectedNode, 'SVGClazz-selected');
         }
 
-        if (event.target['id'] === 'background' || element === this.model) {
+        if (event.target['id'] === 'background' || element === this.graph.$graphModel) {
 
             this.resetLastSelectedElements();
 
@@ -76,7 +74,7 @@ export class Select implements EventHandler {
             let y = e.getPos().y;
 
             this.deleteShape.setAttributeNS(null, 'transform', `translate(${x} ${y + this.padding})`);
-            this.deleteShape.onclick = e => this.model.removeElement(element.id);
+            this.deleteShape.onclick = e => this.graph.$graphModel.removeElement(element.id);
 
             this.addEdgeShape.setAttributeNS(null, 'transform', `translate(${x} ${y + 40 + this.padding})`);
             this.addEdgeShape.onmousedown = function(){
@@ -111,10 +109,12 @@ export class Select implements EventHandler {
             divInlineEdit.appendChild(inputText);
             document.body.appendChild(divInlineEdit);
 
-
-            let that = this;
-            inputText.addEventListener('focusout', function(evt){
-                that.removeLastInlineEdit();
+            inputText.addEventListener('focusout', (evt) => {
+                
+                // only if input is empty, remove the inline edit function
+                if(!inputText.value || inputText.value.length === 0){
+                    this.removeLastInlineEdit();
+                }
             });
 
             let g = this.graph;
@@ -124,7 +124,7 @@ export class Select implements EventHandler {
                 let keyCode = (<any>evt).which;
                 let inputValue = <any>inputText.value;
 
-                if (inputValue.endsWith(':') && !document.getElementById('selectPropertyType')) {
+                if (Util.endsWith(inputValue, ':') && !document.getElementById('selectPropertyType')) {
                     let selectType = document.createElement('select');
                     selectType.id = 'selectPropertyType';
                     selectType.style.width = '100%';
@@ -148,7 +148,7 @@ export class Select implements EventHandler {
 
                     divInlineEdit.appendChild(selectType);
                 }
-                else if (!inputValue.includes(':')) {
+                else if (!Util.includes(inputValue, ':')) {
                     let selectType = document.getElementById('selectPropertyType');
 
                     if (selectType) {
@@ -161,12 +161,12 @@ export class Select implements EventHandler {
                 }
 
                 // attribute
-                if (inputValue.includes(':') && !(inputValue.includes('(') && inputValue.includes(')'))) {
+                if (Util.includes(inputValue, ':') && !(Util.includes(inputValue, '(') && Util.includes(inputValue, ')'))) {
                     clazz.addAttribute(inputValue.trim());
                     clazz.reDraw();
                 }
                 // method
-                else if (inputValue.includes('(') && inputValue.includes(')')) {
+                else if (Util.includes(inputValue, '(') && Util.includes(inputValue, ')')) {
                     clazz.addMethod(inputValue.trim());
                     clazz.reDraw();
                 }
@@ -208,7 +208,7 @@ export class Select implements EventHandler {
             y = (<MouseEvent>event).layerY;
 
             this.deleteShape.setAttributeNS(null, 'transform', `translate(${x} ${y})`);
-            this.deleteShape.onclick = e => this.model.removeElement(element.id);
+            this.deleteShape.onclick = e => this.graph.$graphModel.removeElement(element.id);
 
             this.resetLastSelectedElements();
 

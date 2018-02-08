@@ -135,6 +135,22 @@ export class Util {
         item.style.height = Math.ceil(value);
     }
 
+    static setAttributeSize(item: any, width: number | string, height: number | string): void {
+        let value: number;
+        value = Util.getValue(width);
+        item.setAttributeNS(null, 'width', value);
+        value = Util.getValue(height);
+        item.setAttributeNS(null, 'height', value);
+    }
+
+    static setStyleSize(item: any, width: number | string, height: number | string): void {
+        let value: number;
+        value = Util.getValue(width);
+        item.style.width = Math.ceil(value);
+        value = Util.getValue(height);
+        item.style.height = Math.ceil(value);
+    }
+
     static setPos(item: any, x: number, y: number): void {
         if (item.x && item.x.baseVal) {
             item.style.left = x + 'px';
@@ -487,5 +503,46 @@ export class Util {
             let className = element.getAttribute('class');
             element.setAttributeNS(null, 'class', className.replace(reg, ' ').trim());
         }
+    }
+
+    public static startsWith(s: string, searchS: string): boolean {
+        if (!String.prototype.startsWith) {
+            return s.indexOf(searchS) === 0;
+        }
+
+        return s.startsWith(searchS);
+    }
+
+    public static endsWith(s: string, searchS: string): boolean {
+        if (!String.prototype.endsWith) {
+            var lastIndex = s.lastIndexOf(searchS);
+            return lastIndex !== -1 && lastIndex === (s.length - 1);
+        }
+
+        return s.endsWith(searchS);
+    }
+
+    public static includes(s: string, searchS: string): boolean {
+        if (!String.prototype.includes) {
+            var idx = s.indexOf(searchS);
+            return idx > -1;
+        }
+
+        return s.includes(searchS);
+    }
+
+    public static createCustomEvent(type: string, params?: any): CustomEvent {
+        let evt: CustomEvent;
+
+        if (typeof window['CustomEvent'] !== 'function') {
+            params = params || { bubbles: false, cancelable: false, detail: undefined };
+            evt = document.createEvent('CustomEvent');
+            evt.initCustomEvent(type, params.bubbles, params.cancelable, params.detail);
+            return evt;
+        }
+
+        evt = new CustomEvent(type);
+
+        return evt;
     }
 }

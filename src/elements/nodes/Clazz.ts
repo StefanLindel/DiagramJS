@@ -17,8 +17,6 @@ export class Clazz extends Node {
     protected methodsObj: Method[] = [];
     protected $labelView: Element;
 
-    protected style: string;
-
     constructor(json: JSON | string | Object | any) {
         super(json);
         if (!json) {
@@ -26,7 +24,6 @@ export class Clazz extends Node {
         }
         let y = this.labelHeight;
         this.label = json.name || json.label || ('New ' + this.property);
-        this.style = json.style || 'flat';
 
         let width: number = 150;
 
@@ -37,18 +34,18 @@ export class Clazz extends Node {
                 attrObj.$owner = this;
                 this.attributesObj.push(attrObj);
                 y += this.attrHeight;
-                width = Math.max(width, Util.sizeOf(attr, this).width);
+                width = Math.max(width, Util.sizeOf(attrObj.toString(), this).width);
             }
         }
         if (json['methods']) {
             for (let method of json['methods']) {
 
-                let mthodObj = new Method(method);
-                mthodObj.$owner = this;
-                this.methodsObj.push(mthodObj);
+                let methodObj = new Method(method);
+                methodObj.$owner = this;
+                this.methodsObj.push(methodObj);
 
                 y += this.attrHeight;
-                width = Math.max(width, Util.sizeOf(method, this).width);
+                width = Math.max(width, Util.sizeOf(methodObj.toString(), this).width);
             }
             y += this.attrHeight;
         }
@@ -65,10 +62,6 @@ export class Clazz extends Node {
     }
 
     public getSVG(): Element {
-        if (this.style === 'modern') {
-            return this.getModernStyle();
-        }
-
         const pos: Point = this.getPos();
         const size: Point = this.getSize();
 
@@ -82,8 +75,6 @@ export class Clazz extends Node {
             rx: 10,
             ry: 10
         });
-
-
 
         // = = = LABEL = = =
         let label = this.createShape({
@@ -107,7 +98,6 @@ export class Clazz extends Node {
         // = = = ATTRIBUTES = = =
         if (this.attributesObj.length > 0) {
 
-
             // line to separate label from attributes
             const separatorLabelAttr = this.createShape({
                 tag: 'line',
@@ -122,7 +112,7 @@ export class Clazz extends Node {
 
             group.appendChild(separatorLabelAttr);
 
-            let groupOfAttributes = this.createShape({tag: 'g', id: (this.id + 'Attributes')});
+            let groupOfAttributes = this.createShape({ tag: 'g', id: (this.id + 'Attributes') });
             groupOfAttributes.setAttributeNS(null, 'class', 'SVGClazzProperty SVGClazzAttribute');
             group.appendChild(groupOfAttributes);
 
@@ -159,7 +149,7 @@ export class Clazz extends Node {
 
             group.appendChild(separatorAttrMethods);
 
-            let groupOfMethods = this.createShape({tag: 'g', id: (this.id + 'Methods')});
+            let groupOfMethods = this.createShape({ tag: 'g', id: (this.id + 'Methods') });
             groupOfMethods.setAttributeNS(null, 'class', 'SVGClazzProperty SVGClazzMethod');
             group.appendChild(groupOfMethods);
 
@@ -185,51 +175,6 @@ export class Clazz extends Node {
         return [EventBus.ELEMENTMOUSEDOWN, EventBus.ELEMENTMOUSEMOVE, EventBus.ELEMENTCLICK, EventBus.ELEMENTDRAG, EventBus.ELEMENTDBLCLICK, EventBus.EDITOR, EventBus.OPENPROPERTIES];
     }
 
-    public getPropertyAsString(type: string): string {
-        let value = '';
-        if (this[type]) {
-            for (let property of this[type]) {
-                value += property + '\n';
-            }
-        }
-        return value;
-    }
-
-    // returns true if new properties are different from old ones
-    public convertStringToProperty(values: string, type: string): boolean {
-        if (!this[type]) {
-            return false;
-        }
-
-        let properties = values.split(/\r?\n/);
-        let newProperties: string[] = [];
-        for (let property of properties) {
-            if (property && property.length > 0) {
-                newProperties.push(property);
-            }
-        }
-
-        let changed = false;
-        if (this[type].length !== newProperties.length) {
-            changed = true;
-        }
-        else {
-            for (let i = 0; i < this[type].length; i++) {
-                if (!this[type][i] || !newProperties[i] || this[type][i] !== newProperties[i]) {
-                    changed = true;
-                }
-            }
-        }
-
-        if (changed) {
-            this[type] = newProperties;
-            this.getSize().y = this.labelHeight + ((this.attributesObj.length + this.methodsObj.length) * this.attrHeight)
-                + this.attrHeight;
-
-        }
-        return changed;
-    }
-
     public addProperty(value: string, type: string): any {
         if (!this[type] || !value || value.length === 0) {
             return;
@@ -242,10 +187,10 @@ export class Clazz extends Node {
         }
 
         let extractedValue;
-        if ((<any>type).startsWith('attribute')) {
+        if (Util.startsWith(type, 'attribute')) {
             extractedValue = new Attribute(value);
         }
-        else if ((<any>type).startsWith('method')) {
+        else if (Util.startsWith(type, 'method')) {
             extractedValue = new Method(value);
         }
 
@@ -273,15 +218,15 @@ export class Clazz extends Node {
     }
 
     public reDraw(drawOnlyIfSizeChanged?: boolean): void {
-        let oldSize = { width: this.getSize().x, height: this.getSize().y };
-        let newSize = this.reCalcSize();
+        let hasSizeChanged: [boolean, Size] = this.hasSizeChanged();
 
         if (drawOnlyIfSizeChanged) {
-            // size doenst changed, so nothing to redraw
-            if (oldSize.width === newSize.width && oldSize.height === newSize.height) {
+            if (!hasSizeChanged[0]) {
                 return;
             }
         }
+
+        if (!this.$view) return;
 
         // redraw only this clazz
         this.$owner.$view.removeChild(this.$view);
@@ -293,43 +238,70 @@ export class Clazz extends Node {
         this.redrawEdges();
     }
 
+    public hasSizeChanged(): [boolean, Size] {
+        let oldSize = { width: this.getSize().x, height: this.getSize().y };
+        let newSize = this.reCalcSize();
+
+        // size doenst changed, so nothing to redraw
+        if (oldSize.width === newSize.width && oldSize.height === newSize.height) {
+            return [false, newSize];
+        }
+
+        return [true, newSize];
+    }
+
     public updateLabel(newLabel: string): void {
         this.label = newLabel;
-        this.$labelView.textContent = newLabel;
+        if (this.$labelView) {
+            this.$labelView.textContent = newLabel;
+        }
 
         this.reDraw(true);
+
+        // // if size has changed, so set the correct width to rect
+        // let newSizeHasChanged: [boolean, Size] = this.hasSizeChanged();
+        // if(newSizeHasChanged[0] && this.$view.hasChildNodes()){
+        //     let newSize: Size = newSizeHasChanged[1];
+
+        //     // get rect, first child of view
+        //     let rect = <Element>this.$view.childNodes[0];
+        //     rect.setAttributeNS(null, 'width', '' + newSize.width);
+        //     rect.setAttributeNS(null, 'height', '' + newSize.height);
+
+        //     this.redrawEdges();
+        // }
     }
 
     public reCalcSize(): Size {
         // label
         let newWidth = 150;
-        newWidth = Math.max(newWidth, Util.sizeOf(this.label, this).width+30);
+        newWidth = Math.max(newWidth, Util.sizeOf(this.label, this).width + 30);
 
         // attributes
         this.attributesObj.forEach(attrEl => {
 
             let widthOfAttr;
-            if(attrEl.$view){
+            if (attrEl.$view) {
                 widthOfAttr = attrEl.$view.getBoundingClientRect().width;
             }
-            else{
+            else {
                 widthOfAttr = Util.sizeOf(attrEl.toString(), this).width;
             }
 
-            newWidth = Math.max(newWidth, widthOfAttr+15);
+            newWidth = Math.max(newWidth, widthOfAttr + 15);
         });
 
         // methods
         this.methodsObj.forEach(methodEl => {
             let widthOfMethod;
-            if(methodEl.$view){
+            if (methodEl.$view) {
                 widthOfMethod = methodEl.$view.getBoundingClientRect().width;
             }
-            else{
+            else {
                 widthOfMethod = Util.sizeOf(methodEl.toString(), this).width;
             }
 
-            newWidth = Math.max(newWidth, widthOfMethod+15);
+            newWidth = Math.max(newWidth, widthOfMethod + 15);
         });
 
         this.getSize().x = newWidth;
@@ -339,129 +311,6 @@ export class Clazz extends Node {
         let newSize = { width: newWidth, height: this.getSize().y };
 
         return newSize;
-    }
-
-    private getModernStyle(): Element {
-        let width, height, id, size, z, item, rect, g, styleHeader, headerHeight, x, y;
-        //let board = this.getRoot()['board'];
-        styleHeader = Util.getStyle('ClazzHeader');
-        headerHeight = styleHeader.getNumber('height');
-        width = 0;
-        height = 10 + headerHeight;
-
-        if (this.property === 'Object' || this.getRoot()['$graphModel'].getType().toLowerCase() === 'objectdiagram') {
-            id = this.id.charAt(0).toLowerCase() + this.id.slice(1);
-            item = 'Object';
-        } else {
-            id = this.id;
-            item = 'Clazz';
-            if (this['counter']) {
-                id += ' (' + this['counter'] + ')';
-            }
-        }
-        g = Util.create({ tag: 'g', model: this });
-        size = Util.sizeOf(id, this);
-        width = Math.max(width, size.width);
-        if (this.attributesObj && this.attributesObj.length > 0) {
-            height = height + this.attributesObj.length * 25;
-            for (z = 0; z < this.attributesObj.length; z += 1) {
-                width = Math.max(width, Util.sizeOf(this.attributesObj[z], this).width);
-            }
-        } else {
-            height += 20;
-        }
-        if (this.methodsObj && this.methodsObj.length > 0) {
-            height = height + this.methodsObj.length * 25;
-            for (z = 0; z < this.methodsObj.length; z += 1) {
-                width = Math.max(width, Util.sizeOf(this.methodsObj[z], this).width);
-            }
-        }
-        width += 20;
-
-        let pos = this.getPos();
-        y = pos.y;
-        x = pos.x;
-
-        rect = {
-            tag: 'rect',
-            'width': width,
-            'height': height,
-            'x': x,
-            'y': y,
-            'class': item + ' draggable',
-            'fill': 'none'
-        };
-        g.appendChild(Util.create(rect));
-        g.appendChild(Util.create({
-            tag: 'rect',
-            rx: 0,
-            'x': x,
-            'y': y,
-            height: headerHeight,
-            'width': width,
-            'class': 'ClazzHeader'
-        }));
-
-        item = Util.create({
-            tag: 'text',
-            $font: true,
-            'class': 'InfoText',
-            'text-anchor': 'right',
-            'x': x + width / 2 - size.width / 2,
-            'y': y + (headerHeight / 2) + (size.height / 2),
-            'width': size.width
-        });
-
-        if (this.property === 'Object' || this.getRoot()['$graphModel'].type.toLowerCase() === 'objectdiagram') {
-            item.setAttribute('text-decoration', 'underline');
-        }
-        item.appendChild(document.createTextNode(id));
-
-        g.appendChild(item);
-        g.appendChild(Util.create({
-            tag: 'line',
-            x1: x,
-            y1: y + headerHeight,
-            x2: x + width,
-            y2: y + headerHeight,
-            stroke: '#000'
-        }));
-        y += headerHeight + 20;
-
-        if (this.attributesObj) {
-            for (z = 0; z < this.attributesObj.length; z += 1) {
-                g.appendChild(Util.create({
-                    tag: 'text',
-                    $font: true,
-                    'text-anchor': 'left',
-                    'width': width,
-                    'x': (x + 10),
-                    'y': y,
-                    value: this.attributesObj[z].toString()
-                }));
-                y += 20;
-            }
-            if (this.attributesObj.length > 0) {
-                y -= 10;
-            }
-        }
-        if (this.methodsObj && this.methodsObj.length > 0) {
-            g.appendChild(Util.create({ tag: 'line', x1: x, y1: y, x2: x + width, y2: y, stroke: '#000' }));
-            y += 20;
-            for (z = 0; z < this.methodsObj.length; z += 1) {
-                g.appendChild(Util.create({
-                    tag: 'text',
-                    $font: true,
-                    'text-anchor': 'left',
-                    'width': width,
-                    'x': x + 10,
-                    'y': y,
-                    value: this.methodsObj[z].toString()
-                }));
-                y += 20;
-            }
-        }
-        return g;
     }
 
     public redrawEdges() {

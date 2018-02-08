@@ -28,7 +28,11 @@ export default class Palette {
             let button = <HTMLButtonElement>document.createElement('button');
             button.className = 'add' + btn + 'Btn';
             button.innerHTML = buttons[btn];
-            button.onclick = e => this.graph.addElement(btn);
+            button.onclick = e => {
+                let nextFreePosition = this.graph.getNextFreePosition();
+                let node = this.graph.addElementWithValues(btn, {x: nextFreePosition.x, y: nextFreePosition.y}, false);
+                this.graph.drawElement(node);
+            };
             if (btn === 'object' || btn === 'edge') {
                 // TODO: implement Objects
                 button.disabled = true;
