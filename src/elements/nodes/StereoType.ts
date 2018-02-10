@@ -1,19 +1,19 @@
-import {Point} from '../BaseElements';
+import { Point } from '../BaseElements';
 import { Clazz } from "./index";
 
-export class StereoType extends Clazz{
+export class StereoType extends Clazz {
 
-    protected stereoType : string;
-    protected $stereoTypeView : Element;
+    protected stereoType: string;
+    protected $stereoTypeView: Element;
 
-    constructor(data : JSON | any){
+    constructor(data: JSON | any) {
         super(data);
 
-        
-        this.withSize(this.getSize().x, (this.getSize().y + this.$labelHeight/2));
+
+        this.withSize(this.getSize().x, (this.getSize().y + this.$labelHeight / 2));
     }
 
-    public getSVG() : Element{
+    public getSVG(): Element {
 
         let pos: Point = this.getPos();
         let size: Point = this.getSize();
@@ -82,7 +82,7 @@ export class StereoType extends Clazz{
 
             group.appendChild(separatorLabelAttr);
 
-            let groupOfAttributes = this.createShape({tag: 'g', id: (this.id + 'Attributes')});
+            let groupOfAttributes = this.createShape({ tag: 'g', id: (this.id + 'Attributes') });
             groupOfAttributes.setAttributeNS(null, 'class', 'SVGClazzProperty SVGClazzAttribute');
             group.appendChild(groupOfAttributes);
 
@@ -102,16 +102,16 @@ export class StereoType extends Clazz{
 
         // = = = METHODS = = =
         let height = this.attributes.length * this.$attrHeight;
-        let y = pos.y + (this.$labelHeight*1.5) + height + this.$attrHeight / 2;
+        let y = pos.y + (this.$labelHeight * 1.5) + height + this.$attrHeight / 2;
         if (this.methods.length > 0) {
 
             // line to separate label from attributes
             const separatorAttrMethods = this.createShape({
                 tag: 'line',
                 x1: pos.x,                   //line doesn't overlap the full shape
-                y1: pos.y + (this.$labelHeight*1.5) + (this.$attrHeight * this.attributes.length),
+                y1: pos.y + (this.$labelHeight * 1.5) + (this.$attrHeight * this.attributes.length),
                 x2: pos.x + size.x,        //line doesn't overlap the full shape
-                y2: pos.y + (this.$labelHeight*1.5) + (this.$attrHeight * this.attributes.length),
+                y2: pos.y + (this.$labelHeight * 1.5) + (this.$attrHeight * this.attributes.length),
                 stroke: 'rgb(0, 0, 0)',        //black
                 'stroke-width': 2
             });
@@ -119,7 +119,7 @@ export class StereoType extends Clazz{
 
             group.appendChild(separatorAttrMethods);
 
-            let groupOfMethods = this.createShape({tag: 'g', id: (this.id + 'Methods')});
+            let groupOfMethods = this.createShape({ tag: 'g', id: (this.id + 'Methods') });
             groupOfMethods.setAttributeNS(null, 'class', 'SVGClazzProperty SVGClazzMethod');
             group.appendChild(groupOfMethods);
 
@@ -141,11 +141,11 @@ export class StereoType extends Clazz{
         return group;
     }
 
-    public setStereoTyp(value : string) : void{
+    public setStereoTyp(value: string): void {
         this.stereoType = '<<' + value + '>>';
     }
 
-    public getStereoType() : string{
+    public getStereoType(): string {
         return this.stereoType;
     }
 }

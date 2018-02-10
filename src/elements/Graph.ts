@@ -146,7 +146,7 @@ export class Graph extends Control {
 
     public exportSVG() {
         let wellFormatedSvgDom = this.getSvgWithStyleAttributes();
-        this.save('image/svg+xml', this.serializeXmlNode(wellFormatedSvgDom), 'download.svg');
+        this.save('image/svg+xml', this.serializeXmlNode(wellFormatedSvgDom), 'class_diagram.svg');
     }
 
     public getSvgWithStyleAttributes(): Node {
@@ -157,8 +157,8 @@ export class Graph extends Control {
     }
 
     //https://stackoverflow.com/questions/15181452/how-to-save-export-inline-svg-styled-with-css-from-browser-to-image-file
-    private ContainerElements = ["svg", "g"];
-    private RelevantStyles = { "rect": ["fill", "stroke", "stroke-width"], "path": ["fill", "stroke", "stroke-width"], "circle": ["fill", "stroke", "stroke-width"], "line": ["stroke", "stroke-width"], "text": ["fill", "font-size", "text-anchor", 'font-family'], "polygon": ["stroke", "fill"] };
+    private ContainerElements = ['svg', 'g'];
+    private RelevantStyles = { 'rect': ['fill', 'stroke', 'stroke-width'], 'path': ['fill', 'stroke', 'stroke-width', 'opacity'], 'circle': ['fill', 'stroke', 'stroke-width'], 'line': ['stroke', 'stroke-width'], 'text': ['fill', 'font-size', 'text-anchor', 'font-family'], 'polygon': ['stroke', 'fill'] };
 
     public read_Element(parent: any, OrigData: any) {
 
@@ -174,12 +174,12 @@ export class Graph extends Control {
             } else if (TagName in this.RelevantStyles) {
                 var StyleDef = window.getComputedStyle(OrigChildDat[cd]);
 
-                var StyleString = "";
+                var StyleString = '';
                 for (var st = 0; st < this.RelevantStyles[TagName].length; st++) {
-                    StyleString += this.RelevantStyles[TagName][st] + ":" + StyleDef.getPropertyValue(this.RelevantStyles[TagName][st]) + "; ";
+                    StyleString += this.RelevantStyles[TagName][st] + ':' + StyleDef.getPropertyValue(this.RelevantStyles[TagName][st]) + '; ';
                 }
 
-                Child.setAttribute("style", StyleString);
+                Child.setAttribute('style', StyleString);
             }
         }
 
@@ -191,13 +191,16 @@ export class Graph extends Control {
             this.exportSVG();
         } else if (typ === 'png') {
             this.exportPNG();
-            // } else if (typ === "html") {
+            // } else if (typ === 'html') {
             //     this.ExportHTML();
 
-        } else if (typ === "pdf") {
+        } else if (typ === 'pdf') {
             this.exportPDF();
-            // } else if (typ === "eps") {
+            // } else if (typ === 'eps') {
             // this.ExportEPS();
+        }
+        else if (typ === 'json') {
+            this.exportJson();
         }
     }
 
@@ -218,6 +221,14 @@ export class Graph extends Control {
         height = +this.root.getAttribute('height');
 
         return { width: width, height: height };
+    }
+
+    public exportJson(): void {
+        let typ = 'text/plain';
+        let jsonObj = Util.toJson(this.$graphModel);
+        let data = JSON.stringify(jsonObj, null, '\t');
+
+        this.save(typ, data, 'class_diagram.json');
     }
 
     public exportPDF(): void {
@@ -242,7 +253,7 @@ export class Graph extends Control {
             let pdf = new window['jsPDF']();
 
             pdf.addImage(canvas.toDataURL('image/jpeg'), 'jpeg', 15, 40, 180, 160);
-            pdf.save('download.pdf');
+            pdf.save('class_diagram.pdf');
 
         };
 
@@ -275,7 +286,7 @@ export class Graph extends Control {
             context.drawImage(image, 0, 0);
 
             a = document.createElement('a');
-            a.download = 'download.png';
+            a.download = 'class_diagram.png';
             a.href = canvas.toDataURL('image/png');
             document.body.appendChild(a);
             a.click();
@@ -475,6 +486,12 @@ export class Graph extends Control {
             fill: 'url(#raster)'
         });
         root.appendChild(background);
+
+        // delete inline Edit, if exists
+        let inlineEdit = document.getElementById('inlineEdit');
+        if (inlineEdit && document.body.contains(inlineEdit)) {
+            document.body.removeChild(inlineEdit);
+        }
     }
 
     private getLayout(): Layout {

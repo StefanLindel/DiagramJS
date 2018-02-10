@@ -94,7 +94,7 @@ export class Clazz extends Node {
         label.textContent = this.label;
         this.$labelView = label;
 
-        
+
         group.appendChild(nodeShape);
         group.appendChild(label);
 
@@ -219,13 +219,13 @@ export class Clazz extends Node {
         this.methods.splice(idx, 1);
     }
 
-    public removeProperty(property: ClazzProperty): void{
+    public removeProperty(property: ClazzProperty): void {
 
-        if(property instanceof Attribute){
+        if (property instanceof Attribute) {
             this.removeAttribute(<Attribute>property);
         }
 
-        if(property instanceof Method){
+        if (property instanceof Method) {
             this.removeMethod(<Method>property);
         }
     }
@@ -268,6 +268,16 @@ export class Clazz extends Node {
         if (this.$labelView) {
             this.$labelView.textContent = newLabel;
         }
+
+        // update label in all edges
+        this.$edges.forEach(edge => {
+            if(this.id === edge.$sNode.id){
+                edge.source = newLabel;
+            }
+            else if(this.id === edge.$tNode.id){
+                edge.target = newLabel;
+            }
+        });
 
         this.reDraw(true);
     }

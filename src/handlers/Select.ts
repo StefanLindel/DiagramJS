@@ -56,11 +56,12 @@ export class Select implements EventHandler {
             return true;
         }
 
-        if (element instanceof Node && !(element instanceof InfoText) && event.type === 'click') {
+        if (element instanceof Node && event.type === 'click') {
             let e = <Node>element;
             this.graph.root.appendChild(this.deleteShape);
             this.graph.root.appendChild(this.addEdgeShape);
-            
+            this.graph.root.appendChild(element.$view);
+
             this.deleteShape.setAttributeNS(null, 'visibility', 'visible');
             this.addEdgeShape.setAttributeNS(null, 'visibility', 'visible');
 
@@ -80,8 +81,8 @@ export class Select implements EventHandler {
         if (element instanceof Clazz && event.type === 'click') {
             let clazz = <Clazz>element;
 
-            if(Util.isChrome()){
-                if(this.lastSelectedNode && element.id === this.lastSelectedNode.id && !this.isDragged){
+            if (Util.isChrome()) {
+                if (this.lastSelectedNode && element.id === this.lastSelectedNode.id && !this.isDragged) {
                     return true;
                 }
             }
@@ -113,7 +114,7 @@ export class Select implements EventHandler {
 
             inputText.addEventListener('focusout', (evt) => {
 
-                if(Util.isChrome()){
+                if (Util.isChrome()) {
                     // only if input is empty, remove the inline edit function
                     if ((!inputText.value || inputText.value.length === 0) && (!this.lastSelectedNode || element.id != this.lastSelectedNode.id)) {
                         this.removeLastInlineEdit();
@@ -207,14 +208,21 @@ export class Select implements EventHandler {
         }
 
         if (element instanceof Edge) {
+            this.graph.root.appendChild(element.$view);
+            this.graph.root.appendChild(element.$sNode.$view);
+            this.graph.root.appendChild(element.$tNode.$view);
+
             this.graph.root.appendChild(this.deleteShape);
             this.deleteShape.setAttributeNS(null, 'visibility', 'visible');
             this.addEdgeShape.setAttributeNS(null, 'visibility', 'hidden');
 
             let x: number, y: number;
 
-            x = (<MouseEvent>event).layerX;
-            y = (<MouseEvent>event).layerY;
+            x = (<any>event).layerX;
+            y = (<any>event).layerY;
+
+            console.log('x: ' + x);
+            console.log('y: ' + y);
 
             this.deleteShape.setAttributeNS(null, 'transform', `translate(${x} ${y})`);
             this.deleteShape.onclick = e => this.graph.$graphModel.removeElement(element.id);

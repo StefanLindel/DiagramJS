@@ -121,34 +121,34 @@ export class PropertiesDispatcher implements EventHandler {
 
         // show source property
         let inputEdgeSrcProperty = document.getElementById('edgeSrcProperty');
-        inputEdgeSrcProperty.addEventListener('input', function(evt){
+        inputEdgeSrcProperty.addEventListener('input', function (evt) {
             edge.updateSrcProperty((<HTMLInputElement>inputEdgeSrcProperty).value);
         });
 
         // show source cardinality
         let inputEdgeSrcCardinality = document.getElementById('edgeSrcCardinality');
-        inputEdgeSrcCardinality.addEventListener('input', function(evt){
+        inputEdgeSrcCardinality.addEventListener('input', function (evt) {
             edge.updateSrcCardinality((<HTMLInputElement>inputEdgeSrcCardinality).value);
         });
 
-        if(edge.sourceInfo){
+        if (edge.sourceInfo) {
             inputEdgeSrcProperty.setAttribute('value', edge.sourceInfo.property);
             inputEdgeSrcCardinality.setAttribute('value', edge.sourceInfo.cardinality);
         }
 
         // show target property
         let inputEdgeTargetProperty = document.getElementById('edgeTargetProperty');
-        inputEdgeTargetProperty.addEventListener('input', function(evt){
+        inputEdgeTargetProperty.addEventListener('input', function (evt) {
             edge.updateTargetProperty((<HTMLInputElement>inputEdgeTargetProperty).value);
         });
 
         // show target cardinality
         let inputEdgeTargetCardinality = document.getElementById('edgeTargetCardinality');
-        inputEdgeTargetCardinality.addEventListener('input', function(evt){
+        inputEdgeTargetCardinality.addEventListener('input', function (evt) {
             edge.updateTargetCardinality((<HTMLInputElement>inputEdgeTargetCardinality).value);
         });
 
-        if(edge.targetInfo){
+        if (edge.targetInfo) {
             inputEdgeTargetProperty.setAttribute('value', edge.targetInfo.property);
             inputEdgeTargetCardinality.setAttribute('value', edge.targetInfo.cardinality);
         }
@@ -213,7 +213,7 @@ export class PropertiesDispatcher implements EventHandler {
             let attrValue: string = `${modifier.value} ${name.value} : ${type.value}`;
 
             let newAttribute = clazz.addAttribute(attrValue);
-            let divEditNewAttr = that.createDivEditProperty(clazz, newAttribute,'attribute', tabContentAttr);
+            let divEditNewAttr = that.createDivEditProperty(clazz, newAttribute, 'attribute', tabContentAttr);
 
             // reset default values
             modifier.value = '+';

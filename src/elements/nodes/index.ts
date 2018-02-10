@@ -1,7 +1,7 @@
-import {AutoComplete} from "./AutoComplete";
-import {BR} from "./BR";
-import {Div} from "./Div";
-import {Label} from "./Label";
+import { AutoComplete } from "./AutoComplete";
+import { BR } from "./BR";
+import { Div } from "./Div";
+import { Label } from "./Label";
 
 export * from './Node';
 export * from './Clazz';

@@ -29,10 +29,10 @@ export class AddNode implements EventHandler {
     }
 
     public setActive(active: boolean): void {
-        if(active){
+        if (active) {
             EventBus.setActiveHandler(AddNode.name);
         }
-        else{
+        else {
             EventBus.releaseActiveHandler();
         }
     }

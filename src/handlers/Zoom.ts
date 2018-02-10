@@ -1,4 +1,4 @@
-import {DiagramElement} from '../elements/BaseElements';
+import { DiagramElement } from '../elements/BaseElements';
 import { EventHandler, EventBus } from '../EventBus';
 import { Graph } from '../elements/Graph';
 
@@ -26,10 +26,10 @@ export class Zoom implements EventHandler {
     }
 
     public setActive(active: boolean): void {
-        if(active){
+        if (active) {
             EventBus.setActiveHandler(Zoom.name);
         }
-        else{
+        else {
             EventBus.releaseActiveHandler();
         }
     }

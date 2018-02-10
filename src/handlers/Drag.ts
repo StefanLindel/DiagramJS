@@ -83,7 +83,7 @@ export class Drag implements EventHandler {
             So it will be fired manually.
             This problem occurs only in chrome.
         */
-        if(Util.isChrome()){
+        if (Util.isChrome()) {
             let clickEvt = Util.createCustomEvent('click');
             this.svgElement.dispatchEvent(clickEvt);
         }

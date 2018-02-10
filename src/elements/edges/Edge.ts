@@ -54,15 +54,18 @@ export class Edge extends DiagramElement {
 
     public updateSrcCardinality(cardinality: string): void {
         this.sourceInfo = this.updateCardinality(this.$sNode, this.sourceInfo, cardinality);
+        this.redrawSourceInfo();
     }
 
     public updateTargetCardinality(cardinality: string): void {
         this.targetInfo = this.updateCardinality(this.$tNode, this.targetInfo, cardinality);
+        this.redrawTargetInfo();
     }
 
     private updateCardinality(node: Node, infoText: InfoText, cardinality: string): InfoText {
         if (!infoText) {
             infoText = new InfoText({ 'cardinality': cardinality });
+            infoText.$owner = this;
 
             let calcPos = this.calcInfoPosNew(infoText, node);
             infoText.withPos(calcPos.x, calcPos.y);
@@ -70,6 +73,14 @@ export class Edge extends DiagramElement {
 
             return infoText;
         }
+
+        infoText.cardinality = cardinality;
+        if(infoText.isEmpty()){
+            this.$view.removeChild(infoText.$view);
+
+            return undefined;
+        }
+
         infoText.updateCardinality(cardinality);
 
         return infoText;
@@ -77,15 +88,18 @@ export class Edge extends DiagramElement {
 
     public updateSrcProperty(property: string): void {
         this.sourceInfo = this.updateProperty(this.$sNode, this.sourceInfo, property);
+        this.redrawSourceInfo();
     }
 
     public updateTargetProperty(property: string): void {
         this.targetInfo = this.updateProperty(this.$tNode, this.targetInfo, property);
+        this.redrawTargetInfo();
     }
 
     private updateProperty(node: Node, infoText: InfoText, property: string): InfoText {
         if (!infoText) {
             infoText = new InfoText({ 'property': property });
+            infoText.$owner = this;
 
             let calcPos = this.calcInfoPosNew(infoText, node);
             infoText.withPos(calcPos.x, calcPos.y);
@@ -93,7 +107,16 @@ export class Edge extends DiagramElement {
 
             return infoText;
         }
+
+        infoText.property = property;
+        if(infoText.isEmpty()){
+            this.$view.removeChild(infoText.$view);
+
+            return undefined;
+        }
+
         infoText.updateProperty(property);
+
         return infoText;
     }
 
@@ -102,8 +125,8 @@ export class Edge extends DiagramElement {
         target.$edges.push(this);
         this.$sNode = source;
         this.$tNode = target;
-        this.source = source.id;
-        this.target = target.id;
+        this.source = source.label;
+        this.target = target.label;
         return this;
     }
 
@@ -151,32 +174,47 @@ export class Edge extends DiagramElement {
             return this;
         }
 
-        let idxInSrc = this.$sNode.$edges.indexOf(this);
-        this.$sNode.$edges.splice(idxInSrc, 1);
-        let idxInTarget = this.$tNode.$edges.indexOf(this);
-        this.$tNode.$edges.splice(idxInTarget, 1);
-
         let newEdge: Edge = new edges[type]();
         newEdge.withItem(this.$sNode, this.$tNode);
         newEdge.id = newId;
         newEdge.type = type;
         newEdge.lineStyle = this.lineStyle;
         newEdge.$owner = this.$owner;
-        newEdge.sourceInfo = this.sourceInfo;
-        newEdge.targetInfo = this.targetInfo;
-        newEdge.info = this.info;
+
+        if(this.sourceInfo){
+            newEdge.sourceInfo = new InfoText({property: this.sourceInfo.property, cardinality: this.sourceInfo.cardinality});
+            newEdge.sourceInfo.$owner = newEdge;
+        }
+
+        if(this.targetInfo){
+            newEdge.targetInfo  = new InfoText({property: this.targetInfo.property, cardinality: this.targetInfo.cardinality});
+            newEdge.targetInfo.$owner = newEdge;
+        }
 
         this.$points.forEach(point => {
             newEdge.addPoint(point.x, point.y);
         });
+
+        let graph = <Graph>this.getRoot();
+        if(!graph){
+            return this;
+        }
+
+        // update model. insert the edge exact on the same index, like the old edge
+        let idx = graph.$graphModel.edges.indexOf(this);
+        graph.$graphModel.removeElement(this.id);
+        if(idx > -1){
+            graph.$graphModel.edges.splice(idx, 0, newEdge);
+        }
+        else{
+            graph.$graphModel.edges.push(newEdge);
+        }
 
 
         if (!redraw) {
             return newEdge;
         }
 
-        let oldSvg = this.getAlreadyDisplayingSVG();
-        let graph = <Graph>this.getRoot();
         let svgRoot: Element;
         if (graph) {
             svgRoot = graph.root;
@@ -185,10 +223,6 @@ export class Edge extends DiagramElement {
             svgRoot = document.getElementById('root');
         }
         let newEdgeSvg = newEdge.getSVG();
-
-        // update model
-        graph.$graphModel.removeElement(this.id);
-        graph.$graphModel.edges.push(newEdge);
 
         // update graph
         graph.removeElement(this);
@@ -204,6 +238,9 @@ export class Edge extends DiagramElement {
 
         EventBus.register(newEdge, newEdgeSvg);
 
+        this.sourceInfo = undefined;
+        this.targetInfo = undefined;
+
         return newEdge;
     }
 
@@ -218,10 +255,10 @@ export class Edge extends DiagramElement {
         let recalcPoint: Point;
         let endPointIdx: number;
 
-        if (this.source === startNode.id) {
+        if (this.$sNode.id === startNode.id) {
             recalcPoint = this.$points[0];
             endPointIdx = 1;
-        } else if (this.target === startNode.id) {
+        } else if (this.$tNode.id === startNode.id) {
             recalcPoint = this.$points[this.$points.length - 1];
             endPointIdx = this.$points.length - 2;
         }
@@ -232,12 +269,12 @@ export class Edge extends DiagramElement {
         this.calcIntersection(startNode, recalcPoint, endPoint);
 
         // remove the 2nd point next to startnode, if the node was dragged upper the point
-        if (this.$points.length > 2 && this.target === startNode.id && endPoint.y > (startNode.getPos().y + (startNode.getSize().y / 2))) {
+        if (this.$points.length > 2 && this.$tNode.id === startNode.id && endPoint.y > (startNode.getPos().y + (startNode.getSize().y / 2))) {
 
             this.$points.splice(endPointIdx, 1);
         }
 
-        if (this.target === startNode.id && this.$points.length == 2) {
+        if (this.$tNode.id === startNode.id && this.$points.length == 2) {
 
             this.calcIntersection(this.$sNode, endPoint, recalcPoint);
         }
@@ -245,38 +282,43 @@ export class Edge extends DiagramElement {
 
 
 
-        if (this.$points.length > 2 && this.source === startNode.id && (startNode.getPos().y + (startNode.getSize().y / 2) > endPoint.y)) {
+        if (this.$points.length > 2 && this.$sNode.id === startNode.id && (startNode.getPos().y + (startNode.getSize().y / 2) > endPoint.y)) {
 
             this.$points.splice(endPointIdx, 1);
         }
 
-        if (this.source === startNode.id && this.$points.length == 2) {
+        if (this.$sNode.id === startNode.id && this.$points.length == 2) {
 
             this.calcIntersection(this.$tNode, endPoint, recalcPoint);
         }
 
-        // calculate the infotext of source
-        if (this.sourceInfo) {
-            let newPosOfSrc = this.calcInfoPosNew(this.sourceInfo, this.$sNode);
-            this.sourceInfo.redrawFromEdge(newPosOfSrc);
-        }
-
-        if (this.targetInfo) {
-            let newPosOfTarget = this.calcInfoPosNew(this.targetInfo, this.$tNode);
-            this.targetInfo.redrawFromEdge(newPosOfTarget);
-        }
-
-
         if (!dontDrawPoints) {
-            this.redrawPoints();
+            this.redrawPointsAndInfo();
         }
     }
 
-    protected redrawPoints(): void {
+    protected redrawPointsAndInfo(): void {
         // redraw the edge with the new position
         let path: string = this.getPath();
         this.$pathSvg.setAttributeNS(null, 'd', path);
         this.$pathWideSvg.setAttributeNS(null, 'd', path);
+
+        this.redrawSourceInfo();
+        this.redrawTargetInfo();
+    }
+
+    protected redrawSourceInfo(){
+        if (this.sourceInfo) {
+            let newPosOfSrc = this.calcInfoPosNew(this.sourceInfo, this.$sNode);
+            this.sourceInfo.redrawFromEdge(newPosOfSrc);
+        }
+    }
+
+    protected redrawTargetInfo(){
+        if (this.targetInfo) {
+            let newPosOfTarget = this.calcInfoPosNew(this.targetInfo, this.$tNode);
+            this.targetInfo.redrawFromEdge(newPosOfTarget);
+        }
     }
 
     public getPath(): string {
@@ -357,18 +399,18 @@ export class Edge extends DiagramElement {
         return null;
     }
 
-    protected calcInfoPosNew(infoTxt: InfoText, node: Node): Point {
+    public calcInfoPosNew(infoTxt: InfoText, node: Node): Point {
 
         if (!infoTxt || !node) return null;
 
         // 1. step: get direction
         let startPoint: Point;
         let nextToStartPoint: Point;
-        if (this.source === node.id) {
+        if (this.$sNode.id === node.id) {
             startPoint = this.$points[0];
             nextToStartPoint = this.$points[1];
         }
-        else if (this.target === node.id) {
+        else if (this.$tNode.id === node.id) {
             startPoint = this.$points[this.$points.length - 1];
             nextToStartPoint = this.$points[this.$points.length - 2];
         }
