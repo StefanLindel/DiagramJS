@@ -20,6 +20,7 @@ export class Edge extends DiagramElement {
     public lineStyle: string;
     public $points: Point[] = [];
     public $pathSvg: Element;
+    public $pathWideSvg: Element;
     public info: InfoText;
     public sourceInfo: InfoText;
     public targetInfo: InfoText;
@@ -107,28 +108,21 @@ export class Edge extends DiagramElement {
     }
 
     public getSVG(): Element {
-        let path = '';
-        if (this.$points.length > 0) {
-            path = 'M';
-        }
-        for (let i = 0; i < this.$points.length; i++) {
-            let point: Point = this.$points[i];
-            if (i > 0) {
-                path += 'L';
-            }
-            path += Math.floor(point.x) + ' ' + Math.floor(point.y) + ' ';
-        }
+        let group = Util.createShape({ tag: 'g', id: this.id, class: 'SVGEdge' });
 
+        let path: string = this.getPath();
         let attr = {
             tag: 'path',
-            id: this.id,
             d: path,
             fill: 'none'
         };
-        let shape = this.createShape(attr);
+        let pathLine = this.createShape(attr);
 
-        let group = Util.createShape({ tag: 'g', id: this.id, class: 'SVGEdge' });
-        group.appendChild(shape);
+        attr['style'] = 'stroke-width:20;opacity:0';
+        let extendedPathLine = Util.createShape(attr);
+
+        group.appendChild(extendedPathLine);
+        group.appendChild(pathLine);
 
         if (this.sourceInfo) {
             let calcPos = this.calcInfoPosNew(this.sourceInfo, this.$sNode);
@@ -141,7 +135,8 @@ export class Edge extends DiagramElement {
             group.appendChild(this.targetInfo.getSVG());
         }
 
-        this.$pathSvg = shape;
+        this.$pathWideSvg = extendedPathLine;
+        this.$pathSvg = pathLine;
         this.$view = group;
 
         return group;
@@ -279,8 +274,16 @@ export class Edge extends DiagramElement {
 
     protected redrawPoints(): void {
         // redraw the edge with the new position
-        let path: string = 'M';
+        let path: string = this.getPath();
+        this.$pathSvg.setAttributeNS(null, 'd', path);
+        this.$pathWideSvg.setAttributeNS(null, 'd', path);
+    }
 
+    public getPath(): string {
+
+        if (this.$points.length == 0) return '';
+
+        let path: string = 'M';
         for (let i = 0; i < this.$points.length; i++) {
             let point: Point = this.$points[i];
             if (i > 0) {
@@ -289,7 +292,7 @@ export class Edge extends DiagramElement {
             path += Math.floor(point.x) + ' ' + Math.floor(point.y) + ' ';
         }
 
-        this.$pathSvg.setAttributeNS(null, 'd', path);
+        return path;
     }
 
     private calcIntersection(startNode: Node, recalcPoint: Point, endPoint: Point): Point {

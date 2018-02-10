@@ -598,12 +598,12 @@ h1 {
 }
 
 .SVGEdge{
-	stroke-width: 3;
+	stroke-width: 1;
 	stroke: black;
 }
 
 .SVGEdge:hover{
-	stroke-width: 5;
+	stroke-width: 3;
 	stroke: #FFA033;
     transition: 0.3s;
 }
@@ -640,6 +640,12 @@ h1 {
 }
 
 .SVGClazz-drawedge > rect{
+	stroke: rgb(0, 162, 0);
+	fill: rgba(0, 162, 0, 0.125);
+    transition: 0.3s;
+}
+
+.SVGClazz-readyToConnect > rect{
 	stroke: rgb(0, 162, 0);
 	fill: rgba(0, 162, 0, 0.125);
     transition: 0.3s;

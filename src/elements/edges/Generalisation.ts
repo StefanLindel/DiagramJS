@@ -41,7 +41,7 @@ export class Generalisation extends Edge {
         let direction : Direction = Direction.Up;
 
         // caclulate the path of target symbol only, if the dragged node is source or there are only 2 points left
-        if(this.source === startNode.id || this.$points.length == 2){
+        if(this.$sNode.id === startNode.id || this.$points.length == 2){
 
             direction = this.getDirectionOfPointToNode(this.$sNode, startPoint);
 
@@ -50,7 +50,7 @@ export class Generalisation extends Edge {
         }
 
         // draw the correct line with diamond
-        this.redrawPoints();
+        this.redrawPointsAndInfo();
     }
 
     protected calcCorrectPath(startPoint : Point, direction : Direction) : string{

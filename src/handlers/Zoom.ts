@@ -1,25 +1,21 @@
 import {DiagramElement} from '../elements/BaseElements';
 import { EventHandler, EventBus } from '../EventBus';
+import { Graph } from '../elements/Graph';
 
 export class Zoom implements EventHandler {
 
-    private svgRoot: SVGSVGElement;
+    private graph: Graph;
 
-    constructor() {
-        this.svgRoot = <SVGSVGElement><any>document.getElementById('root');
+    constructor(graph: Graph) {
     }
 
     public handle(e: any, element: DiagramElement): boolean {
-        if (this.svgRoot !== <SVGSVGElement><any>document.getElementById('root')) {
-            this.svgRoot = <SVGSVGElement><any>document.getElementById('root');
-        }
-
         let delta = e.deltaY || e.wheelDeltaY || -e.wheelDelta;
         let d = 1 + (delta / 1000);
 
-        let values = this.svgRoot.getAttribute('viewBox').split(' ');
+        let values = this.graph.root.getAttribute('viewBox').split(' ');
         const newViewBox = `${values[0]} ${values[1]} ${parseInt(values[2]) * d} ${parseInt(values[3]) * d}`;
-        this.svgRoot.setAttribute('viewBox', newViewBox);
+        this.graph.root.setAttribute('viewBox', newViewBox);
 
         e.preventDefault();
         return true;

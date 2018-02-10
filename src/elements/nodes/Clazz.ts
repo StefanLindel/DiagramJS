@@ -5,6 +5,7 @@ import { Point } from '../BaseElements';
 import Attribute from './Attribute';
 import Method from './Method';
 import { Size } from '../index';
+import ClazzProperty from './ClazzProperty';
 
 export class Clazz extends Node {
 
@@ -13,9 +14,9 @@ export class Clazz extends Node {
     protected $attrHeight = 25;
     protected $attrFontSize = 12;
 
-    protected attributesObj: Attribute[] = [];
-    protected methodsObj: Method[] = [];
     protected $labelView: Element;
+    protected attributes: Attribute[] = [];
+    protected methods: Method[] = [];
 
     constructor(json: JSON | string | Object | any) {
         super(json);
@@ -32,7 +33,7 @@ export class Clazz extends Node {
 
                 let attrObj = new Attribute(attr);
                 attrObj.$owner = this;
-                this.attributesObj.push(attrObj);
+                this.attributes.push(attrObj);
                 y += this.$attrHeight;
                 width = Math.max(width, Util.sizeOf(attrObj.toString(), this).width);
             }
@@ -42,7 +43,7 @@ export class Clazz extends Node {
 
                 let methodObj = new Method(method);
                 methodObj.$owner = this;
-                this.methodsObj.push(methodObj);
+                this.methods.push(methodObj);
 
                 y += this.$attrHeight;
                 width = Math.max(width, Util.sizeOf(methodObj.toString(), this).width);
@@ -54,16 +55,18 @@ export class Clazz extends Node {
     }
 
     public getAttributesObj(): Attribute[] {
-        return this.attributesObj;
+        return this.attributes;
     }
 
     public getMethodsObj(): Method[] {
-        return this.methodsObj;
+        return this.methods;
     }
 
     public getSVG(): Element {
         const pos: Point = this.getPos();
         const size: Point = this.getSize();
+
+        let group = this.createShape({ tag: 'g', id: this.id, class: 'SVGClazz', transform: 'translate(0 0)' });
 
         // Full Shape
         const nodeShape = this.createShape({
@@ -91,12 +94,12 @@ export class Clazz extends Node {
         label.textContent = this.label;
         this.$labelView = label;
 
-        let group = this.createShape({ tag: 'g', id: this.id, class: 'SVGClazz', transform: 'translate(0 0)' });
+        
         group.appendChild(nodeShape);
         group.appendChild(label);
 
         // = = = ATTRIBUTES = = =
-        if (this.attributesObj.length > 0) {
+        if (this.attributes.length > 0) {
 
             // line to separate label from attributes
             const separatorLabelAttr = this.createShape({
@@ -116,7 +119,7 @@ export class Clazz extends Node {
             group.appendChild(groupOfAttributes);
 
             let y = pos.y + this.$labelHeight + this.$attrHeight / 2;
-            for (let attr of this.attributesObj) {
+            for (let attr of this.attributes) {
 
                 let attrSvg = attr.getSVG();
                 attr.$owner = this;
@@ -130,17 +133,17 @@ export class Clazz extends Node {
         }
 
         // = = = METHODS = = =
-        let height = this.attributesObj.length * this.$attrHeight;
+        let height = this.attributes.length * this.$attrHeight;
         let y = pos.y + this.$labelHeight + height + this.$attrHeight / 2;
-        if (this.methodsObj.length > 0) {
+        if (this.methods.length > 0) {
 
             // line to separate label from attributes
             const separatorAttrMethods = this.createShape({
                 tag: 'line',
                 x1: pos.x,                   //line doesn't overlap the full shape
-                y1: pos.y + this.$labelHeight + (this.$attrHeight * this.attributesObj.length),
+                y1: pos.y + this.$labelHeight + (this.$attrHeight * this.attributes.length),
                 x2: pos.x + size.x,        //line doesn't overlap the full shape
-                y2: pos.y + this.$labelHeight + (this.$attrHeight * this.attributesObj.length),
+                y2: pos.y + this.$labelHeight + (this.$attrHeight * this.attributes.length),
                 stroke: 'rgb(0, 0, 0)',        //black
                 'stroke-width': 2
             });
@@ -153,7 +156,7 @@ export class Clazz extends Node {
             group.appendChild(groupOfMethods);
 
             y += this.$attrHeight / 2;
-            for (let method of this.methodsObj) {
+            for (let method of this.methods) {
 
                 let methodSvg = method.getSVG();
                 method.$owner = this;
@@ -199,21 +202,32 @@ export class Clazz extends Node {
     }
 
     public addAttribute(value: string): Attribute {
-        return this.addProperty(value, 'attributesObj');
+        return this.addProperty(value, 'attributes');
     }
 
     public addMethod(value: string): Method {
-        return this.addProperty(value, 'methodsObj');
+        return this.addProperty(value, 'methods');
     }
 
     public removeAttribute(attr: Attribute): void {
-        let idx = this.attributesObj.indexOf(attr);
-        this.attributesObj.splice(idx, 1);
+        let idx = this.attributes.indexOf(attr);
+        this.attributes.splice(idx, 1);
     }
 
     public removeMethod(method: Method): void {
-        let idx = this.methodsObj.indexOf(method);
-        this.methodsObj.splice(idx, 1);
+        let idx = this.methods.indexOf(method);
+        this.methods.splice(idx, 1);
+    }
+
+    public removeProperty(property: ClazzProperty): void{
+
+        if(property instanceof Attribute){
+            this.removeAttribute(<Attribute>property);
+        }
+
+        if(property instanceof Method){
+            this.removeMethod(<Method>property);
+        }
     }
 
     public reDraw(drawOnlyIfSizeChanged?: boolean): void {
@@ -264,7 +278,7 @@ export class Clazz extends Node {
         newWidth = Math.max(newWidth, Util.sizeOf(this.label, this).width + 30);
 
         // attributes
-        this.attributesObj.forEach(attrEl => {
+        this.attributes.forEach(attrEl => {
 
             let widthOfAttr;
             if (attrEl.$view) {
@@ -278,7 +292,7 @@ export class Clazz extends Node {
         });
 
         // methods
-        this.methodsObj.forEach(methodEl => {
+        this.methods.forEach(methodEl => {
             let widthOfMethod;
             if (methodEl.$view) {
                 widthOfMethod = methodEl.$view.getBoundingClientRect().width;
@@ -292,7 +306,7 @@ export class Clazz extends Node {
 
         // TODO: height has to be calculated by font-size
         this.getSize().x = newWidth;
-        this.getSize().y = this.$labelHeight + ((this.attributesObj.length + this.methodsObj.length) * this.$attrHeight)
+        this.getSize().y = this.$labelHeight + ((this.attributes.length + this.methods.length) * this.$attrHeight)
             + this.$attrHeight;
 
         let newSize = { width: newWidth, height: this.getSize().y };

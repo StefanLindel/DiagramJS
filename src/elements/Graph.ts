@@ -21,7 +21,7 @@ import { Toolbar } from '../Toolbar';
 
 export class Graph extends Control {
     canvas: HTMLElement;
-    root: Element;
+    root: SVGElement;
     $graphModel: GraphModel;
     options: Options;
     canvasSize: Size;
@@ -541,7 +541,7 @@ export class Graph extends Control {
             }
             if (features.zoom) {
                 let mousewheel = 'onwheel' in document.createElement('div') ? 'wheel' : document.onmousewheel !== undefined ? 'mousewheel' : 'DOMMouseScroll';
-                EventBus.subscribe(new Zoom(), mousewheel);
+                EventBus.subscribe(new Zoom(this), mousewheel);
             }
             if (features.drag) {
                 EventBus.subscribe(new Drag(this), 'mousedown', 'mouseup', 'mousemove', 'mouseleave');

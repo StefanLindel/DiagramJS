@@ -9,7 +9,6 @@ export class AddNode implements EventHandler {
     public MIN_SIZE_TO_ADD_NODE: number = 30;
     public MIN_SIZE_TO_ADD_TEXT: number = 10;
     private graph: Graph;
-    private svgRoot: SVGSVGElement;
     private svgRect: SVGSVGElement;
     private svgGroupAddNode: SVGSVGElement;
     private svgTextAddNode: SVGSVGElement;
@@ -22,7 +21,6 @@ export class AddNode implements EventHandler {
     private y: number;
 
     constructor(graph: Graph) {
-        this.svgRoot = <SVGSVGElement><any>document.getElementById('root');
         this.graph = graph;
     }
 
@@ -44,11 +42,6 @@ export class AddNode implements EventHandler {
         if (!this.canHandle()) {
 
             return true;
-        }
-
-        //TODO: is this neccessary?
-        if (this.svgRoot !== <SVGSVGElement><any>document.getElementById('root')) {
-            this.svgRoot = <SVGSVGElement><any>document.getElementById('root');
         }
 
         if (element.id !== 'RootElement') {
@@ -114,7 +107,7 @@ export class AddNode implements EventHandler {
             this.isBigEnoughForAddNode = false;
         }
 
-        this.svgRoot.style.cursor = 'pointer';
+        this.graph.root.style.cursor = 'pointer';
 
         // if line wasnt draw
         if (!this.svgRect) {
@@ -132,7 +125,7 @@ export class AddNode implements EventHandler {
             let group = Util.createShape({ tag: 'g', id: 'groupAddNode', transform: 'translate(0 0)' });
             group.appendChild(rectAddNode);
 
-            this.svgRoot.appendChild(group);
+            this.graph.root.appendChild(group);
             this.svgRect = rectAddNode;
             this.svgGroupAddNode = group;
         }
@@ -205,10 +198,10 @@ export class AddNode implements EventHandler {
         this.isRectDrawing = false;
         this.isBigEnoughForAddNode = false;
 
-        this.svgRoot.style.cursor = 'default';
+        this.graph.root.style.cursor = 'default';
 
-        if (this.svgGroupAddNode) {
-            this.svgRoot.removeChild(this.svgGroupAddNode);
+        if (this.svgGroupAddNode && this.graph.root.contains(this.svgGroupAddNode)) {
+            this.graph.root.removeChild(this.svgGroupAddNode);
             this.svgGroupAddNode = undefined;
         }
 

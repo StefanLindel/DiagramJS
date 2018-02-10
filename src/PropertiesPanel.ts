@@ -1,12 +1,12 @@
-import {Clazz} from './elements/nodes/Clazz';
-import {EventHandler, EventBus} from './EventBus';
-import {Edge} from './elements/index';
-import {DiagramElement} from './elements/BaseElements';
-import {Graph} from './elements/Graph';
+import { Clazz } from './elements/nodes/Clazz';
+import { EventHandler, EventBus } from './EventBus';
+import { Edge } from './elements/index';
+import { DiagramElement } from './elements/BaseElements';
+import { Graph } from './elements/Graph';
 import * as edges from './elements/edges';
 import Method from './elements/nodes/Method';
 import Attribute from './elements/nodes/Attribute';
-import {Button} from "./elements/nodes";
+import { Button } from "./elements/nodes";
 
 export namespace PropertiesPanel {
 
@@ -46,10 +46,10 @@ export namespace PropertiesPanel {
             this._divChildPanel = panel.getPanel();
             this.propertiesPanel.appendChild(this._divChildPanel);
 
-            if(showTabWithValue){
+            if (showTabWithValue) {
                 panel.showTab(showTabWithValue);
             }
-            else{
+            else {
                 panel.showFirstTab();
             }
         }
@@ -64,10 +64,10 @@ export namespace PropertiesPanel {
             btn.title = 'Hide properties';
         }
 
-        public setPropertiesHeaderText(text: string) : void{
+        public setPropertiesHeaderText(text: string): void {
             let divHeaderLabel = document.getElementById('classPropHeaderLabel');
 
-            if(divHeaderLabel){
+            if (divHeaderLabel) {
                 divHeaderLabel.innerHTML = text;
             }
         }
@@ -189,7 +189,7 @@ export namespace PropertiesPanel {
             let tabs = document.getElementsByClassName('tablinks');
             for (let index = 0; index < tabs.length; index++) {
                 let tab = tabs[index];
-                if((<any>tab).value === btnValue){
+                if ((<any>tab).value === btnValue) {
                     this.openTab(tab.id);
                 }
             }
@@ -232,7 +232,7 @@ export namespace PropertiesPanel {
 
     export class ClassPanel extends APanel {
 
-        private _dataTypes : HTMLDataListElement;
+        private _dataTypes: HTMLDataListElement;
 
         constructor() {
             super();
@@ -501,6 +501,7 @@ export namespace PropertiesPanel {
             textBoxEdgeSrc.id = 'edgeSrcInput';
             textBoxEdgeSrc.placeholder = 'Edge Source';
             textBoxEdgeSrc.className = 'col2';
+            textBoxEdgeSrc.readOnly = true;
 
             divRowEdgeSrcNodeCellInput.appendChild(textBoxEdgeSrc);
 
@@ -590,6 +591,7 @@ export namespace PropertiesPanel {
             textBoxEdgeTarget.id = 'edgeTargetInput';
             textBoxEdgeTarget.placeholder = 'Edge Source';
             textBoxEdgeTarget.className = 'col2';
+            textBoxEdgeTarget.readOnly = true;
 
 
             divRowEdgeTargetNodeCellInput.appendChild(textBoxEdgeTarget);
@@ -599,7 +601,7 @@ export namespace PropertiesPanel {
             divTableBody.appendChild(divRowEdgeTargetNode);
 
 
-            
+
             // ROW7: target node property
             let divRowEdgeTargetNodeProperty = document.createElement('div');
             divRowEdgeTargetNodeProperty.className = 'divTableRow';

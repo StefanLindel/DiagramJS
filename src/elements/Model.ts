@@ -97,13 +97,8 @@ export class GraphModel extends DiagramElement {
                 this.nodes.splice(idxOfNode, 1);
             }
 
-            for (let edge of element.$edges) {
-                (<Graph>this.$owner).removeElement(edge);
-
-                let idxOfEdge = this.edges.indexOf(edge);
-                if(idxOfEdge > -1){
-                    this.edges.splice(idxOfEdge, 1);
-                }
+            while(element.$edges.length > 0){
+                this.removeElement(element.$edges[0].id);
             }
 
             element.$edges = [];
@@ -114,6 +109,19 @@ export class GraphModel extends DiagramElement {
             if(idxOfEdge > -1){
                 this.edges.splice(idxOfEdge, 1);
             }
+
+            // remove from source
+            idxOfEdge = element.$sNode.$edges.indexOf(element);
+            if(idxOfEdge > -1){
+                element.$sNode.$edges.splice(idxOfEdge, 1);
+            }
+
+            // remove from target
+            idxOfEdge = element.$tNode.$edges.indexOf(element);
+            if(idxOfEdge > -1){
+                element.$tNode.$edges.splice(idxOfEdge, 1);
+            }
+            
         }
         return true;
     }

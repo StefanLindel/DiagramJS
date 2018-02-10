@@ -8,7 +8,6 @@ import { Node } from '../elements/nodes/index';
 
 export class NewEdge implements EventHandler {
     private graph: Graph;
-    private svgRoot: SVGSVGElement;
     private svgLine: SVGSVGElement;
     private isEdgeDrawing: boolean;
     private sourceNode: Node;
@@ -18,7 +17,6 @@ export class NewEdge implements EventHandler {
     private lastTargetNode: Node;
 
     constructor(graph: Graph) {
-        this.svgRoot = <SVGSVGElement><any>document.getElementById('root');
         this.graph = graph;
     }
 
@@ -36,10 +34,6 @@ export class NewEdge implements EventHandler {
     }
 
     public handle(event: Event, element: DiagramElement): boolean {
-
-        if (this.svgRoot !== <SVGSVGElement><any>document.getElementById('root')) {
-            this.svgRoot = <SVGSVGElement><any>document.getElementById('root');
-        }
 
         if (!((<KeyboardEvent>event).ctrlKey || EventBus.isHandlerActiveOrFree('NewEdge', true))) {
             this.removeLine();
@@ -94,8 +88,8 @@ export class NewEdge implements EventHandler {
             let shape = Util.createShape(attr);
             this.svgLine = shape;
 
-            this.svgRoot.appendChild(shape);
-            this.svgRoot.appendChild(this.sourceNode.$view);
+            this.graph.root.appendChild(shape);
+            this.graph.root.appendChild(this.sourceNode.$view);
         }
         else {
 
@@ -125,8 +119,8 @@ export class NewEdge implements EventHandler {
     private removeLine(): void {
         this.isEdgeDrawing = false;
 
-        if (this.svgLine) {
-            this.svgRoot.removeChild(this.svgLine);
+        if (this.svgLine && this.graph.root.contains(this.svgLine)) {
+            this.graph.root.removeChild(this.svgLine);
             this.svgLine = null;
         }
 
@@ -146,8 +140,6 @@ export class NewEdge implements EventHandler {
         }
 
         this.removeLine();
-
-        // TODO: show combobox of all available edge types
         let edgeType = this.sourceNode.$defaulEdgeType || 'Edge';
 
         let jsonData = {
@@ -170,8 +162,5 @@ export class NewEdge implements EventHandler {
 
         this.x = this.sourceNode.getPos().x + (this.sourceNode.getSize().x / 2);
         this.y = this.sourceNode.getPos().y + (this.sourceNode.getSize().y / 2);
-
-        // TODO: highlight the start node
-
     }
 }

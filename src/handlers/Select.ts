@@ -11,7 +11,6 @@ import { InfoText } from '../elements/nodes/InfoText';
 
 export class Select implements EventHandler {
 
-    private svgRoot: SVGSVGElement;
     private deleteShape: SVGSVGElement;
     private addEdgeShape: SVGSVGElement;
     private graph: Graph;
@@ -20,22 +19,21 @@ export class Select implements EventHandler {
     private lastSelectedNode: Element;
     private lastSelectedEdge: Element;
 
+    private isDragged: boolean;
+
     constructor(graph: Graph) {
         this.graph = graph;
-        this.svgRoot = <SVGSVGElement><any>document.getElementById('root');
 
         this.deleteShape = SymbolLibary.drawSVG({ type: 'Basket', background: true, id: 'trashcan', tooltip: 'Delete class' });
         this.addEdgeShape = SymbolLibary.drawSVG({ type: 'Edgeicon', background: true, id: 'addEdge', tooltip: 'Click and drag to connect this class' });
     }
 
     public handle(event: Event, element: DiagramElement): boolean {
-        // TODO: is this neccessary?
-        if (this.svgRoot !== <SVGSVGElement><any>document.getElementById('root')) {
-            this.svgRoot = <SVGSVGElement><any>document.getElementById('root');
-        }
 
         event.stopPropagation();
         if (event.type === 'drag') {
+            this.isDragged = true;
+
             this.deleteShape.setAttributeNS(null, 'visibility', 'hidden');
             this.addEdgeShape.setAttributeNS(null, 'visibility', 'hidden');
 
@@ -60,14 +58,9 @@ export class Select implements EventHandler {
 
         if (element instanceof Node && !(element instanceof InfoText) && event.type === 'click') {
             let e = <Node>element;
-            if (document.getElementById('trashcan') === null) {
-                this.svgRoot.appendChild(this.deleteShape);
-            }
-
-            if (document.getElementById('addEdge') === null) {
-                this.svgRoot.appendChild(this.addEdgeShape);
-            }
-
+            this.graph.root.appendChild(this.deleteShape);
+            this.graph.root.appendChild(this.addEdgeShape);
+            
             this.deleteShape.setAttributeNS(null, 'visibility', 'visible');
             this.addEdgeShape.setAttributeNS(null, 'visibility', 'visible');
 
@@ -86,6 +79,14 @@ export class Select implements EventHandler {
         }
         if (element instanceof Clazz && event.type === 'click') {
             let clazz = <Clazz>element;
+
+            if(Util.isChrome()){
+                if(this.lastSelectedNode && element.id === this.lastSelectedNode.id && !this.isDragged){
+                    return true;
+                }
+            }
+
+            this.isDragged = false;
             this.resetLastSelectedElements();
 
             // mark the border with orange
@@ -112,8 +113,17 @@ export class Select implements EventHandler {
 
             inputText.addEventListener('focusout', (evt) => {
 
+                if(Util.isChrome()){
+                    // only if input is empty, remove the inline edit function
+                    if ((!inputText.value || inputText.value.length === 0) && (!this.lastSelectedNode || element.id != this.lastSelectedNode.id)) {
+                        this.removeLastInlineEdit();
+                    }
+
+                    return;
+                }
+
                 // only if input is empty, remove the inline edit function
-                if (!inputText.value || inputText.value.length === 0) {
+                if ((!inputText.value || inputText.value.length === 0)) {
                     this.removeLastInlineEdit();
                 }
             });
@@ -197,9 +207,7 @@ export class Select implements EventHandler {
         }
 
         if (element instanceof Edge) {
-            if (document.getElementById('trashcan') === null) {
-                this.svgRoot.appendChild(this.deleteShape);
-            }
+            this.graph.root.appendChild(this.deleteShape);
             this.deleteShape.setAttributeNS(null, 'visibility', 'visible');
             this.addEdgeShape.setAttributeNS(null, 'visibility', 'hidden');
 
@@ -230,10 +238,12 @@ export class Select implements EventHandler {
         // reset the last one
         if (this.lastSelectedNode) {
             Util.removeClass(this.lastSelectedNode, 'SVGClazz-selected');
+            this.lastSelectedNode = undefined;
         }
 
         if (this.lastSelectedEdge) {
             Util.removeClass(this.lastSelectedEdge, 'SVGEdge-selected');
+            this.lastSelectedEdge = undefined;
         }
 
         this.removeLastInlineEdit();

@@ -79,6 +79,31 @@ export class Toolbar {
         divGenerate.appendChild(inputGenerateWorkspace);
         divGenerate.appendChild(btnGenerate);
         this.mainDiv.appendChild(divGenerate);
+
+
+        // export stuff
+        let divExport = document.createElement('div');
+        divExport.style.display = 'inline';
+        divExport.style.marginLeft = '20px';
+
+        let exportTypes: string[] = ['Export', 'JSON', 'HTML', 'PDF', 'PNG', 'SVG'];
+        let selectExport = document.createElement('select');
+
+        exportTypes.forEach(type => {
+            let option = document.createElement('option');
+            option.value = type;
+            option.textContent = type;
+            selectExport.appendChild(option);
+        });
+
+        selectExport.onchange = (evt) => {
+            let selectedExportType = selectExport.options[selectExport.selectedIndex].value;
+            selectExport.selectedIndex = 0;
+            this.graph.saveAs(selectedExportType);
+        };
+
+        divExport.appendChild(selectExport);
+        this.mainDiv.appendChild(divExport);
         
         document.body.appendChild(this.mainDiv);
     }

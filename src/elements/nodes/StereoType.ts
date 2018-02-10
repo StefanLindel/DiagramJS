@@ -65,7 +65,7 @@ export class StereoType extends Clazz{
         group.appendChild(label);
 
         // = = = ATTRIBUTES = = =
-        if (this.attributesObj.length > 0) {
+        if (this.attributes.length > 0) {
 
 
             // line to separate label from attributes
@@ -87,7 +87,7 @@ export class StereoType extends Clazz{
             group.appendChild(groupOfAttributes);
 
             let y = pos.y + this.$labelHeight + (this.$labelHeight / 2) + (this.$attrHeight / 2);
-            for (let attr of this.attributesObj) {
+            for (let attr of this.attributes) {
 
                 let attrSvg = attr.getSVG();
                 attr.$owner = this;
@@ -101,17 +101,17 @@ export class StereoType extends Clazz{
         }
 
         // = = = METHODS = = =
-        let height = this.attributesObj.length * this.$attrHeight;
+        let height = this.attributes.length * this.$attrHeight;
         let y = pos.y + (this.$labelHeight*1.5) + height + this.$attrHeight / 2;
-        if (this.methodsObj.length > 0) {
+        if (this.methods.length > 0) {
 
             // line to separate label from attributes
             const separatorAttrMethods = this.createShape({
                 tag: 'line',
                 x1: pos.x,                   //line doesn't overlap the full shape
-                y1: pos.y + (this.$labelHeight*1.5) + (this.$attrHeight * this.attributesObj.length),
+                y1: pos.y + (this.$labelHeight*1.5) + (this.$attrHeight * this.attributes.length),
                 x2: pos.x + size.x,        //line doesn't overlap the full shape
-                y2: pos.y + (this.$labelHeight*1.5) + (this.$attrHeight * this.attributesObj.length),
+                y2: pos.y + (this.$labelHeight*1.5) + (this.$attrHeight * this.attributes.length),
                 stroke: 'rgb(0, 0, 0)',        //black
                 'stroke-width': 2
             });
@@ -124,7 +124,7 @@ export class StereoType extends Clazz{
             group.appendChild(groupOfMethods);
 
             y += this.$attrHeight / 2;
-            for (let method of this.methodsObj) {
+            for (let method of this.methods) {
 
                 let methodSvg = method.getSVG();
                 method.$owner = this;

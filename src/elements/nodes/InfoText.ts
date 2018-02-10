@@ -5,7 +5,7 @@ import { EventBus } from '../../EventBus';
 
 export class InfoText extends Node {
 
-    public cardinality: string;
+    public cardinality: string = '';
     private $heightOfOneTextItem: number;
     private $cardinalitySvg: Element;
     private $propertySvg: Element;
@@ -22,7 +22,6 @@ export class InfoText extends Node {
             if (info.cardinality) {
                 this.cardinality = info.cardinality;
             }
-            this.id = 'InfoText' + info.id;
         }
         this.$isDraggable = true;
 
@@ -35,6 +34,8 @@ export class InfoText extends Node {
         let items: Array<string> = text.split('\n');
 
         let maxSize = new Point(0, 0);
+        if (text.length === 0) return maxSize;
+
         for (let i = 0; i < items.length; i += 1) {
             // calculate size
             let sizeOfText: ClientRect = Util.sizeOf(items[i]);
@@ -58,29 +59,47 @@ export class InfoText extends Node {
             this.$rectBackground.setAttributeNS(null, 'height', '' + calcSize.y);
         }
 
-        if (this.$cardinalitySvg) {
-            this.$cardinalitySvg.textContent = cardinality;
-        }
-        else if (!this.$view) {
+        if (!this.$view) {
             let svg = this.getSVG();
             this.$owner.$view.appendChild(svg);
+
+            return;
         }
-        else if (!this.$cardinalitySvg) {
-            let pos: Point = this.getPos();
-            let y = pos.y;
-            if (this.$propertySvg) {
-                y += this.$heightOfOneTextItem;
+
+        if ((cardinality.length === 0 && this.property.length > 0) || !this.$cardinalitySvg) {
+            this.$owner.$view.removeChild(this.$view);
+            this.resetAllSvgElements()
+
+            let svg = this.getSVG();
+            this.$owner.$view.appendChild(svg);
+
+            return;
+        }
+
+        if (this.$cardinalitySvg) {
+            this.$cardinalitySvg.textContent = cardinality;
+
+            // update background
+            if (this.$rectBackground) {
+                this.$rectBackground.setAttributeNS(null, 'width', '' + calcSize.x);
+                this.$rectBackground.setAttributeNS(null, 'height', '' + calcSize.y);
             }
 
-            this.$cardinalitySvg = Util.createShape({
-                tag: 'text',
-                x: pos.x,
-                y: y,
-                'text-anchor': 'left'
-            });
-            this.$cardinalitySvg.textContent = this.cardinality;
-            this.$view.appendChild(this.$cardinalitySvg);
+            return;
         }
+
+        if (this.property.length == 0) {
+            this.$owner.$view.removeChild(this.$view);
+            this.resetAllSvgElements()
+
+            return;
+        }
+    }
+
+    private resetAllSvgElements() {
+        this.$cardinalitySvg = undefined;
+        this.$view = undefined;
+        this.$propertySvg = undefined;
     }
 
     public updateProperty(property: string): void {
@@ -89,39 +108,45 @@ export class InfoText extends Node {
         let calcSize = this.calcSize();
         this.withSize(calcSize.x, calcSize.y);
 
-        if (this.$rectBackground) {
-            this.$rectBackground.setAttributeNS(null, 'width', '' + calcSize.x);
-            this.$rectBackground.setAttributeNS(null, 'height', '' + calcSize.y);
+        if (!this.$view) {
+            let svg = this.getSVG();
+            this.$owner.$view.appendChild(svg);
+
+            return;
+        }
+
+        if ((property.length === 0 && this.cardinality.length > 0) || !this.$propertySvg) {
+            this.$owner.$view.removeChild(this.$view);
+            this.resetAllSvgElements()
+
+            let svg = this.getSVG();
+            this.$owner.$view.appendChild(svg);
+
+            return;
         }
 
         if (this.$propertySvg) {
             this.$propertySvg.textContent = property;
-        }
-        else if (!this.$view) {
-            let svg = this.getSVG();
-            this.$owner.$view.appendChild(svg);
-        }
-        else if (!this.$propertySvg) {
-            let pos: Point = this.getPos();
-            let y = pos.y;
-            if (this.$cardinalitySvg) {
-                this.$cardinalitySvg.setAttributeNS(null, 'y', '' + (y + this.$heightOfOneTextItem));
+
+
+            // update background
+            if (this.$rectBackground) {
+                this.$rectBackground.setAttributeNS(null, 'width', '' + calcSize.x);
+                this.$rectBackground.setAttributeNS(null, 'height', '' + calcSize.y);
             }
 
-            this.$propertySvg = Util.createShape({
-                tag: 'text',
-                x: pos.x,
-                y: y,
-                'text-anchor': 'left'
-            });
-            this.$propertySvg.textContent = this.cardinality;
-            this.$view.appendChild(this.$propertySvg);
+            return;
+        }
+
+        if (this.cardinality.length == 0) {
+            this.$owner.$view.removeChild(this.$view);
+            this.resetAllSvgElements()
         }
     }
 
     public getSVG(): Element {
         let pos: Point = this.getPos();
-        let group = Util.create({ tag: 'g', id: this.id, class: 'SVGEdgeInfo', transform: 'translate(0, 0)' });
+        let group = Util.create({ tag: 'g', class: 'SVGEdgeInfo', transform: 'translate(0, 0)' });
 
         // append rect as background for text items
         this.$rectBackground = Util.createShape({
@@ -165,6 +190,13 @@ export class InfoText extends Node {
         this.$view = group;
 
         return group;
+    }
+
+    public isEmpty(): boolean {
+        let cardinalityAvailable = this.cardinality && this.cardinality.length > 0;
+        let propertyAvailable = this.property && this.property.length > 0;
+
+        return !propertyAvailable && !cardinalityAvailable;
     }
 
     public redrawFromEdge(newPos: Point): void {

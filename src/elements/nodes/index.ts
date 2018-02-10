@@ -22,6 +22,7 @@ export * from './Attribute';
 export * from './Method';
 export * from './Abstract';
 export * from './Interface';
+export * from './ClazzProperty';
 
 new AutoComplete();
 new BR();

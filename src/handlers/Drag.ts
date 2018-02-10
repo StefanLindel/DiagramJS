@@ -9,7 +9,6 @@ import { Util } from '../util';
 export class Drag implements EventHandler {
 
     private element: DiagramElement;
-    private svgRoot: SVGSVGElement;
     private svgElement: SVGSVGElement;
     private dragging = false;
     private reinsert = false;
@@ -17,17 +16,12 @@ export class Drag implements EventHandler {
     private graph: Graph;
 
     constructor(graph: Graph) {
-        this.svgRoot = <SVGSVGElement><any>document.getElementById('root');
         this.graph = graph;
     }
 
     public handle(event: Event, element: DiagramElement): boolean {
         if (!this.canHandle()) {
             return true;
-        }
-
-        if (this.svgRoot !== <SVGSVGElement><any>document.getElementById('root')) {
-            this.svgRoot = <SVGSVGElement><any>document.getElementById('root');
         }
 
         switch (event.type) {
@@ -110,7 +104,7 @@ export class Drag implements EventHandler {
         if (this.reinsert) {
             if (this.element.id !== 'RootElement') {
                 // nesseccary to set the dragged object on top of svg children
-                this.svgRoot.appendChild(this.svgElement);
+                this.graph.root.appendChild(this.svgElement);
             }
 
             let dragEvent = Util.createCustomEvent('drag');

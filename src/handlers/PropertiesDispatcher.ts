@@ -5,6 +5,7 @@ import { Graph, Edge } from "../main";
 import { Clazz } from '../elements/nodes/Clazz';
 import Attribute from "../elements/nodes/Attribute";
 import Method from "../elements/nodes/Method";
+import ClazzProperty from "../elements/nodes/ClazzProperty";
 
 
 export class PropertiesDispatcher implements EventHandler {
@@ -107,9 +108,6 @@ export class PropertiesDispatcher implements EventHandler {
             let selectedType = cBoxEdgeType.options[cBoxEdgeType.selectedIndex].value;
 
             let newEdge = edge.convertEdge(selectedType, g.$graphModel.getNewId(selectedType), true);
-            // delete g.$graphModel.edges[edge.id];
-            // g.$graphModel.edges[newEdge.id] = newEdge;
-
             edge = newEdge;
         });
 
@@ -195,7 +193,7 @@ export class PropertiesDispatcher implements EventHandler {
         let attributes = clazz.getAttributesObj();
         for (let attr of attributes) {
 
-            let divEditAttr = this.createDivEditAttribute(clazz, attr, tabContentAttr);
+            let divEditAttr = this.createDivEditProperty(clazz, attr, 'attribute', tabContentAttr);
             tabContentAttr.appendChild(divEditAttr);
         }
 
@@ -215,7 +213,7 @@ export class PropertiesDispatcher implements EventHandler {
             let attrValue: string = `${modifier.value} ${name.value} : ${type.value}`;
 
             let newAttribute = clazz.addAttribute(attrValue);
-            let divEditNewAttr = that.createDivEditAttribute(clazz, newAttribute, tabContentAttr);
+            let divEditNewAttr = that.createDivEditProperty(clazz, newAttribute,'attribute', tabContentAttr);
 
             // reset default values
             modifier.value = '+';
@@ -240,7 +238,7 @@ export class PropertiesDispatcher implements EventHandler {
         let methods = clazz.getMethodsObj();
         for (let method of methods) {
 
-            let divEditMethod = this.createDivEditMethod(clazz, method, tabContentMethods);
+            let divEditMethod = this.createDivEditProperty(clazz, method, 'method', tabContentMethods);
             tabContentMethods.appendChild(divEditMethod);
         }
 
@@ -261,7 +259,7 @@ export class PropertiesDispatcher implements EventHandler {
             let methodValue: string = `${modifier.value} ${name.value} : ${type.value}`;
 
             let newMethod = clazz.addMethod(methodValue);
-            let divEditNewMethod = that.createDivEditMethod(clazz, newMethod, tabContentMethods);
+            let divEditNewMethod = that.createDivEditProperty(clazz, newMethod, 'method', tabContentMethods);
 
             // reset default values
             modifier.value = '+';
@@ -277,142 +275,71 @@ export class PropertiesDispatcher implements EventHandler {
         return true;
     }
 
-    private createDivEditAttribute(clazz: Clazz, attr: Attribute, tabContentAttr: HTMLElement): HTMLDivElement {
-        let divEditAttr = document.createElement('div');
-        divEditAttr.style.marginTop = '5px';
+    private createDivEditProperty(clazz: Clazz, prop: ClazzProperty, propType: string, tabContentAttr: HTMLElement): HTMLDivElement {
+        let divEditProp = document.createElement('div');
+        divEditProp.style.marginTop = '5px';
 
         // create modifier select 
-        let selectAttrModifier = document.createElement('select');
+        let selectPropModifier = document.createElement('select');
 
         let modifierList: string[] = ['+', '-', '#'];
         modifierList.forEach(modifier => {
             let modifierOption = document.createElement('option');
             modifierOption.value = modifier;
             modifierOption.innerHTML = modifier;
-            selectAttrModifier.appendChild(modifierOption);
+            selectPropModifier.appendChild(modifierOption);
         });
-        selectAttrModifier.value = attr.modifier;
+        selectPropModifier.value = prop.modifier;
 
-        selectAttrModifier.addEventListener('input', function () {
-            attr.updateModifier(selectAttrModifier.options[selectAttrModifier.selectedIndex].value);
+        selectPropModifier.addEventListener('input', function () {
+            prop.updateModifier(selectPropModifier.options[selectPropModifier.selectedIndex].value);
         });
 
         // create name input
-        let textBoxAttrName = document.createElement('input');
-        textBoxAttrName.style.marginLeft = '5px';
-        textBoxAttrName.style.marginRight = '5px';
+        let textBoxPropName = document.createElement('input');
+        textBoxPropName.style.marginLeft = '5px';
+        textBoxPropName.style.marginRight = '5px';
 
-        textBoxAttrName.type = 'text';
-        textBoxAttrName.value = attr.name;
-        textBoxAttrName.addEventListener('input', function () {
-            attr.updateName(textBoxAttrName.value);
+        textBoxPropName.type = 'text';
+        textBoxPropName.value = prop.name;
+        textBoxPropName.addEventListener('input', function () {
+            prop.updateName(textBoxPropName.value);
             clazz.reDraw(true);
         });
 
         // create type select
         let dataListTypes = document.getElementById('dataTypes');
-        let selectAttrType = document.createElement('input');
+        let selectPropType = document.createElement('input');
         if (dataListTypes) {
-            selectAttrType.setAttribute('list', dataListTypes.id);
+            selectPropType.setAttribute('list', dataListTypes.id);
         }
 
-        selectAttrType.value = attr.type;
+        selectPropType.value = prop.type;
 
-        selectAttrType.addEventListener('input', function () {
-            attr.updateType(selectAttrType.value);
+        selectPropType.addEventListener('input', function () {
+            prop.updateType(selectPropType.value);
             clazz.reDraw(true);
         });
 
         // create a button to delete the attribute
         let btnDelete = document.createElement('button');
         btnDelete.innerHTML = 'X';
-        btnDelete.title = 'Delete attribute';
+        btnDelete.title = 'Delete ' + propType;
         btnDelete.style.marginLeft = '5px';
         btnDelete.style.color = 'red';
 
         btnDelete.addEventListener('click', function () {
-            clazz.removeAttribute(attr);
-            tabContentAttr.removeChild(divEditAttr);
+            clazz.removeProperty(prop);
+            tabContentAttr.removeChild(divEditProp);
 
             clazz.reDraw();
         });
 
-        divEditAttr.appendChild(selectAttrModifier);
-        divEditAttr.appendChild(textBoxAttrName);
-        divEditAttr.appendChild(selectAttrType);
-        divEditAttr.appendChild(btnDelete);
+        divEditProp.appendChild(selectPropModifier);
+        divEditProp.appendChild(textBoxPropName);
+        divEditProp.appendChild(selectPropType);
+        divEditProp.appendChild(btnDelete);
 
-        return divEditAttr;
-    }
-
-
-    private createDivEditMethod(clazz: Clazz, method: Method, tabContentMethods: HTMLElement): HTMLDivElement {
-        // wrap all inputs in one div
-        let divEditMethod = document.createElement('div');
-        divEditMethod.style.marginTop = '5px';
-
-        // create modifier select 
-        let selectMethodModifier = document.createElement('select');
-
-        let modifierList: string[] = ['+', '-', '#'];
-        modifierList.forEach(modifier => {
-            let modifierOption = document.createElement('option');
-            modifierOption.value = modifier;
-            modifierOption.innerHTML = modifier;
-            selectMethodModifier.appendChild(modifierOption);
-        });
-        selectMethodModifier.value = method.modifier;
-
-        selectMethodModifier.addEventListener('input', function () {
-            method.updateModifier(selectMethodModifier.options[selectMethodModifier.selectedIndex].value);
-        });
-
-        // create name input
-        let textBoxMethodName = document.createElement('input');
-        textBoxMethodName.style.marginLeft = '5px';
-        textBoxMethodName.style.marginRight = '5px';
-
-        textBoxMethodName.type = 'text';
-        textBoxMethodName.value = method.name;
-        textBoxMethodName.addEventListener('input', function () {
-            method.updateName(textBoxMethodName.value);
-            clazz.reDraw(true);
-        });
-
-
-        // create type select
-        let dataListTypes = document.getElementById('dataTypes');
-        let selectMethodType = document.createElement('input');
-        if (dataListTypes) {
-            selectMethodType.setAttribute('list', dataListTypes.id);
-        }
-
-        selectMethodType.value = method.type;
-
-        selectMethodType.addEventListener('input', function () {
-            method.updateType(selectMethodType.value);
-            clazz.reDraw(true);
-        });
-
-        // create a button to delete the attribute
-        let btnDelete = document.createElement('button');
-        btnDelete.innerHTML = 'X';
-        btnDelete.title = 'Delete method';
-        btnDelete.style.marginLeft = '5px';
-        btnDelete.style.color = 'red';
-
-        btnDelete.addEventListener('click', function () {
-            clazz.removeMethod(method);
-            tabContentMethods.removeChild(divEditMethod);
-
-            clazz.reDraw();
-        });
-
-        divEditMethod.appendChild(selectMethodModifier);
-        divEditMethod.appendChild(textBoxMethodName);
-        divEditMethod.appendChild(selectMethodType);
-        divEditMethod.appendChild(btnDelete);
-
-        return divEditMethod;
+        return divEditProp;
     }
 }
