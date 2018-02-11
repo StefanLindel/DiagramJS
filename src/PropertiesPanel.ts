@@ -384,6 +384,7 @@ export namespace PropertiesPanel {
     }
 
     export class EdgePanel extends APanel {
+
         constructor() {
             super();
         }
@@ -400,6 +401,19 @@ export namespace PropertiesPanel {
         }
 
         private createTabGeneralEdgeContent(): any {
+
+            let cardinalityTypes: string[] = ['0..1', '1', '1..n'];
+
+            let dataListCardinalityTypes = document.createElement('datalist');
+            dataListCardinalityTypes.id = 'cardinalityTypesDataList';
+
+            cardinalityTypes.forEach(type => {
+                let cardinalityoption = document.createElement('option');
+                cardinalityoption.value = type;
+                cardinalityoption.innerHTML = type;
+                dataListCardinalityTypes.appendChild(cardinalityoption);
+            });
+
             let div = document.createElement('div');
             div.id = this.getPropertiesView().toString().toLowerCase() + 'general';
             div.className = 'tabcontent';
@@ -555,19 +569,18 @@ export namespace PropertiesPanel {
             let divRowEdgeSrcNodeCardinalityCellInput = document.createElement('div');
             divRowEdgeSrcNodeCardinalityCellInput.className = 'divTableCell';
 
-            let textBoxEdgeSrcCardinality = document.createElement('input');
-            textBoxEdgeSrcCardinality.type = 'text';
-            textBoxEdgeSrcCardinality.id = 'edgeSrcCardinality';
-            textBoxEdgeSrcCardinality.placeholder = 'Add source cardinality';
-            textBoxEdgeSrcCardinality.className = 'col2';
 
-            divRowEdgeSrcNodeCardinalityCellInput.appendChild(textBoxEdgeSrcCardinality);
+            let inputSrcCardinalityType = document.createElement('input');
+            inputSrcCardinalityType.id = 'inputEdgeSrcCardinality';
+            inputSrcCardinalityType.className = 'col2';
+            inputSrcCardinalityType.placeholder = 'Add target cardinality';
+            inputSrcCardinalityType.setAttribute('list', dataListCardinalityTypes.id);
+
+            divRowEdgeSrcNodeCardinalityCellInput.appendChild(inputSrcCardinalityType);
 
             divRowEdgeSrcNodeCardinality.appendChild(divRowEdgeSrcNodeCardinalityCellText);
             divRowEdgeSrcNodeCardinality.appendChild(divRowEdgeSrcNodeCardinalityCellInput);
             divTableBody.appendChild(divRowEdgeSrcNodeCardinality);
-
-
 
 
 
@@ -644,13 +657,15 @@ export namespace PropertiesPanel {
             let divRowEdgeTargetNodeCardinalityCellInput = document.createElement('div');
             divRowEdgeTargetNodeCardinalityCellInput.className = 'divTableCell';
 
-            let textBoxEdgeTargetCardinality = document.createElement('input');
-            textBoxEdgeTargetCardinality.type = 'text';
-            textBoxEdgeTargetCardinality.id = 'edgeTargetCardinality';
-            textBoxEdgeTargetCardinality.placeholder = 'Add target cardinality';
-            textBoxEdgeTargetCardinality.className = 'col2';
 
-            divRowEdgeTargetNodeCardinalityCellInput.appendChild(textBoxEdgeTargetCardinality);
+            let inputTargetCardinalityType = document.createElement('input');
+            inputTargetCardinalityType.id = 'inputEdgeTargetCardinality';
+            inputTargetCardinalityType.className = 'col2';
+            inputTargetCardinalityType.placeholder = 'Add target cardinality';
+            inputTargetCardinalityType.setAttribute('list', dataListCardinalityTypes.id);
+
+
+            divRowEdgeTargetNodeCardinalityCellInput.appendChild(inputTargetCardinalityType);
 
             divRowEdgeTargetNodeCardinality.appendChild(divRowEdgeTargetNodeCardinalityCellText);
             divRowEdgeTargetNodeCardinality.appendChild(divRowEdgeTargetNodeCardinalityCellInput);
@@ -659,6 +674,7 @@ export namespace PropertiesPanel {
 
 
             divTable.appendChild(divTableBody);
+            div.appendChild(dataListCardinalityTypes);
             div.appendChild(divTable);
             this._divChildPanel.appendChild(div);
         }

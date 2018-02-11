@@ -126,7 +126,7 @@ export class PropertiesDispatcher implements EventHandler {
         });
 
         // show source cardinality
-        let inputEdgeSrcCardinality = document.getElementById('edgeSrcCardinality');
+        let inputEdgeSrcCardinality = document.getElementById('inputEdgeSrcCardinality');
         inputEdgeSrcCardinality.addEventListener('input', function (evt) {
             edge.updateSrcCardinality((<HTMLInputElement>inputEdgeSrcCardinality).value);
         });
@@ -143,7 +143,7 @@ export class PropertiesDispatcher implements EventHandler {
         });
 
         // show target cardinality
-        let inputEdgeTargetCardinality = document.getElementById('edgeTargetCardinality');
+        let inputEdgeTargetCardinality = document.getElementById('inputEdgeTargetCardinality');
         inputEdgeTargetCardinality.addEventListener('input', function (evt) {
             edge.updateTargetCardinality((<HTMLInputElement>inputEdgeTargetCardinality).value);
         });

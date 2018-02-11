@@ -166,27 +166,38 @@ export class Util {
     }
 
     static isIE(): boolean {
-        return document.all && !window['opera'];
+        return navigator.userAgent.toLowerCase().indexOf('.net') > -1;
+    }
+
+    static isEdge(): boolean{
+        return navigator.userAgent.toLowerCase().indexOf('edge') > -1;
     }
 
     static isFireFox(): boolean {
         return navigator.userAgent.toLowerCase().indexOf('firefox') > -1;
     }
 
+    static isSafari(): boolean{
+        let isEdge = Util.isEdge();
+        return navigator.userAgent.toLowerCase().indexOf('safari') > -1 && !isEdge;
+    }
+
     static isOpera(): boolean {
-        return navigator.userAgent.indexOf('Opera') > -1;
+        return navigator.userAgent.toLowerCase().indexOf('opera') > -1;
     }
 
     static isChrome(): boolean {
-        return navigator.userAgent.indexOf('Chrome') > -1;
+        let isEdge = Util.isEdge();
+        let isSafari = Util.isSafari();
+        return navigator.userAgent.toLowerCase().indexOf('chrome') > -1 && !isEdge && isSafari;
     }
 
     static getEventX(event: Event | any): number {
-        return (this.isIE) ? window.event['clientX'] : event.pageX;
+        return (Util.isIE() || Util.isEdge()) ? event['offsetX'] : event.layerX;
     }
 
     static getEventY(event: Event | any): number {
-        return (this.isIE) ? window.event['clientY'] : event.pageY;
+        return (Util.isIE() || Util.isEdge()) ? event['offsetY'] : event.layerY;
     }
 
     static getNumber(str: string): number {

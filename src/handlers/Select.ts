@@ -30,6 +30,9 @@ export class Select implements EventHandler {
 
     public handle(event: Event, element: DiagramElement): boolean {
 
+        let x = Util.getEventX(event);
+        let y = Util.getEventY(event);
+
         event.stopPropagation();
         if (event.type === 'drag') {
             this.isDragged = true;
@@ -215,14 +218,6 @@ export class Select implements EventHandler {
             this.graph.root.appendChild(this.deleteShape);
             this.deleteShape.setAttributeNS(null, 'visibility', 'visible');
             this.addEdgeShape.setAttributeNS(null, 'visibility', 'hidden');
-
-            let x: number, y: number;
-
-            x = (<any>event).layerX;
-            y = (<any>event).layerY;
-
-            console.log('x: ' + x);
-            console.log('y: ' + y);
 
             this.deleteShape.setAttributeNS(null, 'transform', `translate(${x} ${y})`);
             this.deleteShape.onclick = e => this.graph.$graphModel.removeElement(element.id);

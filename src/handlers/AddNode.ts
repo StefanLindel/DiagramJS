@@ -83,8 +83,8 @@ export class AddNode implements EventHandler {
 
         evt.stopPropagation();
 
-        let width = evt.layerX - this.x;
-        let height = evt.layerY - this.y;
+        let width = Util.getEventX(evt) - this.x;
+        let height = Util.getEventY(evt) - this.y;
 
         // rectangle is in a negative area, drawn to upper case. not possibble with svg
         if (width < 0) {
@@ -122,7 +122,7 @@ export class AddNode implements EventHandler {
                 class: 'SVGAddNode'
             });
 
-            let group = Util.createShape({ tag: 'g', id: 'groupAddNode', transform: 'translate(0 0)' });
+            let group = Util.createShape({ tag: 'g', id: 'groupAddNode' });
             group.appendChild(rectAddNode);
 
             this.graph.root.appendChild(group);
@@ -139,10 +139,8 @@ export class AddNode implements EventHandler {
 
                 let textAddNode = Util.createShape({
                     tag: 'text',
-                    x: this.x + 120,
-                    y: (this.y - 10),
-                    'text-anchor': 'middle',
-                    'alignment-baseline': 'central',
+                    x: this.x,
+                    y: this.y - 5,
                     'font-family': 'Verdana',
                     'font-size': 12,
                     fill: 'black'
@@ -157,8 +155,8 @@ export class AddNode implements EventHandler {
                 let rectBackgroundForText = Util.createShape({
                     tag: 'rect',
                     x: this.x,
-                    y: (this.y - 15),
-                    width: sizeClientRect.width + 10,
+                    y: this.y - sizeClientRect.height,
+                    width: sizeClientRect.width,
                     height: sizeClientRect.height,
                     fill: '#DDD',
                     'stroke-width': 0
@@ -171,11 +169,11 @@ export class AddNode implements EventHandler {
             }
 
             if (this.isDrawToLeft) {
-                this.svgRect.setAttributeNS(null, 'x', evt.layerX);
+                this.svgRect.setAttributeNS(null, 'x', '' + Util.getEventX(evt));
             }
 
             if (this.isDrawToTop) {
-                this.svgRect.setAttributeNS(null, 'y', evt.layerY);
+                this.svgRect.setAttributeNS(null, 'y', '' + Util.getEventY(evt));
             }
 
             // set width and height
@@ -200,7 +198,7 @@ export class AddNode implements EventHandler {
 
         this.graph.root.style.cursor = 'default';
 
-        if (this.svgGroupAddNode && this.graph.root.contains(this.svgGroupAddNode)) {
+        if (this.svgGroupAddNode) {
             this.graph.root.removeChild(this.svgGroupAddNode);
             this.svgGroupAddNode = undefined;
         }
@@ -237,8 +235,8 @@ export class AddNode implements EventHandler {
         }
         this.isRectDrawing = true;
 
-        this.x = evt.layerX;
-        this.y = evt.layerY;
+        this.x = Util.getEventX(evt);
+        this.y = Util.getEventY(evt);
     }
 
 }
