@@ -1,7 +1,7 @@
-import {Node} from './Node';
-import {SO} from './SO';
-import {DiagramElement} from '../BaseElements';
-import {Util} from '../../util';
+import { Node } from './Node';
+import { SO } from './SO';
+import { DiagramElement } from '../BaseElements';
+import { Util } from '../../util';
 
 export class Symbol extends Node {
     public $heightMax: number = 0;
@@ -125,10 +125,10 @@ export class SymbolLibary {
         if (node.property.toUpperCase() === 'HTML') {
             svg = Util.create({
                 tag: 'svg',
-                style: {left: group.x + node.getPos().x, top: group.y + node.getPos().y, position: 'absolute'}
+                style: { left: group.x + node.getPos().x, top: group.y + node.getPos().y, position: 'absolute' }
             });
         } else {
-            svg = Util.create({tag: 'g'});
+            svg = Util.create({ tag: 'g' });
             transform = 'translate(' + group.getPos().x + ' ' + group.getPos().y + ')';
             if (group.scale) {
                 transform += ' scale(' + group.scale + ')';
@@ -142,7 +142,7 @@ export class SymbolLibary {
             }
         }
 
-        if(node['tooltip']){
+        if (node['tooltip']) {
             const tooltipTitleAttr = {
                 tag: 'title'
             };
@@ -177,7 +177,7 @@ export class SymbolLibary {
                     i -= 1;
                 }
             }
-            box = Util.create({tag: 'g'});
+            box = Util.create({ tag: 'g' });
             // Calculate new Height
             let c: number;
             z = 0;
@@ -336,8 +336,8 @@ export class SymbolLibary {
             width: 50,
             height: 52,
             items: [
-                {tag: 'circle', r: 10, fill: '#ccc', cx: 8, cy: 8},
-                {tag: 'path', d: 'M 2,3 H 13 M 2,8 H 13 M 2,13 H 13', stroke: 'black', fill: 'none'}
+                { tag: 'circle', r: 10, fill: '#ccc', cx: 8, cy: 8 },
+                { tag: 'path', d: 'M 2,3 H 13 M 2,8 H 13 M 2,13 H 13', stroke: 'black', fill: 'none' }
             ]
         });
     }
@@ -349,11 +349,11 @@ export class SymbolLibary {
             width: 50,
             height: 52,
             items: [
-                {tag: 'path', d: 'm49.01774,25.64542a24.5001,24.5 0 1 1 -49.0001,0a24.5001,24.5 0 1 1 49.0001,0z', stroke: 'black', fill: 'none'},              {tag: 'path', d: 'm8,31.5c16,20 32,0.3 32,0.3'},
-                {tag: 'path', d: 'm19.15,20.32a1.74,2.52 0 1 1 -3.49,0a1.74,2.52 0 1 1 3.49,0z'},
-                {tag: 'path', d: 'm33,20.32a1.74,2.52 0 1 1 -3.48,0a1.74,2.52 0 1 1 3.48,0z'},
-                {tag: 'path', d: 'm5.57,31.65c3.39,0.91 4.03,-2.20 4.03,-2.20'},
-                {tag: 'path', d: 'm43,32c-3,0.91 -4,-2.20 -4.04,-2.20'}
+                { tag: 'path', d: 'm49.01774,25.64542a24.5001,24.5 0 1 1 -49.0001,0a24.5001,24.5 0 1 1 49.0001,0z', stroke: 'black', fill: 'none' }, { tag: 'path', d: 'm8,31.5c16,20 32,0.3 32,0.3' },
+                { tag: 'path', d: 'm19.15,20.32a1.74,2.52 0 1 1 -3.49,0a1.74,2.52 0 1 1 3.49,0z' },
+                { tag: 'path', d: 'm33,20.32a1.74,2.52 0 1 1 -3.48,0a1.74,2.52 0 1 1 3.48,0z' },
+                { tag: 'path', d: 'm5.57,31.65c3.39,0.91 4.03,-2.20 4.03,-2.20' },
+                { tag: 'path', d: 'm43,32c-3,0.91 -4,-2.20 -4.04,-2.20' }
             ]
         });
     }
@@ -388,8 +388,8 @@ export class SymbolLibary {
             width: 25,
             height: 17,
             items: [
-                {tag: 'path', stroke: 'black', fill: 'none', d: 'm1,1l22,0l0,14l-22,0l0,-14z'},
-                {tag: 'path', stroke: 'black', fill: 'none', d: 'm1.06,1.14l10.94,6.81l10.91,-6.91'}
+                { tag: 'path', stroke: 'black', fill: 'none', d: 'm1,1l22,0l0,14l-22,0l0,-14z' },
+                { tag: 'path', stroke: 'black', fill: 'none', d: 'm1.06,1.14l10.94,6.81l10.91,-6.91' }
             ]
         });
     }
@@ -407,10 +407,10 @@ export class SymbolLibary {
                     fill: 'none',
                     stroke: 'black'
                 },
-                {tag: 'path', d: 'm 12.5 2.73a 0.5 0.5 0 1 1-1 0 0.5 0.5 0 1 1 1 0z'},
-                {tag: 'path', d: 'm 14 46a 2 2 0 1 1-4 0 2 2 0 1 1 4 0z'},
-                {tag: 'path', d: 'm 8 5 7 0'},
-                {tag: 'path', d: 'm 1.63 7.54 20.73 0 0 34-20.73 0z'}
+                { tag: 'path', d: 'm 12.5 2.73a 0.5 0.5 0 1 1-1 0 0.5 0.5 0 1 1 1 0z' },
+                { tag: 'path', d: 'm 14 46a 2 2 0 1 1-4 0 2 2 0 1 1 4 0z' },
+                { tag: 'path', d: 'm 8 5 7 0' },
+                { tag: 'path', d: 'm 1.63 7.54 20.73 0 0 34-20.73 0z' }
             ]
         });
     }
@@ -422,7 +422,7 @@ export class SymbolLibary {
             width: 25,
             height: 50,
             items: [
-                {tag: 'path', d: 'm26,45.44l-5,3.56l-21,-9l0,-36.41l5,-3.56l20.96,9l-0,36.4z'},
+                { tag: 'path', d: 'm26,45.44l-5,3.56l-21,-9l0,-36.41l5,-3.56l20.96,9l-0,36.4z' },
                 {
                     tag: 'path',
                     stroke: 'white',
@@ -439,11 +439,11 @@ export class SymbolLibary {
             width: 25,
             height: 50,
             items: [
-                {tag: 'line', stroke: '#000', x1: '12', y1: '10', x2: '12', y2: '30'},
-                {tag: 'circle', stroke: '#000', cy: '5', cx: '12', r: '5'},
-                {tag: 'line', stroke: '#000', y2: '18', x2: '25', y1: '18', x1: '0'},
-                {tag: 'line', stroke: '#000', y2: '39', x2: '5', y1: '30', x1: '12'},
-                {tag: 'line', stroke: '#000', y2: '39', x2: '20', y1: '30', x1: '12'}
+                { tag: 'line', stroke: '#000', x1: '12', y1: '10', x2: '12', y2: '30' },
+                { tag: 'circle', stroke: '#000', cy: '5', cx: '12', r: '5' },
+                { tag: 'line', stroke: '#000', y2: '18', x2: '25', y1: '18', x1: '0' },
+                { tag: 'line', stroke: '#000', y2: '39', x2: '5', y1: '30', x1: '12' },
+                { tag: 'line', stroke: '#000', y2: '39', x2: '20', y1: '30', x1: '12' }
             ]
         });
     }
@@ -473,7 +473,7 @@ export class SymbolLibary {
                     tag: 'path',
                     d: 'm 18.4 45.3 8 0c 0.58 0 1 0.47 1 1 0 0.58-0.47 1-1 1l-8 0c-0.58 0-1-0.47-1-1 0-0.58 0.46-1 1-1z'
                 },
-                {tag: 'path', d: 'm 19.5 48c 0.37 0.8 1 1.3 1.9 1.7 0.6 0.3 1.5 0.3 2 0 0.8-0.3 1.4-0.8 1.9-1.8z'},
+                { tag: 'path', d: 'm 19.5 48c 0.37 0.8 1 1.3 1.9 1.7 0.6 0.3 1.5 0.3 2 0 0.8-0.3 1.4-0.8 1.9-1.8z' },
                 {
                     tag: 'path',
                     d: 'm 6 37.5 4.2-4c 0.3-0.3 0.8-0.3 1 0 0.3 0.3 0.3 0.8 0 1.1l-4.2 4c-0.3 0.3-0.8 0.3-1.1 0-0.3-0.3-0.3-0.8 0-1z'
@@ -506,7 +506,7 @@ export class SymbolLibary {
                     tag: 'path',
                     d: 'm 26.1 24.3c-0.5 0-1 0.2-1.3 0.4-1.1 0.6-2 3-2.27 3.5-0.26-0.69-1.14-2.9-2.2-3.5-0.7-0.4-2-0.7-2.5 0-0.6 0.8 0.2 2.2 0.9 2.9 1 0.9 3.9 0.9 3.9 0.9 0 0 0 0 0 0 0.54 0 2.8 0 3.7-0.9 0.7-0.7 1.5-2 0.9-2.9-0.2-0.3-0.7-0.4-1.2-0.4z'
                 },
-                {tag: 'path', d: 'm 22.5 28.57 0 10.7'}
+                { tag: 'path', d: 'm 22.5 28.57 0 10.7' }
             ]
         });
     }
@@ -564,7 +564,7 @@ export class SymbolLibary {
             height: 9,
             rotate: node['rotate'],
             items: [
-                {tag: 'path', fill: '#000', stroke: '#000', d: 'M 0,0 10,4 0,9 z'}
+                { tag: 'path', fill: '#000', stroke: '#000', d: 'M 0,0 10,4 0,9 z' }
             ]
         });
     }
@@ -623,7 +623,7 @@ export class SymbolLibary {
                     filter: 'url(#drop-shadow)',
                     'class': 'SVGBtn'
                 },
-                {tag: 'text', $font: true, x: 10, y: 18, fill: 'black', value: btnValue, 'class': 'hand'}
+                { tag: 'text', $font: true, x: 10, y: 18, fill: 'black', value: btnValue, 'class': 'hand' }
             ]
         });
     }
@@ -693,7 +693,7 @@ export class SymbolLibary {
                     d: 'm25.68807,0l10.78832,0l0,4.49982l-10.78832,0.19999l0,9.19963l10.78832,0l0,-9.49962l-10.78832,0.2l0,-4.59982z',
                     style: 'fill:none;stroke:#000000;'
                 },
-                {tag: 'line', x1: 11, y1: 7, x2: 25, y2: 7, stroke: '#000'}
+                { tag: 'line', x1: 11, y1: 7, x2: 25, y2: 7, stroke: '#000' }
             ]
         });
     }
@@ -731,6 +731,35 @@ export class SymbolLibary {
                     tag: 'path',
                     d: 'M10,30 30,10 M19,10 30,10 30,21',
                     style: 'fill:none;stroke:#555;stroke-width:2;'
+                }
+            ]
+        });
+    }
+
+    public static drawCopynode(node: DiagramElement): DiagramElement {
+
+        let btnX = 0, btnY = 0, btnWidth = 0, btnHeight = 0;
+        return SO.create({
+            x: btnX,
+            y: btnY,
+            id: node['id'],
+            width: btnWidth,
+            height: btnHeight,
+            items: [
+                {
+                    tag: 'path',
+                    d: 'M5 5 L15 5 L15 20 L5 20 Z M5 10 L15 10',
+                    style: 'fill:white;stroke:#000;stroke-width: 1;',
+                    transform: 'scale(1.3) translate(4 4)'
+                },
+                {
+                    tag: 'path',
+                    d: 'M8 2 L18 2 L18 17 L8 17 Z M8 7 L18 7'
+                        + 'M11 4.5 L15 4.5 '
+                        + 'M10 10 L16 10 '
+                        + 'M10 13 L16 13 ',
+                    style: 'fill:white;stroke:#000;stroke-width: 1;',
+                    transform: 'scale(1.3) translate(4 4)'
                 }
             ]
         });
