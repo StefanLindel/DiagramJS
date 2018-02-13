@@ -108,8 +108,7 @@ export class Clazz extends Node {
                 y1: pos.y + this.$labelHeight,
                 x2: pos.x + size.x,        // line doesn't overlap the full shape
                 y2: pos.y + this.$labelHeight,
-                stroke: 'rgb(0, 0, 0)',        // black
-                'stroke-width': 2
+                'stroke-width': 1
             });
 
             group.appendChild(separatorLabelAttr);
@@ -144,8 +143,7 @@ export class Clazz extends Node {
                 y1: pos.y + this.$labelHeight + (this.$attrHeight * this.attributes.length),
                 x2: pos.x + size.x,        //line doesn't overlap the full shape
                 y2: pos.y + this.$labelHeight + (this.$attrHeight * this.attributes.length),
-                stroke: 'rgb(0, 0, 0)',        //black
-                'stroke-width': 2
+                'stroke-width': 1
             });
 
 

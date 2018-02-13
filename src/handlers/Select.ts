@@ -117,8 +117,8 @@ export class Select implements EventHandler {
             let divInlineEdit = document.createElement('div');
             divInlineEdit.id = 'inlineEdit';
             divInlineEdit.style.position = 'absolute';
-            divInlineEdit.style.top = (clazz.getPos().y + clazz.getSize().y) + 57 + 'px';
-            divInlineEdit.style.left = clazz.getPos().x + 4 + 'px';
+            divInlineEdit.style.top = (clazz.getPos().y + clazz.getSize().y) + 52 + 'px';
+            divInlineEdit.style.left = clazz.getPos().x + 'px';
             divInlineEdit.style.width = clazz.getSize().x + 'px';
             divInlineEdit.style.zIndex = '42';
 
@@ -206,8 +206,8 @@ export class Select implements EventHandler {
                 }
 
                 // reset size
-                divInlineEdit.style.top = (clazz.getPos().y + clazz.getSize().y) + 57 + 'px';
-                divInlineEdit.style.left = clazz.getPos().x + 4 + 'px';
+                divInlineEdit.style.top = (clazz.getPos().y + clazz.getSize().y) + 52 + 'px';
+                divInlineEdit.style.left = clazz.getPos().x + 'px';
                 divInlineEdit.style.width = clazz.getSize().x + 'px';
 
                 inputText.value = '';

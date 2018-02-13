@@ -75,8 +75,7 @@ export class StereoType extends Clazz {
                 y1: pos.y + this.$labelHeight + (this.$labelHeight / 2),
                 x2: pos.x + size.x,        //line doesn't overlap the full shape
                 y2: pos.y + this.$labelHeight + (this.$labelHeight / 2),
-                stroke: 'rgb(0, 0, 0)',        //black
-                'stroke-width': 2
+                'stroke-width': 1
             });
 
 
@@ -112,8 +111,7 @@ export class StereoType extends Clazz {
                 y1: pos.y + (this.$labelHeight * 1.5) + (this.$attrHeight * this.attributes.length),
                 x2: pos.x + size.x,        //line doesn't overlap the full shape
                 y2: pos.y + (this.$labelHeight * 1.5) + (this.$attrHeight * this.attributes.length),
-                stroke: 'rgb(0, 0, 0)',        //black
-                'stroke-width': 2
+                'stroke-width': 1
             });
 
 

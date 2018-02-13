@@ -672,6 +672,11 @@ h1 {
     transition: 0.3s;
 }
 
+.SVGClazz-drawedge > line{
+	stroke-width: 1;
+	stroke: #888;
+}
+
 .SVGClazz-readyToConnect > rect{
 	stroke: rgb(0, 162, 0);
 	fill: rgba(0, 162, 0, 0.125);

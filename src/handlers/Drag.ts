@@ -133,18 +133,21 @@ export class Drag implements EventHandler {
         this.mouseOffset.x = evt.clientX;
         this.mouseOffset.y = evt.clientY;
 
+
         // resize svg root
         let maxX = this.element.getPos().x + this.element.getSize().x;
         let maxY = this.element.getPos().y + this.element.getSize().y;
 
-        let widthOfRoot = this.graph.root.clientWidth;
-        let heightOfRoot = this.graph.root.clientHeight;
+        let domRectRoot = this.graph.root.getBoundingClientRect();
+        if(!domRectRoot){
+            return;
+        }
 
-        if(maxX > widthOfRoot){
+        if(maxX > domRectRoot.width){
             this.graph.root.setAttributeNS(null, 'width', '' + maxX);
         }
         
-        if(maxY > heightOfRoot){
+        if(maxY > domRectRoot.height){
             this.graph.root.setAttributeNS(null, 'height', '' + maxY);
         }
     }
