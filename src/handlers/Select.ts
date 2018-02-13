@@ -13,6 +13,7 @@ export class Select implements EventHandler {
 
     private deleteShape: SVGSVGElement;
     private addEdgeShape: SVGSVGElement;
+    private copyNodeShape: SVGSVGElement;
     private graph: Graph;
     private padding = 5;
 
@@ -26,6 +27,7 @@ export class Select implements EventHandler {
 
         this.deleteShape = SymbolLibary.drawSVG({ type: 'Basket', background: true, id: 'trashcan', tooltip: 'Delete class' });
         this.addEdgeShape = SymbolLibary.drawSVG({ type: 'Edgeicon', background: true, id: 'addEdge', tooltip: 'Click and drag to connect this class' });
+        this.copyNodeShape = SymbolLibary.drawSVG({ type: 'Copynode', background: true, id: 'copyNode', tooltip: 'Copy class' });
     }
 
     public handle(event: Event, element: DiagramElement): boolean {
@@ -39,6 +41,7 @@ export class Select implements EventHandler {
 
             this.deleteShape.setAttributeNS(null, 'visibility', 'hidden');
             this.addEdgeShape.setAttributeNS(null, 'visibility', 'hidden');
+            this.copyNodeShape.setAttributeNS(null, 'visibility', 'hidden');
 
             this.resetLastSelectedElements();
 
@@ -55,6 +58,7 @@ export class Select implements EventHandler {
 
             this.deleteShape.setAttributeNS(null, 'visibility', 'hidden');
             this.addEdgeShape.setAttributeNS(null, 'visibility', 'hidden');
+            this.copyNodeShape.setAttributeNS(null, 'visibility', 'hidden');
 
             return true;
         }
@@ -63,10 +67,12 @@ export class Select implements EventHandler {
             let e = <Node>element;
             this.graph.root.appendChild(this.deleteShape);
             this.graph.root.appendChild(this.addEdgeShape);
+            this.graph.root.appendChild(this.copyNodeShape);
             this.graph.root.appendChild(element.$view);
 
             this.deleteShape.setAttributeNS(null, 'visibility', 'visible');
             this.addEdgeShape.setAttributeNS(null, 'visibility', 'visible');
+            this.copyNodeShape.setAttributeNS(null, 'visibility', 'visible');
 
             let x = (e.getPos().x + e.getSize().x) + 5;
             let y = e.getPos().y;
@@ -78,6 +84,15 @@ export class Select implements EventHandler {
             this.addEdgeShape.onmousedown = function () {
                 EventBus.setActiveHandler('NewEdge');
                 element.$view.dispatchEvent(new Event('mousedown'));
+            };
+
+            this.copyNodeShape.setAttributeNS(null, 'transform', `translate(${x} ${y + 80 + this.padding})`);
+            this.copyNodeShape.onmousedown = (evt) => {
+                let nextFreePosition = this.graph.getNextFreePosition();
+                let copyClass = (<Clazz>element).copy();
+                copyClass.withPos(nextFreePosition.x, nextFreePosition.y);
+                copyClass.withSize(element.getSize().x, element.getSize().y);
+                this.graph.drawElement(copyClass);
             };
 
         }
@@ -218,6 +233,7 @@ export class Select implements EventHandler {
             this.graph.root.appendChild(this.deleteShape);
             this.deleteShape.setAttributeNS(null, 'visibility', 'visible');
             this.addEdgeShape.setAttributeNS(null, 'visibility', 'hidden');
+            this.copyNodeShape.setAttributeNS(null, 'visibility', 'hidden');
 
             this.deleteShape.setAttributeNS(null, 'transform', `translate(${x} ${y})`);
             this.deleteShape.onclick = e => this.graph.$graphModel.removeElement(element.id);

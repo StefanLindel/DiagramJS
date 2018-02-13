@@ -158,7 +158,7 @@ export class SymbolLibary {
                 cy: 20,
                 r: 17,
                 stroke: '#888',
-                'stroke-width': 2,
+                'stroke-width': 0,
                 fill: '#DDD'
             };
             svg.appendChild(Util.create(attrCircle));

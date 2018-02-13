@@ -173,6 +173,26 @@ export class Clazz extends Node {
         return group;
     }
 
+    public copy(): Clazz { 
+        let copy: Clazz; 
+        copy = <Clazz>super.copy(); 
+ 
+        // copy label 
+        copy.label = this.label; 
+ 
+        // copy attributes 
+        this.attributes.forEach(attr => { 
+            copy.attributes.push(new Attribute(attr.toString())); 
+        }); 
+ 
+        // copy methods 
+        this.methods.forEach(method => { 
+            copy.methods.push(new Method(method.toString())); 
+        }); 
+ 
+        return copy; 
+    }
+
     public getEvents(): string[] {
         return [EventBus.ELEMENTMOUSEDOWN, EventBus.ELEMENTMOUSEMOVE, EventBus.ELEMENTCLICK, EventBus.ELEMENTDRAG, EventBus.ELEMENTDBLCLICK, EventBus.EDITOR, EventBus.OPENPROPERTIES];
     }

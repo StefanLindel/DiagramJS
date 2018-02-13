@@ -1,5 +1,6 @@
 import {DiagramElement} from '../BaseElements';
 import {Edge} from '../edges';
+import { GraphModel } from '..';
 
 export class Node extends DiagramElement {
     $edges: Edge[] = [];
@@ -67,6 +68,23 @@ export class Node extends DiagramElement {
 
         return group;
     }
+
+    public copy(): Node { 
+        let copy: Node; 
+ 
+        // create new id 
+        let model = <GraphModel>this.$owner || <GraphModel>this.getRoot(); 
+        if (model) { 
+            let type = this.property || Node.name; 
+            let newId = model.getNewId(type); 
+            copy = <Node>model.createElement(type, newId, null); 
+        } else { 
+            copy.id = this.id + '-copy'; 
+            copy.$owner = this.getRoot(); 
+        } 
+ 
+        return copy; 
+    } 
 
     public redrawEdges() {
         for (let edge of this.$edges) {

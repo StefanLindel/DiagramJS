@@ -50,7 +50,7 @@ export class GraphModel extends DiagramElement {
     public addElement(type: string): boolean {
         type = Util.toPascalCase(type);
         let id = this.getNewId(type);
-        let element = <DiagramElement>this.getElement(type, id, {});
+        let element = <DiagramElement>this.createElement(type, id, {});
         if (element) {
             return true;
         }
@@ -60,7 +60,7 @@ export class GraphModel extends DiagramElement {
     public addElementWithValues(type: string, optionalValues: Object): DiagramElement {
         type = Util.toPascalCase(type);
         let id = this.getNewId(type);
-        let element = <DiagramElement>this.getElement(type, id, {});
+        let element = <DiagramElement>this.createElement(type, id, {});
 
         // position
         if(optionalValues){
@@ -192,7 +192,7 @@ export class GraphModel extends DiagramElement {
         let type = node['type'] || node.property || 'Node';
         type = Util.toPascalCase(type);
         let id = node['name'] || this.getNewId(type);
-        return <Node>this.getElement(type, id, node);
+        return <Node>this.createElement(type, id, node);
     }
 
     private getNodeById(id: string) : Node {
@@ -234,7 +234,7 @@ export class GraphModel extends DiagramElement {
         type = Util.toPascalCase(type);
         let id = this.getNewId(type);
 
-        let newEdge = <Edge>this.getElement(type, id, edge);
+        let newEdge = <Edge>this.createElement(type, id, edge);
         newEdge.type = type;
 
         let source: Node;
@@ -242,7 +242,7 @@ export class GraphModel extends DiagramElement {
         if(sourceAsString){
             source = this.getNodeByLabel(sourceAsString);
             if (!source) {
-                source = <Node>this.getElement('Clazz', this.getNewId('Clazz'), { name: edge.source });
+                source = <Node>this.createElement('Clazz', this.getNewId('Clazz'), { name: edge.source });
                 source.init(this);
             }
         }
@@ -252,7 +252,7 @@ export class GraphModel extends DiagramElement {
         if(targetAsString){
             target = this.getNodeByLabel(targetAsString);
             if (!target) {
-                target = <Node>this.getElement('Clazz', this.getNewId('Clazz'), { name: edge.target });
+                target = <Node>this.createElement('Clazz', this.getNewId('Clazz'), { name: edge.target });
                 target.init(this);
             }
         }
@@ -274,7 +274,7 @@ export class GraphModel extends DiagramElement {
         return newEdge;
     }
 
-    private getElement(type: string, id: string, data: Object): DiagramElement {
+    public createElement(type: string, id: string, data: Object): DiagramElement {
         const graph = <Graph>this.$owner;
         if (graph.nodeFactory[type]) {
             let element: Node = new graph.nodeFactory[type](data);

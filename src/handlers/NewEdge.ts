@@ -162,5 +162,11 @@ export class NewEdge implements EventHandler {
 
         this.x = this.sourceNode.getPos().x + (this.sourceNode.getSize().x / 2);
         this.y = this.sourceNode.getPos().y + (this.sourceNode.getSize().y / 2);
+
+        // TODO: get this into util or select 
+        let lastInlineEdit = document.getElementById('inlineEdit');
+        if (lastInlineEdit) {
+            document.body.removeChild(lastInlineEdit);
+        }
     }
 }

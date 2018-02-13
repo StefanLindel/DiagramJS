@@ -80,7 +80,6 @@ g, path {
 
 .diagram {
 	position: absolute;
-	padding: 5px;
 	top: 50px;
 	bottom: 0;
 	left: 0;
@@ -177,14 +176,37 @@ h1 {
 	fill: black;
 }
 
+#trashcan[visibility=visible] > circle{
+	transition: 0.3s;
+}
+
 #trashcan:hover circle {
+	stroke-width: 1;
 	stroke: #333;
 	fill: #ff9c9c;
+	transition: 0.3s;
+}
+
+#addEdge[visibility=visible] > circle{
+	transition: 0.3s;
 }
 
 #addEdge:hover circle {
+	stroke-width: 1;
 	stroke: #333;
 	fill: #fff68f;
+	transition: 0.3s;
+}
+
+#copyNode[visibility=visible] > circle{
+	transition: 0.3s;
+}
+
+#copyNode:hover circle{
+	stroke-width: 1;
+	stroke: #333;
+	fill: #8fff93;
+	transition: 0.3s;
 }
 
 .centercenter {
@@ -514,7 +536,7 @@ h1 {
 }
 
 .propertiespanel, .propertiespanel-hidden{
-    border: 2px solid #888;
+    border: 1px solid #888;
 	background-color: #ccc;
 	border-top-left-radius: 10px;
     width: 500px;
@@ -603,7 +625,7 @@ h1 {
 }
 
 .SVGEdge:hover{
-	stroke-width: 3;
+	stroke-width: 2;
 	stroke: #FFA033;
     transition: 0.3s;
 }
@@ -622,15 +644,20 @@ h1 {
 }
 
 .SVGClazz > rect{
-	stroke-width: 2;
-	stroke: black;
+	stroke-width: 1;
+	stroke: #888;
 	fill: white;
     transition: 0.3s;
 }
 
+.SVGClazz > line{
+	stroke-width: 1;
+	stroke: #888;
+}
+
 .SVGClazz:hover > rect{
 	stroke:rgb(255, 160, 51);
-	stroke-width: 3;
+	stroke-width: 2;
     transition: 0.3s;
 }
 
