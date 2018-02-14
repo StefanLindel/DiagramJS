@@ -12,10 +12,10 @@ export class ImportFile implements EventHandler {
     }
 
     public setActive(active: boolean): void {
-        if(active){
+        if (active) {
             EventBus.setActiveHandler(ImportFile.name);
         }
-        else{
+        else {
             EventBus.releaseActiveHandler();
         }
     }
@@ -32,7 +32,7 @@ export class ImportFile implements EventHandler {
         if (evt.type === 'dragover') {
             this.handleDragOver(evt);
         } else if (evt.type === 'dragleave') {
-            if (this.graph.canvas !== evt.target) {
+            if (this.graph.$view !== evt.target) {
                 return false;
             }
             this.setBoardStyle('dragleave');
@@ -67,11 +67,11 @@ export class ImportFile implements EventHandler {
                 let rootElement = document.getElementById('root');
                 let canvasElement = document.getElementById('canvas');
 
-                while(rootElement.hasChildNodes()){
+                while (rootElement.hasChildNodes()) {
                     rootElement.removeChild(rootElement.firstChild);
                 }
 
-                while(canvasElement.hasChildNodes()){
+                while (canvasElement.hasChildNodes()) {
                     canvasElement.removeChild(canvasElement.firstChild);
                 }
 
@@ -135,7 +135,7 @@ export class ImportFile implements EventHandler {
     }
 
     private setBoardStyle(typ: string): boolean {
-        let b = this.graph.canvas;
+        let b = this.graph.$view;
         Util.removeClass(b, 'Error');
         Util.removeClass(b, 'Ok');
         Util.removeClass(b, 'Add');

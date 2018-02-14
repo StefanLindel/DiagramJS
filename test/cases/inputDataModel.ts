@@ -17,9 +17,13 @@ export class InputDataModel extends TestCase {
             'property': 'number.value'
         });
 
-
         j1n1.$view['value'] = 42;
-        this.simulateClickEvent(j1n1.$view)
+        this.simulateClickEvent(j1n1.$view);
         this.assertEquals('42', div.$view.innerHTML);
+        return true;
+    }
+
+    loadModel() {
+        return true;
     }
 }

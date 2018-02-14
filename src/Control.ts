@@ -349,6 +349,14 @@ export abstract class Control {
         }
     }
 
+    public removeChild(child: Control) {
+        if (this.$view) {
+            this.$view.removeChild(child.$view);
+        } else {
+            document.getElementsByTagName('body')[0].removeChild(child.$view);
+        }
+    }
+
     /*
      Property looks like: 't1.talk'
      */

@@ -1,10 +1,10 @@
-import { Graph } from './Graph';
-import { DiagramElement, Point } from './BaseElements';
-import { Edge } from './edges';
-import { Node } from './nodes';
-import { Control } from '../Control';
-import { Util } from '../util';
-import { EventBus } from '../EventBus';
+import {Graph} from './Graph';
+import {DiagramElement, Point} from './BaseElements';
+import {Edge} from './edges';
+import {Node} from './nodes';
+import {Control} from '../Control';
+import {Util} from '../util';
+import {EventBus} from '../EventBus';
 
 export class GraphModel extends DiagramElement {
     nodes: Node[] = [];
@@ -27,14 +27,14 @@ export class GraphModel extends DiagramElement {
         }
     }
 
-    public getNodeByPosition(x: number, y: number) : Node{
+    public getNodeByPosition(x: number, y: number): Node {
         for (let node of this.nodes) {
             let posOfNode: Point = (<Node>node).getPos();
             let sizeOfNode: Point = (<Node>node).getSize();
 
             if ((posOfNode.x <= x && (posOfNode.x + sizeOfNode.x) >= x)
                 && (posOfNode.y <= y && (posOfNode.y + sizeOfNode.y) >= y)) {
-                    return node;
+                return node;
             }
         }
 
@@ -63,8 +63,8 @@ export class GraphModel extends DiagramElement {
         let element = <DiagramElement>this.createElement(type, id, {});
 
         // position
-        if(optionalValues){
-            if(optionalValues.hasOwnProperty('x') && optionalValues.hasOwnProperty('y')){
+        if (optionalValues) {
+            if (optionalValues.hasOwnProperty('x') && optionalValues.hasOwnProperty('y')) {
                 let x = optionalValues['x'];
                 let y = optionalValues['y'];
                 element.withPos(x, y);
@@ -82,22 +82,23 @@ export class GraphModel extends DiagramElement {
         }
     }
 
-
     public removeElement(id: string): boolean {
 
         let element = this.getDiagramElementById(id);
-        if(!element) return false;
+        if (!element) {
+            return false;
+        }
 
         (<Graph>this.$owner).removeElement(element);
 
         if (element instanceof Node) {
 
             let idxOfNode = this.nodes.indexOf(element);
-            if(idxOfNode > -1){
+            if (idxOfNode > -1) {
                 this.nodes.splice(idxOfNode, 1);
             }
 
-            while(element.$edges.length > 0){
+            while (element.$edges.length > 0) {
                 this.removeElement(element.$edges[0].id);
             }
 
@@ -106,22 +107,22 @@ export class GraphModel extends DiagramElement {
         else if (element instanceof Edge) {
 
             let idxOfEdge = this.edges.indexOf(element);
-            if(idxOfEdge > -1){
+            if (idxOfEdge > -1) {
                 this.edges.splice(idxOfEdge, 1);
             }
 
             // remove from source
             idxOfEdge = element.$sNode.$edges.indexOf(element);
-            if(idxOfEdge > -1){
+            if (idxOfEdge > -1) {
                 element.$sNode.$edges.splice(idxOfEdge, 1);
             }
 
             // remove from target
             idxOfEdge = element.$tNode.$edges.indexOf(element);
-            if(idxOfEdge > -1){
+            if (idxOfEdge > -1) {
                 element.$tNode.$edges.splice(idxOfEdge, 1);
             }
-            
+
         }
         return true;
     }
@@ -153,7 +154,7 @@ export class GraphModel extends DiagramElement {
         let text = this.createShape(attrText);
         text.textContent = '(0, 0)';
 
-        let group = this.createShape({ tag: 'g' });
+        let group = this.createShape({tag: 'g'});
         group.appendChild(shape);
         group.appendChild(text);
 
@@ -163,59 +164,13 @@ export class GraphModel extends DiagramElement {
     public getEvents(): string[] {
         return [EventBus.ELEMENTMOUSEDOWN, EventBus.ELEMENTMOUSEUP, EventBus.ELEMENTMOUSELEAVE, EventBus.ELEMENTMOUSEMOVE, EventBus.ELEMENTMOUSEWHEEL, EventBus.ELEMENTCLICK, EventBus.ELEMENTDRAG];
     }
-    private initCanvas() {
-        const graph = <Graph>this.$owner;
-        graph.canvasSize = { width: graph.canvas.clientWidth, height: graph.canvas.clientHeight };
-        graph.root = Util.createShape({
-            tag: 'svg',
-            id: 'root',
-            width: graph.canvasSize.width,
-            height: graph.canvasSize.height
-            // FIXME,viewBox: `${this.$graph.options.origin.x * -1} ${this.$graph.options.origin.y * -1} ${this.$graph.canvasSize.width} ${this.$graph.canvasSize.height}`
-        });
-        this.$view = graph.root;
-        graph.canvas.appendChild(graph.root);
-
-        // add export toolbar
-        graph.addLayerToolBar();
-
-        let mousewheel = 'onwheel' in document.createElement('div') ? 'wheel' : document.onmousewheel !== undefined ? 'mousewheel' : 'DOMMouseScroll';
-        EventBus.register(this, this.$view);
-    }
 
     public getNewId(prefix?: string): string {
         let id = (prefix ? prefix.toLowerCase() + '-' : '') + Math.floor(Math.random() * 100000);
         return id;
     }
 
-    private addNode(node: Node): Node {
-        let type = node['type'] || node.property || 'Node';
-        type = Util.toPascalCase(type);
-        let id = node['name'] || this.getNewId(type);
-        return <Node>this.createElement(type, id, node);
-    }
-
-    private getNodeById(id: string) : Node {
-
-        for(let node of this.nodes){
-            if (node.id === id) {
-                return node;
-            }
-        }
-
-        return undefined;
-    }
-
-    private getNodeByLabel(label: string): Node {
-        for (let node of this.nodes) {
-            if (node.label === label) {
-                return node;
-            }
-        }
-        return undefined;
-    }
-
-    public getEdgeById(id: string): Edge{
+    public getEdgeById(id: string): Edge {
         for (let edge of this.edges) {
             if (edge.id === id) {
                 return edge;
@@ -224,7 +179,7 @@ export class GraphModel extends DiagramElement {
         return undefined;
     }
 
-    public getDiagramElementById(id: string): DiagramElement{
+    public getDiagramElementById(id: string): DiagramElement {
 
         return this.getNodeById(id) || this.getEdgeById(id);
     }
@@ -239,31 +194,30 @@ export class GraphModel extends DiagramElement {
 
         let source: Node;
         let sourceAsString: string = edge.source.id || edge.source;
-        if(sourceAsString){
+        if (sourceAsString) {
             source = this.getNodeByLabel(sourceAsString);
             if (!source) {
-                source = <Node>this.createElement('Clazz', this.getNewId('Clazz'), { name: edge.source });
+                source = <Node>this.createElement('Clazz', this.getNewId('Clazz'), {name: edge.source});
                 source.init(this);
             }
         }
 
         let target: Node;
         let targetAsString: string = edge.target.id || edge.target;
-        if(targetAsString){
+        if (targetAsString) {
             target = this.getNodeByLabel(targetAsString);
             if (!target) {
-                target = <Node>this.createElement('Clazz', this.getNewId('Clazz'), { name: edge.target });
+                target = <Node>this.createElement('Clazz', this.getNewId('Clazz'), {name: edge.target});
                 target.init(this);
             }
         }
-        
 
         newEdge.withItem(source, target);
 
-        if(withPosOfNodes){
+        if (withPosOfNodes) {
             let srcX = source.getPos().x + (source.getSize().x / 2);
             let srcY = source.getPos().y + (source.getSize().y / 2);
-    
+
             let targetX = target.getPos().x + (target.getSize().x / 2);
             let targetY = target.getPos().y + (target.getSize().y / 2);
 
@@ -289,5 +243,52 @@ export class GraphModel extends DiagramElement {
             return element;
         }
         return null;
+    }
+
+    private initCanvas() {
+        const graph = <Graph>this.$owner;
+        graph.canvasSize = {width: graph.$view.clientWidth, height: graph.$view.clientHeight};
+        graph.root = Util.createShape({
+            tag: 'svg',
+            id: 'root',
+            width: graph.canvasSize.width,
+            height: graph.canvasSize.height
+            // FIXME,viewBox: `${this.$graph.options.origin.x * -1} ${this.$graph.options.origin.y * -1} ${this.$graph.canvasSize.width} ${this.$graph.canvasSize.height}`
+        });
+        this.$view = graph.root;
+        graph.$view.appendChild(graph.root);
+
+        // add export toolbar
+        graph.addLayerToolBar();
+
+        let mousewheel = 'onwheel' in document.createElement('div') ? 'wheel' : document.onmousewheel !== undefined ? 'mousewheel' : 'DOMMouseScroll';
+        EventBus.register(this, this.$view);
+    }
+
+    private addNode(node: Node): Node {
+        let type = node['type'] || node.property || 'Node';
+        type = Util.toPascalCase(type);
+        let id = node['name'] || this.getNewId(type);
+        return <Node>this.createElement(type, id, node);
+    }
+
+    private getNodeById(id: string): Node {
+
+        for (let node of this.nodes) {
+            if (node.id === id) {
+                return node;
+            }
+        }
+
+        return undefined;
+    }
+
+    private getNodeByLabel(label: string): Node {
+        for (let node of this.nodes) {
+            if (node.label === label) {
+                return node;
+            }
+        }
+        return undefined;
     }
 }

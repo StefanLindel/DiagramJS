@@ -2,12 +2,12 @@ import {TestCase} from '../TestCase';
 
 export class FormTest extends TestCase {
 
-    protected getElement(id: string): HTMLElement {
+    protected static getElement(id: string): HTMLElement {
         return document.getElementById(id);
     }
 
-    protected run(): void {
-        var json = {
+    protected run(): boolean {
+        let json = {
             id: 't1form',
             property: 't1',
             class: 'form',
@@ -30,7 +30,7 @@ export class FormTest extends TestCase {
                 {id: 'btn2', value: 'Button', type: 'button'}
             ]
         };
-        var t1formId = this.bridge.load(json);
+        let t1formId = this.bridge.load(json);
 
         this.assertEquals(14, t1formId.$view.children.length);
 
@@ -55,9 +55,8 @@ export class FormTest extends TestCase {
         };
         this.bridge.load(json2);
 
-
-        this.assertEquals('Talk:', (<HTMLLabelElement>this.getElement('Label1')).innerText);
-        this.assertEquals(json2.prop.talk, (<HTMLInputElement>this.getElement('testid1')).value);
+        this.assertEquals('Talk:', (<HTMLLabelElement>FormTest.getElement('Label1')).innerText);
+        this.assertEquals(json2.prop.talk, (<HTMLInputElement>FormTest.getElement('testid1')).value);
 
         const json3 = {
             id: 't2',
@@ -84,5 +83,9 @@ export class FormTest extends TestCase {
 //    t1control.setProperty("t1");
 
         t1formId.setProperty('t2');
+        return true;
+    }
+    protected loadModel() {
+        return true;
     }
 }

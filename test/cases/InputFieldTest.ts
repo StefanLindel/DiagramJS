@@ -4,10 +4,6 @@ import {Control} from '../../src/Control';
 export class InputFieldTest extends TestCase {
     // execute(): Promise<boolean> {
     run() {
-
-        // Model loaded before
-        this.loadModel();
-
         const j1n1: Control = this.bridge.load({
             'class': 'input',
             'id': 'J1.N1',
@@ -71,9 +67,10 @@ export class InputFieldTest extends TestCase {
         });
         this.assertEquals('testtext', (<HTMLInputElement>s1o1.$view).value);
         this.assertEquals('42', (<HTMLInputElement>s1o2.$view).value);
+        return true;
     }
 
-    private loadModel() {
+    loadModel() {
         this.bridge.load({
             id: 't1',
             class: 'talk',
@@ -111,5 +108,6 @@ export class InputFieldTest extends TestCase {
                 time: '20:15'
             }
         });
+        return true;
     }
 }

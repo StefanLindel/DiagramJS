@@ -1,26 +1,26 @@
 import * as edges from './edges';
+import {Edge} from './edges';
 import * as nodes from './nodes';
 import * as layouts from '../layouts';
 import Layout from '../layouts/Layout';
-import { GraphModel } from './Model';
+import {GraphModel} from './Model';
 import Palette from '../Palette';
 import * as PropertiesPanel from '../PropertiesPanel';
-import { Size, Point } from './BaseElements';
-import { Util } from '../util';
-import { Control } from '../Control';
+import {Point, Size} from './BaseElements';
+import {Util} from '../util';
+import {Control} from '../Control';
 import Data from '../Data';
-import { EventBus } from '../EventBus';
-import { Drag, Select, Zoom, NewEdge, AddNode, PropertiesDispatcher } from '../handlers';
+import {EventBus} from '../EventBus';
+import {AddNode, Drag, NewEdge, PropertiesDispatcher, Select, Zoom} from '../handlers';
 import Options from '../Options';
-import { ImportFile } from '../handlers/ImportFile';
-import { SymbolLibary } from './nodes/Symbol';
-import { CSS } from '../CSS';
-import { DiagramElement } from './index';
-import { Edge } from './edges';
-import { Toolbar } from '../Toolbar';
+import {ImportFile} from '../handlers/ImportFile';
+import {SymbolLibary} from './nodes/Symbol';
+import {CSS} from '../CSS';
+import {DiagramElement} from './index';
+import {Toolbar} from '../Toolbar';
 
 export class Graph extends Control {
-    canvas: HTMLElement;
+    // canvas: HTMLElement;
     root: SVGElement;
     $graphModel: GraphModel;
     options: Options;
@@ -30,6 +30,16 @@ export class Graph extends Control {
     layoutFactory: Object;
     private currentlayout: Layout;
     private layerToolBar: SVGSVGElement;
+    // https://stackoverflow.com/questions/15181452/how-to-save-export-inline-svg-styled-with-css-from-browser-to-image-file
+    private containerElements = ['svg', 'g'];
+    private relevantStyles = {
+        'rect': ['fill', 'stroke', 'stroke-width'],
+        'path': ['fill', 'stroke', 'stroke-width', 'opacity'],
+        'circle': ['fill', 'stroke', 'stroke-width'],
+        'line': ['stroke', 'stroke-width'],
+        'text': ['fill', 'font-size', 'text-anchor', 'font-family'],
+        'polygon': ['stroke', 'fill']
+    };
 
     constructor(json: any, options: Options) {
         super();
@@ -55,39 +65,7 @@ export class Graph extends Control {
 
         this.addLayerToolBar();
 
-        EventBus.register(this, this.canvas);
-    }
-
-    private createPattern(): Element {
-        const defs = Util.createShape({ tag: 'defs' });
-        const pattern = Util.createShape({
-            tag: 'pattern',
-            id: 'raster',
-            patternUnits: 'userSpaceOnUse',
-            width: 40,
-            height: 40
-        });
-        const path = 'M0 4 L0 0 L4 0 M36 0 L40 0 L40 4 M40 36 L40 40 L36 40 M4 40 L0 40 L0 36';
-        const cross = Util.createShape({
-            tag: 'path',
-            d: path,
-            stroke: '#DDD',
-            'stroke-width': 1,
-            fill: 'none'
-        });
-
-        const rect = Util.createShape({
-            tag: 'rect',
-            x: 0,
-            y: 0,
-            width: 40,
-            height: 40,
-            fill: 'none'
-        });
-        pattern.appendChild(rect);
-        pattern.appendChild(cross);
-        defs.appendChild(pattern);
-        return defs;
+        EventBus.register(this, this.$view);
     }
 
     public addLayerToolBar(): boolean {
@@ -122,7 +100,16 @@ export class Graph extends Control {
             // console.log((<any>event.currentTarget).value);
             that.saveAs(text);
         };
-        let btn = { id: 'Storage', type: 'Hamburger', x: 2, y: 8, width: 140, elements: subElements, activText: 'Localstorage', action: func };
+        let btn = {
+            id: 'Storage',
+            type: 'Hamburger',
+            x: 2,
+            y: 8,
+            width: 140,
+            elements: subElements,
+            activText: 'Localstorage',
+            action: func
+        };
         let item = SymbolLibary.drawSVG(btn);
         this.layerToolBar.appendChild(item);
         //        buttons.push(item);
@@ -130,14 +117,14 @@ export class Graph extends Control {
         //    return buttons;
         // };
         // this.canvas.appendChild(this.layerToolBar);
-        this.canvas.appendChild(this.layerToolBar);
+        this.$view.appendChild(this.layerToolBar);
 
         return true;
     }
 
     public save(typ: string, data: any, name: string) {
         let a = document.createElement('a');
-        a.href = window.URL.createObjectURL(new Blob([data], { type: typ }));
+        a.href = window.URL.createObjectURL(new Blob([data], {type: typ}));
         a.download = name;
         document.body.appendChild(a);
         a.click();
@@ -151,35 +138,30 @@ export class Graph extends Control {
 
     public getSvgWithStyleAttributes(): Node {
         let oDOM = this.$graphModel.$view.cloneNode(true);
-        this.read_Element(oDOM, this.$graphModel.$view)
+        this.read_Element(oDOM, this.$graphModel.$view);
 
         return oDOM;
     }
 
-    //https://stackoverflow.com/questions/15181452/how-to-save-export-inline-svg-styled-with-css-from-browser-to-image-file
-    private ContainerElements = ['svg', 'g'];
-    private RelevantStyles = { 'rect': ['fill', 'stroke', 'stroke-width'], 'path': ['fill', 'stroke', 'stroke-width', 'opacity'], 'circle': ['fill', 'stroke', 'stroke-width'], 'line': ['stroke', 'stroke-width'], 'text': ['fill', 'font-size', 'text-anchor', 'font-family'], 'polygon': ['stroke', 'fill'] };
+    public read_Element(parent: any, origData: any) {
+        let children = parent.childNodes;
+        let origChildDat = origData.childNodes;
 
-    public read_Element(parent: any, OrigData: any) {
+        for (let cd = 0; cd < children.length; cd++) {
+            let child = children[cd];
 
-        var Children = parent.childNodes;
-        var OrigChildDat = OrigData.childNodes;
+            let tagName = child.tagName;
+            if (this.containerElements.indexOf(tagName) !== -1) {
+                this.read_Element(child, origChildDat[cd]);
+            } else if (tagName in this.relevantStyles) {
+                let styleDef = window.getComputedStyle(origChildDat[cd]);
 
-        for (var cd = 0; cd < Children.length; cd++) {
-            var Child = Children[cd];
-
-            var TagName = Child.tagName;
-            if (this.ContainerElements.indexOf(TagName) != -1) {
-                this.read_Element(Child, OrigChildDat[cd])
-            } else if (TagName in this.RelevantStyles) {
-                var StyleDef = window.getComputedStyle(OrigChildDat[cd]);
-
-                var StyleString = '';
-                for (var st = 0; st < this.RelevantStyles[TagName].length; st++) {
-                    StyleString += this.RelevantStyles[TagName][st] + ':' + StyleDef.getPropertyValue(this.RelevantStyles[TagName][st]) + '; ';
+                let styleString = '';
+                for (let st = 0; st < this.relevantStyles[tagName].length; st++) {
+                    styleString += this.relevantStyles[tagName][st] + ':' + styleDef.getPropertyValue(this.relevantStyles[tagName][st]) + '; ';
                 }
 
-                Child.setAttribute('style', StyleString);
+                child.setAttribute('style', styleString);
             }
         }
 
@@ -220,7 +202,7 @@ export class Graph extends Control {
         width = +this.root.getAttribute('width');
         height = +this.root.getAttribute('height');
 
-        return { width: width, height: height };
+        return {width: width, height: height};
     }
 
     public exportJson(): void {
@@ -238,7 +220,7 @@ export class Graph extends Control {
         }
         let typ = 'image/svg+xml';
         let xmlNode = this.serializeXmlNode(this.getSvgWithStyleAttributes());
-        let url = window.URL.createObjectURL(new Blob([xmlNode], { type: typ }));
+        let url = window.URL.createObjectURL(new Blob([xmlNode], {type: typ}));
 
         let canvas, context, a, image = new Image();
         let size = this.getSize();
@@ -259,6 +241,7 @@ export class Graph extends Control {
 
         image.src = url;
     }
+
     /*
         Graph.prototype.ExportPDF = function () {
             var converter, pdf = new jsPDF('l','px',[this.model.width, this.model.height]);
@@ -274,7 +257,7 @@ export class Graph extends Control {
         let canvas, context, a, image = new Image();
         let xmlNode = this.serializeXmlNode(this.getSvgWithStyleAttributes());
         let typ = 'image/svg+xml';
-        let url = window.URL.createObjectURL(new Blob([xmlNode], { type: typ }));
+        let url = window.URL.createObjectURL(new Blob([xmlNode], {type: typ}));
 
         let size = this.getSize();
 
@@ -450,11 +433,24 @@ export class Graph extends Control {
         }
 
         let alreadyDisplayingSvg = element.getAlreadyDisplayingSVG();
-        if (!this.root.contains(alreadyDisplayingSvg)) {
+        if (Util.isIE()) {
+            let children = this.root.childNodes;
+            let found = false;
+            for (let i = 0; i < children.length; i++) {
+                let child = children.item(i);
+                if (child === alreadyDisplayingSvg) {
+                    found = true;
+                    break;
+                }
+            }
+            if (found === false) {
+                return;
+            }
+        } else if (!this.root.contains(alreadyDisplayingSvg)) {
             return;
         }
 
-        this.root.removeChild(element.getAlreadyDisplayingSVG());
+        this.root.removeChild(alreadyDisplayingSvg);
     }
 
     public generate(workspace: string) {
@@ -465,6 +461,38 @@ export class Graph extends Control {
         if (window['java'] && typeof window['java'].generate === 'function') {
             window['java'].generate(data);
         }
+    }
+
+    private createPattern(): Element {
+        const defs = Util.createShape({tag: 'defs'});
+        const pattern = Util.createShape({
+            tag: 'pattern',
+            id: 'raster',
+            patternUnits: 'userSpaceOnUse',
+            width: 40,
+            height: 40
+        });
+        const path = 'M0 4 L0 0 L4 0 M36 0 L40 0 L40 4 M40 36 L40 40 L36 40 M4 40 L0 40 L0 36';
+        const cross = Util.createShape({
+            tag: 'path',
+            d: path,
+            stroke: '#DDD',
+            'stroke-width': 1,
+            fill: 'none'
+        });
+
+        const rect = Util.createShape({
+            tag: 'rect',
+            x: 0,
+            y: 0,
+            width: 40,
+            height: 40,
+            fill: 'none'
+        });
+        pattern.appendChild(rect);
+        pattern.appendChild(cross);
+        defs.appendChild(pattern);
+        return defs;
     }
 
     private clearSvgRoot() {
@@ -538,12 +566,12 @@ export class Graph extends Control {
 
     private initCanvas() {
         if (this.options.canvas) {
-            this.canvas = document.getElementById(this.options.canvas);
+            this.$view = document.getElementById(this.options.canvas);
         }
-        if (!this.canvas) {
-            this.canvas = document.createElement('div');
-            this.canvas.setAttribute('class', 'diagram');
-            document.body.appendChild(this.canvas);
+        if (!this.$view) {
+            this.$view = document.createElement('div');
+            this.$view.setAttribute('class', 'diagram');
+            document.body.appendChild(this.$view);
         }
     }
 
