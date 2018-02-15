@@ -58,7 +58,17 @@ export default class ClazzProperty extends DiagramElement{
                     this.name = modifierAndNameSplitted;
                 }
 
-                this.type = dataSplitted[1].trim() || 'string';
+                // delete whitespaces in name
+                this.name = this.name.replace(/ /g, '_');
+                this.type = dataSplitted[1].trim() || 'String';
+
+                // if the type was entered with a small begin letter
+                if(this.type.toLowerCase() === 'string'){
+                    this.type = 'String';
+                }
+
+                // delete whitespaces in type
+                this.type = this.type.replace(/ /g, '_');
             }
         }
     }

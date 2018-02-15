@@ -65,5 +65,9 @@ export default class Method extends ClazzProperty {
                 this.type = 'void';
             }
         }
+
+        if(!Util.includes(this.name, '(') && !Util.includes(this.name, ')')){
+            this.name += '()';
+        }
     }
 }

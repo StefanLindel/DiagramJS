@@ -17,6 +17,7 @@ export class Clazz extends Node {
     protected $labelView: Element;
     protected attributes: Attribute[] = [];
     protected methods: Method[] = [];
+    protected modifier: string;
 
     constructor(json: JSON | string | Object | any) {
         super(json);
@@ -35,7 +36,7 @@ export class Clazz extends Node {
                 attrObj.$owner = this;
                 this.attributes.push(attrObj);
                 y += this.$attrHeight;
-                width = Math.max(width, Util.sizeOf(attrObj.toString(), this).width);
+                width = Math.max(width, Util.sizeOf(attrObj.toString()).width);
             }
         }
         if (json['methods']) {
@@ -46,7 +47,7 @@ export class Clazz extends Node {
                 this.methods.push(methodObj);
 
                 y += this.$attrHeight;
-                width = Math.max(width, Util.sizeOf(methodObj.toString(), this).width);
+                width = Math.max(width, Util.sizeOf(methodObj.toString()).width);
             }
             y += this.$attrHeight;
         }
@@ -200,18 +201,20 @@ export class Clazz extends Node {
             return;
         }
 
-        for (let valueOfType of this[type]) {
-            if (valueOfType.toString() === value) {
-                return;
-            }
-        }
-
         let extractedValue;
-        if (Util.startsWith(type, 'attribute')) {
+        if (type === 'attributes') {
             extractedValue = new Attribute(value);
         }
-        else if (Util.startsWith(type, 'method')) {
+        else if (type === 'methods') {
             extractedValue = new Method(value);
+        }
+
+        for (let valueOfType of this[type]) {
+            if (valueOfType.toString() === extractedValue.toString()) {
+                alert(extractedValue.toString() + ' already exists.');
+                extractedValue = undefined;
+                return;
+            }
         }
 
         this[type].push(extractedValue);
@@ -300,10 +303,15 @@ export class Clazz extends Node {
         this.reDraw(true);
     }
 
+    public updateModifier(modifier: string): void{
+        this.modifier = modifier;
+        console.log('modifier: ' + this.modifier);
+    }
+
     public reCalcSize(): Size {
         // label
         let newWidth = 150;
-        newWidth = Math.max(newWidth, Util.sizeOf(this.label, this).width + 30);
+        newWidth = Math.max(newWidth, Util.sizeOf(this.label).width + 30);
 
         // attributes
         this.attributes.forEach(attrEl => {
@@ -313,7 +321,7 @@ export class Clazz extends Node {
                 widthOfAttr = attrEl.$view.getBoundingClientRect().width;
             }
             else {
-                widthOfAttr = Util.sizeOf(attrEl.toString(), this).width;
+                widthOfAttr = Util.sizeOf(attrEl.toString()).width;
             }
 
             newWidth = Math.max(newWidth, widthOfAttr + 15);
@@ -326,7 +334,7 @@ export class Clazz extends Node {
                 widthOfMethod = methodEl.$view.getBoundingClientRect().width;
             }
             else {
-                widthOfMethod = Util.sizeOf(methodEl.toString(), this).width;
+                widthOfMethod = Util.sizeOf(methodEl.toString()).width;
             }
 
             newWidth = Math.max(newWidth, widthOfMethod + 15);

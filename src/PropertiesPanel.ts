@@ -297,12 +297,11 @@ export namespace PropertiesPanel {
             let divRowClazzNameCellInput = document.createElement('div');
             divRowClazzNameCellInput.className = 'divTableCell';
 
-
             let textBoxClass = document.createElement('input');
             textBoxClass.type = 'text';
             textBoxClass.id = 'className';
             textBoxClass.placeholder = 'Class name';
-            textBoxClass.style.marginRight = '10px';
+            textBoxClass.style.width = '100%';
 
 
             divRowClazzNameCellInput.appendChild(textBoxClass);
@@ -310,6 +309,49 @@ export namespace PropertiesPanel {
             divRowClazzName.appendChild(divRowClazzNameCellText);
             divRowClazzName.appendChild(divRowClazzNameCellInput);
             divTableBody.appendChild(divRowClazzName);
+
+
+
+            // ROW2: clazz access modifier
+            let divRowClazzModifier = document.createElement('div');
+            divRowClazzModifier.className = 'divTableRow';
+
+            // ROW 1 -> Cell1 text clazz name
+            let divRowClazzModifierCellText = document.createElement('div');
+            divRowClazzModifierCellText.className = 'divTableCell';
+            divRowClazzModifierCellText.innerHTML = 'Access modifier:';
+
+            // ROW 1 -> Cell2 input clazz name
+            let divRowClazzModifierCellInput = document.createElement('div');
+            divRowClazzModifierCellInput.className = 'divTableCell';
+
+            // create modifier select 
+            let selectClazzModifier = document.createElement('select');
+            selectClazzModifier.id = 'classModifier';
+            selectClazzModifier.style.width = '100%';
+
+            let modifierObj: Object = {};
+            modifierObj['public'] = '+';
+            modifierObj['private'] = '-';
+            modifierObj['protected'] = '#';
+    
+            for(let title in modifierObj){
+                let modifierOption = document.createElement('option');
+                modifierOption.value = title;
+                modifierOption.innerHTML = title
+                selectClazzModifier.appendChild(modifierOption);
+            }
+            selectClazzModifier.value = 'public';
+
+
+            divRowClazzModifierCellInput.appendChild(selectClazzModifier);
+
+            divRowClazzModifier.appendChild(divRowClazzModifierCellText);
+            divRowClazzModifier.appendChild(divRowClazzModifierCellInput);
+            divTableBody.appendChild(divRowClazzModifier);
+
+
+
 
             divTable.appendChild(divTableBody);
 
@@ -342,14 +384,19 @@ export namespace PropertiesPanel {
             let selectPropertyModifier = document.createElement('select');
             selectPropertyModifier.id = div.id + 'AddModifier';
 
-            let modifierList: string[] = ['+', '-', '#'];
-            modifierList.forEach(modifier => {
+            let modifierObj: Object = {};
+            modifierObj['public'] = '+';
+            modifierObj['private'] = '-';
+            modifierObj['protected'] = '#';
+    
+            for(let title in modifierObj){
                 let modifierOption = document.createElement('option');
-                modifierOption.value = modifier;
-                modifierOption.innerHTML = modifier;
+                modifierOption.value = modifierObj[title];
+                modifierOption.innerHTML = modifierObj[title];
+                modifierOption.title = title;
                 selectPropertyModifier.appendChild(modifierOption);
-            });
-            selectPropertyModifier.value = modifierList[0];
+            }
+            selectPropertyModifier.value = modifierObj['public'];
 
             // create name input
             let textBoxPropertyName = document.createElement('input');

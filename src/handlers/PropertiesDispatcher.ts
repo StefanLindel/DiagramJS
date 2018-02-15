@@ -181,6 +181,13 @@ export class PropertiesDispatcher implements EventHandler {
             clazz.updateLabel((<any>classNameInputText).value);
         });
 
+        let clasModifierSelect = document.getElementById('classModifier');
+        clasModifierSelect.setAttribute('value', clazz.label);
+
+        clasModifierSelect.addEventListener('change', function () {
+            clazz.updateModifier((<any>clasModifierSelect).value);
+        });
+
         // ### HANDLE ATTRIBUTES ###
         let tabContentAttr = document.getElementById('clazzattribute');
 
@@ -218,7 +225,7 @@ export class PropertiesDispatcher implements EventHandler {
             // reset default values
             modifier.value = '+';
             name.value = '';
-            type.value = 'boolean';
+            type.value = '';
 
             tabContentAttr.insertBefore(divEditNewAttr, divAddAttr);
 
@@ -264,7 +271,7 @@ export class PropertiesDispatcher implements EventHandler {
             // reset default values
             modifier.value = '+';
             name.value = '';
-            type.value = 'boolean';
+            type.value = '';
 
             tabContentMethods.insertBefore(divEditNewMethod, divAddMethod);
 
@@ -282,13 +289,18 @@ export class PropertiesDispatcher implements EventHandler {
         // create modifier select 
         let selectPropModifier = document.createElement('select');
 
-        let modifierList: string[] = ['+', '-', '#'];
-        modifierList.forEach(modifier => {
+        let modifierObj: Object = {};
+        modifierObj['public'] = '+';
+        modifierObj['private'] = '-';
+        modifierObj['protected'] = '#';
+
+        for(let title in modifierObj){
             let modifierOption = document.createElement('option');
-            modifierOption.value = modifier;
-            modifierOption.innerHTML = modifier;
+            modifierOption.value = modifierObj[title];
+            modifierOption.innerHTML = modifierObj[title];
+            modifierOption.title = title;
             selectPropModifier.appendChild(modifierOption);
-        });
+        }
         selectPropModifier.value = prop.modifier;
 
         selectPropModifier.addEventListener('input', function () {

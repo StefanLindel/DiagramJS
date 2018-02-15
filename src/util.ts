@@ -169,7 +169,7 @@ export class Util {
         return navigator.userAgent.toLowerCase().indexOf('.net') > -1;
     }
 
-    static isEdge(): boolean{
+    static isEdge(): boolean {
         return navigator.userAgent.toLowerCase().indexOf('edge') > -1;
     }
 
@@ -177,7 +177,7 @@ export class Util {
         return navigator.userAgent.toLowerCase().indexOf('firefox') > -1;
     }
 
-    static isSafari(): boolean{
+    static isSafari(): boolean {
         let isEdge = Util.isEdge();
         return navigator.userAgent.toLowerCase().indexOf('safari') > -1 && !isEdge;
     }
@@ -229,15 +229,15 @@ export class Util {
         return css;
     }
 
-    static sizeOf(item: any, model?: Node, node?: Node) {
-        let board, rect, root;
+    static sizeOf(item: string | any, node?: Node): ClientRect {
+        let board;
+        let rect: ClientRect;
         let addBoard: boolean;
         if (!item) {
-            return;
+            return undefined;
         }
-        if (model) {
-            root = <DiagramElement>model.getRoot();
-            board = root.$view;
+        if (node) {
+            board = node.$owner.$view;
             addBoard = false;
         }
 
@@ -257,11 +257,7 @@ export class Util {
         board.appendChild(item);
         rect = item.getBoundingClientRect();
         board.removeChild(item);
-        if (node) {
-            if (node.getSize().isEmpty()) {
-                node.withSize(Math.ceil(rect.width), Math.ceil(rect.height));
-            }
-        }
+
         if (addBoard) {
             document.body.removeChild(board);
         }
@@ -544,6 +540,28 @@ export class Util {
         }
 
         return s.includes(searchS);
+    }
+
+    public static isParentOfChild(parent: Element, child: Element): boolean {
+
+        if (!parent || !child) {
+            return false;
+        }
+
+        if (Util.isIE()) {
+            let children = parent.childNodes;
+            let found = false;
+            for (let i = 0; i < children.length; i++) {
+                let childItem = children[i];
+                if (childItem === child) {
+                    return true;
+                }
+            }
+
+            return false;
+        }
+
+        return parent.contains(child);
     }
 
     public static createCustomEvent(type: string, params?: any): CustomEvent {

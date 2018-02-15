@@ -63,63 +63,7 @@ export class Graph extends Control {
         this.$graphModel.load(json);
         this.initFeatures(this.options.features);
 
-        this.addLayerToolBar();
-
         EventBus.register(this, this.$view);
-    }
-
-    public addLayerToolBar(): boolean {
-        if (this.layerToolBar && document.getElementById(this.layerToolBar.id)) {
-            return false;
-        }
-        let subElements = ['HTML', ['Save', 'PNG', 'SVG', 'HTML', 'PDF']];
-
-        let c: number, z: number = 0;
-        for (c = 0; c < subElements.length; c += 1) {
-            if (typeof subElements[c] === 'string') {
-                z += 1;
-            } else {
-                z += subElements[c].length;
-            }
-        }
-        z = z * 30 + 20;
-
-        this.layerToolBar = Util.createShape({
-            tag: 'svg',
-            id: 'rootExportBar',
-            width: '80px',
-            height: z + 'px',
-            x: '100px',
-            style: 'position: inherit;right: 80px;'
-        });
-        this.layerToolBar.appendChild(CSS.getStdDef());
-        let that = this;
-        let func = function (event: Event) {
-            let text = (<any>event.currentTarget).eventValue;
-            text = text.replace('* ', '');
-            // console.log((<any>event.currentTarget).value);
-            that.saveAs(text);
-        };
-        let btn = {
-            id: 'Storage',
-            type: 'Hamburger',
-            x: 2,
-            y: 8,
-            width: 140,
-            elements: subElements,
-            activText: 'Localstorage',
-            action: func
-        };
-        let item = SymbolLibary.drawSVG(btn);
-        this.layerToolBar.appendChild(item);
-        //        buttons.push(item);
-        //    }
-        //    return buttons;
-        // };
-        // this.canvas.appendChild(this.layerToolBar);
-        this.$view.appendChild(this.layerToolBar);
-
-        return true;
     }
 
     public save(typ: string, data: any, name: string) {
@@ -138,12 +82,12 @@ export class Graph extends Control {
 
     public getSvgWithStyleAttributes(): Node {
         let oDOM = this.$graphModel.$view.cloneNode(true);
-        this.read_Element(oDOM, this.$graphModel.$view);
+        this.readElement(oDOM, this.$graphModel.$view);
 
         return oDOM;
     }
 
-    public read_Element(parent: any, origData: any) {
+    public readElement(parent: any, origData: any) {
         let children = parent.childNodes;
         let origChildDat = origData.childNodes;
 
@@ -152,7 +96,7 @@ export class Graph extends Control {
 
             let tagName = child.tagName;
             if (this.containerElements.indexOf(tagName) !== -1) {
-                this.read_Element(child, origChildDat[cd]);
+                this.readElement(child, origChildDat[cd]);
             } else if (tagName in this.relevantStyles) {
                 let styleDef = window.getComputedStyle(origChildDat[cd]);
 
@@ -433,24 +377,9 @@ export class Graph extends Control {
         }
 
         let alreadyDisplayingSvg = element.getAlreadyDisplayingSVG();
-        if (Util.isIE()) {
-            let children = this.root.childNodes;
-            let found = false;
-            for (let i = 0; i < children.length; i++) {
-                let child = children.item(i);
-                if (child === alreadyDisplayingSvg) {
-                    found = true;
-                    break;
-                }
-            }
-            if (found === false) {
-                return;
-            }
-        } else if (!this.root.contains(alreadyDisplayingSvg)) {
-            return;
+        if (Util.isParentOfChild(this.root, alreadyDisplayingSvg)) {
+            this.root.removeChild(alreadyDisplayingSvg);
         }
-
-        this.root.removeChild(alreadyDisplayingSvg);
     }
 
     public generate(workspace: string) {

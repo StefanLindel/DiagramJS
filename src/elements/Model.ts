@@ -258,9 +258,6 @@ export class GraphModel extends DiagramElement {
         this.$view = graph.root;
         graph.$view.appendChild(graph.root);
 
-        // add export toolbar
-        graph.addLayerToolBar();
-
         let mousewheel = 'onwheel' in document.createElement('div') ? 'wheel' : document.onmousewheel !== undefined ? 'mousewheel' : 'DOMMouseScroll';
         EventBus.register(this, this.$view);
     }

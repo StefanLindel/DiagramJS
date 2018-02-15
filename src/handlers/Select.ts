@@ -87,7 +87,7 @@ export class Select implements EventHandler {
             };
 
             this.copyNodeShape.setAttributeNS(null, 'transform', `translate(${x} ${y + 80 + this.padding})`);
-            this.copyNodeShape.onmousedown = (evt) => {
+            this.copyNodeShape.onclick = (evt) => {
                 let nextFreePosition = this.graph.getNextFreePosition();
                 let copyClass = (<Clazz>element).copy();
                 copyClass.withPos(nextFreePosition.x, nextFreePosition.y);
@@ -111,7 +111,7 @@ export class Select implements EventHandler {
             // mark the border with orange
             this.lastSelectedNode = <Element>element.$view;
             Util.addClass(this.lastSelectedNode, 'SVGClazz-selected');
-
+            this.setTooltipOfShape(this.deleteShape, 'Delete class');
 
             // draw textbox to edit clazz in one line
             let divInlineEdit = document.createElement('div');
@@ -231,6 +231,8 @@ export class Select implements EventHandler {
             this.graph.root.appendChild(element.$tNode.$view);
 
             this.graph.root.appendChild(this.deleteShape);
+            this.setTooltipOfShape(this.deleteShape, 'Delete edge');
+
             this.deleteShape.setAttributeNS(null, 'visibility', 'visible');
             this.addEdgeShape.setAttributeNS(null, 'visibility', 'hidden');
             this.copyNodeShape.setAttributeNS(null, 'visibility', 'hidden');
@@ -251,6 +253,19 @@ export class Select implements EventHandler {
         }
 
         return true;
+    }
+
+    private setTooltipOfShape(shape: SVGSVGElement, tooltip: string): void{
+        if(!shape || !shape.hasChildNodes()){
+            return;
+        }
+
+        let titleElement = <SVGSVGElement>shape.childNodes[0];
+        if(!titleElement || titleElement.tagName !== 'title'){
+            return;
+        }
+
+        titleElement.textContent = tooltip;
     }
 
     private resetLastSelectedElements() {
