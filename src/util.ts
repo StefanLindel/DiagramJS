@@ -578,4 +578,31 @@ export class Util {
 
         return evt;
     }
+
+    public static saveToLocalStorage(model: any): boolean{
+        if (Util.isLocalStorageSupported()) {
+            if(model.$isLoading){
+                return false;
+            }
+            let jsonObj = Util.toJson(model);
+            let data = JSON.stringify(jsonObj, null, '\t');
+
+            localStorage.setItem('diagram', data);
+            return true;
+        }
+
+        return false;
+    }
+
+    public static getDiagramFromLocalStorage(): string{
+        if (Util.isLocalStorageSupported()) {
+            return localStorage.getItem('diagram');
+        }
+
+        return undefined;
+    }
+
+    public static isLocalStorageSupported(): boolean{
+        return typeof Storage !== undefined;
+    }
 }

@@ -1,23 +1,23 @@
 import * as edges from './edges';
-import {Edge} from './edges';
+import { Edge } from './edges';
 import * as nodes from './nodes';
 import * as layouts from '../layouts';
 import Layout from '../layouts/Layout';
-import {GraphModel} from './Model';
+import { GraphModel } from './Model';
 import Palette from '../Palette';
 import * as PropertiesPanel from '../PropertiesPanel';
-import {Point, Size} from './BaseElements';
-import {Util} from '../util';
-import {Control} from '../Control';
+import { Point, Size } from './BaseElements';
+import { Util } from '../util';
+import { Control } from '../Control';
 import Data from '../Data';
-import {EventBus} from '../EventBus';
-import {AddNode, Drag, NewEdge, PropertiesDispatcher, Select, Zoom} from '../handlers';
+import { EventBus } from '../EventBus';
+import { AddNode, Drag, NewEdge, PropertiesDispatcher, Select, Zoom } from '../handlers';
 import Options from '../Options';
-import {ImportFile} from '../handlers/ImportFile';
-import {SymbolLibary} from './nodes/Symbol';
-import {CSS} from '../CSS';
-import {DiagramElement} from './index';
-import {Toolbar} from '../Toolbar';
+import { ImportFile } from '../handlers/ImportFile';
+import { SymbolLibary } from './nodes/Symbol';
+import { CSS } from '../CSS';
+import { DiagramElement } from './index';
+import { Toolbar } from '../Toolbar';
 
 export class Graph extends Control {
     // canvas: HTMLElement;
@@ -58,17 +58,36 @@ export class Graph extends Control {
         }
         this.initFactories();
         this.initCanvas();
-        this.$graphModel = new GraphModel();
-        this.$graphModel.init(this);
-        this.$graphModel.load(json);
         this.initFeatures(this.options.features);
+
+        // load previous session, if user wants it
+        // otherwise load the json data
+        if(!this.lookupInLocalStorage()){
+            this.load(json);
+        }
 
         EventBus.register(this, this.$view);
     }
 
+    public lookupInLocalStorage(): boolean {
+        if (!Util.isLocalStorageSupported()) {
+            return false;
+        }
+        let diagram = Util.getDiagramFromLocalStorage();
+        if (diagram && diagram.length > 0) {
+            if (confirm('Restore previous session?')) {
+                let jsonData: JSON = JSON.parse(diagram);
+                this.load(jsonData);
+                return true;
+            }
+        }
+        
+        return false;
+    }
+
     public save(typ: string, data: any, name: string) {
         let a = document.createElement('a');
-        a.href = window.URL.createObjectURL(new Blob([data], {type: typ}));
+        a.href = window.URL.createObjectURL(new Blob([data], { type: typ }));
         a.download = name;
         document.body.appendChild(a);
         a.click();
@@ -146,7 +165,7 @@ export class Graph extends Control {
         width = +this.root.getAttribute('width');
         height = +this.root.getAttribute('height');
 
-        return {width: width, height: height};
+        return { width: width, height: height };
     }
 
     public exportJson(): void {
@@ -164,7 +183,7 @@ export class Graph extends Control {
         }
         let typ = 'image/svg+xml';
         let xmlNode = this.serializeXmlNode(this.getSvgWithStyleAttributes());
-        let url = window.URL.createObjectURL(new Blob([xmlNode], {type: typ}));
+        let url = window.URL.createObjectURL(new Blob([xmlNode], { type: typ }));
 
         let canvas, context, a, image = new Image();
         let size = this.getSize();
@@ -201,7 +220,7 @@ export class Graph extends Control {
         let canvas, context, a, image = new Image();
         let xmlNode = this.serializeXmlNode(this.getSvgWithStyleAttributes());
         let typ = 'image/svg+xml';
-        let url = window.URL.createObjectURL(new Blob([xmlNode], {type: typ}));
+        let url = window.URL.createObjectURL(new Blob([xmlNode], { type: typ }));
 
         let size = this.getSize();
 
@@ -393,7 +412,7 @@ export class Graph extends Control {
     }
 
     private createPattern(): Element {
-        const defs = Util.createShape({tag: 'defs'});
+        const defs = Util.createShape({ tag: 'defs' });
         const pattern = Util.createShape({
             tag: 'pattern',
             id: 'raster',
@@ -426,6 +445,7 @@ export class Graph extends Control {
 
     private clearSvgRoot() {
         const root = this.root;
+        this.$graphModel.$view.dispatchEvent(Util.createCustomEvent('click'));
         while (root.firstChild) {
             root.removeChild(root.firstChild);
         }
@@ -531,8 +551,8 @@ export class Graph extends Control {
             }
             if (features.properties) {
                 let dispatcher = new PropertiesDispatcher(this);
-                dispatcher.dispatch(PropertiesPanel.PropertiesPanel.PropertiesView.Edge);
-                EventBus.subscribe(dispatcher, 'dblclick', 'click');
+                dispatcher.dispatch(PropertiesPanel.PropertiesPanel.PropertiesView.Clear);
+                EventBus.subscribe(dispatcher, 'dblclick', 'click', EventBus.RELOADPROPERTIES);
             }
             if (features.addnode) {
                 EventBus.subscribe(new AddNode(this), 'mousedown', 'mouseup', 'mousemove', 'mouseleave');

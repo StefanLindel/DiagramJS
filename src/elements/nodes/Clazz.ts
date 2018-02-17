@@ -21,6 +21,10 @@ export class Clazz extends Node {
 
     constructor(json: JSON | string | Object | any) {
         super(json);
+        return this;
+    }
+
+    public load(json?: any) {
         if (!json) {
             json = {};
         }
@@ -52,7 +56,6 @@ export class Clazz extends Node {
             y += this.$attrHeight;
         }
         this.withSize(width, y);
-        return this;
     }
 
     public getAttributesObj(): Attribute[] {
@@ -76,8 +79,8 @@ export class Clazz extends Node {
             y: pos.y,
             height: size.y,
             width: size.x,
-            rx: 10,
-            ry: 10
+            rx: 5,
+            ry: 5
         });
 
         // = = = LABEL = = =
@@ -177,7 +180,7 @@ export class Clazz extends Node {
         copy = <Clazz>super.copy(); 
  
         // copy label 
-        copy.label = this.label; 
+        copy.label = this.label + 'Copy'; 
  
         // copy attributes 
         this.attributes.forEach(attr => { 
@@ -193,7 +196,8 @@ export class Clazz extends Node {
     }
 
     public getEvents(): string[] {
-        return [EventBus.ELEMENTMOUSEDOWN, EventBus.ELEMENTMOUSEMOVE, EventBus.ELEMENTCLICK, EventBus.ELEMENTDRAG, EventBus.ELEMENTDBLCLICK, EventBus.EDITOR, EventBus.OPENPROPERTIES];
+        return [EventBus.ELEMENTMOUSEDOWN, EventBus.ELEMENTMOUSEMOVE, EventBus.ELEMENTCLICK, 
+            EventBus.ELEMENTDRAG, EventBus.ELEMENTDBLCLICK, EventBus.OPENPROPERTIES, EventBus.RELOADPROPERTIES];
     }
 
     public addProperty(value: string, type: string): any {
@@ -218,6 +222,8 @@ export class Clazz extends Node {
         }
 
         this[type].push(extractedValue);
+
+        Util.saveToLocalStorage(this.$owner);
 
         return extractedValue;
     }
@@ -249,6 +255,8 @@ export class Clazz extends Node {
         if (property instanceof Method) {
             this.removeMethod(<Method>property);
         }
+
+        Util.saveToLocalStorage(this.$owner);
     }
 
     public reDraw(drawOnlyIfSizeChanged?: boolean): void {
@@ -300,12 +308,16 @@ export class Clazz extends Node {
             }
         });
 
+        
+        Util.saveToLocalStorage(this.$owner);
+
         this.reDraw(true);
     }
 
     public updateModifier(modifier: string): void{
         this.modifier = modifier;
-        console.log('modifier: ' + this.modifier);
+        
+        Util.saveToLocalStorage(this.$owner);
     }
 
     public reCalcSize(): Size {

@@ -37,9 +37,21 @@ export class PropertiesDispatcher implements EventHandler {
 
         this.handleOpenProperties(event, element);
 
+        if(event.type === EventBus.RELOADPROPERTIES 
+            && this._selectedElement && element.id === this._selectedElement.id){
+
+            this.handleSelectNodeEvent(event, element);
+            this.handleSelectEdgeEvent(event, element);
+        }
+
         // the same element was clicked. do nothing
         if (this._selectedElement && this._selectedElement.id === element.id) {
             return true;
+        }
+
+        if(element.id === 'RootElement'){
+            this.dispatch(properties.PropertiesPanel.PropertiesView.Clear);
+            this.setPropertiesHeaderText('Select any element to see its properties');
         }
 
         this._selectedElement = element;
@@ -48,6 +60,10 @@ export class PropertiesDispatcher implements EventHandler {
         this.handleSelectEdgeEvent(event, element);
 
         return true;
+    }
+
+    public setPropertiesHeaderText(text: string){
+        this._blankView.setPropertiesHeaderText(text);
     }
 
     public canHandle(): boolean {
@@ -70,8 +86,8 @@ export class PropertiesDispatcher implements EventHandler {
         if (view === properties.PropertiesPanel.PropertiesView.Clazz) {
             panel = new properties.PropertiesPanel.ClassPanel();
         }
-        if (view === properties.PropertiesPanel.PropertiesView.Object) {
-            panel = new properties.PropertiesPanel.ObjectPanel();
+        if (view === properties.PropertiesPanel.PropertiesView.Clear) {
+            panel = new properties.PropertiesPanel.ClearPanel();
         }
         if (view === properties.PropertiesPanel.PropertiesView.Edge) {
             panel = new properties.PropertiesPanel.EdgePanel();

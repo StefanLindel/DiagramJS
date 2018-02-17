@@ -95,6 +95,8 @@ export default class ClazzProperty extends DiagramElement{
 
     protected updateTextOfView(){
         this.$view.textContent = this.toString();
+
+        Util.saveToLocalStorage(this.$owner.$owner);
     }
 
     public getSVG() : Element{

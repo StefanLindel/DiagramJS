@@ -218,6 +218,11 @@ export class Select implements EventHandler {
                 if (selectType) {
                     selectType.remove();
                 }
+
+                // TODO: reload propertiespanel. not working!
+                // event wont dispatch
+                // let customEvt = Util.createCustomEvent(EventBus.RELOADPROPERTIES);
+                // element.$view.dispatchEvent(customEvt);
             });
 
             (<any>divInlineEdit.children[0]).focus();
@@ -246,10 +251,6 @@ export class Select implements EventHandler {
             this.lastSelectedEdge = edge.$view;
 
             Util.addClass(this.lastSelectedEdge, 'SVGEdge-selected');
-        }
-
-        if (element instanceof InfoText) {
-            console.log('InfoText');
         }
 
         return true;

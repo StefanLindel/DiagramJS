@@ -10,8 +10,11 @@ export class GraphModel extends DiagramElement {
     nodes: Node[] = [];
     edges: Edge[] = [];
     workspace: string;
+    $isLoading: boolean;
 
     public load(data?: any) {
+
+        this.$isLoading = true;
         data = data || {};
         this.property = data.type || data.property || 'classdiagram';
         this.id = 'RootElement';
@@ -25,6 +28,8 @@ export class GraphModel extends DiagramElement {
                 this.addEdge(edge);
             }
         }
+
+        this.$isLoading = false;
     }
 
     public getNodeByPosition(x: number, y: number): Node {
@@ -52,6 +57,8 @@ export class GraphModel extends DiagramElement {
         let id = this.getNewId(type);
         let element = <DiagramElement>this.createElement(type, id, {});
         if (element) {
+            
+        Util.saveToLocalStorage(this);
             return true;
         }
         return false;
@@ -71,6 +78,9 @@ export class GraphModel extends DiagramElement {
             }
         }
 
+        
+        Util.saveToLocalStorage(this);
+
         return element;
     }
 
@@ -80,6 +90,8 @@ export class GraphModel extends DiagramElement {
         for (let i = 0; i < nodesLength; i++) {
             this.removeElement(this.nodes[0].id);
         }
+
+        this.$view.dispatchEvent(Util.createCustomEvent('click'));
     }
 
     public removeElement(id: string): boolean {
@@ -124,6 +136,9 @@ export class GraphModel extends DiagramElement {
             }
 
         }
+
+        Util.saveToLocalStorage(this);
+
         return true;
     }
 
@@ -225,24 +240,25 @@ export class GraphModel extends DiagramElement {
             newEdge.addPoint(targetX, targetY);
         }
 
+        Util.saveToLocalStorage(this);
+
         return newEdge;
     }
 
     public createElement(type: string, id: string, data: Object): DiagramElement {
         const graph = <Graph>this.$owner;
+        let element: DiagramElement;
         if (graph.nodeFactory[type]) {
-            let element: Node = new graph.nodeFactory[type](data);
+            element = new graph.nodeFactory[type](data);
             Util.initControl(this, element, type, id, data);
-            this.nodes.push(element);
-            return element;
+            this.nodes.push(<Node>element);
         }
         if (graph.edgeFactory[type]) {
-            let element: Edge = new graph.edgeFactory[type](data);
+            element = new graph.edgeFactory[type](data);
             Util.initControl(this, element, type, id, data);
-            this.edges.push(element);
-            return element;
+            this.edges.push(<Edge>element);
         }
-        return null;
+        return element;
     }
 
     private initCanvas() {
@@ -266,6 +282,7 @@ export class GraphModel extends DiagramElement {
         let type = node['type'] || node.property || 'Node';
         type = Util.toPascalCase(type);
         let id = node['name'] || this.getNewId(type);
+
         return <Node>this.createElement(type, id, node);
     }
 

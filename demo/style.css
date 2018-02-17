@@ -538,7 +538,7 @@ h1 {
 .propertiespanel, .propertiespanel-hidden{
     border: 1px solid #888;
 	background-color: #ccc;
-	border-top-left-radius: 10px;
+	border-top-left-radius: 5px;
     width: 500px;
     height: 250px;
     padding-left: 5px;

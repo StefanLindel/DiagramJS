@@ -12,19 +12,16 @@ export namespace PropertiesPanel {
 
     export enum PropertiesView {
         Clazz = 'clazz',
-        Object = 'object',
-        Edge = 'edge'
+        Edge = 'edge',
+        Clear = 'clear'
     }
 
     export class BlankView {
-        protected _divMainPanel: HTMLDivElement;
-        protected _divChildPanel: HTMLDivElement;
-        protected _isHidden: boolean;
-        private _currentView: PropertiesView;
-        private _currentPanel: APanel;
-        private propertiesPanel: HTMLDivElement;
-        private generalPanel: HTMLDivElement;
+        private propertiesMasterPanel: HTMLDivElement;
+        private propertiesContent: HTMLDivElement;
+        private displayingPanel: APanel;
         private graph: Graph;
+        private isHidden: boolean;
 
         constructor(graph: Graph) {
             this.graph = graph;
@@ -32,19 +29,22 @@ export namespace PropertiesPanel {
         }
 
         public show(panel: APanel, showTabWithValue?: string): void {
-            // remove the previous properties view
-            if (this._divChildPanel) {
-                let previousView = document.getElementById(this._divChildPanel.id);
-                if (previousView) {
-                    this.propertiesPanel.removeChild(previousView);
+            // remove all children from previous view
+            if (this.propertiesContent) {
+
+                while(this.propertiesContent.hasChildNodes()){
+                    this.propertiesContent.removeChild(this.propertiesContent.childNodes[0]);
                 }
             }
 
+            // append children from new panel to show
+            let children = panel.getPanel().childNodes;
+            while(children.length > 0){
+                this.propertiesContent.appendChild(children[0]);
+            }
+
             // set the newer properties view
-            this._currentPanel = panel;
-            this._currentView = panel.getPropertiesView();
-            this._divChildPanel = panel.getPanel();
-            this.propertiesPanel.appendChild(this._divChildPanel);
+            this.displayingPanel = panel;
 
             if (showTabWithValue) {
                 panel.showTab(showTabWithValue);
@@ -55,9 +55,9 @@ export namespace PropertiesPanel {
         }
 
         public openProperties() {
-            this._isHidden = false;
-            document.getElementById("properties").className = "properties";
-            document.getElementById("classProp").className = "propertiespanel";
+            this.isHidden = false;
+            document.getElementById("propertiesContent").className = "properties";
+            document.getElementById("propertiesMasterPanel").className = "propertiespanel";
 
             let btn = document.getElementById('propClassHeaderButtonDisplay');
             btn.innerHTML = '&#8897;';
@@ -73,40 +73,38 @@ export namespace PropertiesPanel {
         }
 
         public getCurrentView(): PropertiesView {
-            return this._currentView;
+            return this.displayingPanel.getPropertiesView();
         }
 
         public getCurrentPanel(): APanel {
-            return this._currentPanel;
+            return this.displayingPanel;
         }
 
         private initMainPanel(): void {
-            if (document.getElementById('classProp')) {
+            if (document.getElementById('propertiesMasterPanel')) {
                 return;
             }
 
-            // main div to display any properties, class, object, etc.
-            this._divMainPanel = document.createElement('div');
-            this.propertiesPanel = document.createElement('div');
-            this.generalPanel = document.createElement('div');
+            // main div to display any properties, class, edge, etc.
+            this.propertiesMasterPanel = document.createElement('div');
+            this.propertiesMasterPanel.id = 'propertiesMasterPanel'
+            this.propertiesMasterPanel.className = 'propertiespanel-hidden';
 
-            this._divMainPanel.appendChild(this.propertiesPanel);
-
-            this.generalPanel.id = 'classProp'
-            this.generalPanel.className = 'propertiespanel-hidden';
-            this.generalPanel.innerHTML = 'General';
-
-            this.propertiesPanel.id = 'classProp'
-            this.propertiesPanel.className = 'propertiespanel-hidden';
+            // 
+            this.propertiesContent = document.createElement('div');
+            this.propertiesContent.id = 'propertiesContent';
+            this.propertiesContent.className = 'properties-hidden';
 
             let propertiesHeader = document.createElement('div');
-            propertiesHeader.id = 'classPropHeader';
+            propertiesHeader.id = 'propertiesHeader';
             propertiesHeader.style.display = 'inline';
 
             let propHeaderLabel = document.createElement('div');
             propHeaderLabel.id = 'classPropHeaderLabel';
-            propHeaderLabel.innerHTML = 'Properties';
+            propHeaderLabel.innerHTML = 'Select any element to see its properties';
             propHeaderLabel.style.display = 'inherit';
+            propHeaderLabel.style.cursor = 'pointer';
+            propHeaderLabel.onclick = e => this.hideproperties(e);
 
             // button to display and hide the properties of e.g. a class
             let btnPropClassHeaderDisplay = document.createElement('button');
@@ -119,55 +117,49 @@ export namespace PropertiesPanel {
 
             propertiesHeader.appendChild(propHeaderLabel);
             propertiesHeader.appendChild(btnPropClassHeaderDisplay);
-            this.propertiesPanel.appendChild(propertiesHeader);
-            document.body.appendChild(this._divMainPanel);
+
+            this.propertiesMasterPanel.appendChild(propertiesHeader);
+            this.propertiesMasterPanel.appendChild(this.propertiesContent);
+            document.body.appendChild(this.propertiesMasterPanel);
         }
 
         private hideproperties(evt: Event): void {
 
-            if (this._isHidden === false) {
-                document.getElementById("properties").className = "properties-hidden";
-                document.getElementById("classProp").className = "propertiespanel-hidden";
+            evt.stopPropagation();
+            if (this.isHidden === false) {
+                document.getElementById("propertiesContent").className = "properties-hidden";
+                document.getElementById("propertiesMasterPanel").className = "propertiespanel-hidden";
                 let btn = document.getElementById('propClassHeaderButtonDisplay');
                 btn.innerHTML = '&#8896;';
                 btn.title = 'Show properties';
             }
             else {
-                document.getElementById("properties").className = "properties";
-                document.getElementById("classProp").className = "propertiespanel";
+                document.getElementById("propertiesContent").className = "properties";
+                document.getElementById("propertiesMasterPanel").className = "propertiespanel";
                 let btn = document.getElementById('propClassHeaderButtonDisplay');
                 btn.innerHTML = '&#8897;';
                 btn.title = 'Hide properties';
 
             }
-            this._isHidden = !this._isHidden;
+            this.isHidden = !this.isHidden;
         }
 
     }
 
     export abstract class APanel {
-        protected _divChildPanel: HTMLDivElement;
-        protected _divTabbedPanel: HTMLDivElement;
+        protected divPropertiesPanel: HTMLDivElement;
+        protected divPropertiesTabbedPanel: HTMLDivElement;
 
         constructor() {
-            // div for properties
-            this._divChildPanel = document.createElement('div');
-            this._divChildPanel.id = 'properties';
+            // get the properties content panel
+            this.divPropertiesPanel = document.createElement('div');
 
-            if (document.getElementById("classProp").className.indexOf('hidden') > -1) {
-                this._divChildPanel.className = 'properties-hidden';
-            }
-            else {
-                this._divChildPanel.className = 'properties';
-            }
-
-
-            this._divTabbedPanel = document.createElement('div');
-            this._divTabbedPanel.id = 'classtabproperties';
-            this._divTabbedPanel.className = 'tabbedpane';
+            this.divPropertiesTabbedPanel = document.createElement('div');
+            this.divPropertiesTabbedPanel.id = 'propertiesTabbedPanel'; //TODO: change styles class
+            this.divPropertiesTabbedPanel.className = 'tabbedpane';
 
             // add tabbed panel
-            this._divChildPanel.appendChild(this._divTabbedPanel);
+            this.divPropertiesPanel.appendChild(this.divPropertiesTabbedPanel);
         }
 
         abstract init(): void;
@@ -175,7 +167,7 @@ export namespace PropertiesPanel {
         abstract getPropertiesView(): PropertiesView;
 
         public getPanel(): HTMLDivElement {
-            return this._divChildPanel;
+            return this.divPropertiesPanel;
         }
 
         public showFirstTab(): void {
@@ -222,7 +214,7 @@ export namespace PropertiesPanel {
             for (let i = 0; i < tabContents.length; i++) {
                 (<HTMLElement>tabContents[i]).style.display = 'none';
             }
-
+            
             // display active tab content
             document.getElementById(this.getPropertiesView().toString().toLowerCase() + tab.value.toString())
                 .style.display = 'block';
@@ -254,13 +246,13 @@ export namespace PropertiesPanel {
                 this._dataTypes.appendChild(modifierOption);
             });
 
-            this._divTabbedPanel.appendChild(this._dataTypes);
+            this.divPropertiesPanel.appendChild(this._dataTypes);
 
 
             // create and append tab elements
-            this._divTabbedPanel.appendChild(this.createTabElement('generalClassPropBtn', 'General', 'general'));
-            this._divTabbedPanel.appendChild(this.createTabElement('attrClassPropBtn', 'Attributes', 'attribute'));
-            this._divTabbedPanel.appendChild(this.createTabElement('methodClassPropBtn', 'Methods', 'method'));
+            this.divPropertiesTabbedPanel.appendChild(this.createTabElement('generalClassPropBtn', 'General', 'general'));
+            this.divPropertiesTabbedPanel.appendChild(this.createTabElement('attrClassPropBtn', 'Attributes', 'attribute'));
+            this.divPropertiesTabbedPanel.appendChild(this.createTabElement('methodClassPropBtn', 'Methods', 'method'));
 
             this.createTabGeneralContent();
             this.createTabAttrContent();
@@ -356,7 +348,7 @@ export namespace PropertiesPanel {
             divTable.appendChild(divTableBody);
 
             div.appendChild(divTable);
-            this._divChildPanel.appendChild(div);
+            this.divPropertiesPanel.appendChild(div);
         }
 
         private createTabAttrContent(): void {
@@ -426,7 +418,7 @@ export namespace PropertiesPanel {
 
 
             div.appendChild(divEditProperty);
-            this._divChildPanel.appendChild(div);
+            this.divPropertiesPanel.appendChild(div);
         }
     }
 
@@ -438,7 +430,7 @@ export namespace PropertiesPanel {
 
         public init(): void {
             // create and append tab elements
-            this._divTabbedPanel.appendChild(this.createTabElement('generalEdgePropBtn', 'General', 'general'));
+            this.divPropertiesTabbedPanel.appendChild(this.createTabElement('generalEdgePropBtn', 'General', 'general'));
 
             this.createTabGeneralEdgeContent();
         }
@@ -723,11 +715,11 @@ export namespace PropertiesPanel {
             divTable.appendChild(divTableBody);
             div.appendChild(dataListCardinalityTypes);
             div.appendChild(divTable);
-            this._divChildPanel.appendChild(div);
+            this.divPropertiesPanel.appendChild(div);
         }
     }
 
-    export class ObjectPanel extends APanel {
+    export class ClearPanel extends APanel {
 
         constructor() {
             super();
@@ -735,29 +727,10 @@ export namespace PropertiesPanel {
 
         public init(): void {
 
-            // div for class properties
-            this._divChildPanel = document.createElement('div');
-            this._divChildPanel.id = 'properties';
-            this._divChildPanel.className = 'properties-hidden';
-
-            // text input for className
-            let textBoxObjectName = document.createElement('input');
-            textBoxObjectName.type = 'text';
-            textBoxObjectName.id = 'objectName';
-            textBoxObjectName.placeholder = 'Object name';
-
-            // text input for className
-            let textBoxObjectAttr = document.createElement('input');
-            textBoxObjectAttr.type = 'text';
-            textBoxObjectAttr.id = 'objectAttr';
-            textBoxObjectAttr.placeholder = 'Object Attr';
-
-            this._divChildPanel.appendChild(textBoxObjectName);
-            this._divChildPanel.appendChild(textBoxObjectAttr);
         }
 
         public getPropertiesView(): PropertiesView {
-            return PropertiesView.Object;
+            return PropertiesView.Clear;
         }
     }
 }

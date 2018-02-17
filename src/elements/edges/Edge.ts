@@ -38,14 +38,31 @@ export class Edge extends DiagramElement {
         if (!data) {
             return this;
         }
+        let srcInfo;
+        let trgInfo;
 
         if (data.source && typeof data.source !== 'string') {
-            this.sourceInfo = new InfoText(data.source);
+            srcInfo = data.source;
+        }
+        else if (data.sourceInfo && typeof data.sourceInfo !== 'string'){
+            srcInfo = data.sourceInfo;
+        }
+
+        if(srcInfo){
+            this.sourceInfo = new InfoText(srcInfo);
             this.sourceInfo.$owner = this;
         }
 
+
         if (data.target && typeof data.target !== 'string') {
-            this.targetInfo = new InfoText(data.target);
+            trgInfo = data.target;
+        }
+        else if (data.targetInfo && typeof data.targetInfo !== 'string'){
+            trgInfo = data.targetInfo;
+        }
+
+        if(trgInfo){
+            this.targetInfo = new InfoText(trgInfo);
             this.targetInfo.$owner = this;
         }
 
@@ -55,11 +72,15 @@ export class Edge extends DiagramElement {
     public updateSrcCardinality(cardinality: string): void {
         this.sourceInfo = this.updateCardinality(this.$sNode, this.sourceInfo, cardinality);
         this.redrawSourceInfo();
+
+        Util.saveToLocalStorage(this.$owner);
     }
 
     public updateTargetCardinality(cardinality: string): void {
         this.targetInfo = this.updateCardinality(this.$tNode, this.targetInfo, cardinality);
         this.redrawTargetInfo();
+
+        Util.saveToLocalStorage(this.$owner);
     }
 
     private updateCardinality(node: Node, infoText: InfoText, cardinality: string): InfoText {
@@ -89,11 +110,15 @@ export class Edge extends DiagramElement {
     public updateSrcProperty(property: string): void {
         this.sourceInfo = this.updateProperty(this.$sNode, this.sourceInfo, property);
         this.redrawSourceInfo();
+        
+        Util.saveToLocalStorage(this.$owner);
     }
 
     public updateTargetProperty(property: string): void {
         this.targetInfo = this.updateProperty(this.$tNode, this.targetInfo, property);
         this.redrawTargetInfo();
+        
+        Util.saveToLocalStorage(this.$owner);
     }
 
     private updateProperty(node: Node, infoText: InfoText, property: string): InfoText {

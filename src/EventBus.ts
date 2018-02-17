@@ -11,6 +11,7 @@ export class EventBus {
     public static CREATE: string = 'Create';
     public static EDITOR: string = 'Editor';
     public static OPENPROPERTIES: string = 'openProperties';
+    public static RELOADPROPERTIES: string = 'reloadProperties';
     public static ELEMENTMOUSEDOWN: string = 'ELEMENT:MOUSEDOWN';
     public static ELEMENTMOUSEUP: string = 'ELEMENT:MOUSEUP';
     public static ELEMENTMOUSELEAVE: string = 'ELEMENT:MOUSELEAVE';
@@ -27,6 +28,7 @@ export class EventBus {
         EventBus.CREATE,
         EventBus.EDITOR,
         EventBus.OPENPROPERTIES,
+        EventBus.RELOADPROPERTIES,
         EventBus.ELEMENTMOUSEDOWN,
         EventBus.ELEMENTMOUSEUP,
         EventBus.ELEMENTMOUSELEAVE,
