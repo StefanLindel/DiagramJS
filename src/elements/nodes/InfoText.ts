@@ -156,7 +156,9 @@ export class InfoText extends Node {
             width: this.getSize().x,
             height: this.getSize().y,
             fill: '#DDD',
-            'stroke-width': 0
+            'stroke-width': 0,
+            rx: '5',
+            ry: '5'
         });
         group.appendChild(this.$rectBackground);
 
@@ -165,7 +167,7 @@ export class InfoText extends Node {
             // property
             this.$propertySvg = Util.createShape({
                 tag: 'text',
-                x: pos.x,
+                x: pos.x+3,
                 y: y,
                 'text-anchor': 'left'
             });
@@ -179,7 +181,7 @@ export class InfoText extends Node {
         if (this.cardinality) {
             this.$cardinalitySvg = Util.createShape({
                 tag: 'text',
-                x: pos.x,
+                x: pos.x+3,
                 y: y,
                 'text-anchor': 'left'
             });

@@ -26,8 +26,8 @@ export class Select implements EventHandler {
         this.graph = graph;
 
         this.deleteShape = SymbolLibary.drawSVG({ type: 'Basket', background: true, id: 'trashcan', tooltip: 'Delete class' });
-        this.addEdgeShape = SymbolLibary.drawSVG({ type: 'Edgeicon', background: true, id: 'addEdge', tooltip: 'Click and drag to connect this class' });
         this.copyNodeShape = SymbolLibary.drawSVG({ type: 'Copynode', background: true, id: 'copyNode', tooltip: 'Copy class' });
+        this.addEdgeShape = SymbolLibary.drawSVG({ type: 'Edgeicon', background: true, id: 'addEdge', tooltip: 'Click and drag to connect this class' });
     }
 
     public handle(event: Event, element: DiagramElement): boolean {
@@ -80,21 +80,19 @@ export class Select implements EventHandler {
             this.deleteShape.setAttributeNS(null, 'transform', `translate(${x} ${y + this.padding})`);
             this.deleteShape.onclick = e => this.graph.$graphModel.removeElement(element.id);
 
-            this.addEdgeShape.setAttributeNS(null, 'transform', `translate(${x} ${y + 40 + this.padding})`);
-            this.addEdgeShape.onmousedown = function () {
-                EventBus.setActiveHandler('NewEdge');
-                element.$view.dispatchEvent(new Event('mousedown'));
-            };
-
-            this.copyNodeShape.setAttributeNS(null, 'transform', `translate(${x} ${y + 80 + this.padding})`);
+            this.copyNodeShape.setAttributeNS(null, 'transform', `translate(${x} ${y + 40 + this.padding})`);
             this.copyNodeShape.onclick = (evt) => {
                 let nextFreePosition = this.graph.getNextFreePosition();
                 let copyClass = (<Clazz>element).copy();
                 copyClass.withPos(nextFreePosition.x, nextFreePosition.y);
-                copyClass.withSize(element.getSize().x, element.getSize().y);
                 this.graph.drawElement(copyClass);
             };
 
+            this.addEdgeShape.setAttributeNS(null, 'transform', `translate(${x} ${y + 80 + this.padding})`);
+            this.addEdgeShape.onmousedown = function () {
+                EventBus.setActiveHandler('NewEdge');
+                element.$view.dispatchEvent(new Event('mousedown'));
+            };
         }
         if (element instanceof Clazz && event.type === 'click') {
             let clazz = <Clazz>element;

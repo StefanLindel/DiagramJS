@@ -44,11 +44,11 @@ export class Edge extends DiagramElement {
         if (data.source && typeof data.source !== 'string') {
             srcInfo = data.source;
         }
-        else if (data.sourceInfo && typeof data.sourceInfo !== 'string'){
+        else if (data.sourceInfo && typeof data.sourceInfo !== 'string') {
             srcInfo = data.sourceInfo;
         }
 
-        if(srcInfo){
+        if (srcInfo) {
             this.sourceInfo = new InfoText(srcInfo);
             this.sourceInfo.$owner = this;
         }
@@ -57,11 +57,11 @@ export class Edge extends DiagramElement {
         if (data.target && typeof data.target !== 'string') {
             trgInfo = data.target;
         }
-        else if (data.targetInfo && typeof data.targetInfo !== 'string'){
+        else if (data.targetInfo && typeof data.targetInfo !== 'string') {
             trgInfo = data.targetInfo;
         }
 
-        if(trgInfo){
+        if (trgInfo) {
             this.targetInfo = new InfoText(trgInfo);
             this.targetInfo.$owner = this;
         }
@@ -96,7 +96,7 @@ export class Edge extends DiagramElement {
         }
 
         infoText.cardinality = cardinality;
-        if(infoText.isEmpty()){
+        if (infoText.isEmpty()) {
             this.$view.removeChild(infoText.$view);
 
             return undefined;
@@ -110,14 +110,14 @@ export class Edge extends DiagramElement {
     public updateSrcProperty(property: string): void {
         this.sourceInfo = this.updateProperty(this.$sNode, this.sourceInfo, property);
         this.redrawSourceInfo();
-        
+
         Util.saveToLocalStorage(this.$owner);
     }
 
     public updateTargetProperty(property: string): void {
         this.targetInfo = this.updateProperty(this.$tNode, this.targetInfo, property);
         this.redrawTargetInfo();
-        
+
         Util.saveToLocalStorage(this.$owner);
     }
 
@@ -134,7 +134,7 @@ export class Edge extends DiagramElement {
         }
 
         infoText.property = property;
-        if(infoText.isEmpty()){
+        if (infoText.isEmpty()) {
             this.$view.removeChild(infoText.$view);
 
             return undefined;
@@ -206,13 +206,13 @@ export class Edge extends DiagramElement {
         newEdge.lineStyle = this.lineStyle;
         newEdge.$owner = this.$owner;
 
-        if(this.sourceInfo){
-            newEdge.sourceInfo = new InfoText({property: this.sourceInfo.property, cardinality: this.sourceInfo.cardinality});
+        if (this.sourceInfo) {
+            newEdge.sourceInfo = new InfoText({ property: this.sourceInfo.property, cardinality: this.sourceInfo.cardinality });
             newEdge.sourceInfo.$owner = newEdge;
         }
 
-        if(this.targetInfo){
-            newEdge.targetInfo  = new InfoText({property: this.targetInfo.property, cardinality: this.targetInfo.cardinality});
+        if (this.targetInfo) {
+            newEdge.targetInfo = new InfoText({ property: this.targetInfo.property, cardinality: this.targetInfo.cardinality });
             newEdge.targetInfo.$owner = newEdge;
         }
 
@@ -221,17 +221,17 @@ export class Edge extends DiagramElement {
         });
 
         let graph = <Graph>this.getRoot();
-        if(!graph){
+        if (!graph) {
             return this;
         }
 
         // update model. insert the edge exact on the same index, like the old edge
         let idx = graph.$graphModel.edges.indexOf(this);
         graph.$graphModel.removeElement(this.id);
-        if(idx > -1){
+        if (idx > -1) {
             graph.$graphModel.edges.splice(idx, 0, newEdge);
         }
-        else{
+        else {
             graph.$graphModel.edges.push(newEdge);
         }
 
@@ -332,14 +332,14 @@ export class Edge extends DiagramElement {
         this.redrawTargetInfo();
     }
 
-    protected redrawSourceInfo(){
+    protected redrawSourceInfo() {
         if (this.sourceInfo) {
             let newPosOfSrc = this.calcInfoPosNew(this.sourceInfo, this.$sNode);
             this.sourceInfo.redrawFromEdge(newPosOfSrc);
         }
     }
 
-    protected redrawTargetInfo(){
+    protected redrawTargetInfo() {
         if (this.targetInfo) {
             let newPosOfTarget = this.calcInfoPosNew(this.targetInfo, this.$tNode);
             this.targetInfo.redrawFromEdge(newPosOfTarget);
@@ -454,7 +454,7 @@ export class Edge extends DiagramElement {
                 else {
                     x = startPoint.x - (infoTxt.getSize().x);
                 }
-                y = startPoint.y + (infoTxt.getSize().y / 2) + 5;
+                y = startPoint.y + (infoTxt.getSize().y / 2);
                 break;
             case Direction.Right:
                 // compare y-coordinates from start- and nextToStart point
@@ -462,7 +462,7 @@ export class Edge extends DiagramElement {
                     y = startPoint.y + (infoTxt.getSize().y / 2);
                 }
                 else {
-                    y = startPoint.y - (infoTxt.getSize().y / 2);
+                    y = startPoint.y - (infoTxt.getSize().y / 2) - 5;
                 }
                 x = startPoint.x - (infoTxt.getSize().x) - 5;
                 break;
@@ -472,7 +472,7 @@ export class Edge extends DiagramElement {
                     y = startPoint.y + (infoTxt.getSize().y / 2);
                 }
                 else {
-                    y = startPoint.y - (infoTxt.getSize().y / 2);
+                    y = startPoint.y - (infoTxt.getSize().y / 2) - 5;
                 }
                 x = startPoint.x + 5;
                 break;

@@ -528,6 +528,7 @@ export namespace PropertiesPanel {
             textBoxEdgeLabel.id = 'edgeLabelInput';
             textBoxEdgeLabel.placeholder = 'Edge label';
             textBoxEdgeLabel.className = 'col2';
+            textBoxEdgeLabel.readOnly = true;
 
             divRowEdgeLabelCellInput.appendChild(textBoxEdgeLabel);
 
@@ -612,7 +613,7 @@ export namespace PropertiesPanel {
             let inputSrcCardinalityType = document.createElement('input');
             inputSrcCardinalityType.id = 'inputEdgeSrcCardinality';
             inputSrcCardinalityType.className = 'col2';
-            inputSrcCardinalityType.placeholder = 'Add target cardinality';
+            inputSrcCardinalityType.placeholder = 'Add source cardinality';
             inputSrcCardinalityType.setAttribute('list', dataListCardinalityTypes.id);
 
             divRowEdgeSrcNodeCardinalityCellInput.appendChild(inputSrcCardinalityType);

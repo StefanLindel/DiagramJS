@@ -32,6 +32,7 @@ export class Clazz extends Node {
         this.label = json.name || json.label || ('New ' + this.property);
 
         let width: number = 150;
+        width = Math.max(width, Util.sizeOf(this.label).width + 30);
 
         if (json['attributes']) {
             for (let attr of json['attributes']) {
@@ -191,6 +192,8 @@ export class Clazz extends Node {
         this.methods.forEach(method => { 
             copy.methods.push(new Method(method.toString())); 
         }); 
+
+        copy.reCalcSize();
  
         return copy; 
     }

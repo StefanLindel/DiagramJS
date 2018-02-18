@@ -77,7 +77,9 @@ export class Node extends DiagramElement {
         if (model) { 
             let type = this.property || Node.name; 
             let newId = model.getNewId(type); 
-            copy = <Node>model.createElement(type, newId, null); 
+            copy = <Node>model.createElement(type, newId, null);
+            copy.withSize(this.getSize().x, this.getSize().y);
+            copy.$owner = model;
         } else { 
             copy.id = this.id + '-copy'; 
             copy.$owner = this.getRoot(); 

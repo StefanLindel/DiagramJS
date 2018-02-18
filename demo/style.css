@@ -187,22 +187,22 @@ h1 {
 	transition: 0.3s;
 }
 
-#addEdge[visibility=visible] > circle{
+#copyNode[visibility=visible] > circle{
 	transition: 0.3s;
 }
 
-#addEdge:hover circle {
+#copyNode:hover circle{
 	stroke-width: 1;
 	stroke: #333;
 	fill: #fff68f;
 	transition: 0.3s;
 }
 
-#copyNode[visibility=visible] > circle{
+#addEdge[visibility=visible] > circle{
 	transition: 0.3s;
 }
 
-#copyNode:hover circle{
+#addEdge:hover circle {
 	stroke-width: 1;
 	stroke: #333;
 	fill: #8fff93;

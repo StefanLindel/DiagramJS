@@ -13,7 +13,7 @@ export class DagreLayout implements Layout {
         let model = graph.$graphModel;
         let g = new window['dagre'].graphlib.Graph();
 
-        g.setGraph({ marginx: 20, marginy: 20 }).setDefaultEdgeLabel(function () {
+        g.setGraph({ marginx: 100, marginy: 20 }).setDefaultEdgeLabel(function () {
             return {};
         });
 
