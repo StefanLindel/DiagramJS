@@ -3,22 +3,18 @@ import {Edge} from '../edges';
 import { GraphModel } from '..';
 
 export class Node extends DiagramElement {
-    $edges: Edge[] = [];
-    $maxWidth: number = 250;
-    // protected counter:number;
-    // private status:string;
-    public label: string;
+    public $edges: Edge[] = [];
+    public $minWidth: number = 150;
+    public $minheight: number = 25;
     public $defaulEdgeType : string;
-    $LEFT: number = 0;
-    $RIGHT: number = 0;
-    $TOP: number = 0;
-    $DOWN: number = 0;
+
+    public label: string;
 
     constructor(data: JSON|string|Object|any) {
         super();
 
         // default size
-        this.withSize(150, 25);
+        this.withSize(this.$minWidth, this.$minheight);
 
         if (data) {
             if (data['x'] && data['y']) {

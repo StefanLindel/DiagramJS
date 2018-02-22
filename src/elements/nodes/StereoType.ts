@@ -8,8 +8,11 @@ export class StereoType extends Clazz {
 
     constructor(data: JSON | any) {
         super(data);
+    }
 
-
+    public load(json?: any) 
+    {
+        super.load(json);
         this.withSize(this.getSize().x, (this.getSize().y + this.$labelHeight / 2));
     }
 

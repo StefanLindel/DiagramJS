@@ -441,7 +441,7 @@ export namespace PropertiesPanel {
 
         private createTabGeneralEdgeContent(): any {
 
-            let cardinalityTypes: string[] = ['0..1', '1', '1..n'];
+            let cardinalityTypes: string[] = ['0..*', '0..1', '1', '1..n'];
 
             let dataListCardinalityTypes = document.createElement('datalist');
             dataListCardinalityTypes.id = 'cardinalityTypesDataList';
