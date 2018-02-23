@@ -20,6 +20,7 @@ import { DiagramElement } from './index';
 import { Toolbar } from '../Toolbar';
 
 export class Graph extends Control {
+
     // canvas: HTMLElement;
     root: SVGElement;
     $graphModel: GraphModel;
@@ -85,6 +86,25 @@ export class Graph extends Control {
         return false;
     }
 
+    public saveAs(typ: string) {
+        typ = typ.toLowerCase();
+        if (typ === 'svg') {
+            this.exportSvg();
+        } else if (typ === 'png') {
+            this.exportPng();
+        } else if (typ === 'html') {
+            this.exportHtml();
+
+        } else if (typ === 'pdf') {
+            this.exportPdf();
+            // } else if (typ === 'eps') {
+            // this.ExportEPS();
+        }
+        else if (typ === 'json') {
+            this.exportJson();
+        }
+    }
+
     public save(typ: string, data: any, name: string) {
         let a = document.createElement('a');
         a.href = window.URL.createObjectURL(new Blob([data], { type: typ }));
@@ -94,9 +114,83 @@ export class Graph extends Control {
         document.body.removeChild(a);
     }
 
-    public exportSVG() {
+    public exportSvg(): void {
         let wellFormatedSvgDom = this.getSvgWithStyleAttributes();
         this.save('image/svg+xml', this.serializeXmlNode(wellFormatedSvgDom), 'class_diagram.svg');
+    }
+
+    public exportHtml(): void {
+        let htmlFacade = '<html><head><title>DiagramJS - Classdiagram</title></head><body>$content</body></html>';
+        let wellFormatedSvgDom = this.getSvgWithStyleAttributes();
+        let svgAsXml = this.serializeXmlNode(wellFormatedSvgDom);
+        
+        let htmlResult = htmlFacade.replace('$content', svgAsXml);
+
+        this.save('text/plain', htmlResult, 'class_diagram.htm');
+    }
+
+    public exportJson(): void {
+        let typ = 'text/plain';
+        let jsonObj = Util.toJson(this.$graphModel);
+        let data = JSON.stringify(jsonObj, null, '\t');
+
+        this.save(typ, data, 'class_diagram.json');
+    }
+
+    public exportPdf(): void {
+        if (!window['jsPDF']) {
+            console.log('jspdf n.a.');
+            return;
+        }
+        let typ = 'image/svg+xml';
+        let xmlNode = this.serializeXmlNode(this.getSvgWithStyleAttributes());
+        let url = window.URL.createObjectURL(new Blob([xmlNode], { type: typ }));
+
+        let canvas, context, a, image = new Image();
+        let size = this.getRootSize();
+
+        image.onload = function () {
+            canvas = document.createElement('canvas');
+            canvas.width = size.width;
+            canvas.height = size.height;
+            context = canvas.getContext('2d');
+            context.drawImage(image, 0, 0);
+
+            let pdf = new window['jsPDF']();
+
+            pdf.addImage(canvas.toDataURL('image/jpeg'), 'jpeg', 15, 40, 180, 160);
+            pdf.save('class_diagram.pdf');
+
+        };
+
+        image.src = url;
+    }
+
+    public exportPng(): void {
+        let canvas, context, a, image = new Image();
+        let xmlNode = this.serializeXmlNode(this.getSvgWithStyleAttributes());
+        let typ = 'image/svg+xml';
+        let url = window.URL.createObjectURL(new Blob([xmlNode], { type: typ }));
+
+        let size = this.getRootSize();
+
+        image.onload = function () {
+            canvas = document.createElement('canvas');
+            canvas.width = size.width;
+            canvas.height = size.height;
+            context = canvas.getContext('2d');
+            context.drawImage(image, 0, 0);
+
+            a = document.createElement('a');
+            a.download = 'class_diagram.png';
+            a.href = canvas.toDataURL('image/png');
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+        };
+
+        image.src = url;
+
     }
 
     public getSvgWithStyleAttributes(): Node {
@@ -106,7 +200,7 @@ export class Graph extends Control {
         return oDOM;
     }
 
-    public readElement(parent: any, origData: any) {
+    public readElement(parent: any, origData: any): void {
         let children = parent.childNodes;
         let origChildDat = origData.childNodes;
 
@@ -130,25 +224,6 @@ export class Graph extends Control {
 
     }
 
-    public saveAs(typ: string) {
-        typ = typ.toLowerCase();
-        if (typ === 'svg') {
-            this.exportSVG();
-        } else if (typ === 'png') {
-            this.exportPNG();
-            // } else if (typ === 'html') {
-            //     this.ExportHTML();
-
-        } else if (typ === 'pdf') {
-            this.exportPDF();
-            // } else if (typ === 'eps') {
-            // this.ExportEPS();
-        }
-        else if (typ === 'json') {
-            this.exportJson();
-        }
-    }
-
     public serializeXmlNode(xmlNode: any) {
         if (window['XMLSerializer'] !== undefined) {
             return (new window['XMLSerializer']()).serializeToString(xmlNode);
@@ -159,50 +234,13 @@ export class Graph extends Control {
         return xmlNode.outerHTML;
     }
 
-    public getSize(): Size {
+    public getRootSize(): Size {
         let width: number;
         let height: number;
         width = +this.root.getAttribute('width');
         height = +this.root.getAttribute('height');
 
         return { width: width, height: height };
-    }
-
-    public exportJson(): void {
-        let typ = 'text/plain';
-        let jsonObj = Util.toJson(this.$graphModel);
-        let data = JSON.stringify(jsonObj, null, '\t');
-
-        this.save(typ, data, 'class_diagram.json');
-    }
-
-    public exportPDF(): void {
-        if (!window['jsPDF']) {
-            console.log('jspdf n.a.');
-            return;
-        }
-        let typ = 'image/svg+xml';
-        let xmlNode = this.serializeXmlNode(this.getSvgWithStyleAttributes());
-        let url = window.URL.createObjectURL(new Blob([xmlNode], { type: typ }));
-
-        let canvas, context, a, image = new Image();
-        let size = this.getSize();
-
-        image.onload = function () {
-            canvas = document.createElement('canvas');
-            canvas.width = size.width;
-            canvas.height = size.height;
-            context = canvas.getContext('2d');
-            context.drawImage(image, 0, 0);
-
-            let pdf = new window['jsPDF']();
-
-            pdf.addImage(canvas.toDataURL('image/jpeg'), 'jpeg', 15, 40, 180, 160);
-            pdf.save('class_diagram.pdf');
-
-        };
-
-        image.src = url;
     }
 
     /*
@@ -216,32 +254,7 @@ export class Graph extends Control {
             converter = new svgConverter(this.board, doc, {removeInvalid: false});
             doc.save();
         };*/
-    public exportPNG(): void {
-        let canvas, context, a, image = new Image();
-        let xmlNode = this.serializeXmlNode(this.getSvgWithStyleAttributes());
-        let typ = 'image/svg+xml';
-        let url = window.URL.createObjectURL(new Blob([xmlNode], { type: typ }));
 
-        let size = this.getSize();
-
-        image.onload = function () {
-            canvas = document.createElement('canvas');
-            canvas.width = size.width;
-            canvas.height = size.height;
-            context = canvas.getContext('2d');
-            context.drawImage(image, 0, 0);
-
-            a = document.createElement('a');
-            a.download = 'class_diagram.png';
-            a.href = canvas.toDataURL('image/png');
-            document.body.appendChild(a);
-            a.click();
-            document.body.removeChild(a);
-        };
-
-        image.src = url;
-
-    }
 
     public load(json: JSON | Object, owner?: Control): any {
         this.$graphModel = new GraphModel();
@@ -364,7 +377,7 @@ export class Graph extends Control {
 
         // actualize root width size, if neccessary
         // get current width of root
-        let rootSize = this.getSize();
+        let rootSize = this.getRootSize();
         let newWidth = element.getPos().x + element.getSize().x + 40;
         let newHeight = element.getPos().y + element.getSize().y;
 

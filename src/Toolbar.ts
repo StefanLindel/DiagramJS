@@ -86,7 +86,7 @@ export class Toolbar {
         divExport.style.display = 'inline';
         divExport.style.marginLeft = '20px';
 
-        let exportTypes: string[] = ['Export', 'JSON', 'HTML', 'PDF', 'PNG', 'SVG'];
+        let exportTypes: string[] = ['Export', 'HTML', 'JSON', 'PDF', 'PNG', 'SVG'];
         let selectExport = document.createElement('select');
 
         exportTypes.forEach(type => {
