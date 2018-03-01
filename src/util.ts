@@ -603,6 +603,9 @@ export class Util {
     }
 
     public static isLocalStorageSupported(): boolean{
-        return typeof Storage !== undefined;
+        if(this.isEdge()){
+            return false;
+        }
+        return localStorage !== undefined;
     }
 }

@@ -1,7 +1,7 @@
 import {DiagramElement} from '../elements/BaseElements';
 import Layout from './Layout';
 import {Graph} from '../elements/Graph';
-import {Edge} from '../elements/edges/Edge';
+import {Association} from '../elements/edges/Association';
 import {Node} from '../elements/nodes/Node';
 import {Control} from '../Control';
 
@@ -68,7 +68,7 @@ export class DagreLayoutMin implements Layout {
     public layout(graph: Graph, node: DiagramElement) {
         let g, layoutNode, nodes, newEdge, edges;
         let i, n, x, y, sId, tId, split = DagreLayoutMin.EDGE_KEY_DELIM;
-        let e: Edge;
+        let e: Association;
 
         nodes = node['nodes'];
         edges = node['edges'];

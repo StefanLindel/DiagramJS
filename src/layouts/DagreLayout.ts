@@ -1,4 +1,4 @@
-import { Edge } from '../elements/edges';
+import { Association } from '../elements/edges';
 import { Node } from '../elements/nodes';
 import { Graph } from '../elements/Graph';
 import Layout from './Layout';

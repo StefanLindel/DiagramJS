@@ -1,7 +1,7 @@
 import { EventHandler, EventBus } from "../EventBus";
 import { DiagramElement } from "../elements/BaseElements";
 import * as properties from '../PropertiesPanel';
-import { Graph, Edge } from "../main";
+import { Graph, Association } from "../main";
 import { Clazz } from '../elements/nodes/Clazz';
 import Attribute from "../elements/nodes/Attribute";
 import Method from "../elements/nodes/Method";
@@ -108,11 +108,11 @@ export class PropertiesDispatcher implements EventHandler {
     private handleSelectEdgeEvent(event: Event, element: DiagramElement) {
 
         // properties panel stuff
-        if (!(element instanceof Edge)) {
+        if (!(element instanceof Association)) {
             return false;
         }
 
-        let edge = <Edge>element;
+        let edge = <Association>element;
         this.dispatch(properties.PropertiesPanel.PropertiesView.Edge);
         this._blankView.setPropertiesHeaderText('Properties of Edge: ' + edge.$sNode.label + '---' + edge.$tNode.label);
 
@@ -309,6 +309,7 @@ export class PropertiesDispatcher implements EventHandler {
         modifierObj['public'] = '+';
         modifierObj['private'] = '-';
         modifierObj['protected'] = '#';
+        modifierObj['package'] = '~';
 
         for(let title in modifierObj){
             let modifierOption = document.createElement('option');

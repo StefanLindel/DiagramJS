@@ -33,10 +33,6 @@ export default class Palette {
                 let node = this.graph.addElementWithValues(btn, {x: nextFreePosition.x, y: nextFreePosition.y}, false);
                 this.graph.drawElement(node);
             };
-            if (btn === 'object' || btn === 'edge') {
-                // TODO: implement Objects
-                button.disabled = true;
-            }
             this.palette.appendChild(button);
         }
     }

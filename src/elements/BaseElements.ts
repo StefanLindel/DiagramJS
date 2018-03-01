@@ -30,7 +30,6 @@ export interface ExtendedGraphElement {
 
 export abstract class DiagramElement extends Control implements GraphElement, ExtendedGraphElement {
 
-    public id: string;
     protected $isDraggable: boolean = true;
     private $pos: Point = new Point();
     private $size: Point = new Point();

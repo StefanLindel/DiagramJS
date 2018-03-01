@@ -1,9 +1,9 @@
 import {DiagramElement} from '../BaseElements';
-import {Edge} from '../edges';
+import {Association} from '../edges';
 import { GraphModel } from '..';
 
 export class Node extends DiagramElement {
-    public $edges: Edge[] = [];
+    public $edges: Association[] = [];
     public $minWidth: number = 150;
     public $minheight: number = 25;
     public $defaulEdgeType : string;

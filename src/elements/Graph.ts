@@ -1,5 +1,5 @@
 import * as edges from './edges';
-import { Edge } from './edges';
+import { Association } from './edges';
 import * as nodes from './nodes';
 import * as layouts from '../layouts';
 import Layout from '../layouts/Layout';
@@ -86,8 +86,36 @@ export class Graph extends Control {
         return false;
     }
 
+    public fitSizeOnNodes(): void {
+        let maxWidth: number = 0;
+        let maxHeight: number = 0;
+
+        for(let node of this.$graphModel.nodes){
+            let nodePos = node.getPos();
+            let nodeSize = node.getSize();
+            let nodeWidestPosX = nodePos.x + nodeSize.x;
+            let nodeWidestPosY = nodePos.y + nodeSize.y;
+
+            if(nodeWidestPosX > maxWidth){
+                maxWidth = nodeWidestPosX;
+            }
+
+            if(nodeWidestPosY > maxHeight){
+                maxHeight = nodeWidestPosY;
+            }
+        }
+
+        this.root.setAttributeNS(null, 'width', '' + (maxWidth+100));
+        this.root.setAttributeNS(null, 'height', '' + (maxHeight+50));
+    }
+
     public saveAs(typ: string) {
         typ = typ.toLowerCase();
+
+        // shrink size of graph to minimum. only to show up nodes
+        const currentSize = this.getRootSize();
+        this.fitSizeOnNodes();
+
         if (typ === 'svg') {
             this.exportSvg();
         } else if (typ === 'png') {
@@ -103,8 +131,18 @@ export class Graph extends Control {
         else if (typ === 'json') {
             this.exportJson();
         }
+
+        // set the size back to default
+        this.root.setAttributeNS(null, 'width', '' + currentSize.width);
+        this.root.setAttributeNS(null, 'height', '' + currentSize.height);
     }
 
+    /**
+     * generates a blob file and makes it available for download.
+     * @param typ type of file
+     * @param data raw data
+     * @param name name of download file
+     */
     public save(typ: string, data: any, name: string) {
         let a = document.createElement('a');
         a.href = window.URL.createObjectURL(new Blob([data], { type: typ }));
@@ -114,11 +152,13 @@ export class Graph extends Control {
         document.body.removeChild(a);
     }
 
+    /** Exports the diagram as svg. */
     public exportSvg(): void {
         let wellFormatedSvgDom = this.getSvgWithStyleAttributes();
         this.save('image/svg+xml', this.serializeXmlNode(wellFormatedSvgDom), 'class_diagram.svg');
     }
 
+    /** Exports the diagram as html. */
     public exportHtml(): void {
         let htmlFacade = '<html><head><title>DiagramJS - Classdiagram</title></head><body>$content</body></html>';
         let wellFormatedSvgDom = this.getSvgWithStyleAttributes();
@@ -129,6 +169,7 @@ export class Graph extends Control {
         this.save('text/plain', htmlResult, 'class_diagram.htm');
     }
 
+    /** Exports the diagram as json. */
     public exportJson(): void {
         let typ = 'text/plain';
         let jsonObj = Util.toJson(this.$graphModel);
@@ -137,6 +178,7 @@ export class Graph extends Control {
         this.save(typ, data, 'class_diagram.json');
     }
 
+    /** Exports the diagram as pdf. */
     public exportPdf(): void {
         if (!window['jsPDF']) {
             console.log('jspdf n.a.');
@@ -149,6 +191,7 @@ export class Graph extends Control {
         let canvas, context, a, image = new Image();
         let size = this.getRootSize();
 
+        // create the loaded img source into a canvas. to generate a picture. then place this picture in the pdf
         image.onload = function () {
             canvas = document.createElement('canvas');
             canvas.width = size.width;
@@ -166,6 +209,7 @@ export class Graph extends Control {
         image.src = url;
     }
 
+    /** Exports the diagram as png. */
     public exportPng(): void {
         let canvas, context, a, image = new Image();
         let xmlNode = this.serializeXmlNode(this.getSvgWithStyleAttributes());
@@ -200,7 +244,7 @@ export class Graph extends Control {
         return oDOM;
     }
 
-    public readElement(parent: any, origData: any): void {
+    private readElement(parent: any, origData: any): void {
         let children = parent.childNodes;
         let origChildDat = origData.childNodes;
 
@@ -243,17 +287,11 @@ export class Graph extends Control {
         return { width: width, height: height };
     }
 
-    /*
-        Graph.prototype.ExportPDF = function () {
-            var converter, pdf = new jsPDF('l','px',[this.model.width, this.model.height]);
-            converter = new svgConverter(this.board, pdf, {removeInvalid: false});
-            pdf.save('Download.pdf');
-        };
-        Graph.prototype.ExportEPS = function () {
-            var converter, doc = new svgConverter.jsEPS({inverting: true});
-            converter = new svgConverter(this.board, doc, {removeInvalid: false});
-            doc.save();
-        };*/
+        // Graph.prototype.ExportEPS = function () {
+        //     var converter, doc = new svgConverter.jsEPS({inverting: true});
+        //     converter = new svgConverter(this.board, doc, {removeInvalid: false});
+        //     doc.save();
+        // };
 
 
     public load(json: JSON | Object, owner?: Control): any {
@@ -390,8 +428,8 @@ export class Graph extends Control {
         }
 
         // draw edge
-        if (element instanceof Edge) {
-            let edge = <Edge>element;
+        if (element instanceof Association) {
+            let edge = <Association>element;
             edge.redraw(edge.$sNode);
             let srcSvg = element.$sNode.getAlreadyDisplayingSVG();
             let targetSvg = element.$tNode.getAlreadyDisplayingSVG();

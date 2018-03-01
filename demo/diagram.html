@@ -61,17 +61,16 @@
 						property: 'asd'
 					}
 				},
-				{ type: 'Edge', source: 'User', target: 'Order' },
-				{ type: 'Edge', source: 'User', target: 'Account' },
+				{ type: 'Association', source: 'User', target: 'Order' },
+				{ type: 'Association', source: 'User', target: 'Account' },
 				{ source: 'Order', target: 'Payment' },
-				{ type: 'Edge', source: 'Payment', target: 'Account' },
+				{ type: 'Association', source: 'Payment', target: 'Account' },
 				{ source: 'A', target: 'B' }
 			]
 		};
 
 		var options = {
 			canvas: 'canvas',
-			origin: new Point(150, 45),
 			layout: 'DagreLayout',
 			minWidth: 800,
 			minHeight: 600,

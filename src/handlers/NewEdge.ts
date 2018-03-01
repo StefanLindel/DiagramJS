@@ -3,7 +3,7 @@ import { Graph } from '../elements/Graph';
 import { Util } from '../util';
 import { Clazz } from '../elements/nodes/Clazz';
 import { EventHandler, EventBus } from '../EventBus';
-import { Edge } from '../elements/index';
+import { Association } from '../elements/index';
 import { Node } from '../elements/nodes/index';
 
 export class NewEdge implements EventHandler {
@@ -70,8 +70,8 @@ export class NewEdge implements EventHandler {
         if (!this.isEdgeDrawing) {
             return;
         }
-        let lineToX = evt.layerX;
-        let lineToy = evt.layerY;
+        let lineToX = Util.getEventX(evt);
+        let lineToy = Util.getEventY(evt);
 
         let path = `M${this.x} ${this.y} L${lineToX} ${lineToy}`;
         // if line wasnt draw
@@ -97,7 +97,7 @@ export class NewEdge implements EventHandler {
             this.svgLine.setAttributeNS(null, 'd', path);
 
             // get node from position
-            let targetNode = this.graph.$graphModel.getNodeByPosition(evt.layerX, evt.layerY);
+            let targetNode = this.graph.$graphModel.getNodeByPosition(Util.getEventX(evt), Util.getEventY(evt));
 
             // if some targetnode is available, so highlight the node
             if (targetNode) {
@@ -119,7 +119,7 @@ export class NewEdge implements EventHandler {
     private removeLine(): void {
         this.isEdgeDrawing = false;
 
-        if (this.svgLine && this.graph.root.contains(this.svgLine)) {
+        if (this.svgLine) {
             this.graph.root.removeChild(this.svgLine);
             this.svgLine = null;
         }
@@ -131,7 +131,8 @@ export class NewEdge implements EventHandler {
 
     private setNewEdgeToNode(event: Event | any): void {
         // get node from position
-        let targetNode = this.graph.$graphModel.getNodeByPosition(event.layerX, event.layerY);
+        let targetNode = this.graph.$graphModel
+            .getNodeByPosition(Util.getEventX(event), Util.getEventY(event));
 
         if (!targetNode) {
             this.removeLine();
@@ -140,7 +141,7 @@ export class NewEdge implements EventHandler {
         }
 
         this.removeLine();
-        let edgeType = this.sourceNode.$defaulEdgeType || 'Edge';
+        let edgeType = this.sourceNode.$defaulEdgeType || 'Association';
 
         let jsonData = {
             type: edgeType,

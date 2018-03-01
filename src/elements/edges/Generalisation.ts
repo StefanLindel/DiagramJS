@@ -1,9 +1,9 @@
-import { Edge } from './Edge';
+import { Association } from './Association';
 import { Node } from '../nodes/Node';
 import { Point } from '../BaseElements';
 import { Direction } from '../index';
 
-export class Generalisation extends Edge {
+export class Generalisation extends Association {
 
     public $TARGET_ELEMENT_HEIGHT : number = 12;
     protected $targetElement: Element;

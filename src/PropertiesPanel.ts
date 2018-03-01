@@ -1,6 +1,6 @@
 import { Clazz } from './elements/nodes/Clazz';
 import { EventHandler, EventBus } from './EventBus';
-import { Edge } from './elements/index';
+import { Association } from './elements/index';
 import { DiagramElement } from './elements/BaseElements';
 import { Graph } from './elements/Graph';
 import * as edges from './elements/edges';
@@ -326,6 +326,7 @@ export namespace PropertiesPanel {
             modifierObj['public'] = '+';
             modifierObj['private'] = '-';
             modifierObj['protected'] = '#';
+            modifierObj['package'] = '~';
     
             for(let title in modifierObj){
                 let modifierOption = document.createElement('option');
@@ -380,6 +381,8 @@ export namespace PropertiesPanel {
             modifierObj['public'] = '+';
             modifierObj['private'] = '-';
             modifierObj['protected'] = '#';
+            modifierObj['package'] = '~';
+           
     
             for(let title in modifierObj){
                 let modifierOption = document.createElement('option');
@@ -441,7 +444,7 @@ export namespace PropertiesPanel {
 
         private createTabGeneralEdgeContent(): any {
 
-            let cardinalityTypes: string[] = ['0..*', '0..1', '1', '1..n'];
+            let cardinalityTypes: string[] = ['0..1', '1', '0..*'];
 
             let dataListCardinalityTypes = document.createElement('datalist');
             dataListCardinalityTypes.id = 'cardinalityTypesDataList';
@@ -484,9 +487,7 @@ export namespace PropertiesPanel {
             let edgeTypes: string[] = new Array();
 
             for (let type in edges) {
-                if (type.toString() === 'Association'
-                    || type.toString() === 'Dependency'
-                    || type.toString() === 'Unidirectional') {
+                if (type.toString() === 'Aggregate' || type.toString() === 'Direction') {
                     continue;
                 }
 
@@ -662,7 +663,7 @@ export namespace PropertiesPanel {
             // ROW7 -> Cell1 text target property
             let divRowEdgeTargetNodePropertyCellText = document.createElement('div');
             divRowEdgeTargetNodePropertyCellText.className = 'divTableCell';
-            divRowEdgeTargetNodePropertyCellText.innerHTML = 'Source Property:';
+            divRowEdgeTargetNodePropertyCellText.innerHTML = 'Target Property:';
 
             // ROW7 -> Cell2 input target Node property
             let divRowEdgeTargetNodePropertyCellInput = document.createElement('div');

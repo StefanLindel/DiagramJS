@@ -8,8 +8,6 @@ export default class ClazzProperty extends DiagramElement{
     // Private (-)
     // Protected (#)
     // Package (~)
-    // Derived (/)
-    // Static (underlined)
 
     public modifier : string = '+';
     public name : string;

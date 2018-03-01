@@ -1,8 +1,7 @@
-import { Edge } from './Edge';
-import { Direction } from './index';
 import { Association } from './Association';
+import { Direction, Aggregate } from './index';
 
-export class Aggregation extends Association {
+export class Aggregation extends Aggregate {
   public getSVG(): Element {
     let group = super.getSVG();
     this.$diamond.setAttributeNS(null, 'fill', 'white');

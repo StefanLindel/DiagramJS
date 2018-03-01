@@ -1,6 +1,6 @@
 import { DiagramElement } from '../elements/BaseElements';
 import { Node } from '../elements/nodes';
-import { Edge } from '../elements/edges';
+import { Association } from '../elements/edges';
 import { Util } from '../util';
 import { GraphModel } from '../elements/Model';
 import { SymbolLibary } from '../elements/nodes/Symbol';
@@ -91,7 +91,7 @@ export class Select implements EventHandler {
             this.addEdgeShape.setAttributeNS(null, 'transform', `translate(${x} ${y + 80 + this.padding})`);
             this.addEdgeShape.onmousedown = function () {
                 EventBus.setActiveHandler('NewEdge');
-                element.$view.dispatchEvent(new Event('mousedown'));
+                element.$view.dispatchEvent(Util.createCustomEvent('mousedown'));
             };
         }
         if (element instanceof Clazz && event.type === 'click') {
@@ -228,7 +228,7 @@ export class Select implements EventHandler {
             return true;
         }
 
-        if (element instanceof Edge) {
+        if (element instanceof Association) {
             this.graph.root.appendChild(element.$view);
             this.graph.root.appendChild(element.$sNode.$view);
             this.graph.root.appendChild(element.$tNode.$view);
@@ -245,7 +245,7 @@ export class Select implements EventHandler {
 
             this.resetLastSelectedElements();
 
-            let edge = <Edge>element;
+            let edge = <Association>element;
             this.lastSelectedEdge = edge.$view;
 
             Util.addClass(this.lastSelectedEdge, 'SVGEdge-selected');

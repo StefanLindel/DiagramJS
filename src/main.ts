@@ -19,6 +19,6 @@ if (!window['Point']) {
     window['bridge'] = new Bridge();
     window['Util'] = Util;
     window['Clazz'] = nodes.Clazz;
-    window['Edge'] = edges.Edge;
+    window['Association'] = edges.Association;
     window['SymbolLibary'] = nodes.SymbolLibary;
 }

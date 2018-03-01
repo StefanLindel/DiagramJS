@@ -1,6 +1,6 @@
 import {Graph} from './Graph';
 import {DiagramElement, Point} from './BaseElements';
-import {Edge} from './edges';
+import {Association} from './edges';
 import {Node} from './nodes';
 import {Control} from '../Control';
 import {Util} from '../util';
@@ -8,7 +8,7 @@ import {EventBus} from '../EventBus';
 
 export class GraphModel extends DiagramElement {
     nodes: Node[] = [];
-    edges: Edge[] = [];
+    edges: Association[] = [];
     workspace: string;
     $isLoading: boolean;
 
@@ -116,7 +116,7 @@ export class GraphModel extends DiagramElement {
 
             element.$edges = [];
         }
-        else if (element instanceof Edge) {
+        else if (element instanceof Association) {
 
             let idxOfEdge = this.edges.indexOf(element);
             if (idxOfEdge > -1) {
@@ -185,7 +185,7 @@ export class GraphModel extends DiagramElement {
         return id;
     }
 
-    public getEdgeById(id: string): Edge {
+    public getEdgeById(id: string): Association {
         for (let edge of this.edges) {
             if (edge.id === id) {
                 return edge;
@@ -199,12 +199,29 @@ export class GraphModel extends DiagramElement {
         return this.getNodeById(id) || this.getEdgeById(id);
     }
 
-    public addEdge(edge: any, withPosOfNodes?: boolean): Edge {
-        let type = edge.type || 'Edge';
+    public addEdge(edge: any, withPosOfNodes?: boolean): Association {
+
+        // lookup in factoryedges and check if the edge type realy exists
+        if(edge && edge.type){
+            const graph = (<Graph>this.$owner);
+            let typeExists = false;
+            for(let edgeType in graph.edgeFactory){
+                if(edgeType === edge.type){
+                    typeExists = true;
+                    break;
+                }
+            }
+
+            if(!typeExists){
+                edge.type = 'Association';
+            }
+        }
+
+        let type = edge.type || 'Association';
         type = Util.toPascalCase(type);
         let id = this.getNewId(type);
 
-        let newEdge = <Edge>this.createElement(type, id, edge);
+        let newEdge = <Association>this.createElement(type, id, edge);
         newEdge.type = type;
 
         let source: Node;
@@ -256,7 +273,7 @@ export class GraphModel extends DiagramElement {
         if (graph.edgeFactory[type]) {
             element = new graph.edgeFactory[type](data);
             Util.initControl(this, element, type, id, data);
-            this.edges.push(<Edge>element);
+            this.edges.push(<Association>element);
         }
         return element;
     }

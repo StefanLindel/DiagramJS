@@ -2,26 +2,6 @@ body {
 	font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
 }
 
-/* button {
-	min-width: 70px;
-	height: 34px;
-	font-weight: lighter;
-	color: #333;
-	cursor: pointer;
-	font-size: 14px;
-	background: transparent;
-	margin: 8px 15px;
-	border: 1px solid #AAA;
-	border-radius: 2px;
-	background: rgb(250, 250, 250);
-	text-align: center;
-	white-space: nowrap;
-	vertical-align: middle;
-	-webkit-box-shadow: 1px 1px 5px 0px rgba(0, 0, 0, 0.3);
-	-moz-box-shadow: 1px 1px 5px 0px rgba(0, 0, 0, 0.3);
-	box-shadow: 1px 1px 5px 0px rgba(0, 0, 0, 0.3);
-} */
-
 .Error{
 	border-color: #f00;
 	color: #f00;
@@ -118,23 +98,37 @@ h1 {
 	left: 0;
 	right: 0;
 	z-index: 3;
-	background: rgb(245, 245, 245);
+	background: #ccc;
 	-webkit-box-shadow: 0 -3px 20px 5px rgba(0, 0, 0, 0.5);
 	-moz-box-shadow: 0 -3px 20px 5px rgba(0, 0, 0, 0.5);
 	box-shadow: 0 -3px 20px 5px rgba(0, 0, 0, 0.5);
 }
 
-.toolbar button.layoutBtn {
-	background: url('data:image/svg+xml;utf8,<svg width="100%" height="100%" viewBox="0 0 70 60" enable-background="new 0 0 70 60" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink"><path id="diapath" d="M53,41V29H31V19h7V3H22v16h7v10H7v12H0v16h16V41H9V31h20v10h-7v16h16V41h-7V31h20v10h-7v16h16V41H53z M24,5h12v12H24V5z M14,55H2V43h12V55z M36,55H24V43h12V55z M58,55H46V43h12V55z"/></svg>') right no-repeat;
+
+.toolbar button{
+	background-color: white;
+	border-radius: 3px;
+	border: 1px solid #888;
+}
+
+.toolbar button:hover{
+	background-color: rgb(233, 233, 233);
+	border-radius: 3px;
+	border: 1px solid #FFA033;
+}
+
+.toolbar select:hover{
+	border: 1px solid #FFA033;
 }
 
 .palette {
 	width: 70px;
+	border: 1px solid #888;
 	position: absolute;
 	top: 100px;
 	left: 15px;
 	z-index: 2;
-	background: rgb(245, 245, 245);
+	background: rgb(204, 204, 204);
 	border: 1px solid rgb(200, 200, 200);
 	-webkit-box-shadow: 5px 5px 20px 0px rgba(0, 0, 0, 0.25);
 	-moz-box-shadow: 5px 5px 20px 0px rgba(0, 0, 0, 0.25);
