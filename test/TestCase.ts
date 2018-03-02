@@ -67,6 +67,13 @@ export abstract class TestCase {
         return obj1 !== null;
     }
 
+    protected assertNull(obj1: any, message?: string): boolean {
+        if (obj1 !== null || obj1 !== undefined) {
+            throw new Error((message ? '(' + message + ') ' : '') + 'Assertion error: ' + obj1 + ' expected, to be not null');
+        }
+        return obj1 === null;
+    }
+
     protected simulateClickEvent(element: Element, eventType?: string) {
         if ('createEvent' in document) {
             if (!eventType) {

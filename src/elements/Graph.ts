@@ -57,6 +57,11 @@ export class Graph extends Control {
         if (!this.options.origin) {
             this.options.origin = new Point(150, 45);
         }
+
+        if(this.options.autoSave){
+            Util.isAutoSave = options.autoSave;
+        }
+
         this.initFactories();
         this.initCanvas();
         this.initFeatures(this.options.features);
@@ -71,6 +76,10 @@ export class Graph extends Control {
     }
 
     public lookupInLocalStorage(): boolean {
+        if(!this.options.autoSave){
+            return false;
+        }
+
         if (!Util.isLocalStorageSupported()) {
             return false;
         }

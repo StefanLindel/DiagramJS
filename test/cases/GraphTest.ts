@@ -17,10 +17,11 @@ export abstract class GraphTest extends TestCase {
     }
 
     public close(): boolean {
-        if (this.graph.$owner) {
-            this.graph.$owner.removeChild(this.graph);
-        }
+        // if (this.graph.$owner) {
+        //     this.graph.$owner.removeChild(this.graph);
+        // }
         // this.bridge.removeChild(this.graph);
+        document.body.removeChild(this.graph.$view);
         return true;
     }
 }

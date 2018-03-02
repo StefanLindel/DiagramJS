@@ -6,6 +6,7 @@ export default interface Options {
     minHeight?: number;
     layout?: string;
     origin?: Point;       // x and y offset of rendered diagram
+    autoSave?: boolean;
     features?: {
         editor?: boolean,
         drag?: boolean,

@@ -5,6 +5,9 @@ import { DiagramElement, Point } from './elements/BaseElements';
 import { Control } from './Control';
 
 export class Util {
+
+    public static isAutoSave: boolean;
+
     static getRandomInt(min: number, max: number): number {
         return Math.floor(Math.random() * (max - min + 1)) + min;
     }
@@ -580,6 +583,10 @@ export class Util {
     }
 
     public static saveToLocalStorage(model: any): boolean{
+        if(!this.isAutoSave){
+            return false;
+        }
+
         if (Util.isLocalStorageSupported()) {
             if(model.$isLoading){
                 return false;

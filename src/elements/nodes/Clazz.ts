@@ -15,9 +15,9 @@ export class Clazz extends Node {
     protected $attrFontSize = 12;
 
     protected $labelView: Element;
-    protected attributes: Attribute[] = [];
-    protected methods: Method[] = [];
-    protected modifier: string;
+    public attributes: Attribute[] = [];
+    public methods: Method[] = [];
+    public modifier: string;
 
     constructor(json: JSON | string | Object | any) {
         super(json);
@@ -59,11 +59,11 @@ export class Clazz extends Node {
         this.withSize(width, y);
     }
 
-    public getAttributesObj(): Attribute[] {
+    public getAttributes(): Attribute[] {
         return this.attributes;
     }
 
-    public getMethodsObj(): Method[] {
+    public getMethods(): Method[] {
         return this.methods;
     }
 
@@ -233,6 +233,16 @@ export class Clazz extends Node {
 
     public addAttribute(value: string): Attribute {
         return this.addProperty(value, 'attributes');
+    }
+
+    public addAttributeObj(attr: Attribute): Attribute[] {
+        this.attributes.push(attr);
+        return this.getAttributes();
+    }
+
+    public addMethodObj(method: Method): Method[] {
+        this.methods.push(method);
+        return this.getMethods();
     }
 
     public addMethod(value: string): Method {

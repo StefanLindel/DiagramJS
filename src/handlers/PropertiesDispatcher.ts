@@ -213,7 +213,7 @@ export class PropertiesDispatcher implements EventHandler {
             tabContentAttr.removeChild(tabContentAttr.firstChild);
         }
 
-        let attributes = clazz.getAttributesObj();
+        let attributes = clazz.getAttributes();
         for (let attr of attributes) {
 
             let divEditAttr = this.createDivEditProperty(clazz, attr, 'attribute', tabContentAttr);
@@ -258,7 +258,7 @@ export class PropertiesDispatcher implements EventHandler {
             tabContentMethods.removeChild(tabContentMethods.firstChild);
         }
 
-        let methods = clazz.getMethodsObj();
+        let methods = clazz.getMethods();
         for (let method of methods) {
 
             let divEditMethod = this.createDivEditProperty(clazz, method, 'method', tabContentMethods);

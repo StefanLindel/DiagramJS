@@ -199,6 +199,12 @@ export class GraphModel extends DiagramElement {
         return this.getNodeById(id) || this.getEdgeById(id);
     }
 
+    /**
+     * Add an edge with data in json file. Optional you can say, that the edge should have
+     * the points of source node and target node.
+     * @param edge information about edge in json
+     * @param withPosOfNodes optional. set points to line of source and target node
+     */
     public addEdge(edge: any, withPosOfNodes?: boolean): Association {
 
         // lookup in factoryedges and check if the edge type realy exists
