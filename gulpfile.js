@@ -20,7 +20,8 @@ let webpackConfig = {
     output: {
         library: 'DiagramJS',
         filename: 'diagram.js',
-        path: path.resolve(__dirname, "dist"),//`${__dirname}/dist`,
+        //path: path.resolve(__dirname, "dist"),//`${__dirname}/dist`,
+		path: __dirname,//`${__dirname}/dist`,
     },
     devtool: 'inline-source-map',//cheap-module-eval-source-map // eval-source-map
     resolve: {
