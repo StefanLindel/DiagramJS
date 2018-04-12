@@ -1,12 +1,5 @@
-import { Clazz } from './elements/nodes/Clazz';
-import { EventHandler, EventBus } from './EventBus';
-import { Association } from './elements/index';
-import { DiagramElement } from './elements/BaseElements';
-import { Graph } from './elements/Graph';
+import {Graph} from './elements/Graph';
 import * as edges from './elements/edges';
-import Method from './elements/nodes/Method';
-import Attribute from './elements/nodes/Attribute';
-import { Button } from "./elements/nodes";
 
 export namespace PropertiesPanel {
 
@@ -32,14 +25,14 @@ export namespace PropertiesPanel {
             // remove all children from previous view
             if (this.propertiesContent) {
 
-                while(this.propertiesContent.hasChildNodes()){
+                while (this.propertiesContent.hasChildNodes()) {
                     this.propertiesContent.removeChild(this.propertiesContent.childNodes[0]);
                 }
             }
 
             // append children from new panel to show
             let children = panel.getPanel().childNodes;
-            while(children.length > 0){
+            while (children.length > 0) {
                 this.propertiesContent.appendChild(children[0]);
             }
 
@@ -56,8 +49,8 @@ export namespace PropertiesPanel {
 
         public openProperties() {
             this.isHidden = false;
-            document.getElementById("propertiesContent").className = "properties";
-            document.getElementById("propertiesMasterPanel").className = "propertiespanel";
+            document.getElementById('propertiesContent').className = 'properties';
+            document.getElementById('propertiesMasterPanel').className = 'propertiespanel';
 
             let btn = document.getElementById('propClassHeaderButtonDisplay');
             btn.innerHTML = '&#8897;';
@@ -87,10 +80,9 @@ export namespace PropertiesPanel {
 
             // main div to display any properties, class, edge, etc.
             this.propertiesMasterPanel = document.createElement('div');
-            this.propertiesMasterPanel.id = 'propertiesMasterPanel'
+            this.propertiesMasterPanel.id = 'propertiesMasterPanel';
             this.propertiesMasterPanel.className = 'propertiespanel-hidden';
 
-            // 
             this.propertiesContent = document.createElement('div');
             this.propertiesContent.id = 'propertiesContent';
             this.propertiesContent.className = 'properties-hidden';
@@ -127,15 +119,15 @@ export namespace PropertiesPanel {
 
             evt.stopPropagation();
             if (this.isHidden === false) {
-                document.getElementById("propertiesContent").className = "properties-hidden";
-                document.getElementById("propertiesMasterPanel").className = "propertiespanel-hidden";
+                document.getElementById('propertiesContent').className = 'properties-hidden';
+                document.getElementById('propertiesMasterPanel').className = 'propertiespanel-hidden';
                 let btn = document.getElementById('propClassHeaderButtonDisplay');
                 btn.innerHTML = '&#8896;';
                 btn.title = 'Show properties';
             }
             else {
-                document.getElementById("propertiesContent").className = "properties";
-                document.getElementById("propertiesMasterPanel").className = "propertiespanel";
+                document.getElementById('propertiesContent').className = 'properties';
+                document.getElementById('propertiesMasterPanel').className = 'propertiespanel';
                 let btn = document.getElementById('propClassHeaderButtonDisplay');
                 btn.innerHTML = '&#8897;';
                 btn.title = 'Hide properties';
@@ -155,7 +147,7 @@ export namespace PropertiesPanel {
             this.divPropertiesPanel = document.createElement('div');
 
             this.divPropertiesTabbedPanel = document.createElement('div');
-            this.divPropertiesTabbedPanel.id = 'propertiesTabbedPanel'; //TODO: change styles class
+            this.divPropertiesTabbedPanel.id = 'propertiesTabbedPanel'; // TODO: change styles class
             this.divPropertiesTabbedPanel.className = 'tabbedpane';
 
             // add tabbed panel
@@ -192,9 +184,9 @@ export namespace PropertiesPanel {
             tabElementBtn.id = id;
             tabElementBtn.className = 'tablinks';
             tabElementBtn.innerText = tabText;
-            tabElementBtn.value = tabValue
+            tabElementBtn.value = tabValue;
 
-            tabElementBtn.onclick = e => this.openTab(id);
+            tabElementBtn.onclick = () => this.openTab(id);
 
             return tabElementBtn;
         }
@@ -208,13 +200,12 @@ export namespace PropertiesPanel {
             let tab = <HTMLButtonElement>document.getElementById(clickedId);
             tab.className += ' active';
 
-
             // hide other tabcontent
             let tabContents = document.getElementsByClassName('tabcontent');
             for (let i = 0; i < tabContents.length; i++) {
                 (<HTMLElement>tabContents[i]).style.display = 'none';
             }
-            
+
             // display active tab content
             document.getElementById(this.getPropertiesView().toString().toLowerCase() + tab.value.toString())
                 .style.display = 'block';
@@ -223,8 +214,7 @@ export namespace PropertiesPanel {
     }
 
     export class ClassPanel extends APanel {
-
-        private _dataTypes: HTMLDataListElement;
+        private dataTypes: HTMLDataListElement;
 
         constructor() {
             super();
@@ -236,18 +226,17 @@ export namespace PropertiesPanel {
             // TODO: make a dynamic list of all ever entered types
             let typeList: string[] = ['boolean', 'byte', 'char', 'double', 'float', 'int', 'long', 'short', 'String', 'void'];
 
-            this._dataTypes = document.createElement('datalist');
-            this._dataTypes.id = 'dataTypes';
+            this.dataTypes = document.createElement('datalist');
+            this.dataTypes.id = 'dataTypes';
 
             typeList.forEach(type => {
                 let modifierOption = document.createElement('option');
                 modifierOption.value = type;
                 modifierOption.innerHTML = type;
-                this._dataTypes.appendChild(modifierOption);
+                this.dataTypes.appendChild(modifierOption);
             });
 
-            this.divPropertiesPanel.appendChild(this._dataTypes);
-
+            this.divPropertiesPanel.appendChild(this.dataTypes);
 
             // create and append tab elements
             this.divPropertiesTabbedPanel.appendChild(this.createTabElement('generalClassPropBtn', 'General', 'general'));
@@ -275,7 +264,6 @@ export namespace PropertiesPanel {
             let divTableBody = document.createElement('div');
             divTableBody.className = 'divTableBody';
 
-
             // ROW1: clazz name
             let divRowClazzName = document.createElement('div');
             divRowClazzName.className = 'divTableRow';
@@ -295,14 +283,11 @@ export namespace PropertiesPanel {
             textBoxClass.placeholder = 'Class name';
             textBoxClass.style.width = '100%';
 
-
             divRowClazzNameCellInput.appendChild(textBoxClass);
 
             divRowClazzName.appendChild(divRowClazzNameCellText);
             divRowClazzName.appendChild(divRowClazzNameCellInput);
             divTableBody.appendChild(divRowClazzName);
-
-
 
             // ROW2: clazz access modifier
             let divRowClazzModifier = document.createElement('div');
@@ -317,7 +302,7 @@ export namespace PropertiesPanel {
             let divRowClazzModifierCellInput = document.createElement('div');
             divRowClazzModifierCellInput.className = 'divTableCell';
 
-            // create modifier select 
+            // create modifier select
             let selectClazzModifier = document.createElement('select');
             selectClazzModifier.id = 'classModifier';
             selectClazzModifier.style.width = '100%';
@@ -327,24 +312,20 @@ export namespace PropertiesPanel {
             modifierObj['private'] = '-';
             modifierObj['protected'] = '#';
             modifierObj['package'] = '~';
-    
-            for(let title in modifierObj){
+
+            for (let title in modifierObj) {
                 let modifierOption = document.createElement('option');
                 modifierOption.value = title;
-                modifierOption.innerHTML = title
+                modifierOption.innerHTML = title;
                 selectClazzModifier.appendChild(modifierOption);
             }
             selectClazzModifier.value = 'public';
-
 
             divRowClazzModifierCellInput.appendChild(selectClazzModifier);
 
             divRowClazzModifier.appendChild(divRowClazzModifierCellText);
             divRowClazzModifier.appendChild(divRowClazzModifierCellInput);
             divTableBody.appendChild(divRowClazzModifier);
-
-
-
 
             divTable.appendChild(divTableBody);
 
@@ -373,7 +354,7 @@ export namespace PropertiesPanel {
             divEditProperty.id = div.id + 'Add';
             divEditProperty.style.marginTop = '5px';
 
-            // create modifier select 
+            // create modifier select
             let selectPropertyModifier = document.createElement('select');
             selectPropertyModifier.id = div.id + 'AddModifier';
 
@@ -382,9 +363,8 @@ export namespace PropertiesPanel {
             modifierObj['private'] = '-';
             modifierObj['protected'] = '#';
             modifierObj['package'] = '~';
-           
-    
-            for(let title in modifierObj){
+
+            for (let title in modifierObj) {
                 let modifierOption = document.createElement('option');
                 modifierOption.value = modifierObj[title];
                 modifierOption.innerHTML = modifierObj[title];
@@ -404,7 +384,7 @@ export namespace PropertiesPanel {
             // create type select
             let selectPropertyType = document.createElement('input');
             selectPropertyType.id = div.id + 'AddType';
-            selectPropertyType.setAttribute('list', this._dataTypes.id);
+            selectPropertyType.setAttribute('list', this.dataTypes.id);
 
             // create a button to delete the attribute
             let btnAdd = document.createElement('button');
@@ -418,7 +398,6 @@ export namespace PropertiesPanel {
             divEditProperty.appendChild(textBoxPropertyName);
             divEditProperty.appendChild(selectPropertyType);
             divEditProperty.appendChild(btnAdd);
-
 
             div.appendChild(divEditProperty);
             this.divPropertiesPanel.appendChild(div);
@@ -466,8 +445,7 @@ export namespace PropertiesPanel {
             let divTableBody = document.createElement('div');
             divTableBody.className = 'divTableBody';
 
-
-            // ROW 1: edge type 
+            // ROW 1: edge type
             let divRowEdgeType = document.createElement('div');
             divRowEdgeType.className = 'divTableRow';
 
@@ -484,7 +462,7 @@ export namespace PropertiesPanel {
             selectEdgeType.id = 'edgeTypeSelect';
             selectEdgeType.className = 'col2';
 
-            let edgeTypes: string[] = new Array();
+            let edgeTypes: string[] = [];
 
             for (let type in edges) {
                 if (type.toString() === 'Aggregate' || type.toString() === 'Direction') {
@@ -509,8 +487,7 @@ export namespace PropertiesPanel {
             divRowEdgeType.appendChild(divRowEdgeTypeCellSelect);
             divTableBody.appendChild(divRowEdgeType);
 
-
-            // ROW 2: edge label 
+            // ROW 2: edge label
             let divRowEdgeLabel = document.createElement('div');
             divRowEdgeLabel.className = 'divTableRow';
 
@@ -522,7 +499,6 @@ export namespace PropertiesPanel {
             // ROW 2 -> Cell2 input Label
             let divRowEdgeLabelCellInput = document.createElement('div');
             divRowEdgeLabelCellInput.className = 'divTableCell';
-
 
             let textBoxEdgeLabel = document.createElement('input');
             textBoxEdgeLabel.type = 'text';
@@ -536,7 +512,6 @@ export namespace PropertiesPanel {
             divRowEdgeLabel.appendChild(divRowEdgeLabelCellText);
             divRowEdgeLabel.appendChild(divRowEdgeLabelCellInput);
             divTableBody.appendChild(divRowEdgeLabel);
-
 
             // ROW3: source node
             let divRowEdgeSrcNode = document.createElement('div');
@@ -564,11 +539,6 @@ export namespace PropertiesPanel {
             divRowEdgeSrcNode.appendChild(divRowEdgeSrcNodeCellInput);
             divTableBody.appendChild(divRowEdgeSrcNode);
 
-
-
-
-
-
             // ROW4: source node property
             let divRowEdgeSrcNodeProperty = document.createElement('div');
             divRowEdgeSrcNodeProperty.className = 'divTableRow';
@@ -594,9 +564,6 @@ export namespace PropertiesPanel {
             divRowEdgeSrcNodeProperty.appendChild(divRowEdgeSrcNodePropertyCellInput);
             divTableBody.appendChild(divRowEdgeSrcNodeProperty);
 
-
-
-
             // ROW5: source node cardinality
             let divRowEdgeSrcNodeCardinality = document.createElement('div');
             divRowEdgeSrcNodeCardinality.className = 'divTableRow';
@@ -610,7 +577,6 @@ export namespace PropertiesPanel {
             let divRowEdgeSrcNodeCardinalityCellInput = document.createElement('div');
             divRowEdgeSrcNodeCardinalityCellInput.className = 'divTableCell';
 
-
             let inputSrcCardinalityType = document.createElement('input');
             inputSrcCardinalityType.id = 'inputEdgeSrcCardinality';
             inputSrcCardinalityType.className = 'col2';
@@ -622,8 +588,6 @@ export namespace PropertiesPanel {
             divRowEdgeSrcNodeCardinality.appendChild(divRowEdgeSrcNodeCardinalityCellText);
             divRowEdgeSrcNodeCardinality.appendChild(divRowEdgeSrcNodeCardinalityCellInput);
             divTableBody.appendChild(divRowEdgeSrcNodeCardinality);
-
-
 
             // ### TARGET ###
             // ROW6: target node
@@ -639,7 +603,6 @@ export namespace PropertiesPanel {
             let divRowEdgeTargetNodeCellInput = document.createElement('div');
             divRowEdgeTargetNodeCellInput.className = 'divTableCell';
 
-
             let textBoxEdgeTarget = document.createElement('input');
             textBoxEdgeTarget.type = 'text';
             textBoxEdgeTarget.id = 'edgeTargetInput';
@@ -647,14 +610,11 @@ export namespace PropertiesPanel {
             textBoxEdgeTarget.className = 'col2';
             textBoxEdgeTarget.readOnly = true;
 
-
             divRowEdgeTargetNodeCellInput.appendChild(textBoxEdgeTarget);
 
             divRowEdgeTargetNode.appendChild(divRowEdgeTargetNodeCellText);
             divRowEdgeTargetNode.appendChild(divRowEdgeTargetNodeCellInput);
             divTableBody.appendChild(divRowEdgeTargetNode);
-
-
 
             // ROW7: target node property
             let divRowEdgeTargetNodeProperty = document.createElement('div');
@@ -681,10 +641,6 @@ export namespace PropertiesPanel {
             divRowEdgeTargetNodeProperty.appendChild(divRowEdgeTargetNodePropertyCellInput);
             divTableBody.appendChild(divRowEdgeTargetNodeProperty);
 
-
-
-
-
             // ROW8: target node cardinality
             let divRowEdgeTargetNodeCardinality = document.createElement('div');
             divRowEdgeTargetNodeCardinality.className = 'divTableRow';
@@ -698,21 +654,17 @@ export namespace PropertiesPanel {
             let divRowEdgeTargetNodeCardinalityCellInput = document.createElement('div');
             divRowEdgeTargetNodeCardinalityCellInput.className = 'divTableCell';
 
-
             let inputTargetCardinalityType = document.createElement('input');
             inputTargetCardinalityType.id = 'inputEdgeTargetCardinality';
             inputTargetCardinalityType.className = 'col2';
             inputTargetCardinalityType.placeholder = 'Add target cardinality';
             inputTargetCardinalityType.setAttribute('list', dataListCardinalityTypes.id);
 
-
             divRowEdgeTargetNodeCardinalityCellInput.appendChild(inputTargetCardinalityType);
 
             divRowEdgeTargetNodeCardinality.appendChild(divRowEdgeTargetNodeCardinalityCellText);
             divRowEdgeTargetNodeCardinality.appendChild(divRowEdgeTargetNodeCardinalityCellInput);
             divTableBody.appendChild(divRowEdgeTargetNodeCardinality);
-
-
 
             divTable.appendChild(divTableBody);
             div.appendChild(dataListCardinalityTypes);
@@ -728,7 +680,7 @@ export namespace PropertiesPanel {
         }
 
         public init(): void {
-
+// do nothing
         }
 
         public getPropertiesView(): PropertiesView {

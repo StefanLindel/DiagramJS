@@ -1,16 +1,16 @@
-import { Graph } from "./main";
+import {Graph} from './main';
 
 export class Toolbar {
 
     private graph: Graph;
     private mainDiv: HTMLDivElement;
 
-    constructor(graph: Graph){
+    constructor(graph: Graph) {
         this.graph = graph;
     }
 
-    public show(): void{
-        if(this.mainDiv){
+    public show(): void {
+        if (this.mainDiv) {
             return;
         }
 
@@ -27,7 +27,9 @@ export class Toolbar {
         btnAutoLayout.style.marginTop = '12px';
         btnAutoLayout.textContent = 'Auto Layout';
 
-        btnAutoLayout.onclick = () => {this.graph.layout();};
+        btnAutoLayout.onclick = () => {
+            this.graph.layout();
+        };
 
         this.mainDiv.appendChild(h1Logo);
         this.mainDiv.appendChild(btnAutoLayout);
@@ -40,10 +42,11 @@ export class Toolbar {
         btnDeleteAll.style.marginLeft = '20px';
         btnDeleteAll.style.marginTop = '12px';
 
-        btnDeleteAll.onclick = () => 
-        {
+        btnDeleteAll.onclick = () => {
             let confirmDelete = confirm('All classes will be deleted!');
-            if(!confirmDelete) return;
+            if (!confirmDelete) {
+                return;
+            }
 
             this.graph.$graphModel.removeAllElements();
         };
@@ -65,10 +68,9 @@ export class Toolbar {
         btnGenerate.textContent = 'Generate';
         btnGenerate.title = 'Generate code into your workspace';
 
-        btnGenerate.onclick = () => 
-        {
+        btnGenerate.onclick = () => {
             let workspace = inputGenerateWorkspace.value;
-            if(workspace.length === 0){
+            if (workspace.length === 0) {
                 alert('No workspace set.\nEnter first your workspace');
                 inputGenerateWorkspace.focus();
                 return;
@@ -79,7 +81,6 @@ export class Toolbar {
         divGenerate.appendChild(inputGenerateWorkspace);
         divGenerate.appendChild(btnGenerate);
         this.mainDiv.appendChild(divGenerate);
-
 
         // export stuff
         let divExport = document.createElement('div');
@@ -104,7 +105,7 @@ export class Toolbar {
 
         divExport.appendChild(selectExport);
         this.mainDiv.appendChild(divExport);
-        
+
         document.body.appendChild(this.mainDiv);
     }
 }

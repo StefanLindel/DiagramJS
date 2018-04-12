@@ -1,8 +1,8 @@
 'use strict';
-import { CSS } from './CSS';
-import { Node } from './elements/nodes/Node';
-import { DiagramElement, Point } from './elements/BaseElements';
-import { Control } from './Control';
+import {CSS} from './CSS';
+import {Node} from './elements/nodes/Node';
+import {DiagramElement, Point} from './elements/BaseElements';
+import {Control} from './Control';
 
 export class Util {
 
@@ -246,12 +246,12 @@ export class Util {
 
         if (!board) {
             addBoard = true;
-            board = Util.createShape({ tag: 'svg', id: 'root', width: 200, height: 200 });
+            board = Util.createShape({tag: 'svg', id: 'root', width: 200, height: 200});
             document.body.appendChild(board);
         }
         if (board.tagName === 'svg') {
             if (typeof item === 'string') {
-                item = Util.create({ tag: 'text', $font: true, value: item });
+                item = Util.create({tag: 'text', $font: true, value: item});
                 item.setAttribute('width', '5px');
             }
         } else if (typeof item === 'string') {
@@ -286,13 +286,13 @@ export class Util {
     }
 
     public static utf8$to$b64(str: string): string {
-        return window.btoa(encodeURIComponent(str))
+        return window.btoa(encodeURIComponent(str));
     }
 
     public static showSVG(control: DiagramElement) {
         let svg = Util.create({
             tag: 'svg',
-            style: { left: control.getPos().x, top: control.getPos().y, position: 'absolute' }
+            style: {left: control.getPos().x, top: control.getPos().y, position: 'absolute'}
         });
         let child = control.getSVG();
         if (child) {
@@ -505,12 +505,14 @@ export class Util {
         let className = element.getAttribute('class');
         return className.indexOf(cls) > 0;
     }
+
     public static addClass(element: Element, cls: string) {
         if (!Util.hasClass(element, cls)) {
             let className = element.getAttribute('class');
             element.setAttributeNS(null, 'class', className + ' ' + cls);
         }
     }
+
     public static removeClass(element: Element, cls: string) {
         if (Util.hasClass(element, cls)) {
             let reg = new RegExp('(\\s|^)' + cls + '(\\s|$)');
@@ -529,7 +531,7 @@ export class Util {
 
     public static endsWith(s: string, searchS: string): boolean {
         if (!String.prototype.endsWith) {
-            var lastIndex = s.lastIndexOf(searchS);
+            let lastIndex = s.lastIndexOf(searchS);
             return lastIndex !== -1 && lastIndex === (s.length - 1);
         }
 
@@ -538,7 +540,7 @@ export class Util {
 
     public static includes(s: string, searchS: string): boolean {
         if (!String.prototype.includes) {
-            var idx = s.indexOf(searchS);
+            let idx = s.indexOf(searchS);
             return idx > -1;
         }
 
@@ -553,7 +555,6 @@ export class Util {
 
         if (Util.isIE()) {
             let children = parent.childNodes;
-            let found = false;
             for (let i = 0; i < children.length; i++) {
                 let childItem = children[i];
                 if (childItem === child) {
@@ -571,7 +572,7 @@ export class Util {
         let evt: CustomEvent;
 
         if (typeof window['CustomEvent'] !== 'function') {
-            params = params || { bubbles: false, cancelable: false, detail: undefined };
+            params = params || {bubbles: false, cancelable: false, detail: undefined};
             evt = document.createEvent('CustomEvent');
             evt.initCustomEvent(type, params.bubbles, params.cancelable, params.detail);
             return evt;
@@ -582,13 +583,13 @@ export class Util {
         return evt;
     }
 
-    public static saveToLocalStorage(model: any): boolean{
-        if(!this.isAutoSave){
+    public static saveToLocalStorage(model: any): boolean {
+        if (!this.isAutoSave) {
             return false;
         }
 
         if (Util.isLocalStorageSupported()) {
-            if(model.$isLoading){
+            if (model.$isLoading) {
                 return false;
             }
             let jsonObj = Util.toJson(model);
@@ -601,7 +602,7 @@ export class Util {
         return false;
     }
 
-    public static getDiagramFromLocalStorage(): string{
+    public static getDiagramFromLocalStorage(): string {
         if (Util.isLocalStorageSupported()) {
             return localStorage.getItem('diagram');
         }
@@ -609,8 +610,8 @@ export class Util {
         return undefined;
     }
 
-    public static isLocalStorageSupported(): boolean{
-        if(this.isEdge()){
+    public static isLocalStorageSupported(): boolean {
+        if (this.isEdge()) {
             return false;
         }
         return localStorage !== undefined;
