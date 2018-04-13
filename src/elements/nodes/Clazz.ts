@@ -8,6 +8,9 @@ import { Size } from '../index';
 import ClazzProperty from './ClazzProperty';
 
 export class Clazz extends Node {
+    public attributes: Attribute[] = [];
+    public methods: Method[] = [];
+    public modifier: string;
 
     protected $labelHeight = 25;
     protected $labelFontSize = 14;
@@ -15,9 +18,6 @@ export class Clazz extends Node {
     protected $attrFontSize = 12;
 
     protected $labelView: Element;
-    public attributes: Attribute[] = [];
-    public methods: Method[] = [];
-    public modifier: string;
 
     constructor(json: JSON | string | Object | any) {
         super(json);
@@ -29,7 +29,17 @@ export class Clazz extends Node {
             json = {};
         }
         let y = this.$labelHeight;
-        this.label = json.name || json.label || ('New ' + this.property);
+        let labelObj = json.name || json.label || json.id || ('New ' + this.property);
+        if (typeof labelObj === 'object') {
+            if (labelObj.cardinality === 'one') {
+                this.label = '0..1';
+            } else {
+                this.label = '0..*';
+            }
+            // this.label = labelObj.cardinality;
+        } else {
+            this.label = labelObj;
+        }
 
         let width: number = 150;
         width = Math.max(width, Util.sizeOf(this.label).width + 30);
@@ -99,7 +109,6 @@ export class Clazz extends Node {
         label.textContent = this.label;
         this.$labelView = label;
 
-
         group.appendChild(nodeShape);
         group.appendChild(label);
 
@@ -144,13 +153,12 @@ export class Clazz extends Node {
             // line to separate label from attributes
             const separatorAttrMethods = this.createShape({
                 tag: 'line',
-                x1: pos.x,                   //line doesn't overlap the full shape
+                x1: pos.x,                   // line doesn't overlap the full shape
                 y1: pos.y + this.$labelHeight + (this.$attrHeight * this.attributes.length),
-                x2: pos.x + size.x,        //line doesn't overlap the full shape
+                x2: pos.x + size.x,        // line doesn't overlap the full shape
                 y2: pos.y + this.$labelHeight + (this.$attrHeight * this.attributes.length),
                 'stroke-width': 1
             });
-
 
             group.appendChild(separatorAttrMethods);
 
@@ -176,31 +184,29 @@ export class Clazz extends Node {
         return group;
     }
 
-    public copy(): Clazz { 
-        let copy: Clazz; 
-        copy = <Clazz>super.copy(); 
- 
-        // copy label 
-        copy.label = this.label + 'Copy'; 
- 
-        // copy attributes 
-        this.attributes.forEach(attr => { 
-            copy.attributes.push(new Attribute(attr.toString())); 
-        }); 
- 
-        // copy methods 
-        this.methods.forEach(method => { 
-            copy.methods.push(new Method(method.toString())); 
-        }); 
+    public copy(): Clazz {
+        let copy: Clazz;
+        copy = <Clazz>super.copy();
 
+        // copy label
+        copy.label = this.label + 'Copy';
+
+        // copy attributes
+        this.attributes.forEach(attr => {
+            copy.attributes.push(new Attribute(attr.toString()));
+        });
+        // copy methods
+        this.methods.forEach(method => {
+            copy.methods.push(new Method(method.toString()));
+        });
         copy.reCalcSize();
- 
-        return copy; 
+
+        return copy;
     }
 
     public getEvents(): string[] {
-        return [EventBus.ELEMENTMOUSEDOWN, EventBus.ELEMENTMOUSEMOVE, EventBus.ELEMENTCLICK, 
-            EventBus.ELEMENTDRAG, EventBus.ELEMENTDBLCLICK, EventBus.OPENPROPERTIES, EventBus.RELOADPROPERTIES];
+        return [EventBus.ELEMENTMOUSEDOWN, EventBus.ELEMENTMOUSEMOVE, EventBus.ELEMENTCLICK,
+                EventBus.ELEMENTDRAG, EventBus.ELEMENTDBLCLICK, EventBus.OPENPROPERTIES, EventBus.RELOADPROPERTIES];
     }
 
     public addProperty(value: string, type: string): any {
@@ -281,7 +287,9 @@ export class Clazz extends Node {
             }
         }
 
-        if (!this.$view) return;
+        if (!this.$view) {
+            return;
+        }
 
         // redraw only this clazz
         this.$owner.$view.removeChild(this.$view);
@@ -313,23 +321,22 @@ export class Clazz extends Node {
 
         // update label in all edges
         this.$edges.forEach(edge => {
-            if(this.id === edge.$sNode.id){
+            if (this.id === edge.$sNode.id) {
                 edge.source = newLabel;
             }
-            else if(this.id === edge.$tNode.id){
+            else if (this.id === edge.$tNode.id) {
                 edge.target = newLabel;
             }
         });
 
-        
         Util.saveToLocalStorage(this.$owner);
 
         this.reDraw(true);
     }
 
-    public updateModifier(modifier: string): void{
+    public updateModifier(modifier: string): void {
         this.modifier = modifier;
-        
+
         Util.saveToLocalStorage(this.$owner);
     }
 

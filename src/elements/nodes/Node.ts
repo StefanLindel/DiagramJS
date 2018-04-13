@@ -6,7 +6,7 @@ export class Node extends DiagramElement {
     public $edges: Association[] = [];
     public $minWidth: number = 150;
     public $minheight: number = 25;
-    public $defaulEdgeType : string;
+    public $defaulEdgeType: string;
 
     public label: string;
 
@@ -65,24 +65,22 @@ export class Node extends DiagramElement {
         return group;
     }
 
-    public copy(): Node { 
-        let copy: Node; 
- 
-        // create new id 
-        let model = <GraphModel>this.$owner || <GraphModel>this.getRoot(); 
-        if (model) { 
-            let type = this.property || Node.name; 
-            let newId = model.getNewId(type); 
+    public copy(): Node {
+        let copy: Node;
+        // create new id
+        let model = <GraphModel>this.$owner || <GraphModel>this.getRoot();
+        if (model) {
+            let type = this.property || Node.name;
+            let newId = model.getNewId(type);
             copy = <Node>model.createElement(type, newId, null);
             copy.withSize(this.getSize().x, this.getSize().y);
             copy.$owner = model;
-        } else { 
-            copy.id = this.id + '-copy'; 
-            copy.$owner = this.getRoot(); 
-        } 
- 
-        return copy; 
-    } 
+        } else {
+            copy.id = this.id + '-copy';
+            copy.$owner = this.getRoot();
+        }
+        return copy;
+    }
 
     public redrawEdges() {
         for (let edge of this.$edges) {

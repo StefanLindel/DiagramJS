@@ -20,7 +20,6 @@ import { DiagramElement } from './index';
 import { Toolbar } from '../Toolbar';
 
 export class Graph extends Control {
-
     // canvas: HTMLElement;
     root: SVGElement;
     $graphModel: GraphModel;
@@ -50,7 +49,7 @@ export class Graph extends Control {
             json = json['data'];
             this.id = json['id'];
         }
-        this.options = options || {};
+        this.options = options || {features: { drag: true}};
         if (json['init']) {
             return;
         }
@@ -58,7 +57,7 @@ export class Graph extends Control {
             this.options.origin = new Point(150, 45);
         }
 
-        if(this.options.autoSave){
+        if (this.options.autoSave) {
             Util.isAutoSave = options.autoSave;
         }
 
@@ -68,7 +67,7 @@ export class Graph extends Control {
 
         // load previous session, if user wants it
         // otherwise load the json data
-        if(!this.lookupInLocalStorage()){
+        if (!this.lookupInLocalStorage()) {
             this.load(json);
         }
 
@@ -76,7 +75,7 @@ export class Graph extends Control {
     }
 
     public lookupInLocalStorage(): boolean {
-        if(!this.options.autoSave){
+        if (!this.options.autoSave) {
             return false;
         }
 
@@ -91,7 +90,6 @@ export class Graph extends Control {
                 return true;
             }
         }
-        
         return false;
     }
 
@@ -99,23 +97,23 @@ export class Graph extends Control {
         let maxWidth: number = 0;
         let maxHeight: number = 0;
 
-        for(let node of this.$graphModel.nodes){
+        for (let node of this.$graphModel.nodes) {
             let nodePos = node.getPos();
             let nodeSize = node.getSize();
             let nodeWidestPosX = nodePos.x + nodeSize.x;
             let nodeWidestPosY = nodePos.y + nodeSize.y;
 
-            if(nodeWidestPosX > maxWidth){
+            if (nodeWidestPosX > maxWidth) {
                 maxWidth = nodeWidestPosX;
             }
 
-            if(nodeWidestPosY > maxHeight){
+            if (nodeWidestPosY > maxHeight) {
                 maxHeight = nodeWidestPosY;
             }
         }
 
-        this.root.setAttributeNS(null, 'width', '' + (maxWidth+100));
-        this.root.setAttributeNS(null, 'height', '' + (maxHeight+50));
+        this.root.setAttributeNS(null, 'width', '' + (maxWidth + 100));
+        this.root.setAttributeNS(null, 'height', '' + (maxHeight + 50));
     }
 
     public saveAs(typ: string) {
@@ -172,7 +170,7 @@ export class Graph extends Control {
         let htmlFacade = '<html><head><title>DiagramJS - Classdiagram</title></head><body>$content</body></html>';
         let wellFormatedSvgDom = this.getSvgWithStyleAttributes();
         let svgAsXml = this.serializeXmlNode(wellFormatedSvgDom);
-        
+
         let htmlResult = htmlFacade.replace('$content', svgAsXml);
 
         this.save('text/plain', htmlResult, 'class_diagram.htm');
@@ -253,30 +251,6 @@ export class Graph extends Control {
         return oDOM;
     }
 
-    private readElement(parent: any, origData: any): void {
-        let children = parent.childNodes;
-        let origChildDat = origData.childNodes;
-
-        for (let cd = 0; cd < children.length; cd++) {
-            let child = children[cd];
-
-            let tagName = child.tagName;
-            if (this.containerElements.indexOf(tagName) !== -1) {
-                this.readElement(child, origChildDat[cd]);
-            } else if (tagName in this.relevantStyles) {
-                let styleDef = window.getComputedStyle(origChildDat[cd]);
-
-                let styleString = '';
-                for (let st = 0; st < this.relevantStyles[tagName].length; st++) {
-                    styleString += this.relevantStyles[tagName][st] + ':' + styleDef.getPropertyValue(this.relevantStyles[tagName][st]) + '; ';
-                }
-
-                child.setAttribute('style', styleString);
-            }
-        }
-
-    }
-
     public serializeXmlNode(xmlNode: any) {
         if (window['XMLSerializer'] !== undefined) {
             return (new window['XMLSerializer']()).serializeToString(xmlNode);
@@ -301,8 +275,6 @@ export class Graph extends Control {
         //     converter = new svgConverter(this.board, doc, {removeInvalid: false});
         //     doc.save();
         // };
-
-
     public load(json: JSON | Object, owner?: Control): any {
         this.$graphModel = new GraphModel();
         this.$graphModel.init(this);
@@ -369,7 +341,9 @@ export class Graph extends Control {
     public layout(dontDraw?: boolean) {
         this.getLayout().layout(this, this.$graphModel);
 
-        if (dontDraw) return;
+        if (dontDraw) {
+            return;
+        }
 
         this.draw();
     }
@@ -468,6 +442,29 @@ export class Graph extends Control {
         data = JSON.stringify(result, null, '\t');
         if (window['java'] && typeof window['java'].generate === 'function') {
             window['java'].generate(data);
+        }
+    }
+
+    private readElement(parent: any, origData: any): void {
+        let children = parent.childNodes;
+        let origChildDat = origData.childNodes;
+
+        for (let cd = 0; cd < children.length; cd++) {
+            let child = children[cd];
+
+            let tagName = child.tagName;
+            if (this.containerElements.indexOf(tagName) !== -1) {
+                this.readElement(child, origChildDat[cd]);
+            } else if (tagName in this.relevantStyles) {
+                let styleDef = window.getComputedStyle(origChildDat[cd]);
+
+                let styleString = '';
+                for (let st = 0; st < this.relevantStyles[tagName].length; st++) {
+                    styleString += this.relevantStyles[tagName][st] + ':' + styleDef.getPropertyValue(this.relevantStyles[tagName][st]) + '; ';
+                }
+
+                child.setAttribute('style', styleString);
+            }
         }
     }
 

@@ -81,12 +81,11 @@ export abstract class DiagramElement extends Control implements GraphElement, Ex
     }
 
     public getAlreadyDisplayingSVG(): Element {
-        
         return document.getElementById(this.id) || this.getSVG();
     }
-    
+
     public load(data: any) {
-        
+        // Do Nothing
     }
 
     public withPos(x: number, y: number): DiagramElement {

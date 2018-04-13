@@ -29,25 +29,6 @@ export class InfoText extends Node {
         this.withSize(calcSize.x, calcSize.y);
     }
 
-    private calcSize(): Point {
-        let text: string = this.getText();
-        let items: Array<string> = text.split('\n');
-
-        let maxSize = new Point(0, 0);
-        if (text.length === 0) return maxSize;
-
-        for (let i = 0; i < items.length; i += 1) {
-            // calculate size
-            let sizeOfText: ClientRect = Util.sizeOf(items[i]);
-            maxSize.x = Math.max(maxSize.x, sizeOfText.width);
-            maxSize.y += sizeOfText.height;
-
-            this.$heightOfOneTextItem = sizeOfText.height;
-        }
-
-        return maxSize;
-    }
-
     public updateCardinality(cardinality: string): void {
         this.cardinality = cardinality;
 
@@ -68,7 +49,7 @@ export class InfoText extends Node {
 
         if ((cardinality.length === 0 && this.property.length > 0) || !this.$cardinalitySvg) {
             this.$owner.$view.removeChild(this.$view);
-            this.resetAllSvgElements()
+            this.resetAllSvgElements();
 
             let svg = this.getSVG();
             this.$owner.$view.appendChild(svg);
@@ -88,18 +69,12 @@ export class InfoText extends Node {
             return;
         }
 
-        if (this.property.length == 0) {
+        if (this.property.length === 0) {
             this.$owner.$view.removeChild(this.$view);
-            this.resetAllSvgElements()
+            this.resetAllSvgElements();
 
             return;
         }
-    }
-
-    private resetAllSvgElements() {
-        this.$cardinalitySvg = undefined;
-        this.$view = undefined;
-        this.$propertySvg = undefined;
     }
 
     public updateProperty(property: string): void {
@@ -117,7 +92,7 @@ export class InfoText extends Node {
 
         if ((property.length === 0 && this.cardinality.length > 0) || !this.$propertySvg) {
             this.$owner.$view.removeChild(this.$view);
-            this.resetAllSvgElements()
+            this.resetAllSvgElements();
 
             let svg = this.getSVG();
             this.$owner.$view.appendChild(svg);
@@ -128,7 +103,6 @@ export class InfoText extends Node {
         if (this.$propertySvg) {
             this.$propertySvg.textContent = property;
 
-
             // update background
             if (this.$rectBackground) {
                 this.$rectBackground.setAttributeNS(null, 'width', '' + calcSize.x);
@@ -138,9 +112,9 @@ export class InfoText extends Node {
             return;
         }
 
-        if (this.cardinality.length == 0) {
+        if (this.cardinality.length === 0) {
             this.$owner.$view.removeChild(this.$view);
-            this.resetAllSvgElements()
+            this.resetAllSvgElements();
         }
     }
 
@@ -167,7 +141,7 @@ export class InfoText extends Node {
             // property
             this.$propertySvg = Util.createShape({
                 tag: 'text',
-                x: pos.x+3,
+                x: pos.x + 3,
                 y: y,
                 'text-anchor': 'left'
             });
@@ -181,7 +155,7 @@ export class InfoText extends Node {
         if (this.cardinality) {
             this.$cardinalitySvg = Util.createShape({
                 tag: 'text',
-                x: pos.x+3,
+                x: pos.x + 3,
                 y: y,
                 'text-anchor': 'left'
             });
@@ -203,7 +177,9 @@ export class InfoText extends Node {
 
     public redrawFromEdge(newPos: Point): void {
 
-        if (!newPos) return;
+        if (!newPos) {
+            return;
+        }
 
         let oldPos = this.getPos();
 
@@ -248,5 +224,31 @@ export class InfoText extends Node {
 
     public getEvents(): string[] {
         return [EventBus.ELEMENTCLICK, EventBus.ELEMENTDBLCLICK, EventBus.OPENPROPERTIES];
+    }
+
+    private calcSize(): Point {
+        let text: string = this.getText();
+        let items: Array<string> = text.split('\n');
+
+        let maxSize = new Point(0, 0);
+        if (text.length === 0) {
+            return maxSize;
+        }
+
+        for (let i = 0; i < items.length; i += 1) {
+            // calculate size
+            let sizeOfText: ClientRect = Util.sizeOf(items[i]);
+            maxSize.x = Math.max(maxSize.x, sizeOfText.width);
+            maxSize.y += sizeOfText.height;
+
+            this.$heightOfOneTextItem = sizeOfText.height;
+        }
+
+        return maxSize;
+    }
+    private resetAllSvgElements() {
+        this.$cardinalitySvg = undefined;
+        this.$view = undefined;
+        this.$propertySvg = undefined;
     }
 }

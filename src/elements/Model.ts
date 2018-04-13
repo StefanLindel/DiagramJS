@@ -57,8 +57,7 @@ export class GraphModel extends DiagramElement {
         let id = this.getNewId(type);
         let element = <DiagramElement>this.createElement(type, id, {});
         if (element) {
-            
-        Util.saveToLocalStorage(this);
+            Util.saveToLocalStorage(this);
             return true;
         }
         return false;
@@ -78,7 +77,6 @@ export class GraphModel extends DiagramElement {
             }
         }
 
-        
         Util.saveToLocalStorage(this);
 
         return element;
@@ -208,17 +206,17 @@ export class GraphModel extends DiagramElement {
     public addEdge(edge: any, withPosOfNodes?: boolean): Association {
 
         // lookup in factoryedges and check if the edge type realy exists
-        if(edge && edge.type){
+        if (edge && edge.type) {
             const graph = (<Graph>this.$owner);
             let typeExists = false;
-            for(let edgeType in graph.edgeFactory){
-                if(edgeType === edge.type){
+            for (let edgeType in graph.edgeFactory) {
+                if (edgeType === edge.type) {
                     typeExists = true;
                     break;
                 }
             }
 
-            if(!typeExists){
+            if (!typeExists) {
                 edge.type = 'Association';
             }
         }
@@ -304,13 +302,12 @@ export class GraphModel extends DiagramElement {
     private addNode(node: Node): Node {
         let type = node['type'] || node.property || 'Node';
         type = Util.toPascalCase(type);
-        let id = node['name'] || this.getNewId(type);
+        let id = node['id'] || node['name'] || this.getNewId(type);
 
         return <Node>this.createElement(type, id, node);
     }
 
     private getNodeById(id: string): Node {
-
         for (let node of this.nodes) {
             if (node.id === id) {
                 return node;
