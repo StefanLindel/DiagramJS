@@ -508,6 +508,10 @@ export class Graph extends Control {
         }
 
         root.appendChild(this.createPattern());
+        let fillValue = 'none';
+        if (this.options.raster) {
+            fillValue = 'url(#raster)';
+        }
         let background = Util.createShape({
             tag: 'rect',
             id: 'background',
@@ -517,7 +521,7 @@ export class Graph extends Control {
             y: 0,
             stroke: '#999',
             'stroke-width': '1',
-            fill: 'url(#raster)'
+            fill: fillValue
         });
         root.appendChild(background);
 

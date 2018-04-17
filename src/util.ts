@@ -1,8 +1,8 @@
 'use strict';
-import {CSS} from './CSS';
-import {Node} from './elements/nodes/Node';
-import {DiagramElement, Point} from './elements/BaseElements';
-import {Control} from './Control';
+import { CSS } from './CSS';
+import { Node } from './elements/nodes/Node';
+import { DiagramElement, Point } from './elements/BaseElements';
+import { Control } from './Control';
 
 export class Util {
 
@@ -246,12 +246,12 @@ export class Util {
 
         if (!board) {
             addBoard = true;
-            board = Util.createShape({tag: 'svg', id: 'root', width: 200, height: 200});
+            board = Util.createShape({ tag: 'svg', id: 'root', width: 200, height: 200 });
             document.body.appendChild(board);
         }
         if (board.tagName === 'svg') {
             if (typeof item === 'string') {
-                item = Util.create({tag: 'text', $font: true, value: item});
+                item = Util.create({ tag: 'text', $font: true, value: item });
                 item.setAttribute('width', '5px');
             }
         } else if (typeof item === 'string') {
@@ -292,7 +292,7 @@ export class Util {
     public static showSVG(control: DiagramElement) {
         let svg = Util.create({
             tag: 'svg',
-            style: {left: control.getPos().x, top: control.getPos().y, position: 'absolute'}
+            style: { left: control.getPos().x, top: control.getPos().y, position: 'absolute' }
         });
         let child = control.getSVG();
         if (child) {
@@ -505,14 +505,12 @@ export class Util {
         let className = element.getAttribute('class');
         return className.indexOf(cls) > 0;
     }
-
     public static addClass(element: Element, cls: string) {
         if (!Util.hasClass(element, cls)) {
             let className = element.getAttribute('class');
             element.setAttributeNS(null, 'class', className + ' ' + cls);
         }
     }
-
     public static removeClass(element: Element, cls: string) {
         if (Util.hasClass(element, cls)) {
             let reg = new RegExp('(\\s|^)' + cls + '(\\s|$)');
@@ -555,6 +553,7 @@ export class Util {
 
         if (Util.isIE()) {
             let children = parent.childNodes;
+            let found = false;
             for (let i = 0; i < children.length; i++) {
                 let childItem = children[i];
                 if (childItem === child) {
@@ -572,7 +571,7 @@ export class Util {
         let evt: CustomEvent;
 
         if (typeof window['CustomEvent'] !== 'function') {
-            params = params || {bubbles: false, cancelable: false, detail: undefined};
+            params = params || { bubbles: false, cancelable: false, detail: undefined };
             evt = document.createEvent('CustomEvent');
             evt.initCustomEvent(type, params.bubbles, params.cancelable, params.detail);
             return evt;
