@@ -90,10 +90,12 @@ export class Toolbar {
         let selectExport = document.createElement('select');
 
         exportTypes.forEach(type => {
-            let option = document.createElement('option');
-            option.value = type;
-            option.textContent = type;
-            selectExport.appendChild(option);
+            if (!(!window['jsPDF'] && type === 'PDF')) {
+                let option = document.createElement('option');
+                option.value = type;
+                option.textContent = type;
+                selectExport.appendChild(option);
+            }
         });
 
         selectExport.onchange = (evt) => {
