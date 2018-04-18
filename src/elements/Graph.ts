@@ -56,7 +56,10 @@ export class Graph extends Control {
         if (!this.options.origin) {
             this.options.origin = new Point(150, 45);
         }
-
+        if (!this.options.style) {
+            // Style can be classic or modern
+            this.options.style = 'classic';
+        }
         if (this.options.autoSave) {
             Util.isAutoSave = options.autoSave;
         }
@@ -87,6 +90,7 @@ export class Graph extends Control {
             if (confirm('Restore previous session?')) {
                 let jsonData: JSON = JSON.parse(diagram);
                 this.load(jsonData);
+                this.layout();
                 return true;
             }
         }
@@ -146,13 +150,17 @@ export class Graph extends Control {
 
     /**
      * generates a blob file and makes it available for download.
-     * @param typ type of file
+     * @param type type of file
      * @param data raw data
      * @param name name of download file
      */
-    public save(typ: string, data: any, name: string) {
+    public save(type: string, data: any, name: string, context: string) {
+        if (window['java']) {
+            window['java'].export(type, data, name, context);
+            return;
+        }
         let a = document.createElement('a');
-        a.href = window.URL.createObjectURL(new Blob([data], { type: typ }));
+        a.href = window.URL.createObjectURL(new Blob([data], { type: context }));
         a.download = name;
         document.body.appendChild(a);
         a.click();
@@ -162,7 +170,7 @@ export class Graph extends Control {
     /** Exports the diagram as svg. */
     public exportSvg(): void {
         let wellFormatedSvgDom = this.getSvgWithStyleAttributes();
-        this.save('image/svg+xml', this.serializeXmlNode(wellFormatedSvgDom), 'class_diagram.svg');
+        this.save('svg', this.serializeXmlNode(wellFormatedSvgDom), 'class_diagram.svg', 'image/svg+xml');
     }
 
     /** Exports the diagram as html. */
@@ -173,16 +181,16 @@ export class Graph extends Control {
 
         let htmlResult = htmlFacade.replace('$content', svgAsXml);
 
-        this.save('text/plain', htmlResult, 'class_diagram.htm');
+        this.save('html', htmlResult, 'class_diagram.htm', 'text/plain');
     }
 
     /** Exports the diagram as json. */
     public exportJson(): void {
-        let typ = 'text/plain';
+        let type = 'text/plain';
         let jsonObj = Util.toJson(this.$graphModel);
         let data = JSON.stringify(jsonObj, null, '\t');
 
-        this.save(typ, data, 'class_diagram.json');
+        this.save('json', data, 'class_diagram.json', type);
     }
 
     /** Exports the diagram as pdf. */

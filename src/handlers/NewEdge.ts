@@ -84,7 +84,6 @@ export class NewEdge implements EventHandler {
                 class: 'SVGEdge'
             };
 
-
             let shape = Util.createShape(attr);
             this.svgLine = shape;
 
@@ -145,8 +144,8 @@ export class NewEdge implements EventHandler {
 
         let jsonData = {
             type: edgeType,
-            source: this.sourceNode.label,
-            target: targetNode.label
+            source: this.sourceNode.id,
+            target: targetNode.id
         };
 
         let newEdge = this.graph.$graphModel.addEdge(<any>jsonData, true);
@@ -164,7 +163,7 @@ export class NewEdge implements EventHandler {
         this.x = this.sourceNode.getPos().x + (this.sourceNode.getSize().x / 2);
         this.y = this.sourceNode.getPos().y + (this.sourceNode.getSize().y / 2);
 
-        // TODO: get this into util or select 
+        // TODO: get this into util or select
         let lastInlineEdit = document.getElementById('inlineEdit');
         if (lastInlineEdit) {
             document.body.removeChild(lastInlineEdit);

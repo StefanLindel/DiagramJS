@@ -8,6 +8,7 @@ export default interface Options {
     origin?: Point;       // x and y offset of rendered diagram
     autoSave?: boolean;
     raster?: boolean;
+    style?: string;
     features?: {
         editor?: boolean,
         drag?: boolean,

@@ -42,7 +42,7 @@ export class Clazz extends Node {
         }
 
         let width: number = 150;
-        width = Math.max(width, Util.sizeOf(this.label).width + 30);
+        width = Math.max(width, Util.sizeOf(this.label).width + 60);
 
         if (json['attributes']) {
             for (let attr of json['attributes']) {
@@ -84,6 +84,20 @@ export class Clazz extends Node {
         let group = this.createShape({ tag: 'g', id: this.id, class: 'SVGClazz', transform: 'translate(0 0)' });
 
         // Full Shape
+        let options = null;
+        let style;
+        let clazzName;
+        if (this.$owner['options']) {
+            let options = this.$owner['options'];
+            if (options) {
+                style = options.style;
+            }
+        }
+        // = = = Background = = =
+        if (style === 'modern') {
+            clazzName = 'ClazzHeader';
+        }
+        clazzName = 'ClazzHeader';
         const nodeShape = this.createShape({
             tag: 'rect',
             x: pos.x,
@@ -91,8 +105,16 @@ export class Clazz extends Node {
             height: size.y,
             width: size.x,
             rx: 5,
-            ry: 5
+            ry: 5,
+            fill: 'none',
+            stroke: 'black',
+            'stroke-width': 1
         });
+        if (clazzName) {
+            nodeShape.setAttribute('className', clazzName);
+            let styleHeader = Util.getStyle('ClazzHeader');
+            // headerHeight = styleHeader.getNumber('height');
+        }
 
         // = = = LABEL = = =
         let label = this.createShape({
@@ -103,7 +125,6 @@ export class Clazz extends Node {
             'alignment-baseline': 'central',
             'font-family': 'Verdana',
             'font-size': this.$labelFontSize,
-            'font-weight': 'bold',
             fill: 'black'
         });
         label.textContent = this.label;
@@ -386,5 +407,128 @@ export class Clazz extends Node {
         for (let edge of this.$edges) {
             edge.redraw(this);
         }
+    }
+
+    private getModernStyle(): Element {
+        let width, height, id, size, z, item, rect, g, board, styleHeader, headerHeight, x, y;
+        board = this.getRoot()['board'];
+        styleHeader = Util.getStyle('ClazzHeader');
+        headerHeight = styleHeader.getNumber('height');
+        width = 0;
+        height = 10 + headerHeight;
+
+        if (this.property === 'Object' || this.getRoot()['$graphModel'].getType().toLowerCase() === 'objectdiagram') {
+            id = this.id.charAt(0).toLowerCase() + this.id.slice(1);
+            item = 'Object';
+        } else {
+            id = this.id;
+            item = 'Clazz';
+            if (this['counter']) {
+                id += ' (' + this['counter'] + ')';
+            }
+        }
+        g = Util.create({tag: 'g', model: this});
+        size = Util.sizeOf(id, this);
+        width = Math.max(width, size.width);
+        if (this.attributes && this.attributes.length > 0) {
+            height = height + this.attributes.length * 25;
+            for (z = 0; z < this.attributes.length; z += 1) {
+                width = Math.max(width, Util.sizeOf(this.attributes[z], this).width);
+            }
+        } else {
+            height += 20;
+        }
+        if (this.methods && this.methods.length > 0) {
+            height = height + this.methods.length * 25;
+            for (z = 0; z < this.methods.length; z += 1) {
+                width = Math.max(width, Util.sizeOf(this.methods[z], this).width);
+            }
+        }
+        width += 20;
+
+        let pos = this.getPos();
+        y = pos.y;
+        x = pos.x;
+
+        rect = {
+            tag: 'rect',
+            'width': width,
+            'height': height,
+            'x': x,
+            'y': y,
+            'class': item + ' draggable',
+            'fill': 'none'
+        };
+        g.appendChild(Util.create(rect));
+        g.appendChild(Util.create({
+            tag: 'rect',
+            rx: 0,
+            'x': x,
+            'y': y,
+            height: headerHeight,
+            'width': width,
+            'class': 'ClazzHeader'
+        }));
+
+        item = Util.create({
+            tag: 'text',
+            $font: true,
+            'class': 'InfoText',
+            'text-anchor': 'right',
+            'x': x + width / 2 - size.width / 2,
+            'y': y + (headerHeight / 2) + (size.height / 2),
+            'width': size.width
+        });
+
+        if (this.property === 'Object' || this.getRoot()['$graphModel'].type.toLowerCase() === 'objectdiagram') {
+            item.setAttribute('text-decoration', 'underline');
+        }
+        item.appendChild(document.createTextNode(id));
+
+        g.appendChild(item);
+        g.appendChild(Util.create({
+            tag: 'line',
+            x1: x,
+            y1: y + headerHeight,
+            x2: x + width,
+            y2: y + headerHeight,
+            stroke: '#000'
+        }));
+        y += headerHeight + 20;
+
+        if (this.attributes) {
+            for (z = 0; z < this.attributes.length; z += 1) {
+                g.appendChild(Util.create({
+                    tag: 'text',
+                    $font: true,
+                    'text-anchor': 'left',
+                    'width': width,
+                    'x': (x + 10),
+                    'y': y,
+                    value: this.attributes[z]
+                }));
+                y += 20;
+            }
+            if (this.attributes.length > 0) {
+                y -= 10;
+            }
+        }
+        if (this.methods && this.methods.length > 0) {
+            g.appendChild(Util.create({tag: 'line', x1: x, y1: y, x2: x + width, y2: y, stroke: '#000'}));
+            y += 20;
+            for (z = 0; z < this.methods.length; z += 1) {
+                g.appendChild(Util.create({
+                    tag: 'text',
+                    $font: true,
+                    'text-anchor': 'left',
+                    'width': width,
+                    'x': x + 10,
+                    'y': y,
+                    value: this.methods[z]
+                }));
+                y += 20;
+            }
+        }
+        return g;
     }
 }

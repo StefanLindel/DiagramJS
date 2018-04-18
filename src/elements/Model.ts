@@ -231,7 +231,10 @@ export class GraphModel extends DiagramElement {
         let source: Node;
         let sourceAsString: string = edge.source.id || edge.source;
         if (sourceAsString) {
-            source = this.getNodeByLabel(sourceAsString);
+            source = this.getNodeById(sourceAsString);
+            if (!source) {
+                source = this.getNodeByLabel(sourceAsString);
+            }
             if (!source) {
                 source = <Node>this.createElement('Clazz', this.getNewId('Clazz'), {name: edge.source});
                 source.init(this);
@@ -241,7 +244,10 @@ export class GraphModel extends DiagramElement {
         let target: Node;
         let targetAsString: string = edge.target.id || edge.target;
         if (targetAsString) {
-            target = this.getNodeByLabel(targetAsString);
+            target = this.getNodeById(targetAsString);
+            if (!target) {
+                target = this.getNodeByLabel(sourceAsString);
+            }
             if (!target) {
                 target = <Node>this.createElement('Clazz', this.getNewId('Clazz'), {name: edge.target});
                 target.init(this);

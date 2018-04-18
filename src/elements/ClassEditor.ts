@@ -9,13 +9,19 @@ export class ClassEditor extends Graph {
         options.canvas = options.canvas || 'canvas';
         // options.origin = options.origin || new Point(150, 45);
 //            layout: "DagreLayout",
+        options.autoSave = options.autoSave || true;
         if (!options.features) {
             options.features = {
                 drag: true,
                 editor: true,
                 palette: true,
                 select: true,
-                zoom: true
+                zoom: true,
+                toolbar: true,
+                import: true,
+                properties: true,
+                addnode: true,
+                newedge: true
             };
         }
         super(json, options);
