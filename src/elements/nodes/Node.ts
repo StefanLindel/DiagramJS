@@ -8,8 +8,6 @@ export class Node extends DiagramElement {
     public $minheight: number = 25;
     public $defaulEdgeType: string;
 
-    public label: string;
-
     constructor(data: JSON|string|Object|any) {
         super();
 
@@ -22,9 +20,6 @@ export class Node extends DiagramElement {
             }
             if (data['width'] || data['height']) {
                 this.withSize(data['width'], data['height']);
-            }
-            if (data['label']) {
-                this.label = data['label'];
             }
         }
     }

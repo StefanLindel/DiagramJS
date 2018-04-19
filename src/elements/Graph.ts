@@ -18,6 +18,8 @@ import { SymbolLibary } from './nodes/Symbol';
 import { CSS } from '../CSS';
 import { DiagramElement } from './index';
 import { Toolbar } from '../Toolbar';
+import {JSEPS} from '../JSEPS';
+import {SVGConverter} from '../SVGConverter';
 
 export class Graph extends Control {
     // canvas: HTMLElement;
@@ -199,8 +201,11 @@ export class Graph extends Control {
             console.log('jspdf n.a.');
             return;
         }
-        let typ = 'image/svg+xml';
-        let xmlNode = this.serializeXmlNode(this.getSvgWithStyleAttributes());
+        let type = 'image/svg+xml';
+        let converter, pdf = new window['jsPDF']('l', 'px', [this.$graphModel.getSize().x, this.$graphModel.getSize().y]);
+        converter = new SVGConverter(this.$view, pdf, {removeInvalid: false});
+        pdf.save('Download.pdf');
+/*        let xmlNode = this.serializeXmlNode(this.getSvgWithStyleAttributes());
         let url = window.URL.createObjectURL(new Blob([xmlNode], { type: typ }));
 
         let canvas, context, a, image = new Image();
@@ -222,6 +227,29 @@ export class Graph extends Control {
         };
 
         image.src = url;
+        */
+    }
+
+    public import(data: string): void {
+        let rootElement = this.$graphModel.$view;
+        while (rootElement.hasChildNodes()) {
+            rootElement.removeChild(rootElement.firstChild);
+        }
+
+        while (this.$view.hasChildNodes()) {
+            this.$view.removeChild(this.$view.firstChild);
+        }
+
+        this.clearModel();
+        let jsonData = JSON.parse(data);
+        this.load(jsonData);
+        this.layout();
+    }
+
+    public exportEPS(): void {
+          let converter, doc = new JSEPS({inverting: true});
+            converter = new SVGConverter(this.$view, doc, {removeInvalid: false});
+            this.save('eps', doc.getData(), 'diagram.eps', doc.getType());
     }
 
     /** Exports the diagram as png. */
@@ -444,7 +472,7 @@ export class Graph extends Control {
     }
 
     public generate(workspace: string) {
-        this.$graphModel.workspace = workspace;
+        this.$graphModel.package = workspace;
 
         let data, result = Util.toJson(this.$graphModel);
         data = JSON.stringify(result, null, '\t');

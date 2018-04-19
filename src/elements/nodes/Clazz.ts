@@ -16,7 +16,6 @@ export class Clazz extends Node {
     protected $labelFontSize = 14;
     protected $attrHeight = 25;
     protected $attrFontSize = 12;
-
     protected $labelView: Element;
 
     constructor(json: JSON | string | Object | any) {
@@ -29,20 +28,10 @@ export class Clazz extends Node {
             json = {};
         }
         let y = this.$labelHeight;
-        let labelObj = json.name || json.label || json.id || ('New ' + this.property);
-        if (typeof labelObj === 'object') {
-            if (labelObj.cardinality === 'one') {
-                this.label = '0..1';
-            } else {
-                this.label = '0..*';
-            }
-            // this.label = labelObj.cardinality;
-        } else {
-            this.label = labelObj;
-        }
+        let labelObj = json.name || json.id || ('New ' + this.property);
 
         let width: number = 150;
-        width = Math.max(width, Util.sizeOf(this.label).width + 60);
+        width = Math.max(width, Util.sizeOf(labelObj).width + 60);
 
         if (json['attributes']) {
             for (let attr of json['attributes']) {
@@ -127,7 +116,7 @@ export class Clazz extends Node {
             'font-size': this.$labelFontSize,
             fill: 'black'
         });
-        label.textContent = this.label;
+        label.textContent = this.id;
         this.$labelView = label;
 
         group.appendChild(nodeShape);
@@ -210,7 +199,7 @@ export class Clazz extends Node {
         copy = <Clazz>super.copy();
 
         // copy label
-        copy.label = this.label + 'Copy';
+        copy.id = this.id + 'Copy';
 
         // copy attributes
         this.attributes.forEach(attr => {
@@ -335,7 +324,6 @@ export class Clazz extends Node {
     }
 
     public updateLabel(newLabel: string): void {
-        this.label = newLabel;
         if (this.$labelView) {
             this.$labelView.textContent = newLabel;
         }
@@ -364,7 +352,7 @@ export class Clazz extends Node {
     public reCalcSize(): Size {
         // label
         let newWidth = 150;
-        newWidth = Math.max(newWidth, Util.sizeOf(this.label).width + 30);
+        newWidth = Math.max(newWidth, Util.sizeOf(this.id).width + 30);
 
         // attributes
         this.attributes.forEach(attrEl => {

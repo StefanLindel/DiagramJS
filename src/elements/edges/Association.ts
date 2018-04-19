@@ -52,7 +52,6 @@ export class Association extends DiagramElement {
             this.sourceInfo.$owner = this;
         }
 
-
         if (data.target && typeof data.target !== 'string') {
             trgInfo = data.target;
         }
@@ -82,30 +81,6 @@ export class Association extends DiagramElement {
         Util.saveToLocalStorage(this.$owner);
     }
 
-    private updateCardinality(node: Node, infoText: InfoText, cardinality: string): InfoText {
-        if (!infoText) {
-            infoText = new InfoText({ 'cardinality': cardinality });
-            infoText.$owner = this;
-
-            let calcPos = this.calcInfoPosNew(infoText, node);
-            infoText.withPos(calcPos.x, calcPos.y);
-            this.$view.appendChild(infoText.getSVG());
-
-            return infoText;
-        }
-
-        infoText.cardinality = cardinality;
-        if (infoText.isEmpty()) {
-            this.$view.removeChild(infoText.$view);
-
-            return undefined;
-        }
-
-        infoText.updateCardinality(cardinality);
-
-        return infoText;
-    }
-
     public updateSrcProperty(property: string): void {
         this.sourceInfo = this.updateProperty(this.$sNode, this.sourceInfo, property);
         this.redrawSourceInfo();
@@ -120,37 +95,13 @@ export class Association extends DiagramElement {
         Util.saveToLocalStorage(this.$owner);
     }
 
-    private updateProperty(node: Node, infoText: InfoText, property: string): InfoText {
-        if (!infoText) {
-            infoText = new InfoText({ 'property': property });
-            infoText.$owner = this;
-
-            let calcPos = this.calcInfoPosNew(infoText, node);
-            infoText.withPos(calcPos.x, calcPos.y);
-            this.$view.appendChild(infoText.getSVG());
-
-            return infoText;
-        }
-
-        infoText.property = property;
-        if (infoText.isEmpty()) {
-            this.$view.removeChild(infoText.$view);
-
-            return undefined;
-        }
-
-        infoText.updateProperty(property);
-
-        return infoText;
-    }
-
     public withItem(source: Node, target: Node): Association {
         source.$edges.push(this);
         target.$edges.push(this);
         this.$sNode = source;
         this.$tNode = target;
-        this.source = source.label;
-        this.target = target.label;
+        this.source = source.id;
+        this.target = target.id;
         return this;
     }
 
@@ -165,7 +116,7 @@ export class Association extends DiagramElement {
         };
         let pathLine = this.createShape(attr);
 
-        attr['style'] = 'stroke-width:20;opacity:0';
+        attr['style'] = 'stroke-width:20;opacity:0;width:20;height:20';
         let extendedPathLine = Util.createShape(attr);
 
         group.appendChild(extendedPathLine);
@@ -234,7 +185,6 @@ export class Association extends DiagramElement {
             graph.$graphModel.edges.push(newEdge);
         }
 
-
         if (!redraw) {
             return newEdge;
         }
@@ -298,20 +248,16 @@ export class Association extends DiagramElement {
             this.$points.splice(endPointIdx, 1);
         }
 
-        if (this.$tNode.id === startNode.id && this.$points.length == 2) {
-
+        if (this.$tNode.id === startNode.id && this.$points.length === 2) {
             this.calcIntersection(this.$sNode, endPoint, recalcPoint);
         }
-
-
-
 
         if (this.$points.length > 2 && this.$sNode.id === startNode.id && (startNode.getPos().y + (startNode.getSize().y / 2) > endPoint.y)) {
 
             this.$points.splice(endPointIdx, 1);
         }
 
-        if (this.$sNode.id === startNode.id && this.$points.length == 2) {
+        if (this.$sNode.id === startNode.id && this.$points.length === 2) {
 
             this.calcIntersection(this.$tNode, endPoint, recalcPoint);
         }
@@ -321,33 +267,11 @@ export class Association extends DiagramElement {
         }
     }
 
-    protected redrawPointsAndInfo(): void {
-        // redraw the edge with the new position
-        let path: string = this.getPath();
-        this.$pathSvg.setAttributeNS(null, 'd', path);
-        this.$pathWideSvg.setAttributeNS(null, 'd', path);
-
-        this.redrawSourceInfo();
-        this.redrawTargetInfo();
-    }
-
-    protected redrawSourceInfo() {
-        if (this.sourceInfo) {
-            let newPosOfSrc = this.calcInfoPosNew(this.sourceInfo, this.$sNode);
-            this.sourceInfo.redrawFromEdge(newPosOfSrc);
-        }
-    }
-
-    protected redrawTargetInfo() {
-        if (this.targetInfo) {
-            let newPosOfTarget = this.calcInfoPosNew(this.targetInfo, this.$tNode);
-            this.targetInfo.redrawFromEdge(newPosOfTarget);
-        }
-    }
-
     public getPath(): string {
 
-        if (this.$points.length == 0) return '';
+        if (this.$points.length === 0) {
+            return '';
+        }
 
         let path: string = 'M';
         for (let i = 0; i < this.$points.length; i++) {
@@ -360,72 +284,11 @@ export class Association extends DiagramElement {
 
         return path;
     }
-
-    private calcIntersection(startNode: Node, recalcPoint: Point, endPoint: Point): Point {
-
-        // https://www.mathelounge.de/21534/schnittpunkt-einer-linie-mit-den-randern-eines-rechtecks
-        let h = startNode.getSize().y;
-        let w = startNode.getSize().x;
-
-        let x1: number = startNode.getPos().x + (w / 2);
-        let y1: number = startNode.getPos().y + (h / 2);
-
-        let x2: number = endPoint.x;
-        let y2: number = endPoint.y;
-
-        let newX: number = recalcPoint.x;
-        let newY: number = recalcPoint.y;
-
-        if (x2 > x1) {
-            newX = x1 + (w / 2);
-        }
-        else if (x2 < x1) {
-            newX = x1 - (w / 2);
-        }
-        else {
-            newX = x1;
-        }
-
-        if ((x2 - x1) != 0) {
-            newY = ((y2 - y1) / (x2 - x1) * (newX - x1)) + y1;
-        }
-        else {
-            if (y1 > y2) {
-                newY = startNode.getPos().y;
-            }
-            else {
-                newY = startNode.getPos().y + h;
-            }
-        }
-
-        // if the statement is not true, so the intersection is at the horizontal line
-        if (!((y1 - (h / 2) <= newY) && newY <= y1 + (h / 2))) {
-
-            if (y2 > y1) {
-                newY = y1 + (h / 2);
-            }
-            else {
-                newY = y1 - (h / 2);
-            }
-
-            if ((x2 - x1) != 0) {
-                let tmp = ((y2 - y1) / (x2 - x1));
-                newX = (newY + (tmp * x1) - y1) / tmp;
-            }
-            else {
-                newX = x1;
-            }
-        }
-
-        recalcPoint.x = Math.ceil(newX);
-        recalcPoint.y = Math.ceil(newY);
-
-        return null;
-    }
-
     public calcInfoPosNew(infoTxt: InfoText, node: Node): Point {
 
-        if (!infoTxt || !node) return null;
+        if (!infoTxt || !node) {
+            return null;
+        }
 
         // 1. step: get direction
         let startPoint: Point;
@@ -498,8 +361,37 @@ export class Association extends DiagramElement {
         this.$points = [];
     }
 
-    protected getDirectionOfPointToNode(node: Node, pointNearNode: Point): Direction {
+    public addPoint(x: number, y: number): Point[] {
+        this.$points.push(new Point(x, y));
 
+        return this.$points;
+    }
+
+    protected redrawPointsAndInfo(): void {
+        // redraw the edge with the new position
+        let path: string = this.getPath();
+        this.$pathSvg.setAttributeNS(null, 'd', path);
+        this.$pathWideSvg.setAttributeNS(null, 'd', path);
+
+        this.redrawSourceInfo();
+        this.redrawTargetInfo();
+    }
+
+    protected redrawSourceInfo() {
+        if (this.sourceInfo) {
+            let newPosOfSrc = this.calcInfoPosNew(this.sourceInfo, this.$sNode);
+            this.sourceInfo.redrawFromEdge(newPosOfSrc);
+        }
+    }
+
+    protected redrawTargetInfo() {
+        if (this.targetInfo) {
+            let newPosOfTarget = this.calcInfoPosNew(this.targetInfo, this.$tNode);
+            this.targetInfo.redrawFromEdge(newPosOfTarget);
+        }
+    }
+
+    protected getDirectionOfPointToNode(node: Node, pointNearNode: Point): Direction {
         /*
             Example to calculate the direction of nearest point to Node
 
@@ -533,9 +425,113 @@ export class Association extends DiagramElement {
         return direction;
     }
 
-    public addPoint(x: number, y: number): Point[] {
-        this.$points.push(new Point(x, y));
+    private updateCardinality(node: Node, infoText: InfoText, cardinality: string): InfoText {
+        if (!infoText) {
+            infoText = new InfoText({ 'cardinality': cardinality });
+            infoText.$owner = this;
 
-        return this.$points;
+            let calcPos = this.calcInfoPosNew(infoText, node);
+            infoText.withPos(calcPos.x, calcPos.y);
+            this.$view.appendChild(infoText.getSVG());
+
+            return infoText;
+        }
+
+        infoText.cardinality = cardinality;
+        if (infoText.isEmpty()) {
+            this.$view.removeChild(infoText.$view);
+
+            return undefined;
+        }
+
+        infoText.updateCardinality(cardinality);
+
+        return infoText;
+    }
+
+    private updateProperty(node: Node, infoText: InfoText, property: string): InfoText {
+        if (!infoText) {
+            infoText = new InfoText({ 'property': property });
+            infoText.$owner = this;
+
+            let calcPos = this.calcInfoPosNew(infoText, node);
+            infoText.withPos(calcPos.x, calcPos.y);
+            this.$view.appendChild(infoText.getSVG());
+
+            return infoText;
+        }
+
+        infoText.property = property;
+        if (infoText.isEmpty()) {
+            this.$view.removeChild(infoText.$view);
+
+            return undefined;
+        }
+
+        infoText.updateProperty(property);
+
+        return infoText;
+    }
+
+    private calcIntersection(startNode: Node, recalcPoint: Point, endPoint: Point): Point {
+
+        // https://www.mathelounge.de/21534/schnittpunkt-einer-linie-mit-den-randern-eines-rechtecks
+        let h = startNode.getSize().y;
+        let w = startNode.getSize().x;
+
+        let x1: number = startNode.getPos().x + (w / 2);
+        let y1: number = startNode.getPos().y + (h / 2);
+
+        let x2: number = endPoint.x;
+        let y2: number = endPoint.y;
+
+        let newX: number = recalcPoint.x;
+        let newY: number = recalcPoint.y;
+
+        if (x2 > x1) {
+            newX = x1 + (w / 2);
+        }
+        else if (x2 < x1) {
+            newX = x1 - (w / 2);
+        }
+        else {
+            newX = x1;
+        }
+
+        if ((x2 - x1) !== 0) {
+            newY = ((y2 - y1) / (x2 - x1) * (newX - x1)) + y1;
+        }
+        else {
+            if (y1 > y2) {
+                newY = startNode.getPos().y;
+            }
+            else {
+                newY = startNode.getPos().y + h;
+            }
+        }
+
+        // if the statement is not true, so the intersection is at the horizontal line
+        if (!((y1 - (h / 2) <= newY) && newY <= y1 + (h / 2))) {
+
+            if (y2 > y1) {
+                newY = y1 + (h / 2);
+            }
+            else {
+                newY = y1 - (h / 2);
+            }
+
+            if ((x2 - x1) !== 0) {
+                let tmp = ((y2 - y1) / (x2 - x1));
+                newX = (newY + (tmp * x1) - y1) / tmp;
+            }
+            else {
+                newX = x1;
+            }
+        }
+
+        recalcPoint.x = Math.ceil(newX);
+        recalcPoint.y = Math.ceil(newY);
+
+        return null;
     }
 }

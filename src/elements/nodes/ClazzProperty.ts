@@ -1,58 +1,96 @@
-import { Util } from '../../util';
-import { Point } from '../BaseElements';
-import { DiagramElement } from '../BaseElements';
+import {Util} from '../../util';
+import {DiagramElement} from '../BaseElements';
 
-export default class ClazzProperty extends DiagramElement{
+export default class ClazzProperty extends DiagramElement {
 
     // Public (+)
     // Private (-)
     // Protected (#)
     // Package (~)
 
-    public modifier : string = '+';
-    public name : string;
-    public type : string;
+    public modifier: string = '+';
+    public name: string;
+    public type: string;
 
-    constructor(data : any | JSON){
+    constructor(data: any | JSON) {
         super();
         this.extractData(data);
     }
 
-    protected extractData(data: any | JSON) : void{
+    public update(data: any | JSON): void {
+        this.extractData(data);
+        this.updateTextOfView();
+    }
 
-        if(!data){
+    public updateModifier(modifier: string): void {
+        this.modifier = modifier;
+        this.updateTextOfView();
+    }
+
+    public updateType(type: string): void {
+        this.type = type;
+        this.updateTextOfView();
+    }
+
+    public updateName(name: string): void {
+        this.name = name;
+        this.updateTextOfView();
+    }
+
+    public getSVG(): Element {
+        let attrText = {
+            tag: 'text',
+            'text-anchor': 'start',
+            'alignment-baseline': 'middle',
+        };
+
+        let attrSvg = Util.createShape(attrText);
+        attrSvg.textContent = this.toString();
+
+        this.$view = attrSvg;
+
+        return attrSvg;
+    }
+
+    public toString(): string {
+        return `${this.modifier} ${this.name} : ${this.type}`;
+    }
+
+    protected extractData(data: any | JSON): void {
+
+        if (!data) {
             return;
         }
 
-        if(data.type){
+        if (data.type) {
             this.type = data.type;
         }
 
-        if(data.name){
+        if (data.name) {
             this.name = data.name;
         }
 
-        if(data.modifier){
+        if (data.modifier) {
             this.modifier = data.modifier;
         }
 
-        if(typeof data === 'string'){
+        if (typeof data === 'string') {
 
             // e.g. name : string or name:string
             let dataSplitted = data.split(':');
 
-            if(dataSplitted && dataSplitted.length === 2){
+            if (dataSplitted && dataSplitted.length === 2) {
 
                 // modifer (and or) name
                 let modifierAndNameSplitted = dataSplitted[0].trim();
 
                 // first char is +, - or #
                 let firstChar = modifierAndNameSplitted[0];
-                if(firstChar === '+' || firstChar === '-' || firstChar === '#'){
+                if (firstChar === '+' || firstChar === '-' || firstChar === '#') {
                     this.modifier = firstChar;
                     this.name = modifierAndNameSplitted.substring(1, modifierAndNameSplitted.length).trim();
                 }
-                else{
+                else {
                     this.name = modifierAndNameSplitted;
                 }
 
@@ -61,7 +99,7 @@ export default class ClazzProperty extends DiagramElement{
                 this.type = dataSplitted[1].trim() || 'String';
 
                 // if the type was entered with a small begin letter
-                if(this.type.toLowerCase() === 'string'){
+                if (this.type.toLowerCase() === 'string') {
                     this.type = 'String';
                 }
 
@@ -71,48 +109,9 @@ export default class ClazzProperty extends DiagramElement{
         }
     }
 
-    public update(data: any | JSON) : void{
-        this.extractData(data);
-        this.updateTextOfView();
-    }
-
-    public updateModifier(modifier : string) : void {
-        this.modifier = modifier;
-        this.updateTextOfView();
-    }
-
-    public updateType(type : string) : void {
-        this.type = type;
-        this.updateTextOfView();
-    }
-
-    public updateName(name : string) : void {
-        this.name = name;
-        this.updateTextOfView();
-    }
-
-    protected updateTextOfView(){
+    protected updateTextOfView() {
         this.$view.textContent = this.toString();
 
         Util.saveToLocalStorage(this.$owner.$owner);
-    }
-
-    public getSVG() : Element{
-        let attrText = {
-            tag: 'text',
-            'text-anchor': 'start',
-            'alignment-baseline': 'middle',
-        };
-
-        let attrSvg = Util.createShape(attrText);
-        attrSvg.textContent = this.toString();
- 
-        this.$view = attrSvg;
-
-        return attrSvg;
-    }
-
-    public toString() : string{
-        return `${this.modifier} ${this.name} : ${this.type}`;
     }
 }

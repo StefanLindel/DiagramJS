@@ -9,7 +9,8 @@ import {EventBus} from '../EventBus';
 export class GraphModel extends DiagramElement {
     nodes: Node[] = [];
     edges: Association[] = [];
-    workspace: string;
+    package: string;
+    genPath: string;
     $isLoading: boolean;
 
     public load(data?: any) {
@@ -233,9 +234,6 @@ export class GraphModel extends DiagramElement {
         if (sourceAsString) {
             source = this.getNodeById(sourceAsString);
             if (!source) {
-                source = this.getNodeByLabel(sourceAsString);
-            }
-            if (!source) {
                 source = <Node>this.createElement('Clazz', this.getNewId('Clazz'), {name: edge.source});
                 source.init(this);
             }
@@ -245,9 +243,6 @@ export class GraphModel extends DiagramElement {
         let targetAsString: string = edge.target.id || edge.target;
         if (targetAsString) {
             target = this.getNodeById(targetAsString);
-            if (!target) {
-                target = this.getNodeByLabel(sourceAsString);
-            }
             if (!target) {
                 target = <Node>this.createElement('Clazz', this.getNewId('Clazz'), {name: edge.target});
                 target.init(this);
@@ -320,15 +315,6 @@ export class GraphModel extends DiagramElement {
             }
         }
 
-        return undefined;
-    }
-
-    private getNodeByLabel(label: string): Node {
-        for (let node of this.nodes) {
-            if (node.label === label) {
-                return node;
-            }
-        }
         return undefined;
     }
 }

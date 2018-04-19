@@ -64,24 +64,8 @@ export class ImportFile implements EventHandler {
                 console.log('fileContent: ' + htmlResult);
 
                 // CHANGE TO INTERNAL OBJECT
-                let canvasElement = that.graph.$view;
-                let rootElement = that.graph.$graphModel.$view;
-                // let rootElement = document.getElementById('root');
-                // let canvasElement = document.getElementById('canvas');
-
-                while (rootElement.hasChildNodes()) {
-                    rootElement.removeChild(rootElement.firstChild);
-                }
-
-                while (canvasElement.hasChildNodes()) {
-                    canvasElement.removeChild(canvasElement.firstChild);
-                }
-
                 if (that.graph) {
-                    that.graph.clearModel();
-                    let jsonData = JSON.parse(htmlResult);
-                    that.graph.load(jsonData);
-                    that.graph.layout();
+                    that.graph.import(htmlResult);
                 }
             };
             reader.readAsText(f);

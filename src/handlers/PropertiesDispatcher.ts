@@ -1,60 +1,57 @@
-import { EventHandler, EventBus } from "../EventBus";
-import { DiagramElement } from "../elements/BaseElements";
+import {EventBus, EventHandler} from '../EventBus';
+import {DiagramElement} from '../elements/BaseElements';
 import * as properties from '../PropertiesPanel';
-import { Graph, Association } from "../main";
-import { Clazz } from '../elements/nodes/Clazz';
-import Attribute from "../elements/nodes/Attribute";
-import Method from "../elements/nodes/Method";
-import ClazzProperty from "../elements/nodes/ClazzProperty";
-
+import {Association, Graph} from '../main';
+import {Clazz} from '../elements/nodes/Clazz';
+import ClazzProperty from '../elements/nodes/ClazzProperty';
 
 export class PropertiesDispatcher implements EventHandler {
 
-    private _blankView: properties.PropertiesPanel.BlankView;
-    private _graph: Graph;
+    private blankView: properties.PropertiesPanel.BlankView;
+    private graph: Graph;
 
-    private _selectedElement: DiagramElement;
+    private selectedElement: DiagramElement;
 
     constructor(graph: Graph) {
-        this._blankView = new properties.PropertiesPanel.BlankView(graph);
-        this._graph = graph;
+        this.blankView = new properties.PropertiesPanel.BlankView(graph);
+        this.graph = graph;
     }
 
     public dispatch(view: properties.PropertiesPanel.PropertiesView): void {
         let createdView = this.createView(view);
-        this._blankView.show(createdView);
+        this.blankView.show(createdView);
     }
 
     public getCurrentView(): properties.PropertiesPanel.PropertiesView {
-        return this._blankView.getCurrentView();
+        return this.blankView.getCurrentView();
     }
 
     public openProperties(): void {
-        this._blankView.openProperties();
+        this.blankView.openProperties();
     }
 
     public handle(event: Event, element: DiagramElement): boolean {
 
         this.handleOpenProperties(event, element);
 
-        if(event.type === EventBus.RELOADPROPERTIES 
-            && this._selectedElement && element.id === this._selectedElement.id){
+        if (event.type === EventBus.RELOADPROPERTIES
+            && this.selectedElement && element.id === this.selectedElement.id) {
 
             this.handleSelectNodeEvent(event, element);
             this.handleSelectEdgeEvent(event, element);
         }
 
         // the same element was clicked. do nothing
-        if (this._selectedElement && this._selectedElement.id === element.id) {
+        if (this.selectedElement && this.selectedElement.id === element.id) {
             return true;
         }
 
-        if(element.id === 'RootElement'){
+        if (element.id === 'RootElement') {
             this.dispatch(properties.PropertiesPanel.PropertiesView.Clear);
             this.setPropertiesHeaderText('Select any element to see its properties');
         }
 
-        this._selectedElement = element;
+        this.selectedElement = element;
 
         this.handleSelectNodeEvent(event, element);
         this.handleSelectEdgeEvent(event, element);
@@ -62,8 +59,8 @@ export class PropertiesDispatcher implements EventHandler {
         return true;
     }
 
-    public setPropertiesHeaderText(text: string){
-        this._blankView.setPropertiesHeaderText(text);
+    public setPropertiesHeaderText(text: string) {
+        this.blankView.setPropertiesHeaderText(text);
     }
 
     public canHandle(): boolean {
@@ -114,9 +111,9 @@ export class PropertiesDispatcher implements EventHandler {
 
         let edge = <Association>element;
         this.dispatch(properties.PropertiesPanel.PropertiesView.Edge);
-        this._blankView.setPropertiesHeaderText('Properties of Edge: ' + edge.$sNode.label + '---' + edge.$tNode.label);
+        this.blankView.setPropertiesHeaderText('Properties of Edge: ' + edge.$sNode.id + '---' + edge.$tNode.id);
 
-        let g = this._graph;
+        let g = this.graph;
         // add eventlistener to combobox of edge type
         let cBoxEdgeType = <any>document.getElementById('edgeTypeSelect');
         cBoxEdgeType.value = edge.type;
@@ -129,11 +126,11 @@ export class PropertiesDispatcher implements EventHandler {
 
         // show label
         let inputTypeEdgeLabel = document.getElementById('edgeLabelInput');
-        inputTypeEdgeLabel.setAttribute('value', edge.$sNode.label + ' -> ' + edge.$tNode.label);
+        inputTypeEdgeLabel.setAttribute('value', edge.$sNode.id + ' -> ' + edge.$tNode.id);
 
         // show source node
         let inputTypeEdgeSrc = document.getElementById('edgeSrcInput');
-        inputTypeEdgeSrc.setAttribute('value', edge.$sNode.label);
+        inputTypeEdgeSrc.setAttribute('value', edge.$sNode.id);
 
         // show source property
         let inputEdgeSrcProperty = document.getElementById('edgeSrcProperty');
@@ -171,7 +168,7 @@ export class PropertiesDispatcher implements EventHandler {
 
         // show target node
         let inputTypeEdgeTarget = document.getElementById('edgeTargetInput');
-        inputTypeEdgeTarget.setAttribute('value', edge.$tNode.label);
+        inputTypeEdgeTarget.setAttribute('value', edge.$tNode.id);
 
         return true;
     }
@@ -184,21 +181,21 @@ export class PropertiesDispatcher implements EventHandler {
         }
 
         let that = this;
-        let graph = this._graph;
+        let graph = this.graph;
         let clazz = <Clazz>element;
         this.dispatch(properties.PropertiesPanel.PropertiesView.Clazz);
-        this._blankView.setPropertiesHeaderText('Properties of Class: ' + clazz.label);
+        this.blankView.setPropertiesHeaderText('Properties of Class: ' + clazz.id);
 
         // set class name of node in propertiespanel
         let classNameInputText = document.getElementById('className');
-        classNameInputText.setAttribute('value', clazz.label);
+        classNameInputText.setAttribute('value', clazz.id);
 
         classNameInputText.addEventListener('input', function () {
             clazz.updateLabel((<any>classNameInputText).value);
         });
 
         let clasModifierSelect = document.getElementById('classModifier');
-        clasModifierSelect.setAttribute('value', clazz.label);
+        clasModifierSelect.setAttribute('value', clazz.id);
 
         clasModifierSelect.addEventListener('change', function () {
             clazz.updateModifier((<any>clasModifierSelect).value);
@@ -228,7 +225,7 @@ export class PropertiesDispatcher implements EventHandler {
             let name = <HTMLInputElement>document.getElementById('clazzattributeAddName');
             let type = <HTMLSelectElement>document.getElementById('clazzattributeAddType');
 
-            if (!name.value || name.value.length == 0) {
+            if (!name.value || name.value.length === 0) {
                 // TODO: show message
                 return;
             }
@@ -267,14 +264,13 @@ export class PropertiesDispatcher implements EventHandler {
 
         tabContentMethods.appendChild(divAddMethod);
 
-
         let btnAddMethod = document.getElementById('clazzmethodBtnAddmethod');
         btnAddMethod.addEventListener('click', function () {
             let modifier = <HTMLSelectElement>document.getElementById('clazzmethodAddModifier');
             let name = <HTMLInputElement>document.getElementById('clazzmethodAddName');
             let type = <HTMLSelectElement>document.getElementById('clazzmethodAddType');
 
-            if (!name.value || name.value.length == 0) {
+            if (!name.value || name.value.length === 0) {
                 // TODO: show message
                 return;
             }
@@ -293,7 +289,7 @@ export class PropertiesDispatcher implements EventHandler {
 
             clazz.reDraw();
         });
-        // # # # END HANDLE METHODS # # # 
+        // # # # END HANDLE METHODS # # #
 
         return true;
     }
@@ -302,7 +298,7 @@ export class PropertiesDispatcher implements EventHandler {
         let divEditProp = document.createElement('div');
         divEditProp.style.marginTop = '5px';
 
-        // create modifier select 
+        // create modifier select
         let selectPropModifier = document.createElement('select');
 
         let modifierObj: Object = {};
@@ -311,7 +307,7 @@ export class PropertiesDispatcher implements EventHandler {
         modifierObj['protected'] = '#';
         modifierObj['package'] = '~';
 
-        for(let title in modifierObj){
+        for (let title in modifierObj) {
             let modifierOption = document.createElement('option');
             modifierOption.value = modifierObj[title];
             modifierOption.innerHTML = modifierObj[title];
