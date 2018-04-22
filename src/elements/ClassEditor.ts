@@ -26,4 +26,9 @@ export class ClassEditor extends Graph {
         }
         super(json, options);
     }
+
+    public setBoardStyle(value: string) {
+        console.log(value);
+        this.importFile.setBoardStyle(value);
+    }
 }

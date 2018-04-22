@@ -17,12 +17,12 @@ export class PropertiesDispatcher implements EventHandler {
         this.graph = graph;
     }
 
-    public dispatch(view: properties.PropertiesPanel.PropertiesView): void {
+    public dispatch(view: string): void {
         let createdView = this.createView(view);
         this.blankView.show(createdView);
     }
 
-    public getCurrentView(): properties.PropertiesPanel.PropertiesView {
+    public getCurrentView(): string {
         return this.blankView.getCurrentView();
     }
 
@@ -47,10 +47,13 @@ export class PropertiesDispatcher implements EventHandler {
         }
 
         if (element.id === 'RootElement') {
-            this.dispatch(properties.PropertiesPanel.PropertiesView.Clear);
+            this.dispatch('Clear');
             this.setPropertiesHeaderText('Select any element to see its properties');
         }
-
+        if (element.id === 'GenerateProp') {
+            this.dispatch('Generate');
+            this.setPropertiesHeaderText('Properties');
+        }
         this.selectedElement = element;
 
         this.handleSelectNodeEvent(event, element);
@@ -76,18 +79,21 @@ export class PropertiesDispatcher implements EventHandler {
         }
     }
 
-    private createView(view: properties.PropertiesPanel.PropertiesView): properties.PropertiesPanel.APanel {
+    private createView(view: string): properties.PropertiesPanel.APanel {
 
         let panel;
 
-        if (view === properties.PropertiesPanel.PropertiesView.Clazz) {
+        if (view === 'Clazz') {
             panel = new properties.PropertiesPanel.ClassPanel();
         }
-        if (view === properties.PropertiesPanel.PropertiesView.Clear) {
+        if (view === 'Clear') {
             panel = new properties.PropertiesPanel.ClearPanel();
         }
-        if (view === properties.PropertiesPanel.PropertiesView.Edge) {
+        if (view === 'Edge') {
             panel = new properties.PropertiesPanel.EdgePanel();
+        }
+        if (view === 'Generate') {
+            panel = new properties.PropertiesPanel.GeneratePanel( this.graph);
         }
 
         panel.init();
@@ -110,7 +116,7 @@ export class PropertiesDispatcher implements EventHandler {
         }
 
         let edge = <Association>element;
-        this.dispatch(properties.PropertiesPanel.PropertiesView.Edge);
+        this.dispatch('Edge');
         this.blankView.setPropertiesHeaderText('Properties of Edge: ' + edge.$sNode.id + '---' + edge.$tNode.id);
 
         let g = this.graph;
@@ -183,7 +189,7 @@ export class PropertiesDispatcher implements EventHandler {
         let that = this;
         let graph = this.graph;
         let clazz = <Clazz>element;
-        this.dispatch(properties.PropertiesPanel.PropertiesView.Clazz);
+        this.dispatch('Clazz');
         this.blankView.setPropertiesHeaderText('Properties of Class: ' + clazz.id);
 
         // set class name of node in propertiespanel

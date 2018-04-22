@@ -106,10 +106,10 @@ export abstract class DiagramElement extends Control implements GraphElement, Ex
         if (width && height) {
             this.$size = new Point(width, height);
         } else {
-            if (typeof (width) !== 'undefined') {
+            if (typeof (width) !== 'undefined' && width !== null) {
                 this.$size.x = width;
             }
-            if (typeof (height) !== 'undefined') {
+            if (typeof (height) !== 'undefined' && height !== null) {
                 this.$size.y = height;
             }
         }

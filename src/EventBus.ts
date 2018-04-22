@@ -44,7 +44,6 @@ export class EventBus {
 
     private static handlers = {};
 
-
     private static $activeHandler: string = '';
 
     public static setActiveHandler(handler: string): void {
@@ -53,13 +52,13 @@ export class EventBus {
 
     public static isHandlerActiveOrFree(handler: string, notEmpty?: boolean): boolean {
         if (notEmpty) {
-            return this.$activeHandler == handler;
+            return this.$activeHandler === handler;
         }
-        return this.$activeHandler == handler || this.$activeHandler == '' || this.$activeHandler == undefined;
+        return this.$activeHandler === handler || this.$activeHandler === '' || this.$activeHandler === undefined;
     }
 
     public static isAnyHandlerActive(): boolean {
-        return !(this.$activeHandler === '' || this.$activeHandler == undefined);
+        return !(this.$activeHandler === '' || this.$activeHandler === undefined);
     }
 
     public static releaseActiveHandler(): void {
@@ -79,16 +78,17 @@ export class EventBus {
         if (!events || !view) {
             return;
         }
-        let pos: number;
         for (let event of events) {
-            if (EventBus.EVENTS.indexOf(event) < 0) {
-            }
-            pos = event.indexOf(':');
-            if (pos > 0) {
-                view.addEventListener(event.substr(pos + 1).toLowerCase(), function (evt) { EventBus.publish(<DiagramElement>control, evt); });
-            } else {
-                view.addEventListener(event.substr(pos + 1).toLowerCase(), function (evt) { EventBus.publish(<DiagramElement>control, evt); });
-            }
+            this.registerEvent(view, event, control);
+        }
+    }
+
+    static registerEvent(view: Element, event: string, control?: any) {
+        const pos: number = event.indexOf(':');
+        if (pos > 0) {
+            view.addEventListener(event.substr(pos + 1).toLowerCase(), function (evt) { EventBus.publish(<DiagramElement>control, evt); });
+        } else {
+            view.addEventListener(event.substr(pos + 1).toLowerCase(), function (evt) { EventBus.publish(<DiagramElement>control, evt); });
         }
     }
 
@@ -111,5 +111,4 @@ export class EventBus {
             handlers.push(handler);
         }
     }
-
 }

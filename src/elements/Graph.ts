@@ -14,7 +14,6 @@ import { EventBus } from '../EventBus';
 import { AddNode, Drag, NewEdge, PropertiesDispatcher, Select, Zoom } from '../handlers';
 import Options from '../Options';
 import { ImportFile } from '../handlers/ImportFile';
-import { SymbolLibary } from './nodes/Symbol';
 import { CSS } from '../CSS';
 import { DiagramElement } from './index';
 import { Toolbar } from '../Toolbar';
@@ -30,6 +29,7 @@ export class Graph extends Control {
     nodeFactory: Object;
     edgeFactory: Object;
     layoutFactory: Object;
+    protected importFile: ImportFile;
     private currentlayout: Layout;
     private layerToolBar: SVGSVGElement;
     // https://stackoverflow.com/questions/15181452/how-to-save-export-inline-svg-styled-with-css-from-browser-to-image-file
@@ -94,6 +94,8 @@ export class Graph extends Control {
                 this.load(jsonData);
                 this.layout();
                 return true;
+            } else {
+                Util.saveToLocalStorage( null);
             }
         }
         return false;
@@ -471,8 +473,9 @@ export class Graph extends Control {
         }
     }
 
-    public generate(workspace: string) {
-        this.$graphModel.package = workspace;
+    public generate(packageName: string, path?: string) {
+        this.$graphModel.package = packageName;
+        this.$graphModel.genPath = path;
 
         let data, result = Util.toJson(this.$graphModel);
         data = JSON.stringify(result, null, '\t');
@@ -627,8 +630,9 @@ export class Graph extends Control {
             if (features.newedge) {
                 EventBus.subscribe(new NewEdge(this), 'mousedown', 'mouseup', 'mousemove', 'mouseleave');
             }
+            this.importFile = new ImportFile(this);
             if (features.import) {
-                EventBus.subscribe(new ImportFile(this), 'dragover', 'dragleave', 'drop');
+                EventBus.subscribe(this.importFile, 'dragover', 'dragleave', 'drop');
             }
             if (features.zoom) {
                 let mousewheel = 'onwheel' in document.createElement('div') ? 'wheel' : document.onmousewheel !== undefined ? 'mousewheel' : 'DOMMouseScroll';
@@ -648,7 +652,7 @@ export class Graph extends Control {
             }
             if (features.properties) {
                 let dispatcher = new PropertiesDispatcher(this);
-                dispatcher.dispatch(PropertiesPanel.PropertiesPanel.PropertiesView.Clear);
+                dispatcher.dispatch('Clear');
                 EventBus.subscribe(dispatcher, 'dblclick', 'click', EventBus.RELOADPROPERTIES);
             }
             if (features.addnode) {

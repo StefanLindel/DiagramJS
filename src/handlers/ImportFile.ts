@@ -25,7 +25,8 @@ export class ImportFile implements EventHandler {
     }
 
     public handle(event: Event, element: DiagramElement): boolean {
-        if (event instanceof DragEvent === false) {
+        let type: string = typeof event;
+        if (type !== 'DragEvent') {
             return false;
         }
         let evt: DragEvent = <DragEvent>event;
@@ -40,6 +41,29 @@ export class ImportFile implements EventHandler {
             this.handleLoadFile(evt);
         }
         return true;
+    }
+
+    public setBoardStyle(typ: string): boolean {
+        let b = this.graph.$view;
+        Util.removeClass(b, 'Error');
+        Util.removeClass(b, 'Ok');
+        Util.removeClass(b, 'Add');
+        if (typ === 'dragleave') {
+            if (b['errorText']) {
+                b.removeChild(b['errorText']);
+                b['errorText'] = null;
+            }
+            return true;
+        }
+        Util.addClass(b, typ);
+        if (typ === 'Error') {
+            if (!b['errorText']) {
+                b['errorText'] = Util.create({tag: 'div', style: 'margin-top: 30%', value: 'NO TEXTFILE'});
+                b.appendChild(b['errorText']);
+            }
+            return true;
+        }
+        return false;
     }
 
     private handleLoadFile(evt: DragEvent): void {
@@ -118,29 +142,6 @@ export class ImportFile implements EventHandler {
         event.stopPropagation();
         event.preventDefault();
         this.setBoardStyle(typ);
-    }
-
-    private setBoardStyle(typ: string): boolean {
-        let b = this.graph.$view;
-        Util.removeClass(b, 'Error');
-        Util.removeClass(b, 'Ok');
-        Util.removeClass(b, 'Add');
-        if (typ === 'dragleave') {
-            if (b['errorText']) {
-                b.removeChild(b['errorText']);
-                b['errorText'] = null;
-            }
-            return true;
-        }
-        Util.addClass(b, typ);
-        if (typ === 'Error') {
-            if (!b['errorText']) {
-                b['errorText'] = Util.create({tag: 'div', style: 'margin-top: 30%', value: 'NO TEXTFILE'});
-                b.appendChild(b['errorText']);
-            }
-            return true;
-        }
-        return false;
     }
 
     private handleDragLeave(evt: DragEvent): void {

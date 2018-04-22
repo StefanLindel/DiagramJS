@@ -2,13 +2,6 @@ import {Graph} from './elements/Graph';
 import * as edges from './elements/edges';
 
 export namespace PropertiesPanel {
-
-    export enum PropertiesView {
-        Clazz = 'clazz',
-        Edge = 'edge',
-        Clear = 'clear'
-    }
-
     export class BlankView {
         private propertiesMasterPanel: HTMLDivElement;
         private propertiesContent: HTMLDivElement;
@@ -65,7 +58,7 @@ export namespace PropertiesPanel {
             }
         }
 
-        public getCurrentView(): PropertiesView {
+        public getCurrentView(): string {
             return this.displayingPanel.getPropertiesView();
         }
 
@@ -156,7 +149,7 @@ export namespace PropertiesPanel {
 
         abstract init(): void;
 
-        abstract getPropertiesView(): PropertiesView;
+        abstract getPropertiesView(): string;
 
         public getPanel(): HTMLDivElement {
             return this.divPropertiesPanel;
@@ -207,7 +200,7 @@ export namespace PropertiesPanel {
             }
 
             // display active tab content
-            document.getElementById(this.getPropertiesView().toString().toLowerCase() + tab.value.toString())
+            document.getElementById(this.getPropertiesView().toLowerCase() + tab.value.toString())
                 .style.display = 'block';
 
         }
@@ -248,14 +241,14 @@ export namespace PropertiesPanel {
             this.createTabMethodContent();
         }
 
-        public getPropertiesView(): PropertiesView {
-            return PropertiesView.Clazz;
+        public getPropertiesView(): string {
+            return 'Clazz';
         }
 
         private createTabGeneralContent(): void {
 
             let div = document.createElement('div');
-            div.id = this.getPropertiesView().toString().toLowerCase() + 'general';
+            div.id = this.getPropertiesView().toLowerCase() + 'general';
             div.className = 'tabcontent';
 
             let divTable = document.createElement('div');
@@ -346,7 +339,7 @@ export namespace PropertiesPanel {
         private createtabPropertyContent(propertyType: string): void {
 
             let div = document.createElement('div');
-            div.id = this.getPropertiesView().toString().toLowerCase() + propertyType;
+            div.id = this.getPropertiesView().toLowerCase() + propertyType;
             div.className = 'tabcontent';
 
             // wrap all inputs in one div
@@ -417,8 +410,8 @@ export namespace PropertiesPanel {
             this.createTabGeneralEdgeContent();
         }
 
-        public getPropertiesView(): PropertiesView {
-            return PropertiesView.Edge;
+        public getPropertiesView(): string {
+            return 'Edge';
         }
 
         private createTabGeneralEdgeContent(): any {
@@ -436,7 +429,7 @@ export namespace PropertiesPanel {
             });
 
             let div = document.createElement('div');
-            div.id = this.getPropertiesView().toString().toLowerCase() + 'general';
+            div.id = this.getPropertiesView().toLowerCase() + 'general';
             div.className = 'tabcontent';
 
             let divTable = document.createElement('div');
@@ -672,7 +665,124 @@ export namespace PropertiesPanel {
             this.divPropertiesPanel.appendChild(div);
         }
     }
+    export class GeneratePanel extends APanel {
+        private graph: Graph;
+        constructor(graph: Graph) {
+            super();
+            this.graph = graph;
+        }
 
+        public init(): void {
+            this.divPropertiesTabbedPanel.appendChild(this.createTabElement('generalGeneratePropBtn', 'General', 'general'));
+
+            let div = document.createElement('div');
+            div.id = this.getPropertiesView().toLowerCase() + 'general';
+            div.className = 'tabcontent';
+
+            // Workspace and generate code stuff
+            let inputGenerateWorkspace = document.createElement('input');
+            inputGenerateWorkspace.id = 'inputWorkspace';
+            inputGenerateWorkspace.type = 'text';
+            inputGenerateWorkspace.placeholder = 'Type your Folder for generated code...';
+            inputGenerateWorkspace.value = 'src/main/java';
+            inputGenerateWorkspace.style.marginRight = '5px';
+            inputGenerateWorkspace.style.width = '260px';
+
+            let inputGeneratePackage = document.createElement('input');
+            inputGeneratePackage.id = 'inputWorkspace';
+            inputGeneratePackage.type = 'text';
+            inputGeneratePackage.placeholder = 'Type your workspace for generated code...';
+            inputGeneratePackage.style.marginRight = '5px';
+            inputGeneratePackage.style.width = '260px';
+            div.appendChild(inputGenerateWorkspace);
+            div.appendChild(inputGeneratePackage);
+
+            let options = document.createElement('div');
+            options.style.textAlign = 'center';
+            options.style.margin = '3';
+            options.style.padding = '5';
+            div.appendChild(options);
+            options.style.borderStyle = 'groove';
+            options.style.borderRadius = '10px';
+
+            options.appendChild(document.createTextNode('Options'));
+            options.appendChild(document.createElement('br'));
+            let btnGenerate = document.createElement('button');
+            btnGenerate.textContent = 'Generate';
+            btnGenerate.title = 'Generate code into your workspace';
+            btnGenerate.className = 'OptionElement';
+
+            btnGenerate.onclick = () => {
+                let workspace = inputGeneratePackage.value;
+                if (workspace.length === 0) {
+                    alert('No workspace set.\nEnter first your workspace');
+                    inputGeneratePackage.focus();
+                    return;
+                }
+                this.graph.generate(workspace, inputGenerateWorkspace.value);
+            };
+            options.appendChild(btnGenerate);
+            options.appendChild(document.createElement('hr'));
+            options.appendChild(document.createElement('br'));
+
+            let btnAutoLayout = document.createElement('button');
+            btnAutoLayout.id = 'layoutBtn';
+            btnAutoLayout.className = 'OptionElement';
+            btnAutoLayout.textContent = 'Auto Layout';
+
+            btnAutoLayout.onclick = () => {
+                this.graph.layout();
+            };
+
+            options.appendChild(btnAutoLayout);
+            options.appendChild(document.createElement('br'));
+
+            // delete all nodes
+            let btnDeleteAll = document.createElement('button');
+            btnDeleteAll.id = 'btnDeleteAll';
+            btnDeleteAll.className = 'OptionElement';
+            btnDeleteAll.textContent = 'Delete All';
+            btnDeleteAll.title = 'Delete all nodes from diagram';
+
+            btnDeleteAll.onclick = () => {
+                let confirmDelete = confirm('All classes will be deleted!');
+                if (!confirmDelete) {
+                    return;
+                }
+
+                this.graph.$graphModel.removeAllElements();
+            };
+            options.appendChild(btnDeleteAll);
+            options.appendChild(document.createElement('br'));
+
+            // export stuff
+            let exportTypes: string[] = ['Export', 'HTML', 'JSON', 'PDF', 'PNG', 'SVG'];
+            let selectExport = document.createElement('select');
+
+            exportTypes.forEach(type => {
+                if (!(!window['jsPDF'] && type === 'PDF')) {
+                    let option = document.createElement('option');
+                    option.value = type;
+                    option.textContent = type;
+                    selectExport.appendChild(option);
+                }
+            });
+
+            selectExport.onchange = (evt) => {
+                let selectedExportType = selectExport.options[selectExport.selectedIndex].value;
+                selectExport.selectedIndex = 0;
+                this.graph.saveAs(selectedExportType);
+            };
+            selectExport.className = 'OptionElement';
+            options.appendChild(selectExport);
+            options.appendChild(document.createElement('br'));
+            this.divPropertiesPanel.appendChild(div);
+        }
+
+        public getPropertiesView(): string {
+            return 'generate';
+        }
+    }
     export class ClearPanel extends APanel {
 
         constructor() {
@@ -683,8 +793,8 @@ export namespace PropertiesPanel {
 // do nothing
         }
 
-        public getPropertiesView(): PropertiesView {
-            return PropertiesView.Clear;
+        public getPropertiesView(): string {
+            return 'Clear';
         }
     }
 }

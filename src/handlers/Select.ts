@@ -132,7 +132,7 @@ export class Select implements EventHandler {
 
                 if (Util.isChrome()) {
                     // only if input is empty, remove the inline edit function
-                    if ((!inputText.value || inputText.value.length === 0) && (!this.lastSelectedNode || element.id != this.lastSelectedNode.id)) {
+                    if ((!inputText.value || inputText.value.length === 0) && (!this.lastSelectedNode || element.id !== this.lastSelectedNode.id)) {
                         this.removeLastInlineEdit();
                     }
 

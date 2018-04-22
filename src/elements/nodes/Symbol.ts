@@ -41,7 +41,7 @@ export class SymbolLibary {
         return symbol;
     }
 
-    public static draw(node: DiagramElement, parent?: Object): SVGElement {
+    public static draw(node: any, parent?: Object): SVGElement {
         // Node is Symbol or simple Object
         let symbol, fn = this[SymbolLibary.getName(node)];
         if (typeof fn === 'function') {
@@ -85,11 +85,11 @@ export class SymbolLibary {
     }
 
     public static getName(node: any): string {
-        if (node.property) {
-            return 'draw' + SymbolLibary.upFirstChar(node.property);
-        }
         if (node['type']) {
             return 'draw' + SymbolLibary.upFirstChar(node['type']);
+        }
+        if (node.property) {
+            return 'draw' + SymbolLibary.upFirstChar(node.property);
         }
         if (node['src']) {
             return 'draw' + SymbolLibary.upFirstChar(node['src']);
@@ -336,8 +336,8 @@ export class SymbolLibary {
             width: 50,
             height: 52,
             items: [
-                { tag: 'circle', r: 10, fill: '#ccc', cx: 8, cy: 8 },
-                { tag: 'path', d: 'M 2,3 H 13 M 2,8 H 13 M 2,13 H 13', stroke: 'black', fill: 'none' }
+                { tag: 'circle', r: 10, fill: '#ccc', cx: 12, cy: 12, 'stroke-width': 1, stroke: 'black'},
+                { tag: 'path', d: 'M 8,7 H 16 M 8,12 H 16 M 8,17 H 16', stroke: 'black', fill: 'none' }
             ]
         });
     }

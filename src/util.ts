@@ -588,13 +588,16 @@ export class Util {
         }
 
         if (Util.isLocalStorageSupported()) {
-            if (model.$isLoading) {
-                return false;
+            if (model) {
+                if (model.$isLoading) {
+                    return false;
+                }
+                let jsonObj = Util.toJson(model);
+                let data = JSON.stringify(jsonObj, null, '\t');
+                localStorage.setItem('diagram', data);
+            } else {
+                localStorage.removeItem('diagram');
             }
-            let jsonObj = Util.toJson(model);
-            let data = JSON.stringify(jsonObj, null, '\t');
-
-            localStorage.setItem('diagram', data);
             return true;
         }
 
