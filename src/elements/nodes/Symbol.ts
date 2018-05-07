@@ -123,10 +123,14 @@ export class SymbolLibary {
         let func, y: number, z: number, box, item: Element, transform, i, offsetX = 0, offsetY = 0;
         let svg: any;
         if (node.property.toUpperCase() === 'HTML') {
-            svg = Util.create({
+            let so = {
                 tag: 'svg',
-                style: { left: group.x + node.getPos().x, top: group.y + node.getPos().y, position: 'absolute' }
-            });
+                style: { left: (group.x | 0) + node.getPos().x, top: (group.y | 0) + node.getPos().y, position: 'absolute' }
+            };
+            if (node['transform']) {
+                so['transform'] = node['transform'];
+            }
+            svg = Util.create(so);
         } else {
             svg = Util.create({ tag: 'g' });
             transform = 'translate(' + group.getPos().x + ' ' + group.getPos().y + ')';
@@ -717,6 +721,31 @@ export class SymbolLibary {
         });
     }
 
+    public static drawClazz(node: DiagramElement): DiagramElement {
+
+        let btnX = 0, btnY = 0, btnWidth = 0, btnHeight = 0;
+        return SO.create({
+            x: btnX,
+            y: btnY,
+            id: node['id'],
+            width: '100%',
+            height: '100%',
+            items: [
+                { tag: 'rect', width: 50, height: 40, x: 0, y: 0, 'stroke-width': 2, stroke: 'black', fill: 'none'},
+                { tag: 'rect', width: 50, height: 12, x: 0, y: 18, 'stroke-width': 1, stroke: 'black', fill: 'none'},
+                { tag: 'text', x: 27, y: 14, 'text-anchor': 'middle', 'font-size': 11, value: 'Class'},
+                { tag: 'text', x: 5, y: 24, 'font-size': 5, value: '+ field: type'},
+                { tag: 'text', x: 5, y: 36, 'font-size': 5, value: '+ method(type)'}
+            ]
+        });
+    }
+/*
+<svg width="100%" height="100%" viewbox="0 0 550 450" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+    <g>
+    <text x="275" y="140" text-anchor="middle" font-size="111">Class</text>
+        <text x="50" y="240" font-size="50">+ field: type</text><text x="50" y="360" font-size="50">+ method(type)</text></g></svg>
+*/
+
     public static drawEdgeicon(node: DiagramElement): DiagramElement {
 
         let btnX = 0, btnY = 0, btnWidth = 0, btnHeight = 0;
@@ -838,4 +867,9 @@ export class SymbolLibary {
         box.appendChild(item);
         return item;
     }
+
+    public getToolBarIcon(): Element {
+        return null;
+    }
+
 }

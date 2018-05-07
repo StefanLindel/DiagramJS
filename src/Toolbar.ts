@@ -1,5 +1,4 @@
 import {Graph} from './main';
-import {Node} from './elements/nodes/Node';
 import {SymbolLibary} from './elements/nodes/Symbol';
 import {EventBus} from './EventBus';
 

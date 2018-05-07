@@ -22,17 +22,23 @@ interface GraphElement {
     withPos(x: number, y: number): GraphElement;
 
     load(data: any): any;
+
+    getToolBarIcon(): Element;
+
+    loadProperties(properties: any): void;
 }
 
-export interface ExtendedGraphElement {
-    getAlreadyDisplayingSVG(): Element;
-}
-
-export abstract class DiagramElement extends Control implements GraphElement, ExtendedGraphElement {
+export abstract class DiagramElement extends Control implements GraphElement {
 
     protected $isDraggable: boolean = true;
+    protected $labelHeight = 25;
+    protected $labelFontSize = 14;
     private $pos: Point = new Point();
     private $size: Point = new Point();
+
+    public getToolBarIcon(): Element {
+        return null;
+    }
 
     public getPos(): Point {
         return this.$pos;
@@ -88,7 +94,7 @@ export abstract class DiagramElement extends Control implements GraphElement, Ex
         // Do Nothing
     }
 
-    public withPos(x: number, y: number): DiagramElement {
+    public withPos(x: number, y: number): GraphElement {
         if (x && y) {
             this.$pos = new Point(x, y);
         } else {
@@ -123,6 +129,10 @@ export abstract class DiagramElement extends Control implements GraphElement, Ex
         //    }
         // }
         return super.getShowed();
+    }
+
+    public loadProperties(properties: any) {
+        // DO Nothing
     }
 
     protected createShape(attrs: any): Element {

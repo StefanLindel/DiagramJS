@@ -1,0 +1,31 @@
+{
+  "compileOnSave": true,
+  "compilerOptions": {
+	"noImplicitReturns": true,
+	"noImplicitAny": true,
+    "outDir": "dist/",
+    "sourceRoot": "src/",
+    "module": "commonjs",
+    "moduleResolution": "node",
+    "preserveConstEnums": true,
+    "removeComments": true,
+    "suppressImplicitAnyIndexErrors": true,
+    "sourceMap": true,
+    "target": "es5",
+    "pretty": true,
+    "lib": [
+      "es2015.core",
+      "es5",
+      "dom",
+      "scripthost"
+    ]
+  },
+	"include": [
+		"src/**/*.ts"
+	],
+  "exclude": [
+    "dist",
+    "node_modules",
+	"demo"
+  ]
+}

@@ -1,0 +1,85 @@
+<html><body>
+
+
+
+<svg id="paint" width=400px height=400px style="border:1px solid black">
+</svg>
+
+
+<script language="Javascript">
+document.getElementById("paint").onmousemove = move;
+document.getElementById("paint").onmouseleave = disable;
+document.getElementById("paint").onmouseup = disable;
+document.getElementById("paint").onmousedown = down;
+var path = null;
+function down(e) {
+	path = document.createElementNS('http://www.w3.org/2000/svg',"path");
+	path.setAttribute("d", "M "+e.x+" "+e.y);
+	path['x'] = e.x;
+	path['y'] = e.y;
+	path['type'] = 0;
+	path.style['stroke']="black";
+	path['oldPath'] = path.getAttribute("d");
+	document.getElementById("paint").appendChild(path);
+}
+
+function disable(e) {
+	if(path) {
+		var newPath = path.getAttribute("d");
+		newPath += " L"+e.x+" "+e.y+ " M"+e.x+" "+e.y;
+		path.setAttribute("d", newPath);
+	}
+	path = null;
+}
+function move(e) {
+	if(path) {
+		var oldX = path['x'];
+		var oldY = path['y'];
+		if(path['y'] == e.y && path['x'] == e.x) {
+			return;
+		}
+		if(path['y'] == e.y) {
+			/* <-- or --> */
+			if(e.x > path['x'] && (path['type']==6 || path['type']==0)) {
+				path['x'] = e.x;
+				path['type']=6;
+				path.setAttribute("d", path['oldPath'] + " L"+e.x+" "+e.y+ " M"+e.x+" "+e.y);
+				return;
+			} else if(e.x < path['x'] && (path['type']==4 || path['type']==0)) {
+				path['type']=4;
+				path['x'] = e.x;
+				path.setAttribute("d", path['oldPath'] + " L"+e.x+" "+e.y+ " M"+e.x+" "+e.y);
+				return;
+			}
+		}else if(path['x'] == e.x) {
+			if(e.y > path['y'] && (path['type']==2 || path['type']==0)) {
+				path['type']=2;
+				path['y'] = e.y;
+				path.setAttribute("d", path['oldPath'] + " L"+e.x+" "+e.y+ " M"+e.x+" "+e.y);
+				return;
+			} else if(e.y < path['y'] && (path['type']==8 || path['type']==0)) {
+				path['type']=8;
+				path['y'] = e.y;
+				path.setAttribute("d", path['oldPath'] + " L"+e.x+" "+e.y+ " M"+e.x+" "+e.y);
+				return;
+			}
+		}
+		var newPath = path['oldPath'];
+		if(path['type']==6 || path['type']==4) {
+			//newPath += " h"+(e.x-oldX) + " m"+(e.x-oldX)+" 0";
+			newPath += " H"+e.x + " M"+e.x+" "+e.y;
+		} else if(path['type']==2 || path['type']==8) {
+			newPath += " V"+e.y + " M"+e.x+" "+e.y;
+			//newPath += " v"+(e.y-oldY) + " m0 "+(e.y-oldY);
+		}else {
+			newPath += " L"+e.x+" "+e.y+ " M"+e.x+" "+e.y;
+		}
+		path['type']=0;
+		path.setAttribute("d", newPath);
+		path['oldPath'] = newPath;
+		path['x'] = e.x;
+		path['y'] = e.y;
+	}
+}
+
+</script>

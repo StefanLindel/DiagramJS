@@ -14,7 +14,7 @@ export class HTML extends Control {
         if (typeof(data) === 'string') {
             id = data;
             data = {};
-        } else {
+        } else if (data) {
             id = data.id;
         }
         if (id) {
@@ -22,7 +22,11 @@ export class HTML extends Control {
             this.$view = document.getElementById(id);
         }
         if (!this.$view) {
-            tag = data['tag'] || 'div';
+            if (data) {
+                tag = data['tag'] || 'div';
+            } else {
+                tag = 'div';
+            }
             this.$view = document.createElement(tag);
             let parent = document.getElementsByTagName('body')[0];
             parent.appendChild(this.$view);

@@ -4,7 +4,6 @@ import * as nodes from './nodes';
 import * as layouts from '../layouts';
 import Layout from '../layouts/Layout';
 import { GraphModel } from './Model';
-import Palette from '../Palette';
 import * as PropertiesPanel from '../PropertiesPanel';
 import { Point, Size } from './BaseElements';
 import { Util } from '../util';
@@ -19,6 +18,7 @@ import { DiagramElement } from './index';
 import { Toolbar } from '../Toolbar';
 import {JSEPS} from '../JSEPS';
 import {SVGConverter} from '../SVGConverter';
+import Palette from "../Palette";
 
 export class Graph extends Control {
     // canvas: HTMLElement;
@@ -31,7 +31,7 @@ export class Graph extends Control {
     layoutFactory: Object;
     protected importFile: ImportFile;
     private currentlayout: Layout;
-    private layerToolBar: SVGSVGElement;
+    // private layerToolBar: SVGSVGElement;
     // https://stackoverflow.com/questions/15181452/how-to-save-export-inline-svg-styled-with-css-from-browser-to-image-file
     private containerElements = ['svg', 'g'];
     private relevantStyles = {
@@ -483,7 +483,7 @@ export class Graph extends Control {
             window['java'].generate(data);
         }
     }
-
+// REFACTORING dd
     private readElement(parent: any, origData: any): void {
         let children = parent.childNodes;
         let origChildDat = origData.childNodes;

@@ -128,7 +128,6 @@ export namespace PropertiesPanel {
             }
             this.isHidden = !this.isHidden;
         }
-
     }
 
     export abstract class APanel {

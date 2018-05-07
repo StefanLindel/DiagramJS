@@ -1,5 +1,0 @@
-{
-    "commands": [
-        "src/**/*.ts : npm run build-dev"
-    ]
-}

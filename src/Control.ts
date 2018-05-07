@@ -10,7 +10,7 @@ export abstract class Control {
     public property: string;
     public id: string;
     public $view: Element;
-    public $viewData: Data;
+    public $viewData: Data = null;
 
     protected $model: Data;
     protected $viewListener: EventListenerOrEventListenerObject;
@@ -28,6 +28,10 @@ export abstract class Control {
         // e.g. this.properties.push("key");
         // this.properties.push("property");
         this.$viewData = this.initViewDataProperties(this.$viewData);
+    }
+
+    public getToolBarIcon(): Element {
+        return null;
     }
 
     public initViewDataProperties(oldData?: Data): Data {
@@ -99,7 +103,7 @@ export abstract class Control {
     }
 
     public initControl(data: any): void {
-        if (this.$view === null) {
+        if (this.$view === null || this.$viewData === null) {
             return;
         }
         if (data.hasOwnProperty('prop')) {
@@ -164,12 +168,12 @@ export abstract class Control {
                 }
 
                 //  || oldValue !== this.$viewData.getValue(key)
-                if (newValue == oldValue) {
+                if (newValue === oldValue) {
                     // no match, so update should be wrong...
                     continue;
                 }
                 const viewDataOldValue = this.$viewData.getValue(key);
-                if (entity == this.$viewData) {
+                if (entity === this.$viewData) {
 
                     // this.getViewData().setValue(key, newValue);
                     if (this.$view) {
@@ -236,7 +240,7 @@ export abstract class Control {
      * @param newValue
      */
     public propertyChange(entity: Data, property: string, oldValue: any, newValue: any) {
-        if (oldValue === newValue) {
+        if (oldValue === newValue || this.$viewData === null) {
             return;
         }
         if (oldValue === this.$viewData.getValue(property)) {
@@ -279,7 +283,7 @@ export abstract class Control {
         }
         let element = (<HTMLInputElement>this.$view);
         if (element.checkValidity()) {
-
+            // Do Nothing
         }
     }
 
@@ -328,7 +332,7 @@ export abstract class Control {
     }
 
     public load(json: JSON | Object, owner ?: Control): any {
-
+        // Do Nothing
     }
 
     public addItem(source: Bridge, entity: Data) {

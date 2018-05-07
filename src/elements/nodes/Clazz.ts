@@ -6,14 +6,15 @@ import Attribute from './Attribute';
 import Method from './Method';
 import { Size } from '../index';
 import ClazzProperty from './ClazzProperty';
+import {SymbolLibary} from './Symbol';
+import {StereoType} from "./StereoType";
 
 export class Clazz extends Node {
     public attributes: Attribute[] = [];
     public methods: Method[] = [];
     public modifier: string;
+    public stereoType: string;
 
-    protected $labelHeight = 25;
-    protected $labelFontSize = 14;
     protected $attrHeight = 25;
     protected $attrFontSize = 12;
     protected $labelView: Element;
@@ -43,6 +44,9 @@ export class Clazz extends Node {
                 width = Math.max(width, Util.sizeOf(attrObj.toString()).width);
             }
         }
+        if (json['stereotype']) {
+            this.stereoType = json['stereotype'];
+        }
         if (json['methods']) {
             for (let method of json['methods']) {
 
@@ -66,11 +70,24 @@ export class Clazz extends Node {
         return this.methods;
     }
 
+    public getToolBarIcon(): Element {
+        let icon = SymbolLibary.draw({type: 'Clazz', property: 'HTML', width: '50', height: '50', transform: 'translate(-26,-21)'});
+        return icon;
+        // let group = this.createShape(
+//    abstract: '<svg width="100%" height="100%" viewbox="0 0 550 450"><g><rect width="500" height="400" x="25" y="25" rx="5" ry="5" stroke-width="10" stroke="black" fill="none"/><rect width="500" height="125" x="25" y="180" stroke-width="7" stroke="black" fill="none"/><text x="275" y="140" text-anchor="middle" font-size="111">Abstract</text><text x="50" y="240" font-size="50">+ field: type</text><text x="50" y="360" font-size="50">+ method(type)</text></g></svg>',
+//    interface: '<svg width="100%" height="100%" viewbox="0 0 550 450"><g><rect width="500" height="400" x="25" y="25" rx="5" ry="5" stroke-width="10" stroke="black" fill="none"/><rect width="500" height="125" x="25" y="180" stroke-width="7" stroke="black" fill="none"/><text x="275" y="140" text-anchor="middle" font-size="111">Interface</text><text x="50" y="240" font-size="50">+ field: type</text><text x="50" y="360" font-size="50">+ method(type)</text></g></svg>',
+    }
+
     public getSVG(): Element {
         const pos: Point = this.getPos();
         const size: Point = this.getSize();
 
         let group = this.createShape({ tag: 'g', id: this.id, class: 'SVGClazz', transform: 'translate(0 0)' });
+
+        if (this.stereoType) {
+            let type = new StereoType(this.stereoType, pos.x, pos.y);
+            group.appendChild(type.getSVG());
+        }
 
         // Full Shape
         let options = null;
