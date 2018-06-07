@@ -39,7 +39,9 @@ export class Util {
         }
         return false;
     }
-
+    static createHTML(node: any): HTMLElement {
+        return <HTMLElement>this.create(node);
+    }
     static create(node: any): Element {
         let style, item, xmlns, key, tag, k;
         if (document.createElementNS && (this.isSVG(node.tag) || node.xmlns)) {

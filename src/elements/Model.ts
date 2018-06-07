@@ -234,7 +234,11 @@ export class GraphModel extends DiagramElement {
         if (sourceAsString) {
             source = this.getNodeById(sourceAsString);
             if (!source) {
-                source = <Node>this.createElement('Clazz', this.getNewId('Clazz'), {name: edge.source});
+                let id = edge.source;
+                if (typeof id === 'object') {
+                    id = id.id;
+                }
+                source = <Node>this.createElement('Clazz', this.getNewId('Clazz'), {name: id});
                 source.init(this);
             }
         }
@@ -244,7 +248,11 @@ export class GraphModel extends DiagramElement {
         if (targetAsString) {
             target = this.getNodeById(targetAsString);
             if (!target) {
-                target = <Node>this.createElement('Clazz', this.getNewId('Clazz'), {name: edge.target});
+                let id = edge.target;
+                if (typeof id === 'object') {
+                    id = id.id;
+                }
+                target = <Node>this.createElement('Clazz', this.getNewId('Clazz'), {name: id});
                 target.init(this);
             }
         }

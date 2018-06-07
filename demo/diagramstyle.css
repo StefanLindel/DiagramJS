@@ -1,4 +1,4 @@
-@charset 'UTF-8';
+@charset "UTF-8";
 .Board{
 	position: relative;
 	overflow: hidden;
@@ -330,3 +330,48 @@ pre .title {text-align:center}
 .notify-yellow { background: #fff8c4; border-color: #f7deae; }
 .notify-red { background: #ffecec; border-color: #fad9d7; }
 .notify-green { background: #e9ffd9; border-color: #D1FAB6; }
+
+.vkLine{
+	margin:2px;
+}
+.vkbutton {
+	border: 1px solid #666;
+	background: #555;
+	border-radius: 6px;
+	font-weight: bold;
+	color: #eee;
+	background: linear-gradient(to bottom, #666 0%, #555 50%, #666 100%);
+}
+.vkbutton:hover {
+	border: 1px solid #59b4d4;
+	background: #0078a3;
+	background: linear-gradient(to bottom,#59b4d4 0%, rgba(119,119,119,1) 50%, #59b4d4 100%);
+}
+.vkbuttonSpace {
+	border: 1px solid #666;
+	width: 12em;
+	background: #555;
+	border-radius: 6px;
+	font-weight: bold;
+	color: #eee;
+	background: linear-gradient(to bottom, #666 0%, #555 50%, #666 100%);
+}
+.vkbuttonSpace:hover {
+	border: 1px solid #59b4d4;
+	background: #0078a3;
+	background: linear-gradient(to bottom,#59b4d4 0%, rgba(119,119,119,1) 50%, #59b4d4 100%);
+}
+.vkbuttonAction {
+	border: 1px solid #ffaf0f;
+	background: #f58400;
+	border-radius: 6px;
+	font-weight: bold;
+	color: #eee;
+}
+.vkbuttonAction:hover {
+	border: 1px solid #ffaf0f;
+	background: #f58400;
+	border-radius: 6px;
+	font-weight: bold;
+	color: #eee;
+}

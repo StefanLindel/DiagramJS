@@ -4,13 +4,12 @@ import * as nodes from './nodes';
 import * as layouts from '../layouts';
 import Layout from '../layouts/Layout';
 import { GraphModel } from './Model';
-import * as PropertiesPanel from '../PropertiesPanel';
 import { Point, Size } from './BaseElements';
 import { Util } from '../util';
 import { Control } from '../Control';
 import Data from '../Data';
 import { EventBus } from '../EventBus';
-import { AddNode, Drag, NewEdge, PropertiesDispatcher, Select, Zoom } from '../handlers';
+import { AddNode, Drag, NewEdge, Select, Zoom } from '../handlers';
 import Options from '../Options';
 import { ImportFile } from '../handlers/ImportFile';
 import { CSS } from '../CSS';
@@ -18,7 +17,8 @@ import { DiagramElement } from './index';
 import { Toolbar } from '../Toolbar';
 import {JSEPS} from '../JSEPS';
 import {SVGConverter} from '../SVGConverter';
-import Palette from "../Palette";
+import Palette from '../Palette';
+import {PanelGroup} from '../PropertiesPanel';
 
 export class Graph extends Control {
     // canvas: HTMLElement;
@@ -645,15 +645,16 @@ export class Graph extends Control {
                 EventBus.subscribe(new Select(this), 'click', 'drag');
             }
             if (features.palette) {
-                let palette = new Palette(this);
+                new Palette(this).show();
             }
             if (features.toolbar) {
                 new Toolbar(this).show();
             }
             if (features.properties) {
-                let dispatcher = new PropertiesDispatcher(this);
-                dispatcher.dispatch('Clear');
-                EventBus.subscribe(dispatcher, 'dblclick', 'click', EventBus.RELOADPROPERTIES);
+                let propertyPanel = new PanelGroup(this);
+                // let dispatcher = new PropertiesDispatcher(this);
+                EventBus.subscribe(propertyPanel, 'dblclick', 'click', EventBus.RELOADPROPERTIES);
+                propertyPanel.show();
             }
             if (features.addnode) {
                 EventBus.subscribe(new AddNode(this), 'mousedown', 'mouseup', 'mousemove', 'mouseleave');

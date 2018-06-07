@@ -10,13 +10,14 @@ export default class Palette {
 
     private graph: Graph;
     private palette: Element;
+    private root: HTMLDivElement;
 
     constructor(graph: Graph) {
         this.graph = graph;
         let div = document.createElement('div');
         div.className = 'palette';
         div.id = 'palette';
-        document.body.appendChild(div);
+        this.root = div;
         this.palette = div;
         for (let key in graph.nodeFactory) {
             let element = graph.nodeFactory[key];
@@ -36,6 +37,10 @@ export default class Palette {
         }
         // this.graph.nodeFactory
 //        this.addButtons();
+    }
+
+    public show() {
+        document.body.appendChild(this.root);
     }
 
     private addButtons() {
