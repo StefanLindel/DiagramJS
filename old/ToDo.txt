@@ -1,0 +1,26 @@
+Tabelle:
+- Verschieben
+- Spalten fixieren
+- Editieren
+- Spalten ausblenden
+- Export
+
+Form komplett anhand eines Item Vertical
+ 
+Controls:
+- EventListener
+
+
+Java:
+- Mail
+- Broadcast
+- Webconnection (FileConnection)
+- Event listener in API einarbeiten
+
+
+
+Grafiken:
+
+MOF Attribute:Typ= Wert
+Dependency
+

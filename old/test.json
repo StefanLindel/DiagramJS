@@ -1,0 +1,26 @@
+{
+    "typ": "clazzdiagram",
+    "nodes": 
+	[
+        {
+            "type": "clazz",
+            "name": "Uni",
+			"attributes": ["+ status : string", "+ date : string", "- orderId : int"],
+			"methods": ["+ place()", "+ cancel()", "+ refund()"]
+        },
+        {
+            "type": "clazz",
+            "name": "Student",
+			"attributes": ["+ name : string", "+ lastname : string", "- matrikelNr : int"],
+			"methods": ["+ doHomework()", "+ chill()"]
+        }
+    ],
+    "edges": 
+	[
+		{ 
+			"type": "Edge", 
+			"source": "Uni", 
+			"target": "Student" 
+		}
+    ]
+}

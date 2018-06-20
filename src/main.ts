@@ -1,3 +1,5 @@
+import {VirtualKeyBoard} from './VirtualKeyBoard';
+
 export {Point} from './elements/BaseElements';
 export {Bridge, DelegateAdapter} from './Bridge';
 export {Graph} from './elements/Graph';
@@ -13,6 +15,7 @@ import {Util} from './util';
 import {Toolbar} from './Toolbar';
 import * as nodes  from './elements/nodes';
 import * as edges from './elements/edges';
+import {ScrumBoard} from './ScrumBoard';
 
 if (!window['Point']) {
     window['Point'] = Point;
@@ -23,4 +26,6 @@ if (!window['Point']) {
     window['Association'] = edges.Association;
     window['SymbolLibary'] = nodes.SymbolLibary;
     window['ClassEditor'] = ClassEditor;
+    window['VirtualKeyBoard'] = VirtualKeyBoard;
+    window['ScrumBoard'] = ScrumBoard;
 }
