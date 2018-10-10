@@ -23,7 +23,7 @@
     "tslint": "^5.10.0"
   },
   "scripts": {
-    "setup": "yarn install",
+    "setup": "npm install",
     "test-only": "webpack --config test.config.js",
     "build": "webpack",
     "start": "yarn build && webpack-dev-server --inline"
