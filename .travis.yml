@@ -2,6 +2,10 @@ language: nodejs
 node_js:
 - "10"
 before_script:
+  - nvm install node
+  - node --version
+  - npm --version
+  - nvm --version
   - npm run setup
   - npm run build
 
