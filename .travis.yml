@@ -1,15 +1,15 @@
 language: nodejs
 
 before_script:
-  - yarn run setup
-  - yarn run build
+  - npm run setup
+  - npm run build
 
 script:
-  - yarn run test-only
+  - npm run test-only
 
 after_success:
-  - yarn run typedoc
-  - yarn pack
+  - npm run typedoc
+  - npm pack
 
 deploy:
   - provider: pages
