@@ -3,12 +3,12 @@ const path = require('path');
 let webpackConfig = {
 	mode: 'development',
 	devtool: 'source-map',
-	entry: './main.ts',
-	context: path.resolve(__dirname, "src"),
+	entry: './TestFramework.ts',
+	context: path.resolve(__dirname, "test"),
 	output: {
 		library: 'DiagramJS',
-		filename: 'diagram.js',
-		path: path.resolve(__dirname, "dist"),
+		filename: 'diagramTest.js',
+		path: path.resolve(__dirname, "dist/")
 	},
 	devtool: 'source-map',//cheap-module-eval-source-map // eval-source-map
 	resolve: {
@@ -29,5 +29,5 @@ module.exports = webpackConfig
 
 // gulp-to-webpack/webpack.config.js
 devServer: {
-	contentBase: './src'
+	contentBase: './test'
 }

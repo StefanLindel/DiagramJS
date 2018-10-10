@@ -3,10 +3,16 @@ import PropertyChangeSupport from './PropertyChangeSupport';
 export default class Data {
     public prop = {};
     id: string;
-    //$listener: Control[] = [];
+    // $listener: Control[] = [];
     $listener: Object = {};
 
-    public getKeys() : string[] {
+    private static nullCheck(property: string): string {
+        if (property === undefined || property === null) {
+            property = '';
+        }
+        return property;
+    }
+    public getKeys(): string[] {
         return Object.keys(this.prop);
     }
 
@@ -44,47 +50,17 @@ export default class Data {
         }
     }
 
-    private static nullCheck(property: string): string {
-        if (property === undefined || property == null) {
-            property = "";
-        }
-        return property;
-    }
-
-    protected getListeners(property: string): PropertyChangeSupport[] {
-        property = Data.nullCheck(property);
-        return this.$listener[property];
-    }
-
     public getValue(attribute: string) {
         return this.prop[attribute];
     }
 
-    public setValue(attribute: string, newValue: any):void {
+    public setValue(attribute: string, newValue: any): void {
         let oldValue = this.prop[attribute];
-        if (oldValue == newValue && newValue !== null) {
+        if (oldValue === newValue && newValue !== null) {
             return;
         }
         this.prop[attribute] = newValue;
         this.firePropertyChange(attribute, oldValue, newValue);
-    }
-
-    protected firePropertyChange(attribute: string, oldValue: Object, newValue: Object) {
-        attribute = Data.nullCheck(attribute);
-        // at first fire for the given property
-        let listeners: PropertyChangeSupport[] = this.getListeners(attribute);
-        if (listeners) {
-            for (let i in listeners) {
-                listeners[i].propertyChange(this, attribute, oldValue, newValue);
-            }
-        }
-        // now we need to fire the Listeners that wan't to listen to everything
-        listeners = this.getListeners(null);
-        if (listeners) {
-            for (let i in listeners) {
-                listeners[i].propertyChange(this, attribute, oldValue, newValue);
-            }
-        }
     }
 
     public addTo(attribute: string, newValue: any): boolean {
@@ -135,7 +111,7 @@ export default class Data {
         if (pos >= 0) {
             listeners.splice(pos, 1);
         }
-        if (listeners.length == 0 && Data.nullCheck(property) != "") {
+        if (listeners.length === 0 && Data.nullCheck(property) !== '') {
             // only remove, if it's not the default listener list...
             delete this.$listener[property];
         }
@@ -145,20 +121,43 @@ export default class Data {
         return this.prop.hasOwnProperty(property);
     }
 
-    public addFrom(attribute: string, oldData: Data) : void{
-        if(oldData) {
+    public addFrom(attribute: string, oldData: Data): void {
+        if (oldData) {
             this.setValue(attribute, oldData.getValue(attribute));
-        }else {
+        } else {
             this.setValue(attribute, null);
         }
     }
 
-    public removeKey(key: string) : any{
-        if(this.hasProperty(key)) {
+    public removeKey(key: string): any {
+        if (this.hasProperty(key)) {
             const oldValue = this.prop[key];
             delete this.prop[key];
             return oldValue;
         }
         return null;
+    }
+
+    protected getListeners(property: string): PropertyChangeSupport[] {
+        property = Data.nullCheck(property);
+        return this.$listener[property];
+    }
+
+    protected firePropertyChange(attribute: string, oldValue: Object, newValue: Object) {
+        attribute = Data.nullCheck(attribute);
+        // at first fire for the given property
+        let listeners: PropertyChangeSupport[] = this.getListeners(attribute);
+        if (listeners) {
+            for (let i in listeners) {
+                listeners[i].propertyChange(this, attribute, oldValue, newValue);
+            }
+        }
+        // now we need to fire the Listeners that wan't to listen to everything
+        listeners = this.getListeners(null);
+        if (listeners) {
+            for (let i in listeners) {
+                listeners[i].propertyChange(this, attribute, oldValue, newValue);
+            }
+        }
     }
 }

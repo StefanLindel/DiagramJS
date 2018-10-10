@@ -6,3 +6,5 @@ node_modules/
 **/package-lock.json
 /bin/
 \.vscode/tasks\.json
+**/yarn.lock
+**/yarn-error.log

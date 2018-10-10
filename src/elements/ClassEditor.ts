@@ -1,7 +1,9 @@
 import {Graph} from './Graph';
 import Options from '../Options';
+import {JavaAdapter} from '../adapters';
 
 export class ClassEditor extends Graph {
+    private adapter: JavaAdapter;
     constructor(json: any, options: Options) {
         if (!options ) {
             options = {};
@@ -30,5 +32,13 @@ export class ClassEditor extends Graph {
     public setBoardStyle(value: string) {
         console.log(value);
         this.importFile.setBoardStyle(value);
+    }
+
+    public registerListener(): void {
+        this.adapter = new JavaAdapter();
+    }
+
+    public getAdapter(): any {
+        return this.adapter;
     }
 }

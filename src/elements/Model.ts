@@ -238,7 +238,7 @@ export class GraphModel extends DiagramElement {
                 if (typeof id === 'object') {
                     id = id.id;
                 }
-                source = <Node>this.createElement('Clazz', this.getNewId('Clazz'), {name: id});
+                source = <Node>this.createElement('Class', this.getNewId('Class'), {name: id});
                 source.init(this);
             }
         }
@@ -252,7 +252,7 @@ export class GraphModel extends DiagramElement {
                 if (typeof id === 'object') {
                     id = id.id;
                 }
-                target = <Node>this.createElement('Clazz', this.getNewId('Clazz'), {name: id});
+                target = <Node>this.createElement('Class', this.getNewId('Class'), {name: id});
                 target.init(this);
             }
         }
@@ -291,6 +291,15 @@ export class GraphModel extends DiagramElement {
         return element;
     }
 
+    public getNodeById(id: string): Node {
+        for (let node of this.nodes) {
+            if (node.id === id) {
+                return node;
+            }
+        }
+        return undefined;
+    }
+
     private initCanvas() {
         const graph = <Graph>this.$owner;
         graph.canvasSize = {width: graph.$view.clientWidth, height: graph.$view.clientHeight};
@@ -314,15 +323,5 @@ export class GraphModel extends DiagramElement {
         let id = node['id'] || node['name'] || this.getNewId(type);
 
         return <Node>this.createElement(type, id, node);
-    }
-
-    private getNodeById(id: string): Node {
-        for (let node of this.nodes) {
-            if (node.id === id) {
-                return node;
-            }
-        }
-
-        return undefined;
     }
 }

@@ -15,59 +15,56 @@ export default class Method extends ClazzProperty {
         }
 
         if (data.type) {
-            this.type = data.type;
+            this.updateType(data.type);
         }
 
         if (data.name) {
-            this.name = data.name;
+            this.updateType(data.name);
         }
 
         if (data.modifier) {
-            this.modifier = data.modifier;
+            this.updateType(data.modifier);
         }
 
         if (typeof data === 'string') {
-            // e.g. setName() : string or name:string 
+            // e.g. setName() : string or name:string
             let dataSplitted = data.split(':');
 
             if (dataSplitted && dataSplitted.length === 2) {
 
-                // modifer (and or) name 
+                // modifer (and or) name
                 let modifierAndNameSplitted = dataSplitted[0].trim();
 
-                // first char is +, - or # 
+                // first char is +, - or #
                 let firstChar = modifierAndNameSplitted[0];
                 if (firstChar === '+' || firstChar === '-' || firstChar === '#') {
-                    this.modifier = firstChar;
-                    this.name = modifierAndNameSplitted.substring(1, modifierAndNameSplitted.length).trim();
+                    this.updateModifier(firstChar);
+                    this.updateName(modifierAndNameSplitted.substring(1, modifierAndNameSplitted.length).trim());
                 }
                 else {
-                    this.name = modifierAndNameSplitted;
+                    this.updateName(modifierAndNameSplitted);
                 }
-
-                this.type = dataSplitted[1].trim() || 'void';
+                this.updateType(dataSplitted[1].trim() || 'void');
             }
-            // set default return type of void 
+            // set default return type of void
             else {
-                // modifer (and or) name 
+                // modifer (and or) name
                 let modifierAndNameSplitted = data.trim();
 
-                // first char is +, - or # 
+                // first char is +, - or #
                 let firstChar = modifierAndNameSplitted[0];
                 if (firstChar === '+' || firstChar === '-' || firstChar === '#') {
-                    this.modifier = firstChar;
-                    this.name = modifierAndNameSplitted.substring(1, modifierAndNameSplitted.length).trim();
+                    this.updateModifier(firstChar);
+                    this.updateName(modifierAndNameSplitted.substring(1, modifierAndNameSplitted.length).trim());
+                }  else {
+                    this.updateName(modifierAndNameSplitted);
                 }
-                else {
-                    this.name = modifierAndNameSplitted;
-                }
-
-                this.type = 'void';
+                this.updateType('void');
             }
         }
 
-        if(!Util.includes(this.name, '(') && !Util.includes(this.name, ')')){
-            this.name += '()';
+        if (Util.includes(this.$data.getValue('name'), '(') && !Util.includes(this.$data.getValue('name'), ')') === false) {
+            this.$data.setValue('name', this.$data.getValue('name') + '()');
         }
     }
 }

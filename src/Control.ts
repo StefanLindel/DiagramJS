@@ -102,6 +102,10 @@ export abstract class Control {
         return this;
     }
 
+    public getAdapter(): any {
+        return null;
+    }
+
     public initControl(data: any): void {
         if (this.$view === null || this.$viewData === null) {
             return;
@@ -135,7 +139,7 @@ export abstract class Control {
                 if (hasRem && data.rem.hasOwnProperty(key)) {
                     // if there's a rem, the oldValue from rem will be used and expected to be right..
                     oldValue = data.rem[key];
-                    if (this.$model && this.$model.getValue(key) == oldValue) {
+                    if (this.$model && this.$model.getValue(key) === oldValue) {
                         entity = this.$model;
 //                    } else if (oldValue == this.getViewData().getValue(key)) {
 //                        $graphModel = this.getViewData();

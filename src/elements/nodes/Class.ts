@@ -7,9 +7,10 @@ import Method from './Method';
 import { Size } from '../index';
 import ClazzProperty from './ClazzProperty';
 import {SymbolLibary} from './Symbol';
-import {StereoType} from "./StereoType";
+import {StereoType} from './StereoType';
+import {GraphListener} from '../../handlers/GraphListener';
 
-export class Clazz extends Node {
+export class Class extends Node {
     public attributes: Attribute[] = [];
     public methods: Method[] = [];
     public modifier: string;
@@ -42,6 +43,8 @@ export class Clazz extends Node {
                 this.attributes.push(attrObj);
                 y += this.$attrHeight;
                 width = Math.max(width, Util.sizeOf(attrObj.toString()).width);
+                let listener = new GraphListener(attrObj);
+                attrObj.$data.addListener(listener);
             }
         }
         if (json['stereotype']) {
@@ -71,7 +74,7 @@ export class Clazz extends Node {
     }
 
     public getToolBarIcon(): Element {
-        let icon = SymbolLibary.draw({type: 'Clazz', property: 'HTML', width: '50', height: '50', transform: 'translate(-26,-21)'});
+        let icon = SymbolLibary.draw({type: 'Class', property: 'HTML', width: '50', height: '50', transform: 'translate(-26,-21)'});
         return icon;
         // let group = this.createShape(
 //    abstract: '<svg width="100%" height="100%" viewbox="0 0 550 450"><g><rect width="500" height="400" x="25" y="25" rx="5" ry="5" stroke-width="10" stroke="black" fill="none"/><rect width="500" height="125" x="25" y="180" stroke-width="7" stroke="black" fill="none"/><text x="275" y="140" text-anchor="middle" font-size="111">Abstract</text><text x="50" y="240" font-size="50">+ field: type</text><text x="50" y="360" font-size="50">+ method(type)</text></g></svg>',
@@ -211,9 +214,9 @@ export class Clazz extends Node {
         return group;
     }
 
-    public copy(): Clazz {
-        let copy: Clazz;
-        copy = <Clazz>super.copy();
+    public copy(): Class {
+        let copy: Class;
+        copy = <Class>super.copy();
 
         // copy label
         copy.id = this.id + 'Copy';
@@ -427,7 +430,7 @@ export class Clazz extends Node {
             item = 'Object';
         } else {
             id = this.id;
-            item = 'Clazz';
+            item = 'Class';
             if (this['counter']) {
                 id += ' (' + this['counter'] + ')';
             }

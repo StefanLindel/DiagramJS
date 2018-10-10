@@ -40,7 +40,7 @@ new Graph().layout({edges:[{source:"A", target:"B"}]});
 
 nodes:{
 name:"Uni"
-typ:"Clazz"
+typ:"Class"
 attributes:[
 	"name:String"
 ],
@@ -50,7 +50,7 @@ attributes:[
 
 nodes:{
 name:"Uni"
-typ:"Clazz"
+typ:"Class"
 attributes:[
 	{
 	typ:"Attribute",

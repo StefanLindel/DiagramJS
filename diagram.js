@@ -2213,7 +2213,7 @@ if (!window['Point']) {
     window['Graph'] = Graph_2.Graph;
     window['bridge'] = new Bridge_2.Bridge();
     window['Util'] = util_1.Util;
-    window['Clazz'] = nodes.Clazz;
+    window['Class'] = nodes.Clazz;
     window['Association'] = edges.Association;
     window['SymbolLibary'] = nodes.SymbolLibary;
     window['ClassEditor'] = ClassEditor_1.ClassEditor;
@@ -4558,7 +4558,7 @@ var Clazz = (function (_super) {
         }
         else {
             id = this.id;
-            item = 'Clazz';
+            item = 'Class';
             if (this['counter']) {
                 id += ' (' + this['counter'] + ')';
             }
@@ -4664,7 +4664,7 @@ var Clazz = (function (_super) {
     };
     return Clazz;
 }(Node_1.Node));
-exports.Clazz = Clazz;
+exports.Class = Class;
 
 
 /***/ }),
@@ -8131,7 +8131,7 @@ var GraphModel = (function (_super) {
         if (sourceAsString) {
             source = this.getNodeById(sourceAsString);
             if (!source) {
-                source = this.createElement('Clazz', this.getNewId('Clazz'), { name: edge.source });
+                source = this.createElement('Class', this.getNewId('Class'), { name: edge.source });
                 source.init(this);
             }
         }
@@ -8140,7 +8140,7 @@ var GraphModel = (function (_super) {
         if (targetAsString) {
             target = this.getNodeById(targetAsString);
             if (!target) {
-                target = this.createElement('Clazz', this.getNewId('Clazz'), { name: edge.target });
+                target = this.createElement('Class', this.getNewId('Class'), { name: edge.target });
                 target.init(this);
             }
         }
@@ -8951,7 +8951,7 @@ var AddNode = (function () {
             return;
         }
         this.removeRect();
-        var node = this.graph.addElementWithValues('Clazz', { x: this.x, y: this.y });
+        var node = this.graph.addElementWithValues('Class', { x: this.x, y: this.y });
         this.graph.drawElement(node);
     };
     AddNode.prototype.start = function (evt, element) {
@@ -9032,7 +9032,7 @@ var PropertiesDispatcher = (function () {
     };
     PropertiesDispatcher.prototype.createView = function (view) {
         var panel;
-        if (view === 'Clazz') {
+        if (view === 'Class') {
             panel = new properties.PropertiesPanel.ClassPanel();
         }
         if (view === 'Clear') {
@@ -9107,7 +9107,7 @@ var PropertiesDispatcher = (function () {
         var that = this;
         var graph = this.graph;
         var clazz = element;
-        this.dispatch('Clazz');
+        this.dispatch('Class');
         this.blankView.setPropertiesHeaderText('Properties of Class: ' + clazz.id);
         var classNameInputText = document.getElementById('className');
         classNameInputText.setAttribute('value', clazz.id);
@@ -9434,7 +9434,7 @@ var PropertiesPanel;
             this.createTabMethodContent();
         };
         ClassPanel.prototype.getPropertiesView = function () {
-            return 'Clazz';
+            return 'Class';
         };
         ClassPanel.prototype.createTabGeneralContent = function () {
             var div = document.createElement('div');
@@ -10106,7 +10106,7 @@ var UML;
         __extends(Clazz, _super);
         function Clazz() {
             var _this = _super.call(this) || this;
-            _this.property = 'Clazz';
+            _this.property = 'Class';
             return _this;
         }
         Clazz.prototype.getName = function () {

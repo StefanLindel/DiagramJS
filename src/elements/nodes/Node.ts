@@ -1,6 +1,8 @@
 import {DiagramElement} from '../BaseElements';
 import {Association} from '../edges';
 import { GraphModel } from '..';
+import Attribute from './Attribute';
+import Method from './Method';
 
 export class Node extends DiagramElement {
     public $edges: Association[] = [];
@@ -81,5 +83,21 @@ export class Node extends DiagramElement {
         for (let edge of this.$edges) {
             edge.redraw(this);
         }
+    }
+
+    public reDraw(drawOnlyIfSizeChanged?: boolean): void {
+// EMPTY
+    }
+    public addAttribute(value: string): Attribute {
+        return null;
+    }
+    public getAttributes(): Attribute[] {
+        return null;
+    }
+    public addMethod(value: string): Method {
+        return null;
+    }
+    public updateLabel(newLabel: string): void {
+// EMPTY
     }
 }

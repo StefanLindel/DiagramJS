@@ -2,12 +2,10 @@ import { DiagramElement } from '../elements/BaseElements';
 import { Node } from '../elements/nodes';
 import { Association } from '../elements/edges';
 import { Util } from '../util';
-import { GraphModel } from '../elements/Model';
 import { SymbolLibary } from '../elements/nodes/Symbol';
 import { EventHandler, EventBus } from '../EventBus';
-import { Clazz } from '../main';
 import { Graph } from '../elements/Graph';
-import { InfoText } from '../elements/nodes/InfoText';
+import Attribute from '../elements/nodes/Attribute';
 
 export class Select implements EventHandler {
 
@@ -83,7 +81,7 @@ export class Select implements EventHandler {
             this.copyNodeShape.setAttributeNS(null, 'transform', `translate(${x} ${y + 40 + this.padding})`);
             this.copyNodeShape.onclick = (evt) => {
                 let nextFreePosition = this.graph.getNextFreePosition();
-                let copyClass = (<Clazz>element).copy();
+                let copyClass = (element).copy();
                 copyClass.withPos(nextFreePosition.x, nextFreePosition.y);
                 this.graph.drawElement(copyClass);
             };
@@ -94,8 +92,8 @@ export class Select implements EventHandler {
                 element.$view.dispatchEvent(Util.createCustomEvent('mousedown'));
             };
         }
-        if (element instanceof Clazz && event.type === 'click') {
-            let clazz = <Clazz>element;
+        if (element instanceof Node && event.type === 'click') {
+            let clazz = <Node>element;
 
             if (Util.isChrome()) {
                 if (this.lastSelectedNode && element.id === this.lastSelectedNode.id && !this.isDragged) {
@@ -189,10 +187,26 @@ export class Select implements EventHandler {
                 }
 
                 // attribute
-                if (Util.includes(inputValue, ':') && !(Util.includes(inputValue, '(') && Util.includes(inputValue, ')'))) {
-                    clazz.addAttribute(inputValue.trim());
-                    clazz.reDraw();
+                if ((Util.includes(inputValue, '(') && Util.includes(inputValue, ')')) === false) {
+                    if (Util.includes(inputValue, ':')) {
+                        clazz.addAttribute(inputValue.trim());
+                        clazz.reDraw();
+                    } else if (Util.includes(inputValue, '=') ) {
+                        let attr: Attribute = null;
+                        let name = inputValue.substring(0, inputValue.indexOf('=')).trim();
+                        for (let child of clazz.getAttributes() ) {
+                            if ( name === child.getName()) {
+                                attr = child;
+                                break;
+                            }
+                        }
+                        if (attr) {
+                            attr.updateValue(inputValue.substring(inputValue.indexOf('=') + 1).trim());
+                        }
+                        clazz.reDraw();
+                    }
                 }
+
                 // method
                 else if (Util.includes(inputValue, '(') && Util.includes(inputValue, ')')) {
                     clazz.addMethod(inputValue.trim());
@@ -254,13 +268,26 @@ export class Select implements EventHandler {
         return true;
     }
 
-    private setTooltipOfShape(shape: SVGSVGElement, tooltip: string): void{
-        if(!shape || !shape.hasChildNodes()){
+    public canHandle(): boolean {
+        return EventBus.isHandlerActiveOrFree(Select.name);
+    }
+
+    public setActive(active: boolean): void {
+        if (active) {
+            EventBus.setActiveHandler(Select.name);
+        }
+        else {
+            EventBus.releaseActiveHandler();
+        }
+    }
+
+    private setTooltipOfShape(shape: SVGSVGElement, tooltip: string): void {
+        if (!shape || !shape.hasChildNodes()) {
             return;
         }
 
         let titleElement = <SVGSVGElement>shape.childNodes[0];
-        if(!titleElement || titleElement.tagName !== 'title'){
+        if (!titleElement || titleElement.tagName !== 'title') {
             return;
         }
 
@@ -293,16 +320,4 @@ export class Select implements EventHandler {
         }
     }
 
-    public canHandle(): boolean {
-        return EventBus.isHandlerActiveOrFree(Select.name);
-    }
-
-    public setActive(active: boolean): void {
-        if (active) {
-            EventBus.setActiveHandler(Select.name);
-        }
-        else {
-            EventBus.releaseActiveHandler();
-        }
-    }
 }

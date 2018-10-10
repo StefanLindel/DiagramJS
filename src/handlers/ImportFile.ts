@@ -1,6 +1,6 @@
-import {Graph} from '../elements/Graph';
+import {Graph} from '../elements/';
 import {EventHandler, EventBus} from '../EventBus';
-import {DiagramElement} from '../elements/BaseElements';
+import {DiagramElement} from '../elements/';
 import {Util} from '../util';
 
 export class ImportFile implements EventHandler {

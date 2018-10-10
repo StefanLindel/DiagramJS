@@ -3,7 +3,7 @@
   "compilerOptions": {
     "noImplicitReturns": true,
     "noImplicitAny": true,
-    "outDir": "../dist/test",
+    "outDir": "../dist/",
     "sourceRoot": "./",
     "module": "commonjs",
     "moduleResolution": "node",

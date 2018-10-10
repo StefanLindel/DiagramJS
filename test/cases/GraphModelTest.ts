@@ -1,5 +1,5 @@
 import { GraphTest } from './GraphTest';
-import { Clazz } from '../../src/elements';
+import { Class } from '../../src/elements';
 import Attribute from '../../src/elements/nodes/Attribute';
 import Method from '../../src/elements/nodes/Method';
 
@@ -39,7 +39,7 @@ export class GraphModelTest extends GraphTest {
                         }
                     ],
                     'id': 'clazz-60056',
-                    'property': 'Clazz'
+                    'property': 'Class'
                 }
             ],
             'edges': [],
@@ -49,17 +49,17 @@ export class GraphModelTest extends GraphTest {
 
         this.assertEquals(1, this.graph.$graphModel.nodes.length);
 
-        let clazz = <Clazz>this.graph.$graphModel.nodes[0];
+        let clazz = <Class>this.graph.$graphModel.nodes[0];
         this.assertNotNull(clazz, 'clazz with idclazz-60056 is null');
 
         let attrPhoto = <Attribute>clazz.getAttributes()[2];
         this.assertNotNull(attrPhoto, 'attribute attrPhoto is null');
-        this.assertEquals('photo', attrPhoto.name);
-        this.assertEquals('string', attrPhoto.type);
+        this.assertEquals('photo', attrPhoto.getName());
+        this.assertEquals('string', attrPhoto.getType());
 
         let method = <Method>clazz.getMethods()[0];
         this.assertNotNull(method, 'method addToOrder() is null');
-        this.assertEquals('addToOrder()', method.name, 'method name addToOrder() is wrong');
+        this.assertEquals('addToOrder()', method.getName(), 'method name addToOrder() is wrong');
 
         // add new attribute
         let newAttr = new Attribute(
@@ -73,8 +73,8 @@ export class GraphModelTest extends GraphTest {
 
         let newAddedAttr = clazz.getAttributes()[4];
         this.assertNotNull(newAddedAttr);
-        this.assertEquals('newAttr', newAddedAttr.name);
-        this.assertEquals('string', newAddedAttr.type);
+        this.assertEquals('newAttr', newAddedAttr.getName());
+        this.assertEquals('string', newAddedAttr.getType());
 
         // remove attributes
         clazz.removeAttribute(clazz.getAttributes()[1]);
@@ -89,41 +89,36 @@ export class GraphModelTest extends GraphTest {
                 'type': 'string',
                 'name': 'getTest()'
             });
-            
         clazz.addMethodObj(newMethod);
 
         let newAddedMethod = clazz.getMethods()[1];
         this.assertNotNull(newAddedMethod);
-        this.assertEquals('getTest()', newAddedMethod.name);
-        this.assertEquals('#', newAddedMethod.modifier);
+        this.assertEquals('getTest()', newAddedMethod.getName());
+        this.assertEquals('#', newAddedMethod.getModifier());
 
         // remove methods
         clazz.removeMethod(clazz.getMethods()[1]);
         this.assertEquals(1, clazz.getMethods().length);
 
-
         // update label and modifier
         clazz.updateLabel('UpdatedLabel');
         clazz.updateModifier('UpdatedMod');
 
-        let clazzUpdated = <Clazz>this.graph.$graphModel.nodes[0];
+        let clazzUpdated = <Class>this.graph.$graphModel.nodes[0];
         this.assertNotNull(clazzUpdated);
-        this.assertEquals('UpdatedLabel', clazzUpdated.label);
+        this.assertEquals('UpdatedLabel', clazzUpdated.getId());
         this.assertEquals('UpdatedMod', clazzUpdated.modifier);
 
-
         // add new class
-        this.graph.$graphModel.addElement('Clazz');
+        this.graph.$graphModel.addElement('Class');
         this.assertEquals(2, this.graph.$graphModel.nodes.length);
 
-
         // assign an edge between A -> B
-        this.graph.$graphModel.addEdge({ source: clazz.label, target: this.graph.$graphModel.nodes[1].label })
+        this.graph.$graphModel.addEdge({ source: clazz.getId(), target: this.graph.$graphModel.nodes[1].getId() })
         this.assertEquals(1, this.graph.$graphModel.edges.length);
 
         let edge = this.graph.$graphModel.edges[0];
-        this.assertEquals(clazz.label, edge.source);
-
+        this.assertEquals(clazz.getId(), edge.source);
 
         // // remove the last class
         // this.graph.$graphModel.removeElement(this.graph.$graphModel.nodes[1].id);

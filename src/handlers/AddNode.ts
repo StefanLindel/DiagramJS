@@ -224,7 +224,7 @@ export class AddNode implements EventHandler {
         }
 
         this.removeRect();
-        let node = this.graph.addElementWithValues('Clazz', { x: this.x, y: this.y });
+        let node = this.graph.addElementWithValues('Class', { x: this.x, y: this.y });
         this.graph.drawElement(node);
     }
 

@@ -1,0 +1,33 @@
+language: nodejs
+
+before_script:
+  - yarn run setup
+  - yarn run build
+
+script:
+  - yarn run test-only
+
+after_success:
+  - yarn run typedoc
+  - yarn pack
+
+deploy:
+  - provider: pages
+    skip_cleanup: true
+    local_dir: docs/
+    github_token: $GITHUB_TOKEN
+    on:
+      tags: true
+  - provider: releases
+    api_key: $GITHUB_TOKEN
+    file_glob: true
+    file: "{YOURLIB}-*.tgz"
+    skip_cleanup: true
+    on:
+      tags: true
+  - provider: npm
+    skip_cleanup: true
+    email: "youremail@example.com"
+    api_key: $NPM_TOKEN
+    on:
+      tags: true

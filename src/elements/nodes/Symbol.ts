@@ -721,7 +721,7 @@ export class SymbolLibary {
         });
     }
 
-    public static drawClazz(node: DiagramElement): DiagramElement {
+    public static drawClass(node: DiagramElement): DiagramElement {
 
         let btnX = 0, btnY = 0, btnWidth = 0, btnHeight = 0;
         return SO.create({

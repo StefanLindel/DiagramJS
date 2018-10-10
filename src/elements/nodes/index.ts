@@ -4,7 +4,7 @@ import { Div } from './Div';
 import { Label } from './Label';
 
 export * from './Node';
-export * from './Clazz';
+export * from './Class';
 export * from './SO';
 export * from './Symbol';
 

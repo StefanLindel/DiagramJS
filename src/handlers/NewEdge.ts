@@ -1,7 +1,7 @@
 import { DiagramElement } from '../elements/BaseElements';
 import { Graph } from '../elements/Graph';
 import { Util } from '../util';
-import { Clazz } from '../elements/nodes/Clazz';
+import { Class } from '../elements/nodes/Class';
 import { EventHandler, EventBus } from '../EventBus';
 import { Association } from '../elements/index';
 import { Node } from '../elements/nodes/index';
@@ -158,7 +158,7 @@ export class NewEdge implements EventHandler {
             return;
         }
         this.isEdgeDrawing = true;
-        this.sourceNode = element as Clazz;
+        this.sourceNode = element as Class;
 
         this.x = this.sourceNode.getPos().x + (this.sourceNode.getSize().x / 2);
         this.y = this.sourceNode.getPos().y + (this.sourceNode.getSize().y / 2);

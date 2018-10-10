@@ -376,14 +376,15 @@ export class Graph extends Control {
         return element;
     }
 
-    public layout(dontDraw?: boolean) {
+    public layout(dontDraw?: boolean): Graph {
         this.getLayout().layout(this, this.$graphModel);
 
         if (dontDraw) {
-            return;
+            return this;
         }
 
         this.draw();
+        return this;
     }
 
     public getEvents(): string[] {
@@ -423,7 +424,10 @@ export class Graph extends Control {
             EventBus.register(edge, svg);
             root.appendChild(svg);
         }
+    }
 
+    public getNode(id: string) {
+        return this.$graphModel.getNodeById(id);
     }
 
     public drawElement(element: DiagramElement): void {

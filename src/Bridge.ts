@@ -5,9 +5,9 @@ import * as adapters from './adapters';
 import Data from './Data';
 import {Control} from './Control';
 import {Adapter} from './Adapter';
-import {Graph} from './elements/Graph';
+import {Graph} from './elements';
 import {Util} from './util';
-import {Point} from './elements/BaseElements';
+import {Point} from './elements';
 
 export class Bridge extends Control {
     // noinspection JSUnusedGlobalSymbols

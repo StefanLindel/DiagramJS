@@ -1,7 +1,7 @@
 import * as cases from './cases';
 import {TestCase} from './TestCase';
 
-export default class TestFramework {
+export class TestFramework {
     public cases: any;
     public runningCases: Promise<boolean>[] = [];
     public valid: TestCase[] = [];
@@ -65,4 +65,7 @@ export default class TestFramework {
         caseInstance.cleanup();
         // });
     }
+}
+if (!window['TestFramework']) {
+    window['TestFramework'] = TestFramework;
 }
