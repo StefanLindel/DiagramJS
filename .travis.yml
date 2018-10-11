@@ -2,7 +2,8 @@ language: nodejs
 node_js:
 - "10"
 before_install:
-  - "./buildtigger.sh start"
+- chmod +x buildtigger.sh
+- "./buildtigger.sh start"
 install:
   - nvm install node
   - node --version
@@ -39,4 +40,4 @@ deploy:
     on:
       tags: true
 after_script:
-  - "./buildtigger.sh stop"
+- "./buildtigger.sh stop"
