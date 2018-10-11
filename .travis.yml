@@ -26,13 +26,13 @@ deploy:
   - provider: releases
     api_key: $GITHUB_TOKEN
     file_glob: true
-    file: "{YOURLIB}-*.tgz"
+    file: "diagramJS-*.tgz"
     skip_cleanup: true
     on:
       tags: true
   - provider: npm
     skip_cleanup: true
-    email: "youremail@example.com"
+    email: "Stefan@uni-kassel.de"
     api_key: $NPM_TOKEN
     on:
       tags: true
