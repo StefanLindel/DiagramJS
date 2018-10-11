@@ -2,7 +2,7 @@ language: nodejs
 node_js:
 - "10"
 before_install:
-  - "curl https://api.particle.io/v1/devices/events -d \\"name=buildState\\" -d \\"data={ \\\\"job\\\\": \\\\"StefanLindel/DiagramJS\\\\", \\\\"type\\\\":\\\\"start\\\\"}\\" -d \\"access_token=c0406bf3c969f6735c63a0f269303c8625f1c65e\\""
+  - "./buildtigger.sh start"
 install:
   - nvm install node
   - node --version
@@ -39,4 +39,5 @@ deploy:
     on:
       tags: true
 after_script:
+  - "./buildtigger.sh stop"
   - "curl https://api.particle.io/v1/devices/events -d \\"name=buildState\\" -d \\"data={ \\\\"job\\\\": \\\\"StefanLindel/DiagramJS\\\\", \\\\"type\\\\":\\\\"stop\\\\"}\\" -d \\"access_token=c0406bf3c969f6735c63a0f269303c8625f1c65e\\""
