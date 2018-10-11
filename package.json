@@ -5,7 +5,7 @@
   "license": "MIT",
   "repository": {
     "type": "git",
-    "url": "https://gitlab.com/Promotion_PetaF/DiagramJS.git"
+    "url": "https://github.com/StefanLindel/DiagramJS.git"
   },
   "devDependencies": {
     "source-map-loader": "^0.2.3",
