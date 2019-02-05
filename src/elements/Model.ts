@@ -234,11 +234,14 @@ export class GraphModel extends DiagramElement {
         if (sourceAsString) {
             source = this.getNodeById(sourceAsString);
             if (!source) {
-                let id = edge.source;
-                if (typeof id === 'object') {
-                    id = id.id;
+                let nodeID = edge.source;
+                if (typeof nodeID === 'object') {
+                    nodeID = nodeID.id;
                 }
-                source = <Node>this.createElement('Class', this.getNewId('Class'), {name: id});
+				if(!nodeID) {
+					nodeID = this.getNewId('Class');
+				}
+                source = <Node>this.createElement('Class', nodeID, {name: nodeID});
                 source.init(this);
             }
         }
@@ -248,11 +251,14 @@ export class GraphModel extends DiagramElement {
         if (targetAsString) {
             target = this.getNodeById(targetAsString);
             if (!target) {
-                let id = edge.target;
-                if (typeof id === 'object') {
-                    id = id.id;
+                let nodeID = edge.target;
+                if (typeof nodeID === 'object') {
+                    nodeID = nodeID.id;
                 }
-                target = <Node>this.createElement('Class', this.getNewId('Class'), {name: id});
+				if(!nodeID) {
+					nodeID = this.getNewId('Class');
+				}
+                target = <Node>this.createElement('Class', nodeID, {name: nodeID});
                 target.init(this);
             }
         }

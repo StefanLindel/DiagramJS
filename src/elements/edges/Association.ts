@@ -116,7 +116,7 @@ export class Association extends DiagramElement {
         };
         let pathLine = this.createShape(attr);
 
-        attr['style'] = 'stroke-width:20;opacity:0;width:20;height:20';
+        //attr['style'] = 'stroke-width:20;opacity:0;width:20;height:20';
         let extendedPathLine = Util.createShape(attr);
 
         group.appendChild(extendedPathLine);

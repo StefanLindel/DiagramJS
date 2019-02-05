@@ -29,7 +29,8 @@ export default class Palette {
                 button.innerHTML = icon.outerHTML;
                 button.onclick = e => {
                     let nextFreePosition = this.graph.getNextFreePosition();
-                    let node = this.graph.addElementWithValues(graph.nodeFactory[key], {x: nextFreePosition.x, y: nextFreePosition.y}, false);
+                    // let node = this.graph.addElementWithValues(graph.nodeFactory[key], {x: nextFreePosition.x, y: nextFreePosition.y}, false);
+                    let node = this.graph.addElementWithValues(key, {x: nextFreePosition.x, y: nextFreePosition.y}, false);
                     this.graph.drawElement(node);
                 };
                 this.palette.appendChild(button);

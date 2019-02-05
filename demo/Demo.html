@@ -1,13 +1,15 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <title>Form</title>
-    <script language="Javascript" src="../dist/diagram.js"></script>
+<html><head>
+	<meta charset="utf-8">
+	<title>Bridge - Simple Example</title>
+	<script language="Javascript" src="../dist/diagram.js"></script>
+	<link type="text/css" rel="stylesheet" href="material.css">
+	<link type="text/css" rel="stylesheet" href="diagramstyle.css">
 </head>
-<body>
-<!--<form id="form"></form>-->
-</body>
+<body style="margin-left:30px;margin-top:30px">
+
+<table><tr><td>
+<b>AutoFormular</b>
+
 <script type="text/javascript">
     let bridge = new DiagramJS.Bridge();
     var json = {
@@ -86,4 +88,44 @@
 //    var test = bridge.getItem("t1");
 //    var x = test;
 </script>
-</html>
+
+</td><td>
+<b>Tabelle</b>
+<table class="mdl-data-table mdl-js-data-table mdl-data-table--selectable mdl-shadow--2dp" id="control1" class="table">
+	<thead>
+		<tr>
+			<td colspan="8">
+				<input class="search">
+				<svg width="16" height="16"><path style="fill:#007fff;" d="M 9.5,7.8 C 9.3,8.1 9,8.4 8.7,8.8 8.3,9.1 7.9,9.4 7.6,9.5 L 13.6,15.2 15.5,13.5 9.5,7.8 Z"></path><circle style="fill:none;stroke:#007fff;stroke-width:1;" cx="5" cy="5" r="4"></circle></svg>
+				</td>
+			</tr>
+		<tr>
+			<th class="sort">room<div style="border:1px solid red;" class="resize"></th>
+			<th class="sort">day</th>
+			<th class="sort">talk</th>
+			<th class="sort">state</th>
+			
+		</tr>
+	</thead>
+	<tbody>
+		<tr>
+			<td>Heyl</td>
+			<td>Monday</td>
+			<td>01. Schulze</td>
+			<td>ok</td> 
+		</tr>
+		<tr>
+			<td>Heyl</td>
+			<td>Monday</td>
+			<td>02. Schmidt</td>
+			<td>ok</td>
+		</tr>
+	</tbody>
+	</table>
+<!--<th class="tableOption">
+				<div class="dropdown-content" style="position: absolute;">
+					<a href="javascript:void(0);">fix</a>
+				</div>
+			</th>-->
+</tr></table>
+</body></html>

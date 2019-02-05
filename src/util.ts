@@ -15,7 +15,11 @@ export class Util {
     static createShape(attrs: any): SVGSVGElement {
         let xmlns = attrs.xmlns || 'http://www.w3.org/2000/svg';
         let shape = document.createElementNS(xmlns, attrs.tag);
+
         for (let attr in attrs) {
+            if (!attrs.hasOwnProperty(attr)) {
+                continue;
+            }
             if (attr !== 'tag') {
                 shape.setAttribute(attr, attrs[attr]);
 
@@ -394,6 +398,9 @@ export class Util {
                     if (!ref.getAttribute(i)) {
                         if (src[i] instanceof Array) {
                             for (let c in src[i]) {
+                                if (!src[i].hasOwnProperty(c)) {
+                                    continue;
+                                }
                                 name = src[i][c].constructor.name;
                                 let child = doc.createElement(name);
                                 ref.appendChild(child);
@@ -543,6 +550,9 @@ export class Util {
             let idx = s.indexOf(searchS);
             return idx > -1;
         }
+        if (s === null) {
+            return false;
+        }
 
         return s.includes(searchS);
     }
@@ -555,7 +565,7 @@ export class Util {
 
         if (Util.isIE()) {
             let children = parent.childNodes;
-            let found = false;
+            // let found = false;
             for (let i = 0; i < children.length; i++) {
                 let childItem = children[i];
                 if (childItem === child) {
