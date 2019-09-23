@@ -56,14 +56,14 @@ export default class Method extends ClazzProperty {
                 if (firstChar === '+' || firstChar === '-' || firstChar === '#') {
                     this.updateModifier(firstChar);
                     this.updateName(modifierAndNameSplitted.substring(1, modifierAndNameSplitted.length).trim());
-                }  else {
+                } else {
                     this.updateName(modifierAndNameSplitted);
                 }
                 this.updateType('void');
             }
         }
 
-        if (Util.includes(this.$data.getValue('name'), '(') && !Util.includes(this.$data.getValue('name'), ')') === false) {
+        if (Util.includes(this.$data.getValue('name'), '(') && Util.includes(this.$data.getValue('name'), ')') === false) {
             this.$data.setValue('name', this.$data.getValue('name') + '()');
         }
     }

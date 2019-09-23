@@ -191,11 +191,11 @@ export class Select implements EventHandler {
                     if (Util.includes(inputValue, ':')) {
                         clazz.addAttribute(inputValue.trim());
                         clazz.reDraw();
-                    } else if (Util.includes(inputValue, '=') ) {
+                    } else if (Util.includes(inputValue, '=')) {
                         let attr: Attribute = null;
                         let name = inputValue.substring(0, inputValue.indexOf('=')).trim();
-                        for (let child of clazz.getAttributes() ) {
-                            if ( name === child.getName()) {
+                        for (let child of clazz.getAttributes()) {
+                            if (name === child.getName()) {
                                 attr = child;
                                 break;
                             }
@@ -205,16 +205,17 @@ export class Select implements EventHandler {
                         }
                         clazz.reDraw();
                     }
+                    // label
+                    else if (inputValue.trim().split(' ').length === 1 && inputValue.trim().length > 0) {
+                        clazz.id = inputValue.trim();
+                        clazz.updateLabel(inputValue.trim());
+                    }
                 }
 
                 // method
                 else if (Util.includes(inputValue, '(') && Util.includes(inputValue, ')')) {
                     clazz.addMethod(inputValue.trim());
                     clazz.reDraw();
-                }
-                // label
-                else if (inputValue.trim().split(' ').length === 1 && inputValue.trim().length > 0) {
-                    clazz.updateLabel(inputValue.trim());
                 }
 
                 // reset size
