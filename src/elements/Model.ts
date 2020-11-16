@@ -319,7 +319,7 @@ export class GraphModel extends DiagramElement {
         this.$view = graph.root;
         graph.$view.appendChild(graph.root);
 
-        let mousewheel = 'onwheel' in document.createElement('div') ? 'wheel' : document.onmousewheel !== undefined ? 'mousewheel' : 'DOMMouseScroll';
+        let mousewheel = 'onwheel' in document.createElement('div') ? 'wheel' : document['onmousewheel'] !== undefined ? 'mousewheel' : 'DOMMouseScroll';
         EventBus.register(this, this.$view);
     }
 

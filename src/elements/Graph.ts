@@ -639,7 +639,7 @@ export class Graph extends Control {
                 EventBus.subscribe(this.importFile, 'dragover', 'dragleave', 'drop');
             }
             if (features.zoom) {
-                let mousewheel = 'onwheel' in document.createElement('div') ? 'wheel' : document.onmousewheel !== undefined ? 'mousewheel' : 'DOMMouseScroll';
+                let mousewheel = 'onwheel' in document.createElement('div') ? 'wheel' : document['onmousewheel'] !== undefined ? 'mousewheel' : 'DOMMouseScroll';
                 EventBus.subscribe(new Zoom(this), mousewheel);
             }
             if (features.drag) {

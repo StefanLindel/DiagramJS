@@ -84,13 +84,12 @@ export class ImportFile implements EventHandler {
         let that = this;
         for (let i = 0, f; f = files[i]; i++) {
             reader.onload = function(event) {
-                htmlResult = event.target['result'];
-                console.log('fileContent: ' + htmlResult);
-
-                // CHANGE TO INTERNAL OBJECT
-                if (that.graph) {
-                    that.graph.import(htmlResult);
-                }
+				htmlResult = ''+event.target['result'];
+				console.log('fileContent: ' + htmlResult);
+				// CHANGE TO INTERNAL OBJECT
+				if (that.graph) {
+					that.graph.import(htmlResult);
+				}
             };
             reader.readAsText(f);
         }
