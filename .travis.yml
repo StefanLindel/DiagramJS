@@ -9,6 +9,7 @@ install:
   - node --version
   - npm --version
   - nvm --version
+  - npm i webpack-cli
   - npm run setup
   - npm run build
 

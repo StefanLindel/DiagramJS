@@ -16,12 +16,13 @@
   },
   "main": "dist/diagram.js",
   "dependencies": {
-    "tslint": "^5.20.1"
+    "tslint": "^5.20.1",
+    "webpack-cli": "^4.2.0"
   },
   "scripts": {
     "setup": "npm install",
     "test-only": "webpack --config test.config.js",
     "build": "webpack",
-    "start": "yarn build && webpack-dev-server --inline"
+    "start": "npm build && webpack-dev-server --inline"
   }
 }
